@@ -227,9 +227,9 @@ int perform_index_operation(struct tdisk *td_dev, int direction, struct mapped_s
 
 	//Read/Write index operation
 	if(direction == READ)
-		memcpy(index, td_dev->indices+position, length);
+		memcpy(&index->physical_sector, td_dev->indices+position, length);
 	else
-		memcpy(td_dev->indices+position, index, length);
+		memcpy(td_dev->indices+position, &index->physical_sector, length);
 
 	return 0;
 }
@@ -450,7 +450,7 @@ int make_disk_requests(struct tdisk *td_dev, MBdeque *requests, int direction, s
 			continue;
 		}
 		physical_disk = index->physical_sector.disk - 1;	//-1 because 0 means unused
-		first_sector = index->physical_sector.sector;	//-1 because 0 means unused
+		first_sector = index->physical_sector.sector;
 
 		//Allocate struct bio with enough struct bio_vec's to store the requests
 		bio_req = bio_kmalloc(__GFP_WAIT, current_requests->count);	//TODO: __GFP_WAIT --> deadlock?

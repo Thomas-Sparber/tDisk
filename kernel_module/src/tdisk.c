@@ -138,6 +138,11 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 	loff_t pos;
 	int ret = 0;
 	MBdeque *requests;
+	int direction = READ;
+	unsigned int k = 0;
+	unsigned int j = 0;
+	MBdeque *current_requests = NULL;
+	struct mapped_sector_index *index;
 
 	pos = (loff_t)blk_rq_pos(rq) << 9;
 
@@ -160,7 +165,7 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 	//Normal file operation
 	rq_for_each_segment(bvec, rq, iter)
 	{
-		int direction = (rq->cmd_flags & REQ_WRITE) ? WRITE : READ;
+		direction = (rq->cmd_flags & REQ_WRITE) ? WRITE : READ;
 		tdisk_operation_internal(td, requests, direction, pos, bvec.bv_len);
 
 		if(rq->cmd_flags & REQ_WRITE)
@@ -213,6 +218,77 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 		}
 
 		cond_resched();
+	}
+
+	//Create struct bio's
+	for(k = 0; k < requests->count; ++k)
+	{
+		u8 physical_disk;
+		sector_t first_sector;
+
+		current_requests = MBdeque_get_at(requests, k);
+		if(current_requests == NULL)
+		{
+			//Request was splitted TODO
+			continue;
+		}
+
+		//Check for empty request list
+		if(current_requests->count <= 0)
+		{
+			printk(KERN_ERR "tDisk: Skipping empty request list\n");
+
+			MBdeque_delete(current_requests);
+
+			continue;
+		}
+
+		//Check if disk is full
+		index = MBdeque_get_at(current_requests, 0);
+		if(index->physical_sector.disk <= 0)
+		{
+			printk(KERN_ERR "tDisk: disk full! More space was allocated than disks attached!\n");
+
+			//Free resources
+			for(j = 0; j < current_requests->count; ++j)
+			{
+				index = MBdeque_get_at(current_requests, j);
+				vfree(index);
+			}
+			MBdeque_delete(current_requests);
+
+			continue;
+		}
+		physical_disk = index->physical_sector.disk - 1;	//-1 because 0 means unused
+		first_sector = index->offset + index->physical_sector.sector;
+
+		//Process requests
+		for(j = 0; j < current_requests->count; ++j)
+		{
+			index = MBdeque_get_at(current_requests, j);
+
+			printk(KERN_DEBUG "tDisk: Physical disk request: Physical-Start: %llu, Physical-End: %llu, Actual length (%u bytes) Request: %u/%u\n",
+													first_sector,
+													first_sector+1,
+													512U,
+													j, current_requests->count);
+
+			//if(!bio_add_page(bio_req, virt_to_page(buffer), td_dev->blocksize, (index->logical_sector-first) * td_dev->blocksize))
+			//{
+			//	printk(KERN_ERR "tDisk: bio_add_page failed!\n");
+			//}
+
+			if(direction == WRITE)
+			{
+				//Save index
+				int internal_ret = perform_index_operation(td, WRITE, index);
+				if(internal_ret != 0)ret = internal_ret;
+			}
+
+			vfree(index);
+		}
+
+		MBdeque_delete(current_requests);
 	}
 
 	MBdeque_delete(requests);
@@ -307,7 +383,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	blocksize = S_ISBLK(inode->i_mode) ? inode->i_bdev->bd_block_size : PAGE_SIZE;
 
 	error = -EFBIG;
-	size = get_tdisk_size(td, file);
+	size = get_tdisk_size(td, file) - ((td->index_size*td->blocksize) >> 9);
 	if((loff_t)(sector_t)size != size)
 		goto out_putf;
 
@@ -321,9 +397,18 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	td->free_sectors = MBdeque_create();
 	for(sector = 0; sector < size; ++sector)
 	{
-		sector_t *temp = vmalloc(sizeof(sector_t));
-		(*temp) = sector;
-		MBdeque_push_back(td->free_sectors, temp);
+		//sector_t *temp = vmalloc(sizeof(sector_t));
+		//(*temp) = sector;
+		//MBdeque_push_back(td->free_sectors, temp);
+		struct mapped_sector_index index = {
+			.offset = 0,
+			.logical_sector = td->size_blocks++,
+			.physical_sector = {
+				.disk = 0,	//TODO
+				.sector = sector
+			}
+		};
+		perform_index_operation(td, WRITE, &index);
 	}
 
 	error = 0;
@@ -420,7 +505,7 @@ static int tdisk_clr_fd(struct tdisk *td)
 		kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);
 	}
 
-	//Free free_indices
+	//Free free_sectors
 	for(i = 0; i < td->free_sectors->count; ++i)
 		vfree((sector_t*)MBdeque_get_at(td->free_sectors, i));
 	MBdeque_delete(td->free_sectors);

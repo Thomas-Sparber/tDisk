@@ -1,1 +1,0 @@
-cmd_/home/pi/tdisk/kernel_module/tdisk.ko := ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/pi/tdisk/kernel_module/tdisk.ko /home/pi/tdisk/kernel_module/tdisk.o /home/pi/tdisk/kernel_module/tdisk.mod.o

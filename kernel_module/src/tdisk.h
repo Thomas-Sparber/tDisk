@@ -27,6 +27,7 @@ struct tdisk {
 	struct file			*lo_backing_file;
 	struct block_device	*block_device;
 	unsigned int		blocksize;
+	sector_t			size_blocks;
 
 	gfp_t		old_gfp_mask;
 

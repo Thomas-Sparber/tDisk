@@ -16,13 +16,16 @@
 #define DRIVER_MAJOR_VERSION 1
 #define DRIVER_MINOR_VERSION 0
 
+typedef u8 tdisk_index;
+#define TDISK_MAX_PHYSICAL_DISKS ((tdisk_index)-1 -1) /*-1 because 0 means unused*/
+
 /**
   * A index represents the physical location of a logical sector
  **/
 struct sector_index
 {
 	//The disk where the logical sector is stored
-	u8 disk;
+	tdisk_index disk;
 
 	//The physical sector on the disk where the logica sector is stored
 	sector_t sector;

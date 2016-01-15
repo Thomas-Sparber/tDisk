@@ -17,12 +17,10 @@
 #include <linux/miscdevice.h>
 #include <linux/falloc.h>
 #include <linux/uio.h>
- 
-#include "tier_disk.h"
+
 #include "helpers.h"
 #include "tdisk.h"
 #include "tdisk_control.h"
-#include "mbds/deque.h"
 
 
 static u_int TD_MAJOR = 0;
@@ -128,6 +126,20 @@ static int td_req_flush(struct tdisk *td, struct request *rq)
 		ret = -EIO;
 
 	return ret;
+}
+
+int perform_index_operation(struct tdisk *td_dev, int direction, struct mapped_sector_index *index)
+{
+	loff_t position = index->logical_sector * sizeof(struct sector_index);
+	unsigned int length = sizeof(struct sector_index);
+
+	//Read/Write index operation
+	if(direction == READ)
+		memcpy(&index->physical_sector, td_dev->indices+position, length);
+	else
+		memcpy(td_dev->indices+position, &index->physical_sector, length);
+
+	return 0;
 }
 
 static int do_req_filebacked(struct tdisk *td, struct request *rq)

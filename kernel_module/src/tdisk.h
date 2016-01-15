@@ -16,6 +16,37 @@
 #define DRIVER_MAJOR_VERSION 1
 #define DRIVER_MINOR_VERSION 0
 
+/**
+  * A index represents the physical location of a logical sector
+ **/
+struct sector_index
+{
+	//The disk where the logical sector is stored
+	u8 disk;
+
+	//The physical sector on the disk where the logica sector is stored
+	sector_t sector;
+}; //end struct sector_index;
+
+/**
+  * A mapped_sector_index represents the mapping of a logical sector
+  * to a physical (disk & sector) sector
+ **/
+struct mapped_sector_index
+{
+	loff_t offset;
+	sector_t logical_sector;
+	struct sector_index physical_sector;
+}; //end struct mapped sector index
+
+struct td_internal_device
+{
+	struct file *backing_file;
+	gfp_t old_gfp_mask;
+
+	unsigned int speed;
+}; //end struct td_internal_device
+
 /* Possible states of device */
 enum {
 	state_unbound,

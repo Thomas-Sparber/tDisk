@@ -69,14 +69,16 @@ struct tdisk {
 	unsigned int		blocksize;
 	sector_t			size_blocks;
 
-	gfp_t		old_gfp_mask;
+	//The actual disks
+	tdisk_index internal_devices_count;
+	struct td_internal_device *internal_devices;
 
 	spinlock_t				lock;
 	int						state;
 	struct mutex			ctl_mutex;
 
 	struct kthread_worker	worker;
-	struct task_struct	*worker_task;
+	struct task_struct		*worker_task;
 
 	struct request_queue	*queue;
 	struct blk_mq_tag_set	tag_set;

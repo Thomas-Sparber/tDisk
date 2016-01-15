@@ -84,22 +84,30 @@ static int td_discard(struct tdisk *td, struct request *rq, loff_t pos)
 	 * We use punch hole to reclaim the free space used by the
 	 * image a.k.a. discard.
 	 */
-	struct file *file = td->lo_backing_file;
-	int mode = FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE;
-	int ret;
-
-	if((!file->f_op->fallocate))
+	unsigned int i;
+	int ret = 0;
+	int internal_ret = 0;
+	for(i = 0; i < td->internal_devices_count; ++i)
 	{
-		ret = -EOPNOTSUPP;
-		goto out;
+		struct file *file = td->internal_devices[i].backing_file;
+		if(file)
+		{
+			int mode = FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE;
+
+			if((!file->f_op->fallocate))
+			{
+				ret = -EOPNOTSUPP;
+				continue;
+			}
+
+			internal_ret = file->f_op->fallocate(file, mode, pos, blk_rq_bytes(rq));
+			if(internal_ret)ret = internal_ret;
+
+			if(unlikely(ret && ret != -EINVAL && ret != -EOPNOTSUPP))
+				ret = -EIO;
+		}
 	}
 
-	ret = file->f_op->fallocate(file, mode, pos, blk_rq_bytes(rq));
-
-	if(unlikely(ret && ret != -EINVAL && ret != -EOPNOTSUPP))
-		ret = -EIO;
-
- out:
 	return ret;
 }
 
@@ -119,11 +127,19 @@ static int td_flush(struct tdisk *td)
 
 static int td_req_flush(struct tdisk *td, struct request *rq)
 {
-	struct file *file = td->lo_backing_file;
-	int ret = vfs_fsync(file, 0);
+	unsigned int i;
+	int ret = 0;
+	for(i = 0; i < td->internal_devices_count; ++i)
+	{
+		struct file *file = td->internal_devices[i].backing_file;
+		if(file)
+		{
+			int internal_ret = vfs_fsync(file, 0);
 
-	if(unlikely(ret && ret != -EINVAL))
-		ret = -EIO;
+			if(unlikely(internal_ret && internal_ret != -EINVAL))
+				ret = -EIO;
+		}
+	}
 
 	return ret;
 }
@@ -168,9 +184,10 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 		goto finished;
 	}
 
-	//Normal file operation
+	//Normal file operations
 	rq_for_each_segment(bvec, rq, iter)
 	{
+		struct file *file;
 		loff_t sector = pos_byte;
 		loff_t offset = __div64_32(&sector, td->blocksize);
 		sector_t actual_pos_byte;
@@ -182,42 +199,49 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 
 		actual_pos_byte = index.physical_sector.sector*td->blocksize + index.offset;
 
-		printk_ratelimited(KERN_DEBUG "tDisk: Logical sector:%llu (%llu), disk:%u, physical sector:%llu, offset: %llu (=%llu)\n",
+		if(index.physical_sector.disk == 0 || index.physical_sector.disk > td->internal_devices_count)
+		{
+			printk_ratelimited(KERN_ERR "tDisk: found invalid disk index for reading logical sector %llu: %u\n", index.logical_sector, index.physical_sector.disk);
+			ret = -EIO;
+			break;
+		}
+
+		file = td->internal_devices[index.physical_sector.disk - 1].backing_file;	//-1 because 0 means unused
+		if(!file)
+		{
+			printk_ratelimited(KERN_DEBUG "tDisk: backing_file is NULL, Disk probably not yet loaded...\n");
+			ret = -EIO;
+			continue; //TODO continue or break??
+		}
+
+		/*printk(KERN_DEBUG "tDisk: Logical sector:%llu (%llu), disk:%u, physical sector:%llu, offset: %llu (=%llu)\n",
 								index.logical_sector,
 								pos_byte,
 								index.physical_sector.disk,
 								index.physical_sector.sector,
 								index.offset,
-								actual_pos_byte);
+								actual_pos_byte);*/
+
+		iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, bvec.bv_len);
 
 		if(rq->cmd_flags & REQ_WRITE)
 		{
-			//Write operation
-			struct iov_iter i;
-			ssize_t bw;
+			file_start_write(file);
+			len = vfs_iter_write(file, &i, &actual_pos_byte);
+			file_end_write(file);
 
-			iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, bvec.bv_len);
-
-			file_start_write(td->lo_backing_file);
-			bw = vfs_iter_write(td->lo_backing_file, &i, &pos_byte);
-			file_end_write(td->lo_backing_file);
-
-			if(unlikely(bw != bvec.bv_len))
+			if(unlikely(len != bvec.bv_len))
 			{
-				printk_ratelimited(KERN_ERR "tDisk: Write error at byte offset %llu, length %i.\n", (unsigned long long)pos_byte, bvec.bv_len);
+				printk(KERN_ERR "tDisk: Write error at byte offset %llu, length %i.\n", (unsigned long long)pos_byte, bvec.bv_len);
 
-				if(bw >= 0)
-					ret = -EIO;
-				else
-					ret = bw;
+				if(len >= 0)ret = -EIO;
+				else ret = len;
 				break;
 			}
 		}
 		else
 		{
-			//Read operation
-			iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, bvec.bv_len);
-			len = vfs_iter_read(td->lo_backing_file, &i, &pos_byte);
+			len = vfs_iter_read(file, &i, &actual_pos_byte);
 
 			if(len < 0)
 			{
@@ -230,15 +254,12 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 			if(len != bvec.bv_len)
 			{
 				struct bio *bio;
-
-				__rq_for_each_bio(bio, rq)
-					zero_fill_bio(bio);
-
+				__rq_for_each_bio(bio, rq)zero_fill_bio(bio);
 				break;
 			}
-
 		}
 
+		pos_byte += len;
 		cond_resched();
 	}
 
@@ -317,46 +338,32 @@ static int prepare_queue(struct tdisk *td)
 
 static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bdev, unsigned int arg)
 {
-	struct file	*file, *f;
+	struct file	*file;
 	struct inode *inode;
 	struct address_space *mapping;
-	unsigned int blocksize;
 	int flags = 0;
 	int error;
 	loff_t size;
-	sector_t sector;
+	loff_t size_counter = 0;
+	sector_t sector = 0;
 	struct mapped_sector_index index;
+	struct td_internal_device *new_device = NULL;
+	int first_device = (td->internal_devices_count == 0);
 
 	//This is safe, since we have a reference from open().
-	__module_get(THIS_MODULE);
+	if(first_device)
+		__module_get(THIS_MODULE);
 
 	error = -EBADF;
 	file = fget(arg);
 	if(!file)
 		goto out;
 
-	error = -EBUSY;
-	if(td->state != state_unbound)
-		goto out_putf;
-
-	//Avoid recursion
-	f = file;
-	while(is_tdisk(f))
+	//Don't add current tDisk as backend file
+	if(is_tdisk(file) && file->f_mapping->host->i_bdev == bdev)
 	{
-		struct tdisk *l;
-
-		if(f->f_mapping->host->i_bdev == bdev)
-			goto out_putf;
-
-		l = f->f_mapping->host->i_bdev->bd_disk->private_data;
-
-		if(l->state == state_unbound)
-		{
-			error = -EINVAL;
-			goto out_putf;
-		}
-
-		f = l->lo_backing_file;
+		printk(KERN_WARNING "tDisk: Can't add myself as a backend file\n");
+		goto out_putf;
 	}
 
 	mapping = file->f_mapping;
@@ -364,56 +371,104 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 
 	error = -EINVAL;
 	if(!S_ISREG(inode->i_mode) && !S_ISBLK(inode->i_mode))
+	{
+		printk(KERN_WARNING "tDisk: Given file is not a regular file and not a blockdevice\n");
 		goto out_putf;
+	}
 
 	if(!(file->f_mode & FMODE_WRITE) || !(mode & FMODE_WRITE) || !file->f_op->write_iter)
-		flags |= TD_FLAGS_READ_ONLY;
+	{
+		if(td->internal_devices_count && !(td->flags & TD_FLAGS_READ_ONLY))
+		{
+			printk(KERN_WARNING "Can't add a readonly file to a non read only device!\n");
+			error = -EPERM;
+			goto out_putf;
+		}
 
-	blocksize = S_ISBLK(inode->i_mode) ? inode->i_bdev->bd_block_size : PAGE_SIZE;
+		flags |= TD_FLAGS_READ_ONLY;
+	}
+
+	//File size in 512 byte blocks
+	size = get_tdisk_size(td, file);
+
+	error = -EINVAL;
+	if(size < (((td->index_size+1)*td->blocksize) >> 9))	//Disk too small
+	{
+		printk(KERN_WARNING "tDisk: Can't add disk, too small: %llu. Should be at least %u\n", size, (((td->index_size+1)*td->blocksize) >> 9));
+		goto out_putf;
+	}
+
+	size -= (td->index_size*td->blocksize) >> 9;
 
 	error = -EFBIG;
-	size = get_tdisk_size(td, file) - (td->index_size*td->blocksize);
 	if((loff_t)(sector_t)size != size)
 		goto out_putf;
 
-	error = prepare_queue(td);
-	if(error)
-		goto out_putf;
-
-	printk_ratelimited(KERN_DEBUG "tDisk: new physical disk: size: %llu bytes, blocksize: %u", size, blocksize);
-
-	//Add free sectors
-	for(sector = 0; sector < size; ++sector)
+	if(first_device)
 	{
-		index.offset = 0;
-		index.logical_sector = td->size_blocks++;
-		index.physical_sector.disk = 1;	//TODO
-		index.physical_sector.sector = sector;
-		perform_index_operation(td, WRITE, &index);
+		error = prepare_queue(td);
+		if(error)
+			goto out_putf;
 	}
+
+	if(td->internal_devices_count == TDISK_MAX_PHYSICAL_DISKS)
+	{
+		printk(KERN_ERR "tDisk: Limit (255) of devices reached.\n");
+		error = -ENODEV;
+		goto out_putf;
+	}
+
+	{
+		struct td_internal_device *new_devices = kzalloc(sizeof(struct td_internal_device) * (td->internal_devices_count+1), GFP_KERNEL);
+		if(new_devices == NULL)
+		{
+			error = -ENOMEM;
+			goto out_putf;
+		}
+		memcpy(new_devices, td->internal_devices, sizeof(struct td_internal_device) * td->internal_devices_count);
+		swap(td->internal_devices, new_devices);
+		td->internal_devices_count++;
+		kfree(new_devices);
+	}
+
+	new_device = &td->internal_devices[td->internal_devices_count-1];
+	new_device->old_gfp_mask = mapping_gfp_mask(mapping);
+	mapping_set_gfp_mask(mapping, new_device->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
+	new_device->speed = 0;	//TODO
+	new_device->backing_file = file;
 
 	error = 0;
 
 	set_device_ro(bdev, (flags & TD_FLAGS_READ_ONLY) != 0);
 
-	td->blocksize = blocksize;
 	td->block_device = bdev;
 	td->flags = flags;
-	td->lo_backing_file = file;
-	td->sizelimit = 0;
-	td->old_gfp_mask = mapping_gfp_mask(mapping);
-	mapping_set_gfp_mask(mapping, td->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
+
+
+	//Save sector indices
+	while((size_counter+td->blocksize) <= (size << 9))
+	{
+		size_counter += td->blocksize;
+		//printk(KERN_DEBUG "tDisk: adding logical sector: %llu (%llu/%llu)\n", td->index_size + td->size_blocks, size_counter, (size << 9));
+		index.offset = 0;
+		index.logical_sector = td->index_size + td->size_blocks++;
+		index.physical_sector.disk = 1;	//TODO
+		index.physical_sector.sector = td->index_size + sector++;
+		perform_index_operation(td, WRITE, &index);
+	}
+
+	printk(KERN_DEBUG "tDisk: new physical disk: size: %llu bytes. Logical size(%llu)\n", size << 9, td->size_blocks*td->blocksize);
 
 	if(!(flags & TD_FLAGS_READ_ONLY) && file->f_op->fsync)
 		blk_queue_flush(td->queue, REQ_FLUSH);
 
-	set_capacity(td->kernel_disk, size);
-	bd_set_size(bdev, size << 9);
+	set_capacity(td->kernel_disk, (td->size_blocks*td->blocksize) >> 9);
+	bd_set_size(bdev, td->size_blocks*td->blocksize);
 	//loop_sysfs_init(lo);
-	//let user-space know about the new size
+	//let user-space know about this change
 	kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);
 
-	set_blocksize(bdev, blocksize);
+	//set_blocksize(bdev, blocksize);
 
 	td->state = state_bound;
 	//ioctl_by_bdev(bdev, BLKRRPART, 0);
@@ -421,7 +476,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 
 	//Grab the block_device to prevent its destruction after we
 	//put /dev/tdX inode. Later in tdisk_clr_fd() we bdput(bdev).
-	bdgrab(bdev);
+	if(first_device)bdgrab(bdev);
 	return 0;
 
  out_putf:
@@ -434,8 +489,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 
 static int tdisk_clr_fd(struct tdisk *td)
 {
-	struct file *filp = td->lo_backing_file;
-	gfp_t gfp = td->old_gfp_mask;
+	unsigned int i;
 	struct block_device *bdev = td->block_device;
 
 	if(td->state != state_bound)
@@ -458,19 +512,15 @@ static int tdisk_clr_fd(struct tdisk *td)
 		return 0;
 	}
 
-	if(filp == NULL)
-		return -EINVAL;
-
 	//freeze request queue during the transition
 	blk_mq_freeze_queue(td->queue); 
 
-	spin_lock_irq(&td->lock);
+	//spin_lock_irq(&td->lock);
 	td->state = state_cleared;
-	td->lo_backing_file = NULL;
-	spin_unlock_irq(&td->lock);
+	//td->lo_backing_file = NULL;
+	//spin_unlock_irq(&td->lock);
 
 	td->block_device = NULL;
-	td->sizelimit = 0;
 	memset(td->file_name, 0, TD_NAME_SIZE);
 
 	if(bdev)
@@ -489,7 +539,6 @@ static int tdisk_clr_fd(struct tdisk *td)
 		kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);
 	}
 
-	mapping_set_gfp_mask(filp->f_mapping, gfp);
 	td->state = state_unbound;
 	//This is safe: open() is still holding a reference.
 	module_put(THIS_MODULE);
@@ -505,7 +554,24 @@ static int tdisk_clr_fd(struct tdisk *td)
 	 * lock dependency possibility warning as fput can take
 	 * bd_mutex which is usually taken before ctl_mutex.
 	 */
-	fput(filp);
+
+	for(i = 0; i < td->internal_devices_count; ++i)
+	{
+		struct file *filp = td->internal_devices[i].backing_file;
+
+		if(filp)
+		{
+			gfp_t gfp = td->internal_devices[i].old_gfp_mask;
+
+			mapping_set_gfp_mask(filp->f_mapping, gfp);
+
+			fput(filp);
+		}
+	}
+	kfree(td->internal_devices);
+
+	printk(KERN_DEBUG "tDisk: disk %d deleted\n", td->number);
+
 	return 0;
 }
 

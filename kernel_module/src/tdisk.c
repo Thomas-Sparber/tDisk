@@ -17,12 +17,10 @@
 #include <linux/miscdevice.h>
 #include <linux/falloc.h>
 #include <linux/uio.h>
- 
-#include "tier_disk.h"
+
 #include "helpers.h"
 #include "tdisk.h"
 #include "tdisk_control.h"
-#include "mbds/deque.h"
 
 #define COMPARE 1410
 
@@ -921,7 +919,8 @@ static void tdisk_handle_cmd(struct td_command *cmd)
 	ret = do_req_filebacked(td, cmd->rq);
 
  failed:
-	blk_mq_complete_request(cmd->rq, ret ? -EIO : 0);
+	if(ret)cmd->rq->errors = -EIO;
+	blk_mq_complete_request(cmd->rq);
 }
 
 static void tdisk_queue_work(struct kthread_work *work)

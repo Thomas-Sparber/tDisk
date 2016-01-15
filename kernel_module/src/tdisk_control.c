@@ -13,6 +13,8 @@
 #include "tdisk_control.h"
 #include "tdisk.h"
 
+DEFINE_MUTEX(td_index_mutex);
+
 static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned long parm)
 {
 	struct tdisk *td;

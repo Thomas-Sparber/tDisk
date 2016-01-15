@@ -78,7 +78,6 @@ struct tdisk {
 	int			flags;
 	char		file_name[TD_NAME_SIZE];
 
-	struct file			*lo_backing_file;
 	struct block_device	*block_device;
 	unsigned int		blocksize;
 	sector_t			size_blocks;
@@ -99,7 +98,7 @@ struct tdisk {
 	struct gendisk			*kernel_disk;
 
 	unsigned int index_offset_byte;
-	unsigned int header_size;		//Size in sectors of the index where the sectors are stored. Located at the beginning of the disk
+	unsigned int header_size;		//Size in sectors of the index where the header and sectors are stored. Located at the beginning of the disk
 	u8 *indices;					//The indices of the index needs to be stored in memory
 };
 
@@ -114,6 +113,5 @@ int tdisk_lookup(struct tdisk **l, int i);
 void tdisk_remove(struct tdisk *lo);
 
 extern struct idr td_index_idr;
-extern struct mutex td_index_mutex;
 
 #endif //TDISK_H

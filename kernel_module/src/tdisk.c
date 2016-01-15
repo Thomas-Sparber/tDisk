@@ -17,11 +17,14 @@
 #include <linux/miscdevice.h>
 #include <linux/falloc.h>
 #include <linux/uio.h>
-
+ 
+#include "tier_disk.h"
 #include "helpers.h"
 #include "tdisk.h"
 #include "tdisk_control.h"
+#include "mbds/deque.h"
 
+#define COMPARE 1410
 
 static u_int TD_MAJOR = 0;
 MODULE_LICENSE("GPL");
@@ -29,10 +32,8 @@ MODULE_AUTHOR("Thomas Sparber <thomas@sparber.eu>");
 MODULE_DESCRIPTION(DRIVER_NAME " Driver");
 MODULE_ALIAS_BLOCKDEV_MAJOR(TD_MAJOR);
 
-static int part_shift;
-
 DEFINE_IDR(td_index_idr);
-DEFINE_MUTEX(td_index_mutex);
+
 
 static loff_t get_file_size(struct file *file)
 {
@@ -112,11 +113,53 @@ int perform_index_operation(struct tdisk *td_dev, int direction, struct mapped_s
 
 	if(position + length > td_dev->header_size * td_dev->blocksize)return 1;
 
-	//Read/Write index operation
+	//index operation
 	if(direction == READ)
 		memcpy(&index->physical_sector, td_dev->indices+position, length);
-	else
+	else if(direction == COMPARE)
+	{
+		struct sector_index *cmp = (struct sector_index*)td_dev->indices+position;
+		if(index->physical_sector.disk != cmp->disk || index->physical_sector.sector != cmp->sector)return -1;
+	}
+	else if(direction == WRITE)
+	{
+		int ret = 0;
+		int len;
+		unsigned int j;
+		struct iov_iter i;
+		struct page *p = alloc_page(GFP_KERNEL);
+		struct bio_vec bvec = {
+			.bv_page = p,
+			.bv_len = PAGE_SIZE,
+			.bv_offset = 0
+		};
+
+		(*(struct sector_index*)page_address(p)) = index->physical_sector;
+		iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, sizeof(struct sector_index));
+
+		//Memory operation
 		memcpy(td_dev->indices+position, &index->physical_sector, length);
+
+		//Disk operations
+		for(j = 0; j < td_dev->internal_devices_count; ++j)
+		{
+			struct file *file = td_dev->internal_devices[j].backing_file;
+			printk_ratelimited(KERN_DEBUG "tDisk: File: %p\n", file);
+
+			if(file)
+			{
+				file_start_write(file);
+				len = vfs_iter_write(file, &i, &position);
+				file_end_write(file);
+
+				if(len < 0)ret = len;
+				if(len < sizeof(struct sector_index))ret = -EIO;
+			}
+		}
+
+		__free_page(p);
+		if(ret)return ret;
+	}
 
 	return 0;
 }
@@ -194,6 +237,45 @@ static int write_header(struct file *file, struct tdisk_header *header)
 	}
 
  out:
+	__free_page(p);
+	return ret;
+}
+
+static int read_all_indices(struct tdisk *td, struct file *file)
+{
+	int ret = 0;
+	int len;
+	loff_t pos = sizeof(struct tdisk_header);	//Skip header
+	struct iov_iter i;
+	struct page *p = alloc_page(GFP_KERNEL);
+	struct bio_vec bvec = {
+		.bv_page = p,
+		.bv_len = PAGE_SIZE,
+		.bv_offset = 0
+	};
+
+	iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, PAGE_SIZE);
+
+	do
+	{
+		len = vfs_iter_read(file, &i, &pos);
+
+		if(len < 0)
+		{
+			ret = -len;
+			break;
+		}
+
+		if(pos > td->header_size*td->blocksize)
+			len -= pos - td->header_size*td->blocksize;
+
+		memcpy(td->indices+pos-len, page_address(p), len);
+	}
+	while(pos < td->header_size*td->blocksize && len == PAGE_SIZE);
+
+	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
+	else printk(KERN_DEBUG "tDisk: Success reading all disk indices\n");
+
 	__free_page(p);
 	return ret;
 }
@@ -379,6 +461,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	sector_t sector = 0;
 	struct mapped_sector_index index;
 	struct td_internal_device *new_device = NULL;
+	int index_operation_to_do;
 	int first_device = (td->internal_devices_count == 0);
 
 	//This is safe, since we have a reference from open().
@@ -439,7 +522,10 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	{
 		error = prepare_queue(td);
 		if(error)
+		{
+			printk(KERN_WARNING "tDisk: Error setting up queue\n");
 			goto out_putf;
+		}
 	}
 
 	if(td->internal_devices_count == TDISK_MAX_PHYSICAL_DISKS)
@@ -458,22 +544,26 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		//Either same or lower (compatible) driver version
 		//Disk was already part of a tDisk.
 		//So doing nothing to preserve indices etc.
+		index_operation_to_do = (first_device) ? READ : COMPARE;
 		break;
 	case 1:
 		//Entirely new disk.
 		header.disk_index = td->internal_devices_count;
+		index_operation_to_do = WRITE;
 		break;
 	case -1:
 		//Oops, the disk was part of a tdisk
 		//But using a driver with a higher minor number
 		//Assuming that user space knows if it's compatible...
 		//Doing nothing
+		index_operation_to_do = (first_device) ? READ : COMPARE;
 		break;
 	case -2:
 		//Oops, the disk was part of a tdisk
 		//But using a driver with a higher major number
 		//Assuming that user space knows if it's compatible...
 		//Doing nothing
+		index_operation_to_do = (first_device) ? READ : COMPARE;
 		break;
 	default:
 		//Bug
@@ -509,19 +599,30 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	td->flags = flags;
 
 
-	//Save sector indices
-	write_header(file, &header);
-	while((size_counter+td->blocksize) <= (size << 9))
+	switch(index_operation_to_do)
 	{
-		size_counter += td->blocksize;
-		//printk(KERN_DEBUG "tDisk: adding logical sector: %llu (%llu/%llu)\n", td->header_size + td->size_blocks, size_counter, (size << 9));
-		index.offset = 0;
-		index.logical_sector = td->header_size + td->size_blocks++;
-		index.physical_sector.disk = 1;	//TODO
-		index.physical_sector.sector = td->header_size + sector++;
-		perform_index_operation(td, WRITE, &index);
+	case WRITE:		
+		//Writing header to disk
+		write_header(file, &header);
+		//IMPORTANT: continuing and writing indices as well...
+	case COMPARE:
+		//Save sector indices
+		while((size_counter+td->blocksize) <= (size << 9))
+		{
+			size_counter += td->blocksize;
+			//printk(KERN_DEBUG "tDisk: adding logical sector: %llu (%llu/%llu)\n", td->header_size + td->size_blocks, size_counter, (size << 9));
+			index.offset = 0;
+			index.logical_sector = td->header_size + td->size_blocks++;
+			index.physical_sector.disk = 1;	//TODO
+			index.physical_sector.sector = td->header_size + sector++;
+			perform_index_operation(td, index_operation_to_do, &index);
+		}
+		break;
+	case READ:
+		read_all_indices(td, file);
+		while((size_counter+td->blocksize) <= (size << 9))td->size_blocks++;
+		break;
 	}
-
 	printk(KERN_DEBUG "tDisk: new physical disk: size: %llu bytes. Logical size(%llu)\n", size << 9, td->size_blocks*td->blocksize);
 
 	if(!(flags & TD_FLAGS_READ_ONLY) && file->f_op->fsync)
@@ -724,7 +825,6 @@ static int td_compat_ioctl(struct block_device *bdev, fmode_t mode, unsigned int
 
 	switch(cmd)
 	{
-	case TDISK_SET_CAPACITY:
 	case TDISK_CLR_FD:
 	case TDISK_GET_STATUS:
 	case TDISK_SET_STATUS:
@@ -742,22 +842,12 @@ static int td_compat_ioctl(struct block_device *bdev, fmode_t mode, unsigned int
 
 static int td_open(struct block_device *bdev, fmode_t mode)
 {
-	struct tdisk *td;
-	int err = 0;
-
-	mutex_lock(&td_index_mutex);
-	td = bdev->bd_disk->private_data;
-
-	if(!td)
-	{
-		err = -ENXIO;
-		goto out;
-	}
+	struct tdisk *td = bdev->bd_disk->private_data;
+	if(!td)return -ENXIO;
 
 	atomic_inc(&td->refcount);
-out:
-	mutex_unlock(&td_index_mutex);
-	return err;
+
+	return 0;
 }
 
 static void td_release(struct gendisk *disk, fmode_t mode)
@@ -820,16 +910,18 @@ static void tdisk_handle_cmd(struct td_command *cmd)
 {
 	const bool write = cmd->rq->cmd_flags & REQ_WRITE;
 	struct tdisk *td = cmd->rq->q->queuedata;
-	int ret = -EIO;
+	int ret = 0;
 
 	if(write && (td->flags & TD_FLAGS_READ_ONLY))
+	{
+		ret = -EIO;
 		goto failed;
+	}
 
 	ret = do_req_filebacked(td, cmd->rq);
 
  failed:
-	if(ret)cmd->rq->errors = -EIO;
-	blk_mq_complete_request(cmd->rq);
+	blk_mq_complete_request(cmd->rq, ret ? -EIO : 0);
 }
 
 static void tdisk_queue_work(struct kthread_work *work)
@@ -915,7 +1007,7 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	 **/
 	queue_flag_set_unlocked(QUEUE_FLAG_NOMERGES, td->queue);
 
-	disk = td->kernel_disk = alloc_disk(1 << part_shift);
+	disk = td->kernel_disk = alloc_disk(1);
 	if(!disk)goto out_free_queue;
 
 	//Allocate disk indices
@@ -931,10 +1023,11 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	td->number		= i;
 	spin_lock_init(&td->lock);
 	disk->major		= TD_MAJOR;
-	disk->first_minor	= i << part_shift;
+	disk->first_minor	= i;
 	disk->fops		= &td_fops;
 	disk->private_data	= td;
 	disk->queue		= td->queue;
+	set_blocksize(td->block_device, blocksize);
 	sprintf(disk->disk_name, "td%d", i);
 	add_disk(disk);
 	*t = td;
@@ -1011,8 +1104,6 @@ static int __init tdisk_init(void)
 
 	err = register_tdisk_control();
 	if(err < 0)return err;
-
-	part_shift = 0;
 
 	TD_MAJOR = register_blkdev(TD_MAJOR, "td");
 	if(TD_MAJOR <= 0)

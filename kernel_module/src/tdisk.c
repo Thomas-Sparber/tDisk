@@ -13,6 +13,7 @@
 #include <linux/errno.h>
 #include <linux/major.h>
 #include <linux/blkdev.h>
+#include <linux/blkpg.h>
 #include <linux/miscdevice.h>
 #include <linux/falloc.h>
 #include <linux/uio.h>
@@ -27,7 +28,7 @@
 static u_int TD_MAJOR = 0;
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Thomas Sparber <thomas@sparber.eu>");
-MODULE_DESCRIPTION("tDisk Driver");
+MODULE_DESCRIPTION(DRIVER_NAME " Driver");
 MODULE_ALIAS_BLOCKDEV_MAJOR(TD_MAJOR);
 
 static int part_shift;
@@ -135,16 +136,11 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 	struct req_iterator iter;
 	struct iov_iter i;
 	ssize_t len;
-	loff_t pos;
+	loff_t pos_byte;
 	int ret = 0;
-	MBdeque *requests;
-	int direction = READ;
-	unsigned int k = 0;
-	unsigned int j = 0;
-	MBdeque *current_requests = NULL;
-	struct mapped_sector_index *index;
+	struct mapped_sector_index index;
 
-	pos = (loff_t)blk_rq_pos(rq) << 9;
+	pos_byte = (loff_t)blk_rq_pos(rq) << 9;
 
 	//Handle flush operations
 	if((rq->cmd_flags & REQ_WRITE) && (rq->cmd_flags & REQ_FLUSH))
@@ -156,17 +152,31 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 	//Handle discard operations
 	if((rq->cmd_flags & REQ_WRITE) && (rq->cmd_flags & REQ_DISCARD))
 	{
-		ret = td_discard(td, rq, pos);
+		ret = td_discard(td, rq, pos_byte);
 		goto finished;
 	}
-
-	requests = MBdeque_create();
 
 	//Normal file operation
 	rq_for_each_segment(bvec, rq, iter)
 	{
-		direction = (rq->cmd_flags & REQ_WRITE) ? WRITE : READ;
-		tdisk_operation_internal(td, requests, direction, pos, bvec.bv_len);
+		loff_t sector = pos_byte;
+		loff_t offset = __div64_32(&sector, td->blocksize);
+		sector_t actual_pos_byte;
+		sector += td->index_size;
+
+		index.offset = offset;
+		index.logical_sector = sector;
+		perform_index_operation(td, READ, &index);
+
+		actual_pos_byte = index.physical_sector.sector*td->blocksize + index.offset;
+
+		printk_ratelimited(KERN_DEBUG "tDisk: Logical sector:%llu (%llu), disk:%u, physical sector:%llu, offset: %llu (=%llu)\n",
+								index.logical_sector,
+								pos_byte,
+								index.physical_sector.disk,
+								index.physical_sector.sector,
+								index.offset,
+								actual_pos_byte);
 
 		if(rq->cmd_flags & REQ_WRITE)
 		{
@@ -177,12 +187,12 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 			iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, bvec.bv_len);
 
 			file_start_write(td->lo_backing_file);
-			bw = vfs_iter_write(td->lo_backing_file, &i, &pos);
+			bw = vfs_iter_write(td->lo_backing_file, &i, &pos_byte);
 			file_end_write(td->lo_backing_file);
 
 			if(unlikely(bw != bvec.bv_len))
 			{
-				printk_ratelimited(KERN_ERR "tDisk: Write error at byte offset %llu, length %i.\n", (unsigned long long)pos, bvec.bv_len);
+				printk_ratelimited(KERN_ERR "tDisk: Write error at byte offset %llu, length %i.\n", (unsigned long long)pos_byte, bvec.bv_len);
 
 				if(bw >= 0)
 					ret = -EIO;
@@ -195,7 +205,7 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 		{
 			//Read operation
 			iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, bvec.bv_len);
-			len = vfs_iter_read(td->lo_backing_file, &i, &pos);
+			len = vfs_iter_read(td->lo_backing_file, &i, &pos_byte);
 
 			if(len < 0)
 			{
@@ -220,79 +230,6 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 		cond_resched();
 	}
 
-	//Create struct bio's
-	for(k = 0; k < requests->count; ++k)
-	{
-		u8 physical_disk;
-		sector_t first_sector;
-
-		current_requests = MBdeque_get_at(requests, k);
-		if(current_requests == NULL)
-		{
-			//Request was splitted TODO
-			continue;
-		}
-
-		//Check for empty request list
-		if(current_requests->count <= 0)
-		{
-			printk(KERN_ERR "tDisk: Skipping empty request list\n");
-
-			MBdeque_delete(current_requests);
-
-			continue;
-		}
-
-		//Check if disk is full
-		index = MBdeque_get_at(current_requests, 0);
-		if(index->physical_sector.disk <= 0)
-		{
-			printk(KERN_ERR "tDisk: disk full! More space was allocated than disks attached!\n");
-
-			//Free resources
-			for(j = 0; j < current_requests->count; ++j)
-			{
-				index = MBdeque_get_at(current_requests, j);
-				vfree(index);
-			}
-			MBdeque_delete(current_requests);
-
-			continue;
-		}
-		physical_disk = index->physical_sector.disk - 1;	//-1 because 0 means unused
-		first_sector = index->offset + index->physical_sector.sector;
-
-		//Process requests
-		for(j = 0; j < current_requests->count; ++j)
-		{
-			index = MBdeque_get_at(current_requests, j);
-
-			printk(KERN_DEBUG "tDisk: Physical disk request: Physical-Start: %llu, Physical-End: %llu, Actual length (%u bytes) Request: %u/%u\n",
-													first_sector,
-													first_sector+1,
-													512U,
-													j, current_requests->count);
-
-			//if(!bio_add_page(bio_req, virt_to_page(buffer), td_dev->blocksize, (index->logical_sector-first) * td_dev->blocksize))
-			//{
-			//	printk(KERN_ERR "tDisk: bio_add_page failed!\n");
-			//}
-
-			if(direction == WRITE)
-			{
-				//Save index
-				int internal_ret = perform_index_operation(td, WRITE, index);
-				if(internal_ret != 0)ret = internal_ret;
-			}
-
-			vfree(index);
-		}
-
-		MBdeque_delete(current_requests);
-	}
-
-	MBdeque_delete(requests);
-
  finished:
 	return ret;
 }
@@ -314,7 +251,7 @@ static void tdisk_config_discard(struct tdisk *td)
 	if((!file->f_op->fallocate)) {
 		q->limits.discard_granularity = 0;
 		q->limits.discard_alignment = 0;
-		q->limits.max_discard_sectors = 0;
+		blk_queue_max_discard_sectors(q, 0);
 		q->limits.discard_zeroes_data = 0;
 		queue_flag_clear_unlocked(QUEUE_FLAG_DISCARD, q);
 		return;
@@ -322,9 +259,48 @@ static void tdisk_config_discard(struct tdisk *td)
 
 	q->limits.discard_granularity = inode->i_sb->s_blocksize;
 	q->limits.discard_alignment = 0;
-	q->limits.max_discard_sectors = UINT_MAX >> 9;
+	blk_queue_max_discard_sectors(q, UINT_MAX >> 9);
 	q->limits.discard_zeroes_data = 1;
 	queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, q);
+}
+
+static void reread_partitions(struct tdisk *td, struct block_device *bdev)
+{
+#if 0
+	int rc;
+
+	/**
+	  * bd_mutex has been held already in release path, so don't
+	  * acquire it if this function is called in such case.
+	  *
+	  * If the reread partition isn't from release path, lo_refcnt
+	  * must be at least one and it can only become zero when the
+	  * current holder is released.
+	 **/
+	if(!atomic_read(&td->refcount))
+		rc = __blkdev_reread_part(bdev);
+	else
+		rc = blkdev_reread_part(bdev);
+
+	if(rc)pr_warn("tDisk: partition scan of loop%d (%s) failed (rc=%d)\n", td->number, td->file_name, rc);
+#endif
+	ioctl_by_bdev(bdev, BLKRRPART, 0);
+}
+
+static void unprepare_queue(struct tdisk *td)
+{
+	flush_kthread_worker(&td->worker);
+	kthread_stop(td->worker_task);
+}
+
+static int prepare_queue(struct tdisk *td)
+{
+	init_kthread_worker(&td->worker);
+	td->worker_task = kthread_run(kthread_worker_fn, &td->worker, "td%d", td->number);
+	if(IS_ERR(td->worker_task))
+		return -ENOMEM;
+	set_user_nice(td->worker_task, MIN_NICE);
+	return 0;
 }
 
 static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bdev, unsigned int arg)
@@ -337,6 +313,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	int error;
 	loff_t size;
 	sector_t sector;
+	struct mapped_sector_index index;
 
 	//This is safe, since we have a reference from open().
 	__module_get(THIS_MODULE);
@@ -383,31 +360,23 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	blocksize = S_ISBLK(inode->i_mode) ? inode->i_bdev->bd_block_size : PAGE_SIZE;
 
 	error = -EFBIG;
-	size = get_tdisk_size(td, file) - ((td->index_size*td->blocksize) >> 9);
+	size = get_tdisk_size(td, file) - (td->index_size*td->blocksize);
 	if((loff_t)(sector_t)size != size)
 		goto out_putf;
 
-	error = -ENOMEM;
-	td->wq = alloc_workqueue("tdq%d", WQ_MEM_RECLAIM | WQ_HIGHPRI | WQ_UNBOUND, 16, td->number);
-	if(!td->wq)
+	error = prepare_queue(td);
+	if(error)
 		goto out_putf;
 
-	//Add free sectors ll
-	error = -ENOMEM;
-	td->free_sectors = MBdeque_create();
+	printk_ratelimited(KERN_DEBUG "tDisk: new physical disk: size: %llu bytes, blocksize: %u", size, blocksize);
+
+	//Add free sectors
 	for(sector = 0; sector < size; ++sector)
 	{
-		//sector_t *temp = vmalloc(sizeof(sector_t));
-		//(*temp) = sector;
-		//MBdeque_push_back(td->free_sectors, temp);
-		struct mapped_sector_index index = {
-			.offset = 0,
-			.logical_sector = td->size_blocks++,
-			.physical_sector = {
-				.disk = 0,	//TODO
-				.sector = sector
-			}
-		};
+		index.offset = 0;
+		index.logical_sector = td->size_blocks++;
+		index.physical_sector.disk = 1;	//TODO
+		index.physical_sector.sector = sector;
 		perform_index_operation(td, WRITE, &index);
 	}
 
@@ -435,7 +404,8 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	set_blocksize(bdev, blocksize);
 
 	td->state = state_bound;
-	ioctl_by_bdev(bdev, BLKRRPART, 0);
+	//ioctl_by_bdev(bdev, BLKRRPART, 0);
+	reread_partitions(td, bdev);
 
 	//Grab the block_device to prevent its destruction after we
 	//put /dev/tdX inode. Later in tdisk_clr_fd() we bdput(bdev).
@@ -452,7 +422,6 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 
 static int tdisk_clr_fd(struct tdisk *td)
 {
-	unsigned int i;
 	struct file *filp = td->lo_backing_file;
 	gfp_t gfp = td->old_gfp_mask;
 	struct block_device *bdev = td->block_device;
@@ -470,7 +439,7 @@ static int tdisk_clr_fd(struct tdisk *td)
 	 * <dev>/do something like mkfs/losetup -d <dev> causing the losetup -d
 	 * command to fail with EBUSY.
 	 */
-	if(td->refcount > 1)
+	if(atomic_read(&td->refcount) > 1)
 	{
 		td->flags |= TD_FLAGS_AUTOCLEAR;
 		mutex_unlock(&td->ctl_mutex);
@@ -479,6 +448,9 @@ static int tdisk_clr_fd(struct tdisk *td)
 
 	if(filp == NULL)
 		return -EINVAL;
+
+	//freeze request queue during the transition
+	blk_mq_freeze_queue(td->queue); 
 
 	spin_lock_irq(&td->lock);
 	td->state = state_cleared;
@@ -505,19 +477,15 @@ static int tdisk_clr_fd(struct tdisk *td)
 		kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);
 	}
 
-	//Free free_sectors
-	for(i = 0; i < td->free_sectors->count; ++i)
-		vfree((sector_t*)MBdeque_get_at(td->free_sectors, i));
-	MBdeque_delete(td->free_sectors);
-
 	mapping_set_gfp_mask(filp->f_mapping, gfp);
 	td->state = state_unbound;
 	//This is safe: open() is still holding a reference.
 	module_put(THIS_MODULE);
-	if(bdev)ioctl_by_bdev(bdev, BLKRRPART, 0);
+	blk_mq_unfreeze_queue(td->queue); 
+
+	if(bdev)reread_partitions(td, bdev);//ioctl_by_bdev(bdev, BLKRRPART, 0);
 	td->flags = 0;
-	destroy_workqueue(td->wq);
-	td->wq = NULL;
+	unprepare_queue(td);
 	mutex_unlock(&td->ctl_mutex);
 	/*
 	 * Need not hold ctl_mutex to fput backing file.
@@ -682,9 +650,7 @@ static int td_open(struct block_device *bdev, fmode_t mode)
 		goto out;
 	}
 
-	mutex_lock(&td->ctl_mutex);
-	td->refcount++;
-	mutex_unlock(&td->ctl_mutex);
+	atomic_inc(&td->refcount);
 out:
 	mutex_unlock(&td_index_mutex);
 	return err;
@@ -695,10 +661,10 @@ static void td_release(struct gendisk *disk, fmode_t mode)
 	struct tdisk *td = disk->private_data;
 	int err;
 
-	mutex_lock(&td->ctl_mutex);
+	if(atomic_dec_return(&td->refcount))
+		return;
 
-	if(--td->refcount)
-		goto out;
+	mutex_lock(&td->ctl_mutex);
 
 	if(td->flags & TD_FLAGS_AUTOCLEAR)
 	{
@@ -718,7 +684,6 @@ static void td_release(struct gendisk *disk, fmode_t mode)
 		td_flush(td);
 	}
 
-out:
 	mutex_unlock(&td->ctl_mutex);
 }
 
@@ -742,26 +707,7 @@ static int tdisk_queue_rq(struct blk_mq_hw_ctx *hctx, const struct blk_mq_queue_
 	if(td->state != state_bound)
 		return -EIO;
 
-	if(cmd->rq->cmd_flags & REQ_WRITE)
-	{
-		struct tdisk *td = cmd->rq->q->queuedata;
-		bool need_sched = true;
-
-		spin_lock_irq(&td->lock);
-		if(td->write_started)
-			need_sched = false;
-		else
-			td->write_started = true;
-		list_add_tail(&cmd->list, &td->write_cmd_head);
-		spin_unlock_irq(&td->lock);
-
-		if(need_sched)
-			queue_work(td->wq, &td->write_work);
-	}
-	else
-	{
-		queue_work(td->wq, &cmd->read_work);
-	}
+	queue_kthread_work(&td->worker, &cmd->td_work);
 
 	return BLK_MQ_RQ_QUEUE_OK;
 }
@@ -782,34 +728,9 @@ static void tdisk_handle_cmd(struct td_command *cmd)
 	blk_mq_complete_request(cmd->rq);
 }
 
-static void tdisk_queue_write_work(struct work_struct *work)
+static void tdisk_queue_work(struct kthread_work *work)
 {
-	struct tdisk *td = container_of(work, struct tdisk, write_work);
-	LIST_HEAD(cmd_list);
-
-	spin_lock_irq(&td->lock);
- repeat:
-	list_splice_init(&td->write_cmd_head, &cmd_list);
-	spin_unlock_irq(&td->lock);
-
-	while(!list_empty(&cmd_list))
-	{
-		struct td_command *cmd = list_first_entry(&cmd_list, struct td_command, list);
-		list_del_init(&cmd->list);
-		tdisk_handle_cmd(cmd);
-	}
-
-	spin_lock_irq(&td->lock);
-	if(!list_empty(&td->write_cmd_head))
-		goto repeat;
-
-	td->write_started = false;
-	spin_unlock_irq(&td->lock);
-}
-
-static void tdisk_queue_read_work(struct work_struct *work)
-{
-	struct td_command *cmd = container_of(work, struct td_command, read_work);
+	struct td_command *cmd = container_of(work, struct td_command, td_work);
 	tdisk_handle_cmd(cmd);
 }
 
@@ -818,7 +739,7 @@ static int tdisk_init_request(void *data, struct request *rq, unsigned int hctx_
 	struct td_command *cmd = blk_mq_rq_to_pdu(rq);
 
 	cmd->rq = rq;
-	INIT_WORK(&cmd->read_work, tdisk_queue_read_work);
+	init_kthread_work(&cmd->td_work, tdisk_queue_work);
 
 	return 0;
 }
@@ -841,6 +762,7 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	if(!td)goto out;
 
 	td->state = state_unbound;
+	td->size_blocks = 0;
 
 	//allocate id, if @id >= 0, we're requesting that specific id
 	if(i >= 0)
@@ -876,8 +798,11 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	}
 	td->queue->queuedata = td;
 
-	INIT_LIST_HEAD(&td->write_cmd_head);
-	INIT_WORK(&td->write_work, tdisk_queue_write_work);
+	/**
+	  * It doesn't make sense to enable merge because the I/O
+	  * submitted to backing file is handled page by page.
+	 **/
+	queue_flag_set_unlocked(QUEUE_FLAG_NOMERGES, td->queue);
 
 	disk = td->kernel_disk = alloc_disk(1 << part_shift);
 	if(!disk)goto out_free_queue;
@@ -888,12 +813,9 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	td->indices = kzalloc(td->index_size*td->blocksize, GFP_KERNEL);
 	if(!td->indices)goto out_free_queue;
 
-	//Init lock which is used to search for free sectors in
-	//the internal disks
-	spin_lock_init(&td->free_sectors_lock);
-
 	disk->flags |= GENHD_FL_EXT_DEVT;
 	mutex_init(&td->ctl_mutex);
+	atomic_set(&td->refcount, 0); 
 	td->number		= i;
 	spin_lock_init(&td->lock);
 	disk->major		= TD_MAJOR;

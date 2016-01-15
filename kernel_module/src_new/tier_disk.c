@@ -204,11 +204,15 @@ void tdisk_free_internal_device(struct td_internal_device *internal_device)
 
 void internal_callback(struct bio *bio_req, int success)
 {
-	struct td_callback_data *data = bio_req->bi_private;
+	struct td_callback_data *data;
+
+	BUG_ON(bio_req == NULL);
+	BUG_ON(bio_req->bi_private == NULL);
 
 	printk(KERN_DEBUG "tDisk: Physical disk request finished%s successfully\n", (success == 0 ? "" : "not"));
 
 	//Set success value
+	data = bio_req->bi_private;
 	atomic_or(success, &data->success);
 
 	if(atomic_dec_and_test(&data->requests))
@@ -591,7 +595,7 @@ int make_disk_requests(struct td_device *td_dev, MBdeque *requests, struct td_ca
 		//Set block device and first sector
 		bio_req->bi_bdev = td_dev->internal_devices[physical_disk].bdev;
 		bio_req->bi_iter.bi_sector = first_sector * (td_dev->sector_size / 512);
-		bio_req->bi_iter.bi_size = current_requests->count * td_dev->sector_size;
+		//bio_req->bi_iter.bi_size = current_requests->count * td_dev->sector_size;
 		bio_req->bi_rw = direction;
 
 		//Set callback
@@ -622,13 +626,13 @@ int make_disk_requests(struct td_device *td_dev, MBdeque *requests, struct td_ca
 		}
 
 		//Actually make request
-		printk(KERN_DEBUG "tDisk: Physical disk request: Physical-Start: %llu, Physical-End: %llu, Actual length (%u bytes) Request: %u/%llu\n",
+		printk(KERN_DEBUG "tDisk: Physical disk request: Physical-Start: %llu, Physical-End: %llu, Actual length (%u/%u bytes) Request: %u/%llu\n",
 													bio_req->bi_iter.bi_sector,
 													bio_end_sector(bio_req),
-													length,
+													length, bio_req->bi_iter.bi_size,
 													requests->count, last-first+1);
-		//generic_make_request(bio_req);
-		internal_callback(bio_req, 0);
+		generic_make_request(bio_req);
+		//internal_callback(bio_req, 0);
 		bio_put(bio_req);
 
 		MBdeque_delete(current_requests);

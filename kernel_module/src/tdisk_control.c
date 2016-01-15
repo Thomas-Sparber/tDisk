@@ -28,7 +28,7 @@ static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned lo
 			ret = -EEXIST;
 			break;
 		}
-		ret = tdisk_add(&td, parm, 512, 4096);	//TODO
+		ret = tdisk_add(&td, parm, 16384, 64);	//TODO
 		break;
 	case TDISK_CTL_REMOVE:
 		ret = tdisk_lookup(&td, parm);
@@ -40,7 +40,7 @@ static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned lo
 			mutex_unlock(&td->ctl_mutex);
 			break;
 		}
-		if(td->refcount > 0)
+		if(atomic_read(&td->refcount) > 0)
 		{
 			ret = -EBUSY;
 			mutex_unlock(&td->ctl_mutex);
@@ -54,7 +54,7 @@ static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned lo
 	case TDISK_CTL_GET_FREE:
 		ret = tdisk_lookup(&td, -1);
 		if(ret >= 0)break;
-		ret = tdisk_add(&td, -1, 512, 4096);		//TODO
+		ret = tdisk_add(&td, -1, 16384, 64);		//TODO
 	}
 	mutex_unlock(&td_index_mutex);
 

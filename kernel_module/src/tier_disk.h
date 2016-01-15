@@ -74,7 +74,7 @@ struct td_internal_device
 struct tdisk* tdisk_allocate(sector_t sectors, unsigned int sector_size, unsigned int amount_disks);
 void tdisk_cleanup(struct tdisk *td_dev);
 int tdisk_add_disk(struct tdisk *td_dev, const char *path, unsigned int speed, sector_t capacity_sectors);
-int tdisk_operation_internal(struct tdisk *td_dev, struct MBdeque *requests, int direction, loff_t position, unsigned int length);
+int tdisk_operation_internal(struct tdisk *td_dev, struct mapped_sector_index *index, loff_t position, unsigned int length);
 int perform_index_operation(struct tdisk *td_dev, int direction, struct mapped_sector_index *index);
 
 #endif	//TIER_DISK_H

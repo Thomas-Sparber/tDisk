@@ -7,8 +7,14 @@
 #include <linux/spinlock.h>
 #include <linux/mutex.h>
 #include <linux/types.h>
+#include <linux/atomic.h>
+#include <linux/kthread.h>
 
 #include "../include/tdisk/interface.h"
+
+#define DRIVER_NAME "tDisk"
+#define DRIVER_MAJOR_VERSION 1
+#define DRIVER_MINOR_VERSION 0
 
 /* Possible states of device */
 enum {
@@ -19,7 +25,7 @@ enum {
 
 struct tdisk {
 	int			number;
-	int			refcount;
+	atomic_t	refcount;
 	loff_t		sizelimit;
 	int			flags;
 	char		file_name[TD_NAME_SIZE];
@@ -32,12 +38,11 @@ struct tdisk {
 	gfp_t		old_gfp_mask;
 
 	spinlock_t				lock;
-	struct workqueue_struct *wq;
-	struct list_head		write_cmd_head;
-	struct work_struct		write_work;
-	bool					write_started;
 	int						state;
 	struct mutex			ctl_mutex;
+
+	struct kthread_worker	worker;
+	struct task_struct	*worker_task;
 
 	struct request_queue	*queue;
 	struct blk_mq_tag_set	tag_set;
@@ -45,12 +50,10 @@ struct tdisk {
 
 	unsigned int index_size;		//Size in sectors of the index where the sectors are stored. Located at the beginning of the disk
 	u8 *indices;					//The indices of the index needs to be stored in memory
-	spinlock_t free_sectors_lock;
-	struct MBdeque *free_sectors;	//TODO
 };
 
 struct td_command {
-	struct work_struct read_work;
+	struct kthread_work td_work;
 	struct request *rq;
 	struct list_head list;
 };

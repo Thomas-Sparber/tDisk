@@ -234,47 +234,6 @@ int perform_index_operation(struct tdisk *td_dev, int direction, struct mapped_s
 	return 0;
 }
 
-int create_requests(struct tdisk *td_dev, int direction, loff_t offset, sector_t first, sector_t last, MBdeque *requests)
-{
-	int ret = 0;
-	sector_t current_sector;
-
-	for(current_sector = first; current_sector <= last; ++current_sector)
-	{
-		if(current_sector >= td_dev->index_size)
-		{
-			int internal_ret;
-			struct mapped_sector_index *index = vmalloc(sizeof(struct mapped_sector_index));
-			index->offset = offset;
-			index->logical_sector = current_sector;
-
-			//printk(KERN_DEBUG "tDisk: Requested data is on disk (%llu)\n", current_sector);
-
-			//Retrieve index
-			internal_ret = perform_index_operation(td_dev, READ, index);
-			if(internal_ret != 0)ret = internal_ret;
-
-			if(direction == READ && index->physical_sector.disk == 0)
-			{
-				//Reading sectors which are not yet used is not possible
-				//printk(KERN_DEBUG "tDisk: Sector %llu not yet used. Not reading...\n", current_sector);
-
-				//Free index since no disk request is needed
-				vfree(index);
-			}
-			else
-			{
-				insert_and_merge_request(requests, index);
-			}
-
-			//Offset only needed the first time
-			offset = 0;
-		}
-	}
-
-	return ret;
-}
-
 u8 find_suitable_device(struct tdisk *td_dev, unsigned int sectors_needed)
 {
 	//u8 disk_index = 0;
@@ -327,7 +286,7 @@ void split_requests(struct tdisk *td_dev, MBdeque *requests, MBdeque *current_re
 	} TODO*/
 }
 
-int distribute_unused_sectors(struct tdisk *td_dev, MBdeque *requests)
+/*int distribute_unused_sectors(struct tdisk *td_dev, MBdeque *requests)
 {
 	int ret = 0;
 	unsigned int i = 0;
@@ -361,7 +320,8 @@ int distribute_unused_sectors(struct tdisk *td_dev, MBdeque *requests)
 			if(disk_index != 0)
 			{
 				unsigned int j = 0;
-				MBdeque *free_sectors = td_dev->/*internal_devices[disk_index - 1].*/free_sectors;	//TODO
+				MBdeque *free_sectors = td_dev->internal_devices[disk_index - 1].free_sectors;	//TODO
+				MBdeque *free_sectors = td_dev->free_sectors;	//TODO
 
 				for(j = 0; j < current_requests->count; ++j)
 				{
@@ -399,7 +359,7 @@ int distribute_unused_sectors(struct tdisk *td_dev, MBdeque *requests)
 	}
 
 	return ret;
-}
+}*/
 
 int make_disk_requests(struct tdisk *td_dev, MBdeque *requests, int direction, sector_t first, sector_t last, u8 *buffer, unsigned int length)
 {
@@ -513,48 +473,6 @@ int make_disk_requests(struct tdisk *td_dev, MBdeque *requests, int direction, s
 
 		MBdeque_delete(current_requests);
 	}
-
-	return ret;
-}
-
-int tdisk_operation_internal(struct tdisk *td_dev, MBdeque *requests, int direction, loff_t position, unsigned int length)
-{
-	int ret = 0;
-	int internal_ret = 0;
-	loff_t offset;
-	sector_t first = position + td_dev->index_size*td_dev->blocksize;
-	sector_t last = first + length;
-
-	//Deque to store requests to be made
-	//MBdeque *requests = MBdeque_create();
-
-	//Calculate first and last sector
-	offset = __div64_32(&first, td_dev->blocksize);
-	if(__div64_32(&last, td_dev->blocksize) == 0)
-		--last;
-
-	//printk(KERN_DEBUG "tDisk: Request: first=%llu last=%llu incl.\n", first, last);
-
-	//Create requests queue for disk operations
-	internal_ret = create_requests(td_dev, direction, offset, first, last, requests);
-	if(internal_ret != 0)ret = internal_ret;
-
-	if(requests->count > 0)
-	{
-		//Handle and distribute unused sectors
-		internal_ret = distribute_unused_sectors(td_dev, requests);
-		if(internal_ret != 0)ret = internal_ret;
-
-		if(direction == READ)
-			printk(KERN_DEBUG "tDisk: Need to make read requests for %u different disks\n", requests->count);
-		else
-			printk(KERN_DEBUG "tDisk: Need to make write requests for %u different disks\n", requests->count);
-
-		//internal_ret = make_disk_requests(td_dev, requests, direction, first, last, buffer, length);
-		//if(internal_ret != 0)ret = internal_ret;
-	}
-
-	//MBdeque_delete(requests);
 
 	return ret;
 }

@@ -34,48 +34,9 @@ static int part_shift;
 DEFINE_IDR(td_index_idr);
 DEFINE_MUTEX(td_index_mutex);
 
-static loff_t get_size(loff_t offset, loff_t sizelimit, struct file *file)
+static loff_t get_file_size(struct file *file)
 {
-	//Size in byte
-	loff_t size_byte = i_size_read(file->f_mapping->host);
-
-	if(offset > 0)
-		size_byte -= offset;
-
-	//offset beyond i_size, weird but possible
-	if(size_byte < 0)
-		return 0;
-
-	if(sizelimit > 0 && sizelimit < size_byte)
-		size_byte = sizelimit;
-
-	//Convert to sectors
-	return size_byte >> 9;
-}
-
-static loff_t get_tdisk_size(struct tdisk *td, struct file *file)
-{
-	return get_size(0, td->sizelimit, file);
-}
-
-static int figure_tdisk_size(struct tdisk *td, loff_t sizelimit)
-{
-	loff_t size = get_size(0, sizelimit, td->lo_backing_file);
-	sector_t x = (sector_t)size;
-	struct block_device *bdev = td->block_device;
-
-	if(unlikely((loff_t)x != size))
-		return -EFBIG;
-
-	if(td->sizelimit != sizelimit)
-		td->sizelimit = sizelimit;
-
-	set_capacity(td->kernel_disk, x);
-	bd_set_size(bdev, (loff_t)get_capacity(bdev->bd_disk) << 9);
-
-	//Inform user space
-	kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);
-	return 0;
+	return i_size_read(file->f_mapping->host) >> 9;
 }
 
 static int td_discard(struct tdisk *td, struct request *rq, loff_t pos)
@@ -274,29 +235,6 @@ static inline int is_tdisk(struct file *file)
 	return i && S_ISBLK(i->i_mode) && MAJOR(i->i_rdev) == TD_MAJOR;
 }
 
-static void tdisk_config_discard(struct tdisk *td)
-{
-	struct file *file = td->lo_backing_file;
-	struct inode *inode = file->f_mapping->host;
-	struct request_queue *q = td->queue;
-
-	//We use punch hole to reclaim the free space used by the image a.k.a. discard.
-	if((!file->f_op->fallocate)) {
-		q->limits.discard_granularity = 0;
-		q->limits.discard_alignment = 0;
-		blk_queue_max_discard_sectors(q, 0);
-		q->limits.discard_zeroes_data = 0;
-		queue_flag_clear_unlocked(QUEUE_FLAG_DISCARD, q);
-		return;
-	}
-
-	q->limits.discard_granularity = inode->i_sb->s_blocksize;
-	q->limits.discard_alignment = 0;
-	blk_queue_max_discard_sectors(q, UINT_MAX >> 9);
-	q->limits.discard_zeroes_data = 1;
-	queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, q);
-}
-
 static void reread_partitions(struct tdisk *td, struct block_device *bdev)
 {
 #if 0
@@ -389,7 +327,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	}
 
 	//File size in 512 byte blocks
-	size = get_tdisk_size(td, file);
+	size = get_file_size(file);
 
 	error = -EINVAL;
 	if(size < (((td->index_size+1)*td->blocksize) >> 9))	//Disk too small
@@ -575,80 +513,46 @@ static int tdisk_clr_fd(struct tdisk *td)
 	return 0;
 }
 
-static int tdisk_set_status(struct tdisk *td, const struct tdisk_info *info)
+static int tdisk_set_status64(struct tdisk *td, const struct tdisk_info __user *arg)
 {
+	struct tdisk_info info;
+
+	if(copy_from_user(&info, arg, sizeof(struct tdisk_info)) != 0)
+		return -EFAULT;
+
 	if(td->state != state_bound)
 		return -ENXIO;
 
-	if(td->sizelimit != info->sizelimit)
-		if(figure_tdisk_size(td, info->sizelimit))
-			return -EFBIG;
-
-	tdisk_config_discard(td);
-
-	memcpy(td->file_name, info->file_name, TD_NAME_SIZE);
+	memcpy(td->file_name, info.file_name, TD_NAME_SIZE);
 	td->file_name[TD_NAME_SIZE-1] = 0;
 
-	if((td->flags & TD_FLAGS_AUTOCLEAR) != (info->flags & TD_FLAGS_AUTOCLEAR))
+	if((td->flags & TD_FLAGS_AUTOCLEAR) != (info.flags & TD_FLAGS_AUTOCLEAR))
 		td->flags ^= TD_FLAGS_AUTOCLEAR;
 
 	return 0;
 }
 
-static int tdisk_get_status(struct tdisk *td, struct tdisk_info *info)
+static int tdisk_get_status64(struct tdisk *td, struct tdisk_info __user *arg)
 {
-	struct file *file = td->lo_backing_file;
-	struct kstat stat;
-	int error;
+	struct tdisk_info info;
 
 	if(td->state != state_bound)
 		return -ENXIO;
 
-	error = vfs_getattr(&file->f_path, &stat);
-	if(error)
-		return error;
+	//error = vfs_getattr(&file->f_path, &stat);
+	//if(error)
+	//	return error;
 
-	memset(info, 0, sizeof(*info));
-	info->number = td->number;
-	info->block_device = huge_encode_dev(stat.dev);
-	info->sizelimit = td->sizelimit;
-	info->flags = td->flags;
-	memcpy(info->file_name, td->file_name, TD_NAME_SIZE);
+	memset(&info, 0, sizeof(info));
+	info.number = td->number;
+	//info->block_device = huge_encode_dev(stat.dev);
+	info.flags = td->flags;
+	memcpy(info.file_name, td->file_name, TD_NAME_SIZE);
 
-	return 0;
-}
-
-static int tdisk_set_status64(struct tdisk *td, const struct tdisk_info __user *arg)
-{
-	struct tdisk_info info64;
-
-	if(copy_from_user(&info64, arg, sizeof(struct tdisk_info)))
+	if(copy_to_user(arg, &info, sizeof(info)) != 0)
 		return -EFAULT;
 
-	return tdisk_set_status(td, &info64);
-}
-
-static int tdisk_get_status64(struct tdisk *td, struct tdisk_info __user *arg)
-{
-	struct tdisk_info info64;
-	int err = 0;
-
-	if(!arg)
-		err = -EINVAL;
-	if(!err)
-		err = tdisk_get_status(td, &info64);
-	if(!err && copy_to_user(arg, &info64, sizeof(info64)))
-		err = -EFAULT;
-
-	return err;
-}
-
-static int tdisk_set_capacity(struct tdisk *td, struct block_device *bdev)
-{
-	if(unlikely(td->state != state_bound))
-		return -ENXIO;
-
-	return figure_tdisk_size(td, td->sizelimit);
+	return 0;
 }
 
 static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, unsigned long arg)
@@ -675,11 +579,6 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 		break;
 	case TDISK_GET_STATUS:
 		err = tdisk_get_status64(td, (struct tdisk_info __user *) arg);
-		break;
-	case TDISK_SET_CAPACITY:
-		err = -EPERM;
-		if((mode & FMODE_WRITE) || capable(CAP_SYS_ADMIN))
-			err = tdisk_set_capacity(td, bdev);
 		break;
 	default:
 		err = -EINVAL;

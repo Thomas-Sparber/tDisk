@@ -107,14 +107,106 @@ static int td_req_flush(struct tdisk *td, struct request *rq)
 
 int perform_index_operation(struct tdisk *td_dev, int direction, struct mapped_sector_index *index)
 {
-	loff_t position = index->logical_sector * sizeof(struct sector_index);
+	loff_t position = td_dev->index_offset_byte + index->logical_sector * sizeof(struct sector_index);
 	unsigned int length = sizeof(struct sector_index);
+
+	if(position + length > td_dev->header_size * td_dev->blocksize)return 1;
 
 	//Read/Write index operation
 	if(direction == READ)
 		memcpy(&index->physical_sector, td_dev->indices+position, length);
 	else
 		memcpy(td_dev->indices+position, &index->physical_sector, length);
+
+	return 0;
+}
+
+static int read_header(struct file *file, struct tdisk_header *out)
+{
+	int ret = 0;
+	int len;
+	loff_t pos = 0;
+	struct iov_iter i;
+	struct page *p = alloc_page(GFP_KERNEL);
+	struct bio_vec bvec = {
+		.bv_page = p,
+		.bv_len = PAGE_SIZE,
+		.bv_offset = 0
+	};
+
+	iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, sizeof(struct tdisk_header));
+	len = vfs_iter_read(file, &i, &pos);
+
+	if(len < 0)
+	{
+		ret = len;
+		goto out;
+	}
+
+	if(len < sizeof(*out))
+	{
+		ret = -EIO;
+		goto out;
+	}
+
+	(*out) = *(struct tdisk_header*)page_address(p);
+
+ out:
+	__free_page(p);
+	return ret;
+}
+
+static int write_header(struct file *file, struct tdisk_header *header)
+{
+	int ret = 0;
+	int len;
+	loff_t pos = 0;
+	struct iov_iter i;
+	struct page *p = alloc_page(GFP_KERNEL);
+	struct bio_vec bvec = {
+		.bv_page = p,
+		.bv_len = PAGE_SIZE,
+		.bv_offset = 0
+	};
+
+	memset(header->driver_name, 0, sizeof(header->driver_name));
+	strcpy(header->driver_name, DRIVER_NAME);
+	header->driver_name[sizeof(header->driver_name)-1] = 0;
+	header->major_version = DRIVER_MAJOR_VERSION;
+	header->minor_version = DRIVER_MINOR_VERSION;
+	(*(struct tdisk_header*)page_address(p)) = (*header);
+
+	iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, sizeof(struct tdisk_header));
+	file_start_write(file);
+	len = vfs_iter_write(file, &i, &pos);
+	file_end_write(file);
+
+	if(len < 0)
+	{
+		ret = len;
+		goto out;
+	}
+
+	if(len < sizeof(struct tdisk_header))
+	{
+		ret = -EIO;
+		goto out;
+	}
+
+ out:
+	__free_page(p);
+	return ret;
+}
+
+static int is_compatible_header(struct tdisk *td, struct tdisk_header *header)
+{
+	if(strcmp(header->driver_name, DRIVER_NAME) != 0)return 1;
+
+	if(header->major_version == DRIVER_MAJOR_VERSION)
+	{
+		if(header->minor_version > DRIVER_MINOR_VERSION)return -1;
+	}
+	else if(header->major_version > DRIVER_MAJOR_VERSION)return -2;
 
 	return 0;
 }
@@ -152,7 +244,7 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 		loff_t sector = pos_byte;
 		loff_t offset = __div64_32(&sector, td->blocksize);
 		sector_t actual_pos_byte;
-		sector += td->index_size;
+		sector += td->header_size;
 
 		index.offset = offset;
 		index.logical_sector = sector;
@@ -279,6 +371,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	struct file	*file;
 	struct inode *inode;
 	struct address_space *mapping;
+	struct tdisk_header header;
 	int flags = 0;
 	int error;
 	loff_t size;
@@ -330,13 +423,13 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	size = get_file_size(file);
 
 	error = -EINVAL;
-	if(size < (((td->index_size+1)*td->blocksize) >> 9))	//Disk too small
+	if(size < (((td->header_size+1)*td->blocksize) >> 9))	//Disk too small
 	{
-		printk(KERN_WARNING "tDisk: Can't add disk, too small: %llu. Should be at least %u\n", size, (((td->index_size+1)*td->blocksize) >> 9));
+		printk(KERN_WARNING "tDisk: Can't add disk, too small: %llu. Should be at least %u\n", size, (((td->header_size+1)*td->blocksize) >> 9));
 		goto out_putf;
 	}
 
-	size -= (td->index_size*td->blocksize) >> 9;
+	size -= (td->header_size*td->blocksize) >> 9;
 
 	error = -EFBIG;
 	if((loff_t)(sector_t)size != size)
@@ -356,8 +449,41 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		goto out_putf;
 	}
 
+	read_header(file, &header);
+	printk(KERN_DEBUG "tDisk: File header: driver: %s, minor: %u, major: %u, flags: %llu\n", header.driver_name, header.major_version, header.minor_version, header.flags);
+	switch(is_compatible_header(td, &header))
 	{
-		struct td_internal_device *new_devices = kzalloc(sizeof(struct td_internal_device) * (td->internal_devices_count+1), GFP_KERNEL);
+	case 0:
+		//OK, compatible header.
+		//Either same or lower (compatible) driver version
+		//Disk was already part of a tDisk.
+		//So doing nothing to preserve indices etc.
+		break;
+	case 1:
+		//Entirely new disk.
+		header.disk_index = td->internal_devices_count;
+		break;
+	case -1:
+		//Oops, the disk was part of a tdisk
+		//But using a driver with a higher minor number
+		//Assuming that user space knows if it's compatible...
+		//Doing nothing
+		break;
+	case -2:
+		//Oops, the disk was part of a tdisk
+		//But using a driver with a higher major number
+		//Assuming that user space knows if it's compatible...
+		//Doing nothing
+		break;
+	default:
+		//Bug
+		printk(KERN_ERR "tDisk: Bug in is_compatible_header function\n");
+		goto out_putf;
+	}
+
+	if(header.disk_index >= td->internal_devices_count)
+	{
+		struct td_internal_device *new_devices = kzalloc(sizeof(struct td_internal_device) * (header.disk_index+1), GFP_KERNEL);
 		if(new_devices == NULL)
 		{
 			error = -ENOMEM;
@@ -365,11 +491,11 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		}
 		memcpy(new_devices, td->internal_devices, sizeof(struct td_internal_device) * td->internal_devices_count);
 		swap(td->internal_devices, new_devices);
-		td->internal_devices_count++;
+		td->internal_devices_count = header.disk_index+1;
 		kfree(new_devices);
 	}
 
-	new_device = &td->internal_devices[td->internal_devices_count-1];
+	new_device = &td->internal_devices[header.disk_index];
 	new_device->old_gfp_mask = mapping_gfp_mask(mapping);
 	mapping_set_gfp_mask(mapping, new_device->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
 	new_device->speed = 0;	//TODO
@@ -384,14 +510,15 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 
 
 	//Save sector indices
+	write_header(file, &header);
 	while((size_counter+td->blocksize) <= (size << 9))
 	{
 		size_counter += td->blocksize;
-		//printk(KERN_DEBUG "tDisk: adding logical sector: %llu (%llu/%llu)\n", td->index_size + td->size_blocks, size_counter, (size << 9));
+		//printk(KERN_DEBUG "tDisk: adding logical sector: %llu (%llu/%llu)\n", td->header_size + td->size_blocks, size_counter, (size << 9));
 		index.offset = 0;
-		index.logical_sector = td->index_size + td->size_blocks++;
+		index.logical_sector = td->header_size + td->size_blocks++;
 		index.physical_sector.disk = 1;	//TODO
-		index.physical_sector.sector = td->index_size + sector++;
+		index.physical_sector.sector = td->header_size + sector++;
 		perform_index_operation(td, WRITE, &index);
 	}
 
@@ -732,7 +859,14 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	struct tdisk *td;
 	struct gendisk *disk;
 	int err;
-	unsigned int index_size_byte = max_sectors * sizeof(struct sector_index);	//Calculate index size
+	unsigned int header_size_byte;
+	unsigned int index_offset_byte;
+
+	//Calculate header size which consists
+	//of a header, disk mappings and indices
+	header_size_byte = sizeof(struct tdisk_header);
+	index_offset_byte = header_size_byte;
+	header_size_byte += max_sectors * sizeof(struct sector_index);
 
 	err = -ENOMEM;
 	td = kzalloc(sizeof(*td), GFP_KERNEL);
@@ -786,8 +920,9 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 
 	//Allocate disk indices
 	err = -ENOMEM;
-	td->index_size = index_size_byte/blocksize + ((index_size_byte%blocksize == 0) ? 0 : 1);
-	td->indices = kzalloc(td->index_size*td->blocksize, GFP_KERNEL);
+	td->index_offset_byte = index_offset_byte;
+	td->header_size = header_size_byte/blocksize + ((header_size_byte%blocksize == 0) ? 0 : 1);
+	td->indices = kzalloc(td->header_size*td->blocksize, GFP_KERNEL);
 	if(!td->indices)goto out_free_queue;
 
 	disk->flags |= GENHD_FL_EXT_DEVT;
@@ -803,6 +938,9 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	sprintf(disk->disk_name, "td%d", i);
 	add_disk(disk);
 	*t = td;
+
+	printk(KERN_DEBUG "tDisk: new disk %s: max sectors: %llu, blocksize: %u, header size: %u sec\n", disk->disk_name, max_sectors, blocksize, td->header_size);
+
 	return td->number;
 
 out_free_queue:

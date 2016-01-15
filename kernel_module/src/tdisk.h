@@ -20,6 +20,20 @@ typedef u8 tdisk_index;
 #define TDISK_MAX_PHYSICAL_DISKS ((tdisk_index)-1 -1) /*-1 because 0 means unused*/
 
 /**
+  * Describes the header (first bytes) of a physical
+  * disk. This makes it possible to identify it as a
+  * member of a tDisk
+ **/
+struct tdisk_header
+{
+	char driver_name[10];	//tdisk
+	__u32 major_version;
+	__u32 minor_version;
+	tdisk_index disk_index;	//disk index in the tdisk
+	__u64 flags;			//For future releases
+}; //end struct tdisk_header
+
+/**
   * A index represents the physical location of a logical sector
  **/
 struct sector_index
@@ -84,7 +98,8 @@ struct tdisk {
 	struct blk_mq_tag_set	tag_set;
 	struct gendisk			*kernel_disk;
 
-	unsigned int index_size;		//Size in sectors of the index where the sectors are stored. Located at the beginning of the disk
+	unsigned int index_offset_byte;
+	unsigned int header_size;		//Size in sectors of the index where the sectors are stored. Located at the beginning of the disk
 	u8 *indices;					//The indices of the index needs to be stored in memory
 };
 

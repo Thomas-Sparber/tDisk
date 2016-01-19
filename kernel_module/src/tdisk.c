@@ -112,6 +112,9 @@ int perform_index_operation(struct tdisk *td_dev, int direction, sector_t logica
 
 	if(position + length > td_dev->header_size * td_dev->blocksize)return 1;
 
+	//Increment access count
+	((struct sector_index*)td_dev->indices+position)->access_count++;
+
 	//index operation
 	if(direction == READ)
 		memcpy(physical_sector, td_dev->indices+position, length);

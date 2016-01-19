@@ -3,7 +3,11 @@
 
 #include <linux/types.h>
 
-#define TD_NAME_SIZE	64
+#define DRIVER_NAME "tDisk"
+#define DRIVER_MAJOR_VERSION 1
+#define DRIVER_MINOR_VERSION 0
+
+typedef __u8 tdisk_index;
 
 /*
  * tDisk flags
@@ -13,13 +17,26 @@ enum {
 	TD_FLAGS_AUTOCLEAR	= 4
 };
 
+/**
+  * A index represents the physical location of a logical sector
+ **/
+struct sector_index
+{
+	//The disk where the logical sector is stored
+	tdisk_index disk;
+
+	//The physical sector on the disk where the logic sector is stored
+	__u64 sector;
+
+	//This variable stores the access count of the physical sector
+	__u16 access_count;
+}; //end struct sector_index;
 
 struct tdisk_info {
 	__u64		   block_device;		/* ioctl r/o */
 	__u64		   sizelimit;			/* bytes, 0 == max available */
 	__u32		   number;				/* ioctl r/o */
 	__u32		   flags;				/* ioctl r/o */
-	__u8		   file_name[TD_NAME_SIZE];
 };
 
 /*

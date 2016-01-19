@@ -471,7 +471,7 @@ static void reread_partitions(struct tdisk *td, struct block_device *bdev)
 	else
 		rc = blkdev_reread_part(bdev);
 
-	if(rc)pr_warn("tDisk: partition scan of loop%d (%s) failed (rc=%d)\n", td->number, td->file_name, rc);
+	if(rc)pr_warn("tDisk: partition scan of loop%d failed (rc=%d)\n", td->number, rc);
 #endif
 	ioctl_by_bdev(bdev, BLKRRPART, 0);
 }
@@ -729,7 +729,6 @@ static int tdisk_clr_fd(struct tdisk *td)
 	//spin_unlock_irq(&td->lock);
 
 	td->block_device = NULL;
-	memset(td->file_name, 0, TD_NAME_SIZE);
 
 	if(bdev)
 	{
@@ -797,9 +796,6 @@ static int tdisk_set_status64(struct tdisk *td, const struct tdisk_info __user *
 	if(td->state != state_bound)
 		return -ENXIO;
 
-	memcpy(td->file_name, info.file_name, TD_NAME_SIZE);
-	td->file_name[TD_NAME_SIZE-1] = 0;
-
 	if((td->flags & TD_FLAGS_AUTOCLEAR) != (info.flags & TD_FLAGS_AUTOCLEAR))
 		td->flags ^= TD_FLAGS_AUTOCLEAR;
 
@@ -821,7 +817,6 @@ static int tdisk_get_status64(struct tdisk *td, struct tdisk_info __user *arg)
 	info.number = td->number;
 	//info->block_device = huge_encode_dev(stat.dev);
 	info.flags = td->flags;
-	memcpy(info.file_name, td->file_name, TD_NAME_SIZE);
 
 	if(copy_to_user(arg, &info, sizeof(info)) != 0)
 		return -EFAULT;

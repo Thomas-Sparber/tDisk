@@ -30,7 +30,7 @@ struct tdisk_header
 	__u32 major_version;
 	__u32 minor_version;
 	tdisk_index disk_index;	//disk index in the tdisk
-	__u64 flags;			//For future releases
+	char placeholder[128];	//For future releases
 }; //end struct tdisk_header
 
 /**
@@ -41,7 +41,7 @@ struct sector_index
 	//The disk where the logical sector is stored
 	tdisk_index disk;
 
-	//The physical sector on the disk where the logica sector is stored
+	//The physical sector on the disk where the logic sector is stored
 	sector_t sector;
 }; //end struct sector_index;
 

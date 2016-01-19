@@ -43,16 +43,17 @@ struct tdisk_info {
  * IOCTL commands --- we will commandeer 0x4C ('L')
  */
 
-#define TDISK_SET_FD		0x4C00
-#define TDISK_CLR_FD		0x4C01
-#define TDISK_SET_STATUS	0x4C04
-#define TDISK_GET_STATUS	0x4C05
-//#define TDISK_CHANGE_FD	0x4C06
-#define TDISK_SET_CAPACITY	0x4C07
+#define TDISK_SET_FD			0x4C00
+#define TDISK_CLR_FD			0x4C01
+#define TDISK_SET_STATUS		0x4C04
+#define TDISK_GET_STATUS		0x4C05
+#define TDISK_GET_MAX_SECTORS	0x4C06
+#define TDISK_GET_SECTOR_INDEX	0x4C07
+#define TDISK_SET_CAPACITY		0x4C08
 
 /* /dev/loop-control interface */
-#define TDISK_CTL_ADD		0x4C80
-#define TDISK_CTL_REMOVE	0x4C81
-#define TDISK_CTL_GET_FREE	0x4C82
+#define TDISK_CTL_ADD			0x4C80
+#define TDISK_CTL_REMOVE		0x4C81
+#define TDISK_CTL_GET_FREE		0x4C82
 
 #endif //TDISK_INTERFACE_H

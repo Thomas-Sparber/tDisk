@@ -820,16 +820,27 @@ static int tdisk_get_status64(struct tdisk *td, struct tdisk_info __user *arg)
 	if(td->state != state_bound)
 		return -ENXIO;
 
-	//error = vfs_getattr(&file->f_path, &stat);
-	//if(error)
-	//	return error;
-
 	memset(&info, 0, sizeof(info));
 	info.number = td->number;
 	//info->block_device = huge_encode_dev(stat.dev);
 	info.flags = td->flags;
 
 	if(copy_to_user(arg, &info, sizeof(info)) != 0)
+		return -EFAULT;
+
+	return 0;
+}
+
+static int tdisk_get_sector_index(struct tdisk *td, struct sector_index __user *arg)
+{
+	struct sector_index index;
+
+	if(copy_from_user(&index, arg, sizeof(struct sector_index)) != 0)
+		return -EFAULT;
+
+	if(index.sector >= td->max_sectors)return -EINVAL;
+
+	if(copy_to_user(arg, td->sorted_sectors[index.sector].physical_sector, sizeof(struct sector_index)) != 0)
 		return -EFAULT;
 
 	return 0;
@@ -849,8 +860,7 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 	case TDISK_CLR_FD:
 		//tdisk_clr_fd would have unlocked ctl_mutex on success
 		err = tdisk_clr_fd(td);
-		if(!err)
-			goto out_unlocked;
+		if(!err)goto out_unlocked;
 		break;
 	case TDISK_SET_STATUS:
 		err = -EPERM;
@@ -859,6 +869,14 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 		break;
 	case TDISK_GET_STATUS:
 		err = tdisk_get_status64(td, (struct tdisk_info __user *) arg);
+		break;
+	case TDISK_GET_MAX_SECTORS:
+		if(copy_to_user((__u64 __user *)arg, &td->max_sectors, sizeof(__u64)) != 0)
+			err = -EFAULT;
+		else err = 0;
+		break;
+	case TDISK_GET_SECTOR_INDEX:
+		err = tdisk_get_sector_index(td, (struct sector_index __user *) arg);
 		break;
 	default:
 		err = -EINVAL;

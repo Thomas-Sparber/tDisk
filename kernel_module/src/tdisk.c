@@ -105,20 +105,20 @@ static int td_req_flush(struct tdisk *td)
 	return ret;
 }
 
-int perform_index_operation(struct tdisk *td_dev, int direction, struct mapped_sector_index *index)
+int perform_index_operation(struct tdisk *td_dev, int direction, sector_t logical_sector, struct sector_index *physical_sector)
 {
-	loff_t position = td_dev->index_offset_byte + index->logical_sector * sizeof(struct sector_index);
+	loff_t position = td_dev->index_offset_byte + logical_sector * sizeof(struct sector_index);
 	unsigned int length = sizeof(struct sector_index);
 
 	if(position + length > td_dev->header_size * td_dev->blocksize)return 1;
 
 	//index operation
 	if(direction == READ)
-		memcpy(&index->physical_sector, td_dev->indices+position, length);
+		memcpy(physical_sector, td_dev->indices+position, length);
 	else if(direction == COMPARE)
 	{
 		struct sector_index *cmp = (struct sector_index*)td_dev->indices+position;
-		if(index->physical_sector.disk != cmp->disk || index->physical_sector.sector != cmp->sector)return -1;
+		if(physical_sector->disk != cmp->disk || physical_sector->sector != cmp->sector)return -1;
 	}
 	else if(direction == WRITE)
 	{
@@ -133,10 +133,10 @@ int perform_index_operation(struct tdisk *td_dev, int direction, struct mapped_s
 			.bv_offset = 0
 		};
 
-		(*(struct sector_index*)page_address(p)) = index->physical_sector;
+		(*(struct sector_index*)page_address(p)) = (*physical_sector);
 
 		//Memory operation
-		memcpy(td_dev->indices+position, &index->physical_sector, length);
+		memcpy(td_dev->indices+position, physical_sector, length);
 
 		//Disk operations
 		for(j = 0; j < td_dev->internal_devices_count; ++j)
@@ -345,7 +345,7 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 	ssize_t len;
 	loff_t pos_byte;
 	int ret = 0;
-	struct mapped_sector_index index;
+	struct sector_index physical_sector;
 
 	pos_byte = (loff_t)blk_rq_pos(rq) << 9;
 
@@ -372,20 +372,20 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 		sector_t actual_pos_byte;
 		sector += td->header_size;
 
-		index.offset = offset;
-		index.logical_sector = sector;
-		perform_index_operation(td, READ, &index);
+		//index.offset = offset;
+		//index.logical_sector = sector;
+		perform_index_operation(td, READ, sector, &physical_sector);
 
-		actual_pos_byte = index.physical_sector.sector*td->blocksize + index.offset;
+		actual_pos_byte = physical_sector.sector*td->blocksize + offset;
 
-		if(index.physical_sector.disk == 0 || index.physical_sector.disk > td->internal_devices_count)
+		if(physical_sector.disk == 0 || physical_sector.disk > td->internal_devices_count)
 		{
-			printk_ratelimited(KERN_ERR "tDisk: found invalid disk index for reading logical sector %llu: %u\n", index.logical_sector, index.physical_sector.disk);
+			printk_ratelimited(KERN_ERR "tDisk: found invalid disk index for reading logical sector %llu: %u\n", sector, physical_sector.disk);
 			ret = -EIO;
 			break;
 		}
 
-		file = td->internal_devices[index.physical_sector.disk - 1].backing_file;	//-1 because 0 means unused
+		file = td->internal_devices[physical_sector.disk - 1].backing_file;	//-1 because 0 means unused
 		if(!file)
 		{
 			printk_ratelimited(KERN_DEBUG "tDisk: backing_file is NULL, Disk probably not yet loaded...\n");
@@ -394,11 +394,11 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 		}
 
 		/*printk(KERN_DEBUG "tDisk: Logical sector:%llu (%llu), disk:%u, physical sector:%llu, offset: %llu (=%llu)\n",
-								index.logical_sector,
+								sector,
 								pos_byte,
-								index.physical_sector.disk,
-								index.physical_sector.sector,
-								index.offset,
+								physical_sector.disk,
+								physical_sector.sector,
+								offset,
 								actual_pos_byte);*/
 
 		iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, bvec.bv_len);
@@ -505,7 +505,8 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	loff_t size;
 	loff_t size_counter = 0;
 	sector_t sector = 0;
-	struct mapped_sector_index index;
+	sector_t logical_sector;
+	struct sector_index physical_sector;
 	struct td_internal_device *new_device = NULL;
 	int index_operation_to_do;
 	int first_device = (td->internal_devices_count == 0);
@@ -582,7 +583,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	}
 
 	read_header(file, &header);
-	printk(KERN_DEBUG "tDisk: File header: driver: %s, minor: %u, major: %u, flags: %llu\n", header.driver_name, header.major_version, header.minor_version, header.flags);
+	printk(KERN_DEBUG "tDisk: File header: driver: %s, minor: %u, major: %u\n", header.driver_name, header.major_version, header.minor_version);
 	switch(is_compatible_header(td, &header))
 	{
 	case 0:
@@ -647,11 +648,10 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		{
 			size_counter += td->blocksize;
 			//printk(KERN_DEBUG "tDisk: adding logical sector: %llu (%llu/%llu)\n", td->header_size + td->size_blocks, size_counter, (size << 9));
-			index.offset = 0;
-			index.logical_sector = td->header_size + td->size_blocks++;
-			index.physical_sector.disk = header.disk_index + 1;	//+1 because 0 means unused
-			index.physical_sector.sector = td->header_size + sector++;
-			perform_index_operation(td, index_operation_to_do, &index);
+			logical_sector = td->header_size + td->size_blocks++;
+			physical_sector.disk = header.disk_index + 1;	//+1 because 0 means unused
+			physical_sector.sector = td->header_size + sector++;
+			perform_index_operation(td, index_operation_to_do, logical_sector, &physical_sector);
 		}
 		break;
 	case READ:

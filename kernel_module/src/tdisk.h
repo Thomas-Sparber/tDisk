@@ -32,11 +32,10 @@ struct tdisk_header
   * A mapped_sector_index represents the mapping of a logical sector
   * to a physical (disk & sector) sector
  **/
-struct mapped_sector_index
+struct sorted_sector_index
 {
-	loff_t offset;
-	sector_t logical_sector;
-	struct sector_index physical_sector;
+	struct sector_index *physical_sector;
+	struct list_head list;
 }; //end struct mapped sector index
 
 struct td_internal_device
@@ -57,8 +56,8 @@ enum {
 struct tdisk {
 	int			number;
 	atomic_t	refcount;
-	loff_t		sizelimit;
 	int			flags;
+	sector_t	max_sectors;
 
 	struct block_device	*block_device;
 	unsigned int		blocksize;
@@ -82,6 +81,8 @@ struct tdisk {
 	unsigned int index_offset_byte;
 	unsigned int header_size;		//Size in sectors of the index where the header and sectors are stored. Located at the beginning of the disk
 	u8 *indices;					//The indices of the index needs to be stored in memory
+
+	struct sorted_sector_index *sorted_sectors;	//The sectors sorted according to their access count;
 };
 
 struct td_command {

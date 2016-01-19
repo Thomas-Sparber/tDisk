@@ -505,7 +505,6 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	loff_t size;
 	loff_t size_counter = 0;
 	sector_t sector = 0;
-	sector_t logical_sector;
 	struct sector_index physical_sector;
 	struct td_internal_device *new_device = NULL;
 	int index_operation_to_do;
@@ -634,7 +633,6 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	td->block_device = bdev;
 	td->flags = flags;
 
-
 	switch(index_operation_to_do)
 	{
 	case WRITE:
@@ -646,12 +644,22 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		//Save sector indices
 		while((size_counter+td->blocksize) <= (size << 9))
 		{
+			int internal_ret;
+			sector_t logical_sector = td->header_size + td->size_blocks++;
 			size_counter += td->blocksize;
 			//printk(KERN_DEBUG "tDisk: adding logical sector: %llu (%llu/%llu)\n", td->header_size + td->size_blocks, size_counter, (size << 9));
-			logical_sector = td->header_size + td->size_blocks++;
 			physical_sector.disk = header.disk_index + 1;	//+1 because 0 means unused
 			physical_sector.sector = td->header_size + sector++;
-			perform_index_operation(td, index_operation_to_do, logical_sector, &physical_sector);
+			internal_ret = perform_index_operation(td, index_operation_to_do, logical_sector, &physical_sector);
+			if(internal_ret == 1)
+			{
+				printk(KERN_WARNING "tDisk: Additional disk doesn't fit in index. Shrinking to fit.\n");
+				break;
+			}
+			else if(internal_ret == -1)
+			{
+				printk(KERN_WARNING "tDisk: Disk index doesn't match. Probably wrong or corrupt disk attached. Pay attention before you write to disk!\n");
+			}
 		}
 		break;
 	case READ:
@@ -997,6 +1005,7 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	struct tdisk *td;
 	struct gendisk *disk;
 	int err;
+	sector_t j;
 	unsigned int header_size_byte;
 	unsigned int index_offset_byte;
 
@@ -1063,6 +1072,19 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	td->indices = kzalloc(td->header_size*td->blocksize, GFP_KERNEL);
 	if(!td->indices)goto out_free_queue;
 
+	//Allocate sorted disk indices
+	td->max_sectors = td->header_size*td->blocksize - td->index_offset_byte;
+	__div64_32(&td->max_sectors, sizeof(struct sector_index));
+	td->sorted_sectors = kzalloc(sizeof(struct sorted_sector_index) * td->max_sectors, GFP_KERNEL);
+	if(!td->sorted_sectors)goto out_free_indices;
+	for(j = 0; j < td->max_sectors; ++j)
+	{
+		INIT_LIST_HEAD(&td->sorted_sectors[j].list);
+		td->sorted_sectors[j].physical_sector = (struct sector_index*)(td->indices + sizeof(struct sector_index)*j + td->index_offset_byte);
+
+		if(j != 0)list_add(&td->sorted_sectors[j].list, &td->sorted_sectors[j-1].list);
+	}
+
 	disk->flags |= GENHD_FL_EXT_DEVT;
 	mutex_init(&td->ctl_mutex);
 	atomic_set(&td->refcount, 0); 
@@ -1082,6 +1104,8 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 
 	return td->number;
 
+out_free_indices:
+	kfree(td->indices);
 out_free_queue:
 	blk_cleanup_queue(td->queue);
 out_cleanup_tags:
@@ -1100,6 +1124,7 @@ void tdisk_remove(struct tdisk *td)
 	del_gendisk(td->kernel_disk);
 	blk_mq_free_tag_set(&td->tag_set);
 	put_disk(td->kernel_disk);
+	kfree(td->sorted_sectors);
 	kfree(td->indices);
 	kfree(td);
 }

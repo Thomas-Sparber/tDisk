@@ -10,7 +10,9 @@ enum {
 	add,
 	delete,
 	add_disk,
-	clear
+	clear,
+	get_max_sectors,
+	get_sector_index
 };
 
 struct
@@ -21,7 +23,9 @@ struct
 	DECLARE_OPERATION(add),
 	DECLARE_OPERATION(delete),
 	DECLARE_OPERATION(add_disk),
-	DECLARE_OPERATION(clear)
+	DECLARE_OPERATION(clear),
+	DECLARE_OPERATION(get_max_sectors),
+	DECLARE_OPERATION(get_sector_index)
 };
 
 int operations_count = sizeof(operations) / sizeof(operations[0]);
@@ -99,6 +103,32 @@ int main(int argc, char* args[])
 
 		ret = tdisk_clear(args[2]);
 		if(!print_error(ret))printf("Device %s cleared\n", args[2]);
+
+		break;
+	case get_max_sectors:
+		do
+		{
+			__u64 max_sectors;
+			ret = tdisk_get_max_sectors(args[2], &max_sectors);
+			if(!print_error(ret))printf("%llu\n", max_sectors);
+		}
+		while(0);
+		break;
+	case get_sector_index:
+		if(argc <= 2)
+		{
+			fprintf(stderr, "Error: \"get_sector_index\" needs the sector index to retrieve\n");
+			ret = 1;
+			break;
+		}
+
+		do
+		{
+			struct sector_index index;
+			ret = tdisk_get_sector_index(args[2], strtoull(args[3], NULL, 10), &index);
+			if(!print_error(ret))printf("Disk: %u\nSector: %llu\nAccess_count: %u\n", index.disk, index.sector, index.access_count);
+		}
+		while(0);
 
 		break;
 	default:

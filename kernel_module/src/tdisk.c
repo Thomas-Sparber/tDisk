@@ -17,6 +17,7 @@
 #include <linux/miscdevice.h>
 #include <linux/falloc.h>
 #include <linux/uio.h>
+#include <linux/version.h>
 
 #include "helpers.h"
 #include "tdisk.h"
@@ -85,7 +86,7 @@ static int td_flush(struct tdisk *td)
 	return 0;
 }
 
-static int td_req_flush(struct tdisk *td, struct request *rq)
+static int td_req_flush(struct tdisk *td)
 {
 	unsigned int i;
 	int ret = 0;
@@ -133,7 +134,6 @@ int perform_index_operation(struct tdisk *td_dev, int direction, struct mapped_s
 		};
 
 		(*(struct sector_index*)page_address(p)) = index->physical_sector;
-		iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, sizeof(struct sector_index));
 
 		//Memory operation
 		memcpy(td_dev->indices+position, &index->physical_sector, length);
@@ -142,12 +142,15 @@ int perform_index_operation(struct tdisk *td_dev, int direction, struct mapped_s
 		for(j = 0; j < td_dev->internal_devices_count; ++j)
 		{
 			struct file *file = td_dev->internal_devices[j].backing_file;
-			printk_ratelimited(KERN_DEBUG "tDisk: File: %p\n", file);
+			//printk(KERN_DEBUG "tDisk: File: %p\n", file);
 
 			if(file)
 			{
+				loff_t pos = position;
+				iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, sizeof(struct sector_index));
+
 				file_start_write(file);
-				len = vfs_iter_write(file, &i, &position);
+				len = vfs_iter_write(file, &i, &pos);
 				file_end_write(file);
 
 				if(len < 0)ret = len;
@@ -244,6 +247,7 @@ static int read_all_indices(struct tdisk *td, struct file *file)
 	int ret = 0;
 	int len;
 	loff_t pos = sizeof(struct tdisk_header);	//Skip header
+	loff_t old_pos;
 	struct iov_iter i;
 	struct page *p = alloc_page(GFP_KERNEL);
 	struct bio_vec bvec = {
@@ -252,27 +256,69 @@ static int read_all_indices(struct tdisk *td, struct file *file)
 		.bv_offset = 0
 	};
 
-	iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, PAGE_SIZE);
-
 	do
 	{
+		old_pos = pos;
+		iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, PAGE_SIZE);
 		len = vfs_iter_read(file, &i, &pos);
 
 		if(len < 0)
 		{
-			ret = -len;
+			ret = len;
 			break;
 		}
 
-		if(pos > td->header_size*td->blocksize)
-			len -= pos - td->header_size*td->blocksize;
+		if(old_pos+len > td->header_size*td->blocksize)
+			len = td->header_size*td->blocksize - old_pos;
 
-		memcpy(td->indices+pos-len, page_address(p), len);
+		printk(KERN_DEBUG "tDisk: reading indices %llu - %llu", old_pos, old_pos+len);
+		memcpy(td->indices+old_pos, page_address(p), len);
 	}
-	while(pos < td->header_size*td->blocksize && len == PAGE_SIZE);
+	while(pos < td->header_size*td->blocksize);
 
 	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
 	else printk(KERN_DEBUG "tDisk: Success reading all disk indices\n");
+
+	__free_page(p);
+	return ret;
+}
+
+static int write_all_indices(struct tdisk *td, struct file *file)
+{
+	int ret = 0;
+	int len;
+	loff_t pos = sizeof(struct tdisk_header);	//Skip header
+	struct iov_iter i;
+	struct page *p = alloc_page(GFP_KERNEL);
+	struct bio_vec bvec = {
+		.bv_page = p,
+		.bv_len = PAGE_SIZE,
+		.bv_offset = 0
+	};
+
+	do
+	{
+		len = PAGE_SIZE;
+		if(pos+len > td->header_size*td->blocksize)len = td->header_size*td->blocksize - pos;
+
+		printk(KERN_DEBUG "tDisk: writing indices %llu - %llu", pos, pos+len);
+		memcpy(page_address(p), td->indices+pos, len);
+
+		iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, len);
+		file_start_write(file);
+		len = vfs_iter_write(file, &i, &pos);
+		file_end_write(file);
+
+		if(len < 0)
+		{
+			ret = len;
+			break;
+		}
+	}
+	while(pos < td->header_size*td->blocksize);
+
+	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
+	else printk(KERN_DEBUG "tDisk: Success writing all disk indices\n");
 
 	__free_page(p);
 	return ret;
@@ -306,7 +352,7 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 	//Handle flush operations
 	if((rq->cmd_flags & REQ_WRITE) && (rq->cmd_flags & REQ_FLUSH))
 	{
-		ret = td_req_flush(td, rq);
+		ret = td_req_flush(td);
 		goto finished;
 	}
 
@@ -432,8 +478,10 @@ static void reread_partitions(struct tdisk *td, struct block_device *bdev)
 
 static void unprepare_queue(struct tdisk *td)
 {
+	printk(KERN_DEBUG "tDisk: Unpreparing\n");
 	flush_kthread_worker(&td->worker);
 	kthread_stop(td->worker_task);
+	printk(KERN_DEBUG "tDisk: Unprepared\n");
 }
 
 static int prepare_queue(struct tdisk *td)
@@ -568,26 +616,15 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		printk(KERN_ERR "tDisk: Bug in is_compatible_header function\n");
 		goto out_putf;
 	}
-
-	if(header.disk_index >= td->internal_devices_count)
-	{
-		struct td_internal_device *new_devices = kzalloc(sizeof(struct td_internal_device) * (header.disk_index+1), GFP_KERNEL);
-		if(new_devices == NULL)
-		{
-			error = -ENOMEM;
-			goto out_putf;
-		}
-		memcpy(new_devices, td->internal_devices, sizeof(struct td_internal_device) * td->internal_devices_count);
-		swap(td->internal_devices, new_devices);
-		td->internal_devices_count = header.disk_index+1;
-		kfree(new_devices);
-	}
+	if(header.disk_index >= td->internal_devices_count)td->internal_devices_count = header.disk_index+1;
 
 	new_device = &td->internal_devices[header.disk_index];
 	new_device->old_gfp_mask = mapping_gfp_mask(mapping);
 	mapping_set_gfp_mask(mapping, new_device->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
 	new_device->speed = 0;	//TODO
 	new_device->backing_file = file;
+
+	//printk(KERN_DEBUG "tDisk: %u devices, index operation: %s\n", td->internal_devices_count, index_operation_to_do == WRITE ? "write" : index_operation_to_do == READ ? "read" : "compare");
 
 	error = 0;
 
@@ -599,9 +636,10 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 
 	switch(index_operation_to_do)
 	{
-	case WRITE:		
+	case WRITE:
 		//Writing header to disk
 		write_header(file, &header);
+		write_all_indices(td, file);
 		//IMPORTANT: continuing and writing indices as well...
 	case COMPARE:
 		//Save sector indices
@@ -611,17 +649,21 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 			//printk(KERN_DEBUG "tDisk: adding logical sector: %llu (%llu/%llu)\n", td->header_size + td->size_blocks, size_counter, (size << 9));
 			index.offset = 0;
 			index.logical_sector = td->header_size + td->size_blocks++;
-			index.physical_sector.disk = 1;	//TODO
+			index.physical_sector.disk = header.disk_index + 1;	//+1 because 0 means unused
 			index.physical_sector.sector = td->header_size + sector++;
 			perform_index_operation(td, index_operation_to_do, &index);
 		}
 		break;
 	case READ:
 		read_all_indices(td, file);
-		while((size_counter+td->blocksize) <= (size << 9))td->size_blocks++;
+		while((size_counter+td->blocksize) <= (size << 9))
+		{
+			size_counter += td->blocksize;
+			td->size_blocks++;
+		}
 		break;
 	}
-	printk(KERN_DEBUG "tDisk: new physical disk: size: %llu bytes. Logical size(%llu)\n", size << 9, td->size_blocks*td->blocksize);
+	printk(KERN_DEBUG "tDisk: new physical disk %u: size: %llu bytes. Logical size(%llu)\n", header.disk_index, size << 9, td->size_blocks*td->blocksize);
 
 	if(!(flags & TD_FLAGS_READ_ONLY) && file->f_op->fsync)
 		blk_queue_flush(td->queue, REQ_FLUSH);
@@ -677,7 +719,9 @@ static int tdisk_clr_fd(struct tdisk *td)
 	}
 
 	//freeze request queue during the transition
-	blk_mq_freeze_queue(td->queue); 
+	printk(KERN_DEBUG "tDisk: Before freeze\n");
+	blk_mq_freeze_queue(td->queue);
+	printk(KERN_DEBUG "tDisk: After freeze\n");
 
 	//spin_lock_irq(&td->lock);
 	td->state = state_cleared;
@@ -706,7 +750,9 @@ static int tdisk_clr_fd(struct tdisk *td)
 	td->state = state_unbound;
 	//This is safe: open() is still holding a reference.
 	module_put(THIS_MODULE);
-	blk_mq_unfreeze_queue(td->queue); 
+	printk(KERN_DEBUG "tDisk: Before unfreeze\n");
+	blk_mq_unfreeze_queue(td->queue);
+	printk(KERN_DEBUG "tDisk: After unfreeze\n");
 
 	if(bdev)reread_partitions(td, bdev);//ioctl_by_bdev(bdev, BLKRRPART, 0);
 	td->flags = 0;
@@ -722,6 +768,7 @@ static int tdisk_clr_fd(struct tdisk *td)
 	for(i = 0; i < td->internal_devices_count; ++i)
 	{
 		struct file *filp = td->internal_devices[i].backing_file;
+		td->internal_devices[i].backing_file = NULL;
 
 		if(filp)
 		{
@@ -732,7 +779,8 @@ static int tdisk_clr_fd(struct tdisk *td)
 			fput(filp);
 		}
 	}
-	kfree(td->internal_devices);
+	td->internal_devices_count = 0;
+	//kfree(td->internal_devices);
 
 	printk(KERN_DEBUG "tDisk: disk %d deleted\n", td->number);
 
@@ -919,8 +967,12 @@ static void tdisk_handle_cmd(struct td_command *cmd)
 	ret = do_req_filebacked(td, cmd->rq);
 
  failed:
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
 	if(ret)cmd->rq->errors = -EIO;
 	blk_mq_complete_request(cmd->rq);
+#else
+	blk_mq_complete_request(cmd->rq, ret ? -EIO : 0);
+#endif
 }
 
 static void tdisk_queue_work(struct kthread_work *work)
@@ -960,7 +1012,7 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	header_size_byte += max_sectors * sizeof(struct sector_index);
 
 	err = -ENOMEM;
-	td = kzalloc(sizeof(*td), GFP_KERNEL);
+	td = kzalloc(sizeof(struct tdisk), GFP_KERNEL);
 	if(!td)goto out;
 
 	td->state = state_unbound;

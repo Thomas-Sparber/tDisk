@@ -84,7 +84,7 @@ struct tdisk {
 
 	//The actual disks
 	tdisk_index internal_devices_count;
-	struct td_internal_device *internal_devices;
+	struct td_internal_device internal_devices[TDISK_MAX_PHYSICAL_DISKS];
 
 	spinlock_t				lock;
 	int						state;

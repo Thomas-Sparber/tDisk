@@ -18,6 +18,8 @@
 #include <linux/falloc.h>
 #include <linux/uio.h>
 #include <linux/version.h>
+#include <linux/vmalloc.h>
+#include <linux/list_sort.h>
 
 #include "helpers.h"
 #include "tdisk.h"
@@ -105,23 +107,71 @@ static int td_req_flush(struct tdisk *td)
 	return ret;
 }
 
+void reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
+{
+	//int i;
+	struct sorted_sector_index *index;
+	struct sorted_sector_index *next;
+	struct sorted_sector_index *prev;
+
+	if(logical_sector >= td->max_sectors)return;
+
+	index = &td->sorted_sectors[logical_sector];
+
+	//Move index backwards
+	while(index->list.next)
+	{
+		next = hlist_entry(index->list.next, struct sorted_sector_index, list);
+
+		if(index->physical_sector->access_count < next->physical_sector->access_count)
+		{
+			printk_ratelimited(KERN_DEBUG "tDisk: Moving index (%llu) backwards\n", logical_sector);
+			hlist_del_init(&index->list);
+			hlist_add_behind(&index->list, &next->list);
+		}
+		else break;
+	}
+
+	//Move index forwards
+	while(index->list.pprev)
+	{
+		prev = hlist_entry(*index->list.pprev, struct sorted_sector_index, list);
+
+		if(index->physical_sector->access_count > prev->physical_sector->access_count)
+		{
+			printk_ratelimited(KERN_DEBUG "tDisk: Moving index (%llu) forwards %u, %u\n", logical_sector, index->physical_sector->access_count, prev->physical_sector->access_count);
+			hlist_del_init(&index->list);
+			hlist_add_before(&index->list, &prev->list);
+		}
+		else break;
+	}
+}
+
 int perform_index_operation(struct tdisk *td_dev, int direction, sector_t logical_sector, struct sector_index *physical_sector)
 {
+	struct sector_index *actual;
 	loff_t position = td_dev->index_offset_byte + logical_sector * sizeof(struct sector_index);
 	unsigned int length = sizeof(struct sector_index);
 
 	if(position + length > td_dev->header_size * td_dev->blocksize)return 1;
+	actual = (struct sector_index*)(td_dev->indices+position);
 
 	//Increment access count
-	((struct sector_index*)td_dev->indices+position)->access_count++;
+	actual->access_count++;
+	reorganize_sorted_index(td_dev, logical_sector);
+	//printk_ratelimited(KERN_DEBUG "tDisk: index operation at %p - %p\n", td_dev->indices+position, td_dev->indices+position+length);
 
 	//index operation
 	if(direction == READ)
-		memcpy(physical_sector, td_dev->indices+position, length);
+		(*physical_sector) = (*actual);//memcpy(physical_sector, td_dev->indices+position, length);
 	else if(direction == COMPARE)
 	{
-		struct sector_index *cmp = (struct sector_index*)td_dev->indices+position;
-		if(physical_sector->disk != cmp->disk || physical_sector->sector != cmp->sector)return -1;
+		//struct sector_index *actual = (struct sector_index*)(td_dev->indices+position);
+		if(physical_sector->disk != actual->disk || physical_sector->sector != actual->sector)
+		{
+			//printk_ratelimited(KERN_DEBUG "tDisk: non matching index: disk: %u, sector: %llu <--> disk: %u, sector: %llu\n", actual->disk, actual->sector, physical_sector->disk, physical_sector->sector);
+			return -1;
+		}
 	}
 	else if(direction == WRITE)
 	{
@@ -139,7 +189,7 @@ int perform_index_operation(struct tdisk *td_dev, int direction, sector_t logica
 		(*(struct sector_index*)page_address(p)) = (*physical_sector);
 
 		//Memory operation
-		memcpy(td_dev->indices+position, physical_sector, length);
+		(*actual) = (*physical_sector);//memcpy(td_dev->indices+position, physical_sector, length);
 
 		//Disk operations
 		for(j = 0; j < td_dev->internal_devices_count; ++j)
@@ -249,6 +299,7 @@ static int read_all_indices(struct tdisk *td, struct file *file)
 {
 	int ret = 0;
 	int len;
+	sector_t logical_sector;
 	loff_t pos = sizeof(struct tdisk_header);	//Skip header
 	loff_t old_pos;
 	struct iov_iter i;
@@ -274,13 +325,17 @@ static int read_all_indices(struct tdisk *td, struct file *file)
 		if(old_pos+len > td->header_size*td->blocksize)
 			len = td->header_size*td->blocksize - old_pos;
 
-		printk(KERN_DEBUG "tDisk: reading indices %llu - %llu", old_pos, old_pos+len);
+		//printk(KERN_DEBUG "tDisk: reading indices %p - %p", td->indices+old_pos, td->indices+old_pos+len);
 		memcpy(td->indices+old_pos, page_address(p), len);
 	}
 	while(pos < td->header_size*td->blocksize);
 
 	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
 	else printk(KERN_DEBUG "tDisk: Success reading all disk indices\n");
+
+	//Sort initial indices
+	for(logical_sector = 0; logical_sector < td->max_sectors; ++logical_sector)
+		reorganize_sorted_index(td, logical_sector);
 
 	__free_page(p);
 	return ret;
@@ -304,7 +359,7 @@ static int write_all_indices(struct tdisk *td, struct file *file)
 		len = PAGE_SIZE;
 		if(pos+len > td->header_size*td->blocksize)len = td->header_size*td->blocksize - pos;
 
-		printk(KERN_DEBUG "tDisk: writing indices %llu - %llu", pos, pos+len);
+		//printk(KERN_DEBUG "tDisk: writing indices %p - %p", td->indices+pos, td->indices+pos+len);
 		memcpy(page_address(p), td->indices+pos, len);
 
 		iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, len);
@@ -661,7 +716,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 			}
 			else if(internal_ret == -1)
 			{
-				printk(KERN_WARNING "tDisk: Disk index doesn't match. Probably wrong or corrupt disk attached. Pay attention before you write to disk!\n");
+				printk_ratelimited(KERN_WARNING "tDisk: Disk index doesn't match. Probably wrong or corrupt disk attached. Pay attention before you write to disk!\n");
 			}
 		}
 		break;
@@ -846,6 +901,19 @@ static int tdisk_get_sector_index(struct tdisk *td, struct sector_index __user *
 	return 0;
 }
 
+static int tdisk_get_all_sector_indices(struct tdisk *td, struct sector_index __user *arg)
+{
+	sector_t i;
+
+	for(i = 0; i < td->max_sectors; ++i)
+	{
+		if(copy_to_user(&arg[i], td->sorted_sectors[i].physical_sector, sizeof(struct sector_index)) != 0)
+			return -EFAULT;
+	}
+
+	return 0;
+}
+
 static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, unsigned long arg)
 {
 	struct tdisk *td = bdev->bd_disk->private_data;
@@ -877,6 +945,9 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 		break;
 	case TDISK_GET_SECTOR_INDEX:
 		err = tdisk_get_sector_index(td, (struct sector_index __user *) arg);
+		break;
+	case TDISK_GET_ALL_SECTOR_INDICES:
+		err = tdisk_get_all_sector_indices(td, (struct sector_index __user *) arg);
 		break;
 	default:
 		err = -EINVAL;
@@ -1090,20 +1161,25 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	err = -ENOMEM;
 	td->index_offset_byte = index_offset_byte;
 	td->header_size = header_size_byte/blocksize + ((header_size_byte%blocksize == 0) ? 0 : 1);
-	td->indices = kzalloc(td->header_size*td->blocksize, GFP_KERNEL);
+	td->indices = vmalloc(td->header_size*td->blocksize);
 	if(!td->indices)goto out_free_queue;
+	memset(td->indices, 0, td->header_size*td->blocksize);
+	//printk(KERN_DEBUG "tDisk: indices created: %p - %p\n", td->indices, td->indices+td->header_size*td->blocksize);
 
 	//Allocate sorted disk indices
 	td->max_sectors = td->header_size*td->blocksize - td->index_offset_byte;
 	__div64_32(&td->max_sectors, sizeof(struct sector_index));
-	td->sorted_sectors = kzalloc(sizeof(struct sorted_sector_index) * td->max_sectors, GFP_KERNEL);
+	td->sorted_sectors = vmalloc(sizeof(struct sorted_sector_index) * td->max_sectors);
 	if(!td->sorted_sectors)goto out_free_indices;
+	memset(td->sorted_sectors, 0, sizeof(struct sorted_sector_index) * td->max_sectors);
+	INIT_HLIST_HEAD(&td->sorted_sectors_head);
 	for(j = 0; j < td->max_sectors; ++j)
 	{
-		INIT_LIST_HEAD(&td->sorted_sectors[j].list);
+		INIT_HLIST_NODE(&td->sorted_sectors[j].list);
 		td->sorted_sectors[j].physical_sector = (struct sector_index*)(td->indices + sizeof(struct sector_index)*j + td->index_offset_byte);
 
-		if(j != 0)list_add(&td->sorted_sectors[j].list, &td->sorted_sectors[j-1].list);
+		if(j == 0)hlist_add_head(&td->sorted_sectors[j].list, &td->sorted_sectors_head);
+		else hlist_add_behind(&td->sorted_sectors[j].list, &td->sorted_sectors[j-1].list);
 	}
 
 	disk->flags |= GENHD_FL_EXT_DEVT;
@@ -1126,7 +1202,7 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	return td->number;
 
 out_free_indices:
-	kfree(td->indices);
+	vfree(td->indices);
 out_free_queue:
 	blk_cleanup_queue(td->queue);
 out_cleanup_tags:
@@ -1145,8 +1221,8 @@ void tdisk_remove(struct tdisk *td)
 	del_gendisk(td->kernel_disk);
 	blk_mq_free_tag_set(&td->tag_set);
 	put_disk(td->kernel_disk);
-	kfree(td->sorted_sectors);
-	kfree(td->indices);
+	vfree(td->sorted_sectors);
+	vfree(td->indices);
 	kfree(td);
 }
 

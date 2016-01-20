@@ -15,5 +15,6 @@ int tdisk_clear(const char *device);
 
 int tdisk_get_max_sectors(const char *device, __u64 *out);
 int tdisk_get_sector_index(const char *device, __u64 logical_sector, struct sector_index *out);
+int tdisk_get_all_sector_indices(const char *device, struct sector_index *out);
 
 #endif //TDISK_H

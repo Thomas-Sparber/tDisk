@@ -35,7 +35,7 @@ struct tdisk_header
 struct sorted_sector_index
 {
 	struct sector_index *physical_sector;
-	struct list_head list;
+	struct hlist_node list;
 }; //end struct mapped sector index
 
 struct td_internal_device
@@ -82,6 +82,7 @@ struct tdisk {
 	unsigned int header_size;		//Size in sectors of the index where the header and sectors are stored. Located at the beginning of the disk
 	u8 *indices;					//The indices of the index needs to be stored in memory
 
+	struct hlist_head sorted_sectors_head;
 	struct sorted_sector_index *sorted_sectors;	//The sectors sorted according to their access count;
 };
 

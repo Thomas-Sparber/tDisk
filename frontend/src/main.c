@@ -12,7 +12,8 @@ enum {
 	add_disk,
 	clear,
 	get_max_sectors,
-	get_sector_index
+	get_sector_index,
+	get_all_sector_indices
 };
 
 struct
@@ -25,7 +26,8 @@ struct
 	DECLARE_OPERATION(add_disk),
 	DECLARE_OPERATION(clear),
 	DECLARE_OPERATION(get_max_sectors),
-	DECLARE_OPERATION(get_sector_index)
+	DECLARE_OPERATION(get_sector_index),
+	DECLARE_OPERATION(get_all_sector_indices)
 };
 
 int operations_count = sizeof(operations) / sizeof(operations[0]);
@@ -130,6 +132,25 @@ int main(int argc, char* args[])
 		}
 		while(0);
 
+		break;
+	case get_all_sector_indices:
+		do
+		{
+			__u64 max_sectors;
+			ret = tdisk_get_max_sectors(args[2], &max_sectors);
+			if(print_error(ret))break;
+			struct sector_index *indices = malloc(sizeof(struct sector_index) * (size_t)max_sectors);
+			ret = tdisk_get_all_sector_indices(args[2], indices);
+			if(!print_error(ret))
+			{
+				__u64 j;
+				for(j = 0; j < max_sectors; ++j)
+				{
+					printf("Disk: %u\nSector: %llu\nAccess_count: %u\n\n", indices[j].disk, indices[j].sector, indices[j].access_count);
+				}
+			}
+		}
+		while(0);
 		break;
 	default:
 		fprintf(stderr, "Error: Invalid argument %s\n", args[1]);

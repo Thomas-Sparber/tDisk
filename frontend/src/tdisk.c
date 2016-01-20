@@ -153,3 +153,20 @@ int tdisk_get_sector_index(const char *device, __u64 logical_sector, struct sect
 
 	return ret;
 }
+
+int tdisk_get_all_sector_indices(const char *device, struct sector_index *out)
+{
+	int dev;
+	int ret;
+
+	if(!check_td_control())return -EDRVNTLD;
+
+	dev = open(device, O_RDWR);
+	if(dev < 0)return -ENOPERM;
+
+	ret = ioctl(dev, TDISK_GET_ALL_SECTOR_INDICES, out);
+
+	close(dev);
+
+	return ret;
+}

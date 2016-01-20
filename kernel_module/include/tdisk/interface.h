@@ -49,7 +49,8 @@ struct tdisk_info {
 #define TDISK_GET_STATUS		0x4C05
 #define TDISK_GET_MAX_SECTORS	0x4C06
 #define TDISK_GET_SECTOR_INDEX	0x4C07
-#define TDISK_SET_CAPACITY		0x4C08
+#define TDISK_GET_ALL_SECTOR_INDICES 0x4C08
+//#define TDISK_SET_CAPACITY		0x4C09
 
 /* /dev/loop-control interface */
 #define TDISK_CTL_ADD			0x4C80

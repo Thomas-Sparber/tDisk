@@ -84,6 +84,8 @@ struct tdisk {
 
 	struct hlist_head sorted_sectors_head;
 	struct sorted_sector_index *sorted_sectors;	//The sectors sorted according to their access count;
+
+	int access_count_updated;		//Keeps track if the access_count was updated during a file request
 };
 
 struct td_command {

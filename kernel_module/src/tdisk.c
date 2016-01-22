@@ -24,6 +24,7 @@
 #include "helpers.h"
 #include "tdisk.h"
 #include "tdisk_control.h"
+#include "tdisk_file.h"
 
 #define COMPARE 1410
 
@@ -36,17 +37,8 @@ MODULE_ALIAS_BLOCKDEV_MAJOR(TD_MAJOR);
 DEFINE_IDR(td_index_idr);
 
 
-static loff_t get_file_size(struct file *file)
-{
-	return i_size_read(file->f_mapping->host) >> 9;
-}
-
 static int td_discard(struct tdisk *td, struct request *rq, loff_t pos)
 {
-	/*
-	 * We use punch hole to reclaim the free space used by the
-	 * image a.k.a. discard.
-	 */
 	unsigned int i;
 	int ret = 0;
 	int internal_ret = 0;
@@ -55,19 +47,8 @@ static int td_discard(struct tdisk *td, struct request *rq, loff_t pos)
 		struct file *file = td->internal_devices[i].backing_file;
 		if(file)
 		{
-			int mode = FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE;
-
-			if((!file->f_op->fallocate))
-			{
-				ret = -EOPNOTSUPP;
-				continue;
-			}
-
-			internal_ret = file->f_op->fallocate(file, mode, pos, blk_rq_bytes(rq));
+			internal_ret = file_discard(file, rq, pos);
 			if(internal_ret)ret = internal_ret;
-
-			if(unlikely(ret && ret != -EINVAL && ret != -EOPNOTSUPP))
-				ret = -EIO;
 		}
 	}
 
@@ -97,7 +78,7 @@ static int td_req_flush(struct tdisk *td)
 		struct file *file = td->internal_devices[i].backing_file;
 		if(file)
 		{
-			int internal_ret = vfs_fsync(file, 0);
+			int internal_ret = file_flush(file);
 
 			if(unlikely(internal_ret && internal_ret != -EINVAL))
 				ret = -EIO;
@@ -109,7 +90,6 @@ static int td_req_flush(struct tdisk *td)
 
 void reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
 {
-	//int i;
 	struct sorted_sector_index *index;
 	struct sorted_sector_index *next;
 	struct sorted_sector_index *prev;
@@ -125,6 +105,7 @@ void reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
 
 		if(index->physical_sector->access_count < next->physical_sector->access_count)
 		{
+			td->access_count_updated = 1;
 			printk_ratelimited(KERN_DEBUG "tDisk: Moving index (%llu) backwards\n", logical_sector);
 			hlist_del_init(&index->list);
 			hlist_add_behind(&index->list, &next->list);
@@ -139,6 +120,7 @@ void reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
 
 		if(index->physical_sector->access_count > prev->physical_sector->access_count)
 		{
+			td->access_count_updated = 1;
 			printk_ratelimited(KERN_DEBUG "tDisk: Moving index (%llu) forwards %u, %u\n", logical_sector, index->physical_sector->access_count, prev->physical_sector->access_count);
 			hlist_del_init(&index->list);
 			hlist_add_before(&index->list, &prev->list);
@@ -175,9 +157,9 @@ int perform_index_operation(struct tdisk *td_dev, int direction, sector_t logica
 	}
 	else if(direction == WRITE)
 	{
-		int ret = 0;
-		int len;
 		unsigned int j;
+		/*int ret = 0;
+		int len;
 		struct iov_iter i;
 		struct page *p = alloc_page(GFP_KERNEL);
 		struct bio_vec bvec = {
@@ -186,7 +168,7 @@ int perform_index_operation(struct tdisk *td_dev, int direction, sector_t logica
 			.bv_offset = 0
 		};
 
-		(*(struct sector_index*)page_address(p)) = (*physical_sector);
+		(*(struct sector_index*)page_address(p)) = (*physical_sector);*/
 
 		//Memory operation
 		(*actual) = (*physical_sector);//memcpy(td_dev->indices+position, physical_sector, length);
@@ -199,7 +181,7 @@ int perform_index_operation(struct tdisk *td_dev, int direction, sector_t logica
 
 			if(file)
 			{
-				loff_t pos = position;
+				/*loff_t pos = position;
 				iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, sizeof(struct sector_index));
 
 				file_start_write(file);
@@ -207,12 +189,13 @@ int perform_index_operation(struct tdisk *td_dev, int direction, sector_t logica
 				file_end_write(file);
 
 				if(len < 0)ret = len;
-				if(len < sizeof(struct sector_index))ret = -EIO;
+				if(len < sizeof(struct sector_index))ret = -EIO;*/
+				file_write_data(file, td_dev->indices+position, position, length);
 			}
 		}
 
-		__free_page(p);
-		if(ret)return ret;
+		/*__free_page(p);
+		if(ret)return ret;*/
 	}
 
 	return 0;
@@ -220,7 +203,7 @@ int perform_index_operation(struct tdisk *td_dev, int direction, sector_t logica
 
 static int read_header(struct file *file, struct tdisk_header *out)
 {
-	int ret = 0;
+	/*int ret = 0;
 	int len;
 	loff_t pos = 0;
 	struct iov_iter i;
@@ -250,12 +233,14 @@ static int read_header(struct file *file, struct tdisk_header *out)
 
  out:
 	__free_page(p);
-	return ret;
+	return ret;*/
+
+	return file_read_data(file, out, 0, sizeof(struct tdisk_header));
 }
 
 static int write_header(struct file *file, struct tdisk_header *header)
 {
-	int ret = 0;
+	/*int ret = 0;
 	int len;
 	loff_t pos = 0;
 	struct iov_iter i;
@@ -292,14 +277,21 @@ static int write_header(struct file *file, struct tdisk_header *header)
 
  out:
 	__free_page(p);
-	return ret;
+	return ret;*/
+	memset(header->driver_name, 0, sizeof(header->driver_name));
+	strcpy(header->driver_name, DRIVER_NAME);
+	header->driver_name[sizeof(header->driver_name)-1] = 0;
+	header->major_version = DRIVER_MAJOR_VERSION;
+	header->minor_version = DRIVER_MINOR_VERSION;
+
+	return file_write_data(file, header, 0, sizeof(struct tdisk_header));
 }
 
 static int read_all_indices(struct tdisk *td, struct file *file)
 {
 	int ret = 0;
-	int len;
 	sector_t logical_sector;
+	/*int len;
 	loff_t pos = sizeof(struct tdisk_header);	//Skip header
 	loff_t old_pos;
 	struct iov_iter i;
@@ -328,7 +320,12 @@ static int read_all_indices(struct tdisk *td, struct file *file)
 		//printk(KERN_DEBUG "tDisk: reading indices %p - %p", td->indices+old_pos, td->indices+old_pos+len);
 		memcpy(td->indices+old_pos, page_address(p), len);
 	}
-	while(pos < td->header_size*td->blocksize);
+	while(pos < td->header_size*td->blocksize);*/
+
+	unsigned int skip = sizeof(struct tdisk_header);
+	void *data = td->indices + skip;
+	loff_t length = td->header_size*td->blocksize - skip;
+	ret = file_read_data(file, data, skip, length);
 
 	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
 	else printk(KERN_DEBUG "tDisk: Success reading all disk indices\n");
@@ -337,14 +334,14 @@ static int read_all_indices(struct tdisk *td, struct file *file)
 	for(logical_sector = 0; logical_sector < td->max_sectors; ++logical_sector)
 		reorganize_sorted_index(td, logical_sector);
 
-	__free_page(p);
+	//__free_page(p);
 	return ret;
 }
 
 static int write_all_indices(struct tdisk *td, struct file *file)
 {
 	int ret = 0;
-	int len;
+	/*int len;
 	loff_t pos = sizeof(struct tdisk_header);	//Skip header
 	struct iov_iter i;
 	struct page *p = alloc_page(GFP_KERNEL);
@@ -373,12 +370,17 @@ static int write_all_indices(struct tdisk *td, struct file *file)
 			break;
 		}
 	}
-	while(pos < td->header_size*td->blocksize);
+	while(pos < td->header_size*td->blocksize);*/
+
+	unsigned int skip = sizeof(struct tdisk_header);
+	void *data = td->indices + skip;
+	loff_t length = td->header_size*td->blocksize - skip;
+	ret = file_write_data(file, data, skip, length);
 
 	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
 	else printk(KERN_DEBUG "tDisk: Success writing all disk indices\n");
 
-	__free_page(p);
+	//__free_page(p);
 	return ret;
 }
 
@@ -399,7 +401,7 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 {
 	struct bio_vec bvec;
 	struct req_iterator iter;
-	struct iov_iter i;
+	//struct iov_iter i;
 	ssize_t len;
 	loff_t pos_byte;
 	int ret = 0;
@@ -459,13 +461,14 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 								offset,
 								actual_pos_byte);*/
 
-		iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, bvec.bv_len);
+		//iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, bvec.bv_len);
 
 		if(rq->cmd_flags & REQ_WRITE)
 		{
-			file_start_write(file);
-			len = vfs_iter_write(file, &i, &actual_pos_byte);
-			file_end_write(file);
+			//file_start_write(file);
+			//len = vfs_iter_write(file, &i, &actual_pos_byte);
+			//file_end_write(file);
+			len = file_write_bio_vec(file, &bvec, &actual_pos_byte);
 
 			if(unlikely(len != bvec.bv_len))
 			{
@@ -478,7 +481,8 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 		}
 		else
 		{
-			len = vfs_iter_read(file, &i, &actual_pos_byte);
+			//len = vfs_iter_read(file, &i, &actual_pos_byte);
+			len = file_read_bio_vec(file, &bvec, &actual_pos_byte);
 
 			if(len < 0)
 			{
@@ -504,7 +508,7 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 	return ret;
 }
 
-static inline int is_tdisk(struct file *file)
+static inline int file_is_tdisk(struct file *file)
 {
 	struct inode *i = file->f_mapping->host;
 
@@ -578,7 +582,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		goto out;
 
 	//Don't add current tDisk as backend file
-	if(is_tdisk(file) && file->f_mapping->host->i_bdev == bdev)
+	if(file_is_tdisk(file) && file->f_mapping->host->i_bdev == bdev)
 	{
 		printk(KERN_WARNING "tDisk: Can't add myself as a backend file\n");
 		goto out_putf;
@@ -607,7 +611,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	}
 
 	//File size in 512 byte blocks
-	size = get_file_size(file);
+	size = file_get_size(file);
 
 	error = -EINVAL;
 	if(size < (((td->header_size+1)*td->blocksize) >> 9))	//Disk too small
@@ -1073,7 +1077,17 @@ static void tdisk_handle_cmd(struct td_command *cmd)
 static void tdisk_queue_work(struct kthread_work *work)
 {
 	struct td_command *cmd = container_of(work, struct td_command, td_work);
+	struct tdisk *td = cmd->rq->q->queuedata;
 	tdisk_handle_cmd(cmd);
+
+	//kthread_work is in a circular list. If next is at the same
+	//address than the current thread then there is nothing to do.
+	//Then we have time to move the physical sectors.
+	if(work->node.next == &work->node && td->access_count_updated)
+	{
+		td->access_count_updated = 0;
+		printk(KERN_DEBUG "tDisk: nothing to do anymore. Moving sectors\n");
+	}
 }
 
 static int tdisk_init_request(void *data, struct request *rq, unsigned int hctx_idx, unsigned int request_idx, unsigned int numa_node)

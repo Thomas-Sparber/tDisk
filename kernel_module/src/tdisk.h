@@ -81,7 +81,7 @@ struct tdisk {
 
 	unsigned int index_offset_byte;
 	unsigned int header_size;		//Size in sectors of the index where the header and sectors are stored. Located at the beginning of the disk
-	u8 *indices;					//The indices of the index needs to be stored in memory
+	struct sector_index *indices;	//The indices need to be stored in memory
 
 	struct hlist_head sorted_sectors_head;
 	struct sorted_sector_index *sorted_sectors;	//The sectors sorted according to their access count;

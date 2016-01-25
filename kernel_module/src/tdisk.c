@@ -136,7 +136,7 @@ int perform_index_operation(struct tdisk *td_dev, int direction, sector_t logica
 	unsigned int length = sizeof(struct sector_index);
 
 	if(position + length > td_dev->header_size * td_dev->blocksize)return 1;
-	actual = (struct sector_index*)(td_dev->indices+position);
+	actual = &td_dev->indices[logical_sector];
 
 	//Increment access count
 	actual->access_count++;
@@ -207,7 +207,7 @@ static int write_all_indices(struct tdisk *td, struct file *file, struct device_
 	int ret = 0;
 
 	unsigned int skip = sizeof(struct tdisk_header);
-	void *data = td->indices + skip;
+	void *data = td->indices;
 	loff_t length = td->header_size*td->blocksize - skip;
 	ret = file_write_data(file, data, skip, length, perf);
 
@@ -1068,9 +1068,9 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	err = -ENOMEM;
 	td->index_offset_byte = index_offset_byte;
 	td->header_size = header_size_byte/blocksize + ((header_size_byte%blocksize == 0) ? 0 : 1);
-	td->indices = vmalloc(td->header_size*td->blocksize);
+	td->indices = vmalloc(td->header_size*td->blocksize - index_offset_byte);
 	if(!td->indices)goto out_free_queue;
-	memset(td->indices, 0, td->header_size*td->blocksize);
+	memset(td->indices, 0, td->header_size*td->blocksize - index_offset_byte);
 	//printk(KERN_DEBUG "tDisk: indices created: %p - %p\n", td->indices, td->indices+td->header_size*td->blocksize);
 
 	//Allocate sorted disk indices
@@ -1083,7 +1083,8 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	for(j = 0; j < td->max_sectors; ++j)
 	{
 		INIT_HLIST_NODE(&td->sorted_sectors[j].list);
-		td->sorted_sectors[j].physical_sector = (struct sector_index*)(td->indices + sizeof(struct sector_index)*j + td->index_offset_byte);
+		td->indices[j].access_count = 0;
+		td->sorted_sectors[j].physical_sector = &td->indices[j];
 
 		if(j == 0)hlist_add_head(&td->sorted_sectors[j].list, &td->sorted_sectors_head);
 		else hlist_add_behind(&td->sorted_sectors[j].list, &td->sorted_sectors[j-1].list);

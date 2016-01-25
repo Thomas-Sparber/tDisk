@@ -17,6 +17,22 @@ enum {
 	TD_FLAGS_AUTOCLEAR	= 4
 };
 
+struct device_performance
+{
+	__u64 avg_read_time_jiffies;
+	__u64 stdev_read_time_jiffies;
+
+	__u64 avg_write_time_jiffies;
+	__u64 stdev_write_time_jiffies;
+
+
+	__u32 mod_avg_read;
+	__u32 mod_stdev_read;
+
+	__u32 mod_avg_write;
+	__u32 mod_stdev_write;
+}; //end struct device_performance
+
 /**
   * A index represents the physical location of a logical sector
  **/

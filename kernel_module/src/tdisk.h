@@ -43,7 +43,7 @@ struct td_internal_device
 	struct file *backing_file;
 	gfp_t old_gfp_mask;
 
-	unsigned int speed;
+	struct device_performance performance;
 }; //end struct td_internal_device
 
 /* Possible states of device */

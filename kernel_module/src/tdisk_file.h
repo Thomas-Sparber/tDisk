@@ -1,6 +1,12 @@
 #ifndef TDISK_FILE_H
 #define TDISK_FILE_H
 
+#include <linux/timex.h>
+
+#define RECORDS_SHIFT 16
+#define PREVIOUS_RECORDS ((1 << RECORDS_SHIFT) - 1)
+#define TIME_ONE_VALUE(val, mod) (val * (1 << RECORDS_SHIFT) + mod)
+
 inline static loff_t file_get_size(struct file *file)
 {
 	return i_size_read(file->f_mapping->host) >> 9;
@@ -30,20 +36,65 @@ inline static int file_flush(struct file *file)
 	return vfs_fsync(file, 0);
 }
 
-inline static int file_write_bio_vec(struct file *file, struct bio_vec *bvec, loff_t *pos)
+inline static void file_update_performance(struct file *file, int direction, cycles_t time, struct device_performance *perf)
+{
+	unsigned long diff;
+
+	if(perf == NULL)return;
+
+	switch(direction)
+	{
+	case READ:
+		if(perf->avg_read_time_jiffies > time)
+			diff = perf->avg_read_time_jiffies-time;
+		else diff = time-perf->avg_read_time_jiffies;
+
+		perf->avg_read_time_jiffies *= PREVIOUS_RECORDS;
+		perf->avg_read_time_jiffies += time + perf->mod_avg_read;
+		perf->stdev_read_time_jiffies *= PREVIOUS_RECORDS;
+		perf->stdev_read_time_jiffies += diff + perf->mod_stdev_read;
+
+		perf->mod_avg_read = perf->avg_read_time_jiffies & PREVIOUS_RECORDS;
+		perf->avg_read_time_jiffies = perf->avg_read_time_jiffies >> RECORDS_SHIFT;
+		perf->mod_stdev_read = perf->stdev_read_time_jiffies & PREVIOUS_RECORDS;
+		perf->stdev_read_time_jiffies = perf->stdev_read_time_jiffies >> RECORDS_SHIFT;
+		break;
+	case WRITE:
+		if(perf->avg_write_time_jiffies > time)
+			diff = perf->avg_write_time_jiffies-time;
+		else diff = time-perf->avg_write_time_jiffies;
+
+		perf->avg_write_time_jiffies *= PREVIOUS_RECORDS;
+		perf->avg_write_time_jiffies += time + perf->mod_avg_write;
+		perf->stdev_write_time_jiffies *= PREVIOUS_RECORDS;
+		perf->stdev_write_time_jiffies += diff + perf->mod_stdev_write;
+
+		perf->mod_avg_write = perf->avg_write_time_jiffies & PREVIOUS_RECORDS;
+		perf->avg_write_time_jiffies = perf->avg_write_time_jiffies >> RECORDS_SHIFT;
+		perf->mod_stdev_write = perf->stdev_write_time_jiffies & PREVIOUS_RECORDS;
+		perf->stdev_write_time_jiffies = perf->stdev_write_time_jiffies >> RECORDS_SHIFT;
+		break;
+	}
+}
+
+inline static int file_write_bio_vec(struct file *file, struct bio_vec *bvec, loff_t *pos, struct device_performance *perf)
 {
 	int ret;
 	struct iov_iter i;
+	cycles_t time;
 
 	iov_iter_bvec(&i, ITER_BVEC, bvec, 1, bvec->bv_len);
+
+	time = get_cycles();
 	file_start_write(file);
 	ret = vfs_iter_write(file, &i, pos);
 	file_end_write(file);
+	file_update_performance(file, WRITE, get_cycles()-time, perf);
 
 	return ret;
 }
 
-inline static int file_write_page(struct file *file, struct page *p, loff_t *pos, unsigned int length)
+inline static int file_write_page(struct file *file, struct page *p, loff_t *pos, unsigned int length, struct device_performance *perf)
 {
 	struct bio_vec bvec = {
 		.bv_page = p,
@@ -51,10 +102,10 @@ inline static int file_write_page(struct file *file, struct page *p, loff_t *pos
 		.bv_offset = 0
 	};
 
-	return file_write_bio_vec(file, &bvec, pos);
+	return file_write_bio_vec(file, &bvec, pos, perf);
 }
 
-inline static int file_write_data(struct file *file, void *data, loff_t pos, unsigned int length)
+inline static int file_write_data(struct file *file, void *data, loff_t pos, unsigned int length, struct device_performance *perf)
 {
 	int len;
 	int ret = 0;
@@ -65,7 +116,7 @@ inline static int file_write_data(struct file *file, void *data, loff_t pos, uns
 		len = (length > PAGE_SIZE) ? PAGE_SIZE : length;
 
 		memcpy(page_address(p), data, len);
-		len = file_write_page(file, p, &pos, len);
+		len = file_write_page(file, p, &pos, len, perf);
 
 		if(unlikely(len < 0))
 		{
@@ -88,14 +139,22 @@ inline static int file_write_data(struct file *file, void *data, loff_t pos, uns
 	return ret;
 }
 
-inline static int file_read_bio_vec(struct file *file, struct bio_vec *bvec, loff_t *pos)
+inline static int file_read_bio_vec(struct file *file, struct bio_vec *bvec, loff_t *pos, struct device_performance *perf)
 {
+	int ret;
 	struct iov_iter i;
+	cycles_t time;
 	iov_iter_bvec(&i, ITER_BVEC, bvec, 1, bvec->bv_len);
-	return vfs_iter_read(file, &i, pos);
+
+	time = get_cycles();
+	ret = vfs_iter_read(file, &i, pos);
+	//printk_ratelimited(KERN_DEBUG "tDisk: read start: %llu, end: %llu\n", time, get_cycles());
+	file_update_performance(file, READ, get_cycles()-time, perf);
+
+	return ret;
 }
 
-inline static int file_read_page(struct file *file, struct page *p, loff_t *pos, unsigned int length)
+inline static int file_read_page(struct file *file, struct page *p, loff_t *pos, unsigned int length, struct device_performance *perf)
 {
 	struct bio_vec bvec = {
 		.bv_page = p,
@@ -103,21 +162,18 @@ inline static int file_read_page(struct file *file, struct page *p, loff_t *pos,
 		.bv_offset = 0
 	};
 
-	return file_read_bio_vec(file, &bvec, pos);
+	return file_read_bio_vec(file, &bvec, pos, perf);
 }
 
-inline static int file_read_data(struct file *file, void *data, loff_t pos, unsigned int length)
+inline static int file_read_data(struct file *file, void *data, loff_t pos, unsigned int length, struct device_performance *perf)
 {
 	int len;
 	int ret = 0;
 	struct page *p = alloc_page(GFP_KERNEL);
-//printk(KERN_DEBUG "tDisk: New request: Pos: %llu, Len: %u\n", pos, length);
 	do
 	{
 		len = (length > PAGE_SIZE) ? PAGE_SIZE : length;
-		//printk(KERN_DEBUG "tDisk: Pos: %llu, Len: %u, %u\n", pos, len, length);
-		len = file_read_page(file, p, &pos, len);
-		//printk(KERN_DEBUG "tDisk: After read: Pos %llu, Len: %u, %u\n", pos, len, length);
+		len = file_read_page(file, p, &pos, len, perf);
 
 		if(unlikely(len < 0))
 		{
@@ -137,7 +193,7 @@ inline static int file_read_data(struct file *file, void *data, loff_t pos, unsi
 		length -= len;
 	}
 	while(length);
-//printk(KERN_DEBUG "tDisk: Request result %d\n", ret);
+
 	__free_page(p);
 	return ret;
 }

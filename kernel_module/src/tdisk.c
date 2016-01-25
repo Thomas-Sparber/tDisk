@@ -451,22 +451,9 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 			continue; //TODO continue or break??
 		}
 
-		/*printk(KERN_DEBUG "tDisk: Logical sector:%llu (%llu), disk:%u, physical sector:%llu, offset: %llu (=%llu)\n",
-								sector,
-								pos_byte,
-								physical_sector.disk,
-								physical_sector.sector,
-								offset,
-								actual_pos_byte);*/
-
-		//iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, bvec.bv_len);
-
 		if(rq->cmd_flags & REQ_WRITE)
 		{
-			//file_start_write(file);
-			//len = vfs_iter_write(file, &i, &actual_pos_byte);
-			//file_end_write(file);
-			len = file_write_bio_vec(file, &bvec, &actual_pos_byte);
+			len = file_write_bio_vec(file, &bvec, &actual_pos_byte, &td->internal_devices[physical_sector.disk - 1].performance);
 
 			if(unlikely(len != bvec.bv_len))
 			{
@@ -479,8 +466,7 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 		}
 		else
 		{
-			//len = vfs_iter_read(file, &i, &actual_pos_byte);
-			len = file_read_bio_vec(file, &bvec, &actual_pos_byte);
+			len = file_read_bio_vec(file, &bvec, &actual_pos_byte, &td->internal_devices[physical_sector.disk - 1].performance);
 
 			if(len < 0)
 			{
@@ -560,6 +546,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	struct inode *inode;
 	struct address_space *mapping;
 	struct tdisk_header header;
+	struct device_performance perf;
 	int flags = 0;
 	int error;
 	loff_t size;
@@ -641,7 +628,8 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		goto out_putf;
 	}
 
-	read_header(file, &header);
+	memset(&perf, 0, sizeof(struct device_performance));
+	read_header(file, &header, &perf);
 	printk(KERN_DEBUG "tDisk: File header: driver: %s, minor: %u, major: %u\n", header.driver_name, header.major_version, header.minor_version);
 	switch(is_compatible_header(td, &header))
 	{
@@ -681,7 +669,6 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	new_device = &td->internal_devices[header.disk_index];
 	new_device->old_gfp_mask = mapping_gfp_mask(mapping);
 	mapping_set_gfp_mask(mapping, new_device->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
-	new_device->speed = 0;	//TODO
 	new_device->backing_file = file;
 
 	//printk(KERN_DEBUG "tDisk: %u devices, index operation: %s\n", td->internal_devices_count, index_operation_to_do == WRITE ? "write" : index_operation_to_do == READ ? "read" : "compare");

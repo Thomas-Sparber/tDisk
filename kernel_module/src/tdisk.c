@@ -541,8 +541,8 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 
 		//Setting approximate performance values using the values
 		//When reading and writing the header
-		perf.stdev_read_time_jiffies = perf.avg_read_time_jiffies = TIME_ONE_VALUE(perf.avg_read_time_jiffies, perf.mod_avg_read);
-		perf.stdev_write_time_jiffies = perf.avg_write_time_jiffies = TIME_ONE_VALUE(perf.avg_write_time_jiffies, perf.mod_avg_write);
+		perf.stdev_read_time_cycles = perf.avg_read_time_cycles = TIME_ONE_VALUE(perf.avg_read_time_cycles, perf.mod_avg_read);
+		perf.stdev_write_time_cycles = perf.avg_write_time_cycles = TIME_ONE_VALUE(perf.avg_write_time_cycles, perf.mod_avg_write);
 		new_device->performance = perf;
 
 		//Save indices from previously added disks

@@ -19,11 +19,11 @@ enum {
 
 struct device_performance
 {
-	__u64 avg_read_time_jiffies;
-	__u64 stdev_read_time_jiffies;
+	__u64 avg_read_time_cycles;
+	__u64 stdev_read_time_cycles;
 
-	__u64 avg_write_time_jiffies;
-	__u64 stdev_write_time_jiffies;
+	__u64 avg_write_time_cycles;
+	__u64 stdev_write_time_cycles;
 
 
 	__u32 mod_avg_read;

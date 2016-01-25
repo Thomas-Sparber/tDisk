@@ -211,19 +211,19 @@ int main(int argc, char* args[])
 			struct internal_device_info info;
 			ret = tdisk_get_device_info(args[2], (tdisk_index)atoi(args[3]), &info);
 			if(!print_error(ret))printf("Disk: %u\n"
-									"avg_read_time_jiffies: %llu\n"
-									"stdev_read_time_jiffies: %llu\n"
-									"avg_write_time_jiffies: %llu\n"
-									"stdev_write_time_jiffies: %llu\n"
+									"avg_read_time_cycles: %llu\n"
+									"stdev_read_time_cycles: %llu\n"
+									"avg_write_time_cycles: %llu\n"
+									"stdev_write_time_cycles: %llu\n"
 									"mod_avg_read: %u\n"
 									"mod_stdev_read: %u\n"
 									"mod_avg_write: %u\n"
 									"mod_stdev_write: %u\n",
 									info.disk,
-									info.performance.avg_read_time_jiffies,
-									info.performance.stdev_read_time_jiffies,
-									info.performance.avg_write_time_jiffies,
-									info.performance.stdev_write_time_jiffies,
+									info.performance.avg_read_time_cycles,
+									info.performance.stdev_read_time_cycles,
+									info.performance.avg_write_time_cycles,
+									info.performance.stdev_write_time_cycles,
 									info.performance.mod_avg_read,
 									info.performance.mod_stdev_read,
 									info.performance.mod_avg_write,

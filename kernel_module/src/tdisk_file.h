@@ -45,34 +45,34 @@ inline static void file_update_performance(struct file *file, int direction, cyc
 	switch(direction)
 	{
 	case READ:
-		if(perf->avg_read_time_jiffies > time)
-			diff = perf->avg_read_time_jiffies-time;
-		else diff = time-perf->avg_read_time_jiffies;
+		if(perf->avg_read_time_cycles > time)
+			diff = perf->avg_read_time_cycles-time;
+		else diff = time-perf->avg_read_time_cycles;
 
-		perf->avg_read_time_jiffies *= PREVIOUS_RECORDS;
-		perf->avg_read_time_jiffies += time + perf->mod_avg_read;
-		perf->stdev_read_time_jiffies *= PREVIOUS_RECORDS;
-		perf->stdev_read_time_jiffies += diff + perf->mod_stdev_read;
+		perf->avg_read_time_cycles *= PREVIOUS_RECORDS;
+		perf->avg_read_time_cycles += time + perf->mod_avg_read;
+		perf->stdev_read_time_cycles *= PREVIOUS_RECORDS;
+		perf->stdev_read_time_cycles += diff + perf->mod_stdev_read;
 
-		perf->mod_avg_read = perf->avg_read_time_jiffies & PREVIOUS_RECORDS;
-		perf->avg_read_time_jiffies = perf->avg_read_time_jiffies >> RECORDS_SHIFT;
-		perf->mod_stdev_read = perf->stdev_read_time_jiffies & PREVIOUS_RECORDS;
-		perf->stdev_read_time_jiffies = perf->stdev_read_time_jiffies >> RECORDS_SHIFT;
+		perf->mod_avg_read = perf->avg_read_time_cycles & PREVIOUS_RECORDS;
+		perf->avg_read_time_cycles = perf->avg_read_time_cycles >> RECORDS_SHIFT;
+		perf->mod_stdev_read = perf->stdev_read_time_cycles & PREVIOUS_RECORDS;
+		perf->stdev_read_time_cycles = perf->stdev_read_time_cycles >> RECORDS_SHIFT;
 		break;
 	case WRITE:
-		if(perf->avg_write_time_jiffies > time)
-			diff = perf->avg_write_time_jiffies-time;
-		else diff = time-perf->avg_write_time_jiffies;
+		if(perf->avg_write_time_cycles > time)
+			diff = perf->avg_write_time_cycles-time;
+		else diff = time-perf->avg_write_time_cycles;
 
-		perf->avg_write_time_jiffies *= PREVIOUS_RECORDS;
-		perf->avg_write_time_jiffies += time + perf->mod_avg_write;
-		perf->stdev_write_time_jiffies *= PREVIOUS_RECORDS;
-		perf->stdev_write_time_jiffies += diff + perf->mod_stdev_write;
+		perf->avg_write_time_cycles *= PREVIOUS_RECORDS;
+		perf->avg_write_time_cycles += time + perf->mod_avg_write;
+		perf->stdev_write_time_cycles *= PREVIOUS_RECORDS;
+		perf->stdev_write_time_cycles += diff + perf->mod_stdev_write;
 
-		perf->mod_avg_write = perf->avg_write_time_jiffies & PREVIOUS_RECORDS;
-		perf->avg_write_time_jiffies = perf->avg_write_time_jiffies >> RECORDS_SHIFT;
-		perf->mod_stdev_write = perf->stdev_write_time_jiffies & PREVIOUS_RECORDS;
-		perf->stdev_write_time_jiffies = perf->stdev_write_time_jiffies >> RECORDS_SHIFT;
+		perf->mod_avg_write = perf->avg_write_time_cycles & PREVIOUS_RECORDS;
+		perf->avg_write_time_cycles = perf->avg_write_time_cycles >> RECORDS_SHIFT;
+		perf->mod_stdev_write = perf->stdev_write_time_cycles & PREVIOUS_RECORDS;
+		perf->stdev_write_time_cycles = perf->stdev_write_time_cycles >> RECORDS_SHIFT;
 		break;
 	}
 }

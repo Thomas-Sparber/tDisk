@@ -141,241 +141,75 @@ int perform_index_operation(struct tdisk *td_dev, int direction, sector_t logica
 	//Increment access count
 	actual->access_count++;
 	reorganize_sorted_index(td_dev, logical_sector);
-	//printk_ratelimited(KERN_DEBUG "tDisk: index operation at %p - %p\n", td_dev->indices+position, td_dev->indices+position+length);
 
 	//index operation
 	if(direction == READ)
-		(*physical_sector) = (*actual);//memcpy(physical_sector, td_dev->indices+position, length);
+		(*physical_sector) = (*actual);
 	else if(direction == COMPARE)
 	{
-		//struct sector_index *actual = (struct sector_index*)(td_dev->indices+position);
 		if(physical_sector->disk != actual->disk || physical_sector->sector != actual->sector)
-		{
-			//printk_ratelimited(KERN_DEBUG "tDisk: non matching index: disk: %u, sector: %llu <--> disk: %u, sector: %llu\n", actual->disk, actual->sector, physical_sector->disk, physical_sector->sector);
 			return -1;
-		}
 	}
 	else if(direction == WRITE)
 	{
 		unsigned int j;
-		/*int ret = 0;
-		int len;
-		struct iov_iter i;
-		struct page *p = alloc_page(GFP_KERNEL);
-		struct bio_vec bvec = {
-			.bv_page = p,
-			.bv_len = PAGE_SIZE,
-			.bv_offset = 0
-		};
-
-		(*(struct sector_index*)page_address(p)) = (*physical_sector);*/
 
 		//Memory operation
-		(*actual) = (*physical_sector);//memcpy(td_dev->indices+position, physical_sector, length);
+		actual->disk = physical_sector->disk;
+		actual->sector = physical_sector->sector;
 
 		//Disk operations
 		for(j = 0; j < td_dev->internal_devices_count; ++j)
 		{
 			struct file *file = td_dev->internal_devices[j].backing_file;
-			//printk(KERN_DEBUG "tDisk: File: %p\n", file);
 
 			if(file)
 			{
-				/*loff_t pos = position;
-				iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, sizeof(struct sector_index));
-
-				file_start_write(file);
-				len = vfs_iter_write(file, &i, &pos);
-				file_end_write(file);
-
-				if(len < 0)ret = len;
-				if(len < sizeof(struct sector_index))ret = -EIO;*/
-				file_write_data(file, td_dev->indices+position, position, length);
+				file_write_data(file, actual, position, length, &td_dev->internal_devices[j].performance);
 			}
 		}
-
-		/*__free_page(p);
-		if(ret)return ret;*/
 	}
 
 	return 0;
 }
 
-static int read_header(struct file *file, struct tdisk_header *out)
+static int read_header(struct file *file, struct tdisk_header *out, struct device_performance *perf)
 {
-	/*int ret = 0;
-	int len;
-	loff_t pos = 0;
-	struct iov_iter i;
-	struct page *p = alloc_page(GFP_KERNEL);
-	struct bio_vec bvec = {
-		.bv_page = p,
-		.bv_len = PAGE_SIZE,
-		.bv_offset = 0
-	};
-
-	iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, sizeof(struct tdisk_header));
-	len = vfs_iter_read(file, &i, &pos);
-
-	if(len < 0)
-	{
-		ret = len;
-		goto out;
-	}
-
-	if(len < sizeof(*out))
-	{
-		ret = -EIO;
-		goto out;
-	}
-
-	(*out) = *(struct tdisk_header*)page_address(p);
-
- out:
-	__free_page(p);
-	return ret;*/
-
-	return file_read_data(file, out, 0, sizeof(struct tdisk_header));
+	return file_read_data(file, out, 0, sizeof(struct tdisk_header), perf);
 }
 
-static int write_header(struct file *file, struct tdisk_header *header)
+static int write_header(struct file *file, struct tdisk_header *header, struct device_performance *perf)
 {
-	/*int ret = 0;
-	int len;
-	loff_t pos = 0;
-	struct iov_iter i;
-	struct page *p = alloc_page(GFP_KERNEL);
-	struct bio_vec bvec = {
-		.bv_page = p,
-		.bv_len = PAGE_SIZE,
-		.bv_offset = 0
-	};
-
-	memset(header->driver_name, 0, sizeof(header->driver_name));
-	strcpy(header->driver_name, DRIVER_NAME);
-	header->driver_name[sizeof(header->driver_name)-1] = 0;
-	header->major_version = DRIVER_MAJOR_VERSION;
-	header->minor_version = DRIVER_MINOR_VERSION;
-	(*(struct tdisk_header*)page_address(p)) = (*header);
-
-	iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, sizeof(struct tdisk_header));
-	file_start_write(file);
-	len = vfs_iter_write(file, &i, &pos);
-	file_end_write(file);
-
-	if(len < 0)
-	{
-		ret = len;
-		goto out;
-	}
-
-	if(len < sizeof(struct tdisk_header))
-	{
-		ret = -EIO;
-		goto out;
-	}
-
- out:
-	__free_page(p);
-	return ret;*/
 	memset(header->driver_name, 0, sizeof(header->driver_name));
 	strcpy(header->driver_name, DRIVER_NAME);
 	header->driver_name[sizeof(header->driver_name)-1] = 0;
 	header->major_version = DRIVER_MAJOR_VERSION;
 	header->minor_version = DRIVER_MINOR_VERSION;
 
-	return file_write_data(file, header, 0, sizeof(struct tdisk_header));
+	return file_write_data(file, header, 0, sizeof(struct tdisk_header), perf);
 }
 
-static int read_all_indices(struct tdisk *td, struct file *file)
+static int read_all_indices(struct tdisk *td, struct file *file, u8 *data, struct device_performance *perf)
 {
 	int ret = 0;
-	sector_t logical_sector;
-	/*int len;
-	loff_t pos = sizeof(struct tdisk_header);	//Skip header
-	loff_t old_pos;
-	struct iov_iter i;
-	struct page *p = alloc_page(GFP_KERNEL);
-	struct bio_vec bvec = {
-		.bv_page = p,
-		.bv_len = PAGE_SIZE,
-		.bv_offset = 0
-	};
-
-	do
-	{
-		old_pos = pos;
-		iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, PAGE_SIZE);
-		len = vfs_iter_read(file, &i, &pos);
-
-		if(len < 0)
-		{
-			ret = len;
-			break;
-		}
-
-		if(old_pos+len > td->header_size*td->blocksize)
-			len = td->header_size*td->blocksize - old_pos;
-
-		//printk(KERN_DEBUG "tDisk: reading indices %p - %p", td->indices+old_pos, td->indices+old_pos+len);
-		memcpy(td->indices+old_pos, page_address(p), len);
-	}
-	while(pos < td->header_size*td->blocksize);*/
-
 	unsigned int skip = sizeof(struct tdisk_header);
-	void *data = td->indices + skip;
 	loff_t length = td->header_size*td->blocksize - skip;
-	ret = file_read_data(file, data, skip, length);
+	ret = file_read_data(file, data, skip, length, perf);
 
 	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
 	else printk(KERN_DEBUG "tDisk: Success reading all disk indices\n");
 
-	//Sort initial indices
-	for(logical_sector = 0; logical_sector < td->max_sectors; ++logical_sector)
-		reorganize_sorted_index(td, logical_sector);
-
-	//__free_page(p);
 	return ret;
 }
 
-static int write_all_indices(struct tdisk *td, struct file *file)
+static int write_all_indices(struct tdisk *td, struct file *file, struct device_performance *perf)
 {
 	int ret = 0;
-	/*int len;
-	loff_t pos = sizeof(struct tdisk_header);	//Skip header
-	struct iov_iter i;
-	struct page *p = alloc_page(GFP_KERNEL);
-	struct bio_vec bvec = {
-		.bv_page = p,
-		.bv_len = PAGE_SIZE,
-		.bv_offset = 0
-	};
-
-	do
-	{
-		len = PAGE_SIZE;
-		if(pos+len > td->header_size*td->blocksize)len = td->header_size*td->blocksize - pos;
-
-		//printk(KERN_DEBUG "tDisk: writing indices %p - %p", td->indices+pos, td->indices+pos+len);
-		memcpy(page_address(p), td->indices+pos, len);
-
-		iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, len);
-		file_start_write(file);
-		len = vfs_iter_write(file, &i, &pos);
-		file_end_write(file);
-
-		if(len < 0)
-		{
-			ret = len;
-			break;
-		}
-	}
-	while(pos < td->header_size*td->blocksize);*/
 
 	unsigned int skip = sizeof(struct tdisk_header);
 	void *data = td->indices + skip;
 	loff_t length = td->header_size*td->blocksize - skip;
-	ret = file_write_data(file, data, skip, length);
+	ret = file_write_data(file, data, skip, length, perf);
 
 	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
 	else printk(KERN_DEBUG "tDisk: Success writing all disk indices\n");
@@ -552,7 +386,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	loff_t size;
 	loff_t size_counter = 0;
 	sector_t sector = 0;
-	struct sector_index physical_sector;
+	struct sector_index *physical_sector;
 	struct td_internal_device *new_device = NULL;
 	int index_operation_to_do;
 	int first_device = (td->internal_devices_count == 0);
@@ -684,33 +518,61 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	{
 	case WRITE:
 		//Writing header to disk
-		write_header(file, &header);
-		write_all_indices(td, file);
-		//IMPORTANT: continuing and writing indices as well...
-	case COMPARE:
+		write_header(file, &header, &perf);
+
+		//Setting approximate performance values using the values
+		//When reading and writing the header
+		perf.stdev_read_time_jiffies = perf.avg_read_time_jiffies = TIME_ONE_VALUE(perf.avg_read_time_jiffies, perf.mod_avg_read);
+		perf.stdev_write_time_jiffies = perf.avg_write_time_jiffies = TIME_ONE_VALUE(perf.avg_write_time_jiffies, perf.mod_avg_write);
+		new_device->performance = perf;
+
+		//Save indices from previously added disks
+		write_all_indices(td, file, &new_device->performance);
+
 		//Save sector indices
+		physical_sector = vmalloc(sizeof(struct sector_index));
 		while((size_counter+td->blocksize) <= (size << 9))
 		{
 			int internal_ret;
 			sector_t logical_sector = td->header_size + td->size_blocks++;
 			size_counter += td->blocksize;
-			//printk(KERN_DEBUG "tDisk: adding logical sector: %llu (%llu/%llu)\n", td->header_size + td->size_blocks, size_counter, (size << 9));
-			physical_sector.disk = header.disk_index + 1;	//+1 because 0 means unused
-			physical_sector.sector = td->header_size + sector++;
-			internal_ret = perform_index_operation(td, index_operation_to_do, logical_sector, &physical_sector);
+			physical_sector->disk = header.disk_index + 1;	//+1 because 0 means unused
+			physical_sector->sector = td->header_size + sector++;
+			internal_ret = perform_index_operation(td, WRITE, logical_sector, physical_sector);
 			if(internal_ret == 1)
 			{
 				printk(KERN_WARNING "tDisk: Additional disk doesn't fit in index. Shrinking to fit.\n");
 				break;
 			}
-			else if(internal_ret == -1)
+		}
+		vfree(physical_sector);
+		break;
+	case COMPARE:
+		physical_sector = vmalloc(sizeof(struct sector_index) * td->max_sectors);
+		read_all_indices(td, file, (u8*)physical_sector, &new_device->performance);
+
+		//Now comparing all sector indices
+		for(sector = 0; sector < td->max_sectors; ++sector)
+		{
+			int internal_ret = perform_index_operation(td, WRITE, sector, &physical_sector[sector]);
+			if(internal_ret == -1)
 			{
 				printk_ratelimited(KERN_WARNING "tDisk: Disk index doesn't match. Probably wrong or corrupt disk attached. Pay attention before you write to disk!\n");
 			}
 		}
+
+		//Set new size
+		while((size_counter+td->blocksize) <= (size << 9))
+		{
+			size_counter += td->blocksize;
+			td->size_blocks++;
+		}
+
+		vfree(physical_sector);
 		break;
 	case READ:
-		read_all_indices(td, file);
+		read_all_indices(td, file, (u8*)td->indices, &new_device->performance);
+		reorganize_all_indices(td);
 		while((size_counter+td->blocksize) <= (size << 9))
 		{
 			size_counter += td->blocksize;
@@ -821,16 +683,24 @@ static int tdisk_clr_fd(struct tdisk *td)
 
 	for(i = 0; i < td->internal_devices_count; ++i)
 	{
-		struct file *filp = td->internal_devices[i].backing_file;
+		struct file *file = td->internal_devices[i].backing_file;
 		td->internal_devices[i].backing_file = NULL;
 
-		if(filp)
+		if(file)
 		{
+			struct tdisk_header header = {
+				.disk_index = i,
+				.performance = td->internal_devices[i].performance,
+			};
 			gfp_t gfp = td->internal_devices[i].old_gfp_mask;
 
-			mapping_set_gfp_mask(filp->f_mapping, gfp);
+			//Write current performance and index values to file
+			write_header(file, &header, NULL);
+			write_all_indices(td, file, NULL);
 
-			fput(filp);
+			mapping_set_gfp_mask(file->f_mapping, gfp);
+
+			fput(file);
 		}
 	}
 	td->internal_devices_count = 0;

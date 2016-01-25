@@ -25,7 +25,8 @@ struct tdisk_header
 	__u32 major_version;
 	__u32 minor_version;
 	tdisk_index disk_index;	//disk index in the tdisk
-	char placeholder[128];	//For future releases
+	struct device_performance performance;
+	char placeholder[80];	//For future releases
 }; //end struct tdisk_header
 
 /**

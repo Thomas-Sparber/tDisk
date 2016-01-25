@@ -522,6 +522,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	new_device->old_gfp_mask = mapping_gfp_mask(mapping);
 	mapping_set_gfp_mask(mapping, new_device->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
 	new_device->backing_file = file;
+	new_device->performance = header.performance;
 
 	//printk(KERN_DEBUG "tDisk: %u devices, index operation: %s\n", td->internal_devices_count, index_operation_to_do == WRITE ? "write" : index_operation_to_do == READ ? "read" : "compare");
 
@@ -572,7 +573,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		//Now comparing all sector indices
 		for(sector = 0; sector < td->max_sectors; ++sector)
 		{
-			int internal_ret = perform_index_operation(td, WRITE, sector, &physical_sector[sector]);
+			int internal_ret = perform_index_operation(td, COMPARE, sector, &physical_sector[sector]);
 			if(internal_ret == -1)
 			{
 				printk_ratelimited(KERN_WARNING "tDisk: Disk index doesn't match. Probably wrong or corrupt disk attached. Pay attention before you write to disk!\n");

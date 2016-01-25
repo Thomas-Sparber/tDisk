@@ -106,12 +106,18 @@ void reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
 		if(index->physical_sector->access_count < next->physical_sector->access_count)
 		{
 			td->access_count_updated = 1;
-			printk_ratelimited(KERN_DEBUG "tDisk: Moving index (%llu) backwards\n", logical_sector);
+			//printk_ratelimited(KERN_DEBUG "tDisk: Moving index (%llu) backwards\n", logical_sector);
 			hlist_del_init(&index->list);
 			hlist_add_behind(&index->list, &next->list);
 		}
 		else break;
+
+		//"next" probably moved at the beginning of the list.
+		//If this is the case, set it as the root node of the hlist
+		if(unlikely(next->list.pprev == NULL))
+			td->sorted_sectors_head.first = &next->list;
 	}
+
 
 	//Move index forwards
 	while(index->list.pprev)
@@ -121,12 +127,24 @@ void reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
 		if(index->physical_sector->access_count > prev->physical_sector->access_count)
 		{
 			td->access_count_updated = 1;
-			printk_ratelimited(KERN_DEBUG "tDisk: Moving index (%llu) forwards %u, %u\n", logical_sector, index->physical_sector->access_count, prev->physical_sector->access_count);
+			//printk_ratelimited(KERN_DEBUG "tDisk: Moving index (%llu) forwards %u, %u\n", logical_sector, index->physical_sector->access_count, prev->physical_sector->access_count);
 			hlist_del_init(&index->list);
 			hlist_add_before(&index->list, &prev->list);
 		}
 		else break;
+
+		//"index" probably moved at the beginning of the list.
+		//If this is the case, set it as the root node of the hlist
+		if(unlikely(index->list.pprev == NULL))
+			td->sorted_sectors_head.first = &index->list;
 	}
+}
+
+void reorganize_all_indices(struct tdisk *td)
+{
+	sector_t logical_sector;
+	for(logical_sector = 0; logical_sector < td->max_sectors; ++logical_sector)
+		reorganize_sorted_index(td, logical_sector);
 }
 
 int perform_index_operation(struct tdisk *td_dev, int direction, sector_t logical_sector, struct sector_index *physical_sector)

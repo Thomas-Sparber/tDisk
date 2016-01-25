@@ -13,7 +13,8 @@ enum {
 	clear,
 	get_max_sectors,
 	get_sector_index,
-	get_all_sector_indices
+	get_all_sector_indices,
+	clear_access_count,
 };
 
 struct
@@ -27,7 +28,8 @@ struct
 	DECLARE_OPERATION(clear),
 	DECLARE_OPERATION(get_max_sectors),
 	DECLARE_OPERATION(get_sector_index),
-	DECLARE_OPERATION(get_all_sector_indices)
+	DECLARE_OPERATION(get_all_sector_indices),
+	DECLARE_OPERATION(clear_access_count),
 };
 
 int operations_count = sizeof(operations) / sizeof(operations[0]);
@@ -108,6 +110,13 @@ int main(int argc, char* args[])
 
 		break;
 	case get_max_sectors:
+		if(argc <= 2)
+		{
+			fprintf(stderr, "Error: \"get_max_sectors\" needs the td device\n");
+			ret = 1;
+			break;
+		}
+
 		do
 		{
 			__u64 max_sectors;
@@ -117,9 +126,9 @@ int main(int argc, char* args[])
 		while(0);
 		break;
 	case get_sector_index:
-		if(argc <= 2)
+		if(argc <= 3)
 		{
-			fprintf(stderr, "Error: \"get_sector_index\" needs the sector index to retrieve\n");
+			fprintf(stderr, "Error: \"get_sector_index\" needs the td device and the sector index to retrieve\n");
 			ret = 1;
 			break;
 		}
@@ -134,6 +143,13 @@ int main(int argc, char* args[])
 
 		break;
 	case get_all_sector_indices:
+		if(argc <= 2)
+		{
+			fprintf(stderr, "Error: \"get_all_sector_indices\" needs the td device\n");
+			ret = 1;
+			break;
+		}
+
 		do
 		{
 			__u64 max_sectors;
@@ -151,6 +167,16 @@ int main(int argc, char* args[])
 			}
 		}
 		while(0);
+		break;
+	case clear_access_count:
+		if(argc <= 2)
+		{
+			fprintf(stderr, "Error: \"clear_access_count\" needs the td device\n");
+			ret = 1;
+			break;
+		}
+
+		ret = tdisk_clear_access_count(args[2]);
 		break;
 	default:
 		fprintf(stderr, "Error: Invalid argument %s\n", args[1]);

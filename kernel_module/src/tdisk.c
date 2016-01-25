@@ -432,8 +432,6 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 		sector_t actual_pos_byte;
 		sector += td->header_size;
 
-		//index.offset = offset;
-		//index.logical_sector = sector;
 		perform_index_operation(td, READ, sector, &physical_sector);
 
 		actual_pos_byte = physical_sector.sector*td->blocksize + offset;
@@ -856,7 +854,7 @@ static int tdisk_clr_fd(struct tdisk *td)
 	return 0;
 }
 
-static int tdisk_set_status64(struct tdisk *td, const struct tdisk_info __user *arg)
+/*static int tdisk_set_status64(struct tdisk *td, const struct tdisk_info __user *arg)
 {
 	struct tdisk_info info;
 
@@ -870,7 +868,7 @@ static int tdisk_set_status64(struct tdisk *td, const struct tdisk_info __user *
 		td->flags ^= TD_FLAGS_AUTOCLEAR;
 
 	return 0;
-}
+}*/
 
 static int tdisk_get_status64(struct tdisk *td, struct tdisk_info __user *arg)
 {
@@ -918,6 +916,18 @@ static int tdisk_get_all_sector_indices(struct tdisk *td, struct sector_index __
 	return 0;
 }
 
+static int tdisk_clear_access_count(struct tdisk *td)
+{
+	sector_t i;
+
+	for(i = 0; i < td->max_sectors; ++i)
+	{
+		td->sorted_sectors[i].physical_sector->access_count = 0;
+	}
+
+	return 0;
+}
+
 static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, unsigned long arg)
 {
 	struct tdisk *td = bdev->bd_disk->private_data;
@@ -934,24 +944,28 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 		err = tdisk_clr_fd(td);
 		if(!err)goto out_unlocked;
 		break;
-	case TDISK_SET_STATUS:
-		err = -EPERM;
-		if((mode & FMODE_WRITE) || capable(CAP_SYS_ADMIN))
-			err = tdisk_set_status64(td, (struct tdisk_info __user *) arg);
-		break;
+	//case TDISK_SET_STATUS:
+	//	err = -EPERM;
+	//	if((mode & FMODE_WRITE) || capable(CAP_SYS_ADMIN))
+	//		err = tdisk_set_status64(td, (struct tdisk_info __user *) arg);
+	//	break;
 	case TDISK_GET_STATUS:
 		err = tdisk_get_status64(td, (struct tdisk_info __user *) arg);
 		break;
-	case TDISK_GET_MAX_SECTORS:
-		if(copy_to_user((__u64 __user *)arg, &td->max_sectors, sizeof(__u64)) != 0)
-			err = -EFAULT;
-		else err = 0;
 		break;
+	//case TDISK_GET_MAX_SECTORS:
+	//	if(copy_to_user((__u64 __user *)arg, &td->max_sectors, sizeof(__u64)) != 0)
+	//		err = -EFAULT;
+	//	else err = 0;
+	//	break;
 	case TDISK_GET_SECTOR_INDEX:
 		err = tdisk_get_sector_index(td, (struct sector_index __user *) arg);
 		break;
 	case TDISK_GET_ALL_SECTOR_INDICES:
 		err = tdisk_get_all_sector_indices(td, (struct sector_index __user *) arg);
+		break;
+	case TDISK_CLEAR_ACCESS_COUNT:
+		err = tdisk_clear_access_count(td);
 		break;
 	default:
 		err = -EINVAL;

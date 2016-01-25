@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include <tdisk.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -84,7 +86,7 @@ int tdisk_add_disk(const char *device, const char *new_disk)
 
 	if(!check_td_control())return -EDRVNTLD;
 
-	file = open(new_disk, O_RDWR);
+	file = open(new_disk, O_RDWR/* | O_DIRECT | O_SYNC*/);
 	if(!file)return -EIO;
 
 	dev = open(device, O_RDWR);
@@ -165,6 +167,23 @@ int tdisk_get_all_sector_indices(const char *device, struct sector_index *out)
 	if(dev < 0)return -ENOPERM;
 
 	ret = ioctl(dev, TDISK_GET_ALL_SECTOR_INDICES, out);
+
+	close(dev);
+
+	return ret;
+}
+
+int tdisk_clear_access_count(const char *device)
+{
+	int dev;
+	int ret;
+
+	if(!check_td_control())return -EDRVNTLD;
+
+	dev = open(device, O_RDWR);
+	if(dev < 0)return -ENOPERM;
+
+	ret = ioctl(dev, TDISK_CLEAR_ACCESS_COUNT);
 
 	close(dev);
 

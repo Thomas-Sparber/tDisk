@@ -735,9 +735,29 @@ static int tdisk_get_status64(struct tdisk *td, struct tdisk_info __user *arg)
 		return -ENXIO;
 
 	memset(&info, 0, sizeof(info));
+	//info.block_device = huge_encode_dev(td->block_device);
+	info.max_sectors = td->max_sectors;
 	info.number = td->number;
-	//info->block_device = huge_encode_dev(stat.dev);
 	info.flags = td->flags;
+	info.internaldevices = td->internal_devices_count;
+
+	if(copy_to_user(arg, &info, sizeof(info)) != 0)
+		return -EFAULT;
+
+	return 0;
+}
+
+static int tdisk_get_device_info(struct tdisk *td, struct internal_device_info __user *arg)
+{
+	struct internal_device_info info;
+
+	if(copy_from_user(&info, arg, sizeof(struct internal_device_info)) != 0)
+		return -EFAULT;
+
+	if(info.disk == 0 || info.disk > td->internal_devices_count)
+		return -EINVAL;
+	
+	info.performance = td->internal_devices[info.disk-1].performance;
 
 	if(copy_to_user(arg, &info, sizeof(info)) != 0)
 		return -EFAULT;
@@ -809,6 +829,8 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 	case TDISK_GET_STATUS:
 		err = tdisk_get_status64(td, (struct tdisk_info __user *) arg);
 		break;
+	case TDISK_GET_DEVICE_INFO:
+		err = tdisk_get_device_info(td, (struct internal_device_info __user *) arg);
 		break;
 	//case TDISK_GET_MAX_SECTORS:
 	//	if(copy_to_user((__u64 __user *)arg, &td->max_sectors, sizeof(__u64)) != 0)

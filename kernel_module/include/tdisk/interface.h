@@ -33,6 +33,12 @@ struct device_performance
 	__u32 mod_stdev_write;
 }; //end struct device_performance
 
+struct internal_device_info
+{
+	tdisk_index disk;
+	struct device_performance performance;
+}; //end struct internal_device_info
+
 /**
   * A index represents the physical location of a logical sector
  **/
@@ -49,10 +55,11 @@ struct sector_index
 }; //end struct sector_index;
 
 struct tdisk_info {
-	__u64		   block_device;		/* ioctl r/o */
-	__u64		   sizelimit;			/* bytes, 0 == max available */
-	__u32		   number;				/* ioctl r/o */
-	__u32		   flags;				/* ioctl r/o */
+	//__u64			block_device;		/* ioctl r/o */
+	__u64			max_sectors;		/* ioctl r/o */
+	__u32			number;				/* ioctl r/o */
+	__u32			flags;				/* ioctl r/o */
+	tdisk_index		internaldevices;	/* ioctl r/o */
 };
 
 /*
@@ -63,7 +70,7 @@ struct tdisk_info {
 #define TDISK_CLR_FD			0x4C01
 //#define TDISK_SET_STATUS		0x4C04
 #define TDISK_GET_STATUS		0x4C05
-#define TDISK_GET_MAX_SECTORS	0x4C06
+#define TDISK_GET_DEVICE_INFO	0x4C06
 #define TDISK_GET_SECTOR_INDEX	0x4C07
 #define TDISK_GET_ALL_SECTOR_INDICES 0x4C08
 #define TDISK_CLEAR_ACCESS_COUNT 0x4C09

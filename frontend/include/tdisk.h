@@ -18,4 +18,7 @@ int tdisk_get_sector_index(const char *device, __u64 logical_sector, struct sect
 int tdisk_get_all_sector_indices(const char *device, struct sector_index *out);
 int tdisk_clear_access_count(const char *device);
 
+int tdisk_get_internal_devices_count(const char *device, tdisk_index *out);
+int tdisk_get_device_info(const char *device, tdisk_index disk, struct internal_device_info *out);
+
 #endif //TDISK_H

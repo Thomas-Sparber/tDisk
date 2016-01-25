@@ -131,7 +131,9 @@ int tdisk_get_max_sectors(const char *device, __u64 *out)
 	dev = open(device, O_RDWR);
 	if(dev < 0)return -ENOPERM;
 
-	ret = ioctl(dev, TDISK_GET_MAX_SECTORS, out);
+	struct tdisk_info info;
+	ret = ioctl(dev, TDISK_GET_STATUS, &info);
+	(*out) = info.max_sectors;
 
 	close(dev);
 
@@ -184,6 +186,43 @@ int tdisk_clear_access_count(const char *device)
 	if(dev < 0)return -ENOPERM;
 
 	ret = ioctl(dev, TDISK_CLEAR_ACCESS_COUNT);
+
+	close(dev);
+
+	return ret;
+}
+
+int tdisk_get_internal_devices_count(const char *device, tdisk_index *out)
+{
+	int dev;
+	int ret;
+
+	if(!check_td_control())return -EDRVNTLD;
+
+	dev = open(device, O_RDWR);
+	if(dev < 0)return -ENOPERM;
+
+	struct tdisk_info info;
+	ret = ioctl(dev, TDISK_GET_STATUS, &info);
+	(*out) = info.internaldevices;
+
+	close(dev);
+
+	return ret;
+}
+
+int tdisk_get_device_info(const char *device, tdisk_index disk, struct internal_device_info *out)
+{
+	int dev;
+	int ret;
+
+	if(!check_td_control())return -EDRVNTLD;
+
+	dev = open(device, O_RDWR);
+	if(dev < 0)return -ENOPERM;
+
+	out->disk = disk;
+	ret = ioctl(dev, TDISK_GET_DEVICE_INFO, out);
 
 	close(dev);
 

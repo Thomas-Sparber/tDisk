@@ -15,6 +15,8 @@ enum {
 	get_sector_index,
 	get_all_sector_indices,
 	clear_access_count,
+	get_internal_devices_count,
+	get_device_info
 };
 
 struct
@@ -30,6 +32,8 @@ struct
 	DECLARE_OPERATION(get_sector_index),
 	DECLARE_OPERATION(get_all_sector_indices),
 	DECLARE_OPERATION(clear_access_count),
+	DECLARE_OPERATION(get_internal_devices_count),
+	DECLARE_OPERATION(get_device_info)
 };
 
 int operations_count = sizeof(operations) / sizeof(operations[0]);
@@ -177,6 +181,56 @@ int main(int argc, char* args[])
 		}
 
 		ret = tdisk_clear_access_count(args[2]);
+		break;
+	case get_internal_devices_count:
+		if(argc <= 2)
+		{
+			fprintf(stderr, "Error: \"get_internal_device_count\" needs the td device\n");
+			ret = 1;
+			break;
+		}
+
+		do
+		{
+			tdisk_index device;
+			ret = tdisk_get_internal_devices_count(args[2], &device);
+			if(!print_error(ret))printf("%u\n", device);
+		}
+		while(0);
+		break;
+	case get_device_info:
+		if(argc <= 3)
+		{
+			fprintf(stderr, "Error: \"get_device_info\" needs the td device and the device to retrieve infos for\n");
+			ret = 1;
+			break;
+		}
+
+		do
+		{
+			struct internal_device_info info;
+			ret = tdisk_get_device_info(args[2], (tdisk_index)atoi(args[3]), &info);
+			if(!print_error(ret))printf("Disk: %u\n"
+									"avg_read_time_jiffies: %llu\n"
+									"stdev_read_time_jiffies: %llu\n"
+									"avg_write_time_jiffies: %llu\n"
+									"stdev_write_time_jiffies: %llu\n"
+									"mod_avg_read: %u\n"
+									"mod_stdev_read: %u\n"
+									"mod_avg_write: %u\n"
+									"mod_stdev_write: %u\n",
+									info.disk,
+									info.performance.avg_read_time_jiffies,
+									info.performance.stdev_read_time_jiffies,
+									info.performance.avg_write_time_jiffies,
+									info.performance.stdev_write_time_jiffies,
+									info.performance.mod_avg_read,
+									info.performance.mod_stdev_read,
+									info.performance.mod_avg_write,
+									info.performance.mod_stdev_write);
+		}
+		while(0);
+
 		break;
 	default:
 		fprintf(stderr, "Error: Invalid argument %s\n", args[1]);

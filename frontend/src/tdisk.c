@@ -86,7 +86,7 @@ int tdisk_add_disk(const char *device, const char *new_disk)
 
 	if(!check_td_control())return -EDRVNTLD;
 
-	file = open(new_disk, O_RDWR/* | O_DIRECT | O_SYNC*/);
+	file = open(new_disk, O_RDWR/* | O_SYNC | O_DIRECT*/);
 	if(!file)return -EIO;
 
 	dev = open(device, O_RDWR);

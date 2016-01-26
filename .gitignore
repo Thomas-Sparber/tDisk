@@ -4,4 +4,12 @@
 *.ko
 *.o.cmd
 *.ko.cmd
+*.mod.c
+.tmp_versions
+Module.symvers
+modules.order
 slow_disk
+big_disk
+other_disk
+frontend/tdisk
+web_interface/tdisk

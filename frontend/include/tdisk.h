@@ -15,7 +15,7 @@ int tdisk_clear(const char *device);
 
 int tdisk_get_max_sectors(const char *device, __u64 *out);
 int tdisk_get_sector_index(const char *device, __u64 logical_sector, struct sector_index *out);
-int tdisk_get_all_sector_indices(const char *device, struct sector_index *out);
+int tdisk_get_all_sector_indices(const char *device, struct sector_info *out);
 int tdisk_clear_access_count(const char *device);
 
 int tdisk_get_internal_devices_count(const char *device, tdisk_index *out);

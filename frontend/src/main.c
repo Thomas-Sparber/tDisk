@@ -159,14 +159,23 @@ int main(int argc, char* args[])
 			__u64 max_sectors;
 			ret = tdisk_get_max_sectors(args[2], &max_sectors);
 			if(print_error(ret))break;
-			struct sector_index *indices = malloc(sizeof(struct sector_index) * (size_t)max_sectors);
+			struct sector_info *indices = malloc(sizeof(struct sector_info) * (size_t)max_sectors);
 			ret = tdisk_get_all_sector_indices(args[2], indices);
 			if(!print_error(ret))
 			{
 				__u64 j;
 				for(j = 0; j < max_sectors; ++j)
 				{
-					printf("Disk: %u\nSector: %llu\nAccess_count: %u\n\n", indices[j].disk, indices[j].sector, indices[j].access_count);
+					printf("Logical_sector: %llu\n"
+							"Access_sorted: %llu\n"
+							"Disk: %u\n"
+							"Sector: %llu\n"
+							"Access_count: %u\n\n",
+							indices[j].logical_sector,
+							indices[j].access_sorted_index,
+							indices[j].physical_sector.disk,
+							indices[j].physical_sector.sector,
+							indices[j].physical_sector.access_count);
 				}
 			}
 		}
@@ -210,24 +219,23 @@ int main(int argc, char* args[])
 		{
 			struct internal_device_info info;
 			ret = tdisk_get_device_info(args[2], (tdisk_index)atoi(args[3]), &info);
-			if(!print_error(ret))printf("Disk: %u\n"
-									"avg_read_time_cycles: %llu\n"
-									"stdev_read_time_cycles: %llu\n"
-									"avg_write_time_cycles: %llu\n"
-									"stdev_write_time_cycles: %llu\n"
-									"mod_avg_read: %u\n"
-									"mod_stdev_read: %u\n"
-									"mod_avg_write: %u\n"
-									"mod_stdev_write: %u\n",
-									info.disk,
-									info.performance.avg_read_time_cycles,
-									info.performance.stdev_read_time_cycles,
-									info.performance.avg_write_time_cycles,
-									info.performance.stdev_write_time_cycles,
-									info.performance.mod_avg_read,
-									info.performance.mod_stdev_read,
-									info.performance.mod_avg_write,
-									info.performance.mod_stdev_write);
+			if(!print_error(ret))
+			{
+				double avg_read_dec		= (double)info.performance.mod_avg_read / (1 << MEASUE_RECORDS_SHIFT);
+				double stdev_read_dec	= (double)info.performance.mod_stdev_write / (1 << MEASUE_RECORDS_SHIFT);
+				double avg_write_dec	= (double)info.performance.mod_avg_write / (1 << MEASUE_RECORDS_SHIFT);
+				double stdev_write_dec	= (double)info.performance.mod_stdev_write / (1 << MEASUE_RECORDS_SHIFT);
+				printf("Disk: %u\n"
+							"avg_read_time_cycles: %f\n"
+							"stdev_read_time_cycles: %f\n"
+							"avg_write_time_cycles: %f\n"
+							"stdev_write_time_cycles: %f\n",
+							info.disk,
+							(double)info.performance.avg_read_time_cycles		+ avg_read_dec,
+							(double)info.performance.stdev_read_time_cycles		+ stdev_read_dec,
+							(double)info.performance.avg_write_time_cycles		+ avg_write_dec,
+							(double)info.performance.stdev_write_time_cycles	+ stdev_write_dec);
+			}
 		}
 		while(0);
 

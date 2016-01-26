@@ -799,14 +799,22 @@ static int tdisk_get_sector_index(struct tdisk *td, struct sector_index __user *
 	return 0;
 }
 
-static int tdisk_get_all_sector_indices(struct tdisk *td, struct sector_index __user *arg)
+static int tdisk_get_all_sector_indices(struct tdisk *td, struct sector_info __user *arg)
 {
-	sector_t i;
+	struct sorted_sector_index *pos;
+	struct sector_info info;
+	sector_t sorted_index = 0;
 
-	for(i = 0; i < td->max_sectors; ++i)
+	hlist_for_each_entry(pos, &td->sorted_sectors_head, list)
 	{
-		if(copy_to_user(&arg[i], td->sorted_sectors[i].physical_sector, sizeof(struct sector_index)) != 0)
+		info.physical_sector = (*pos->physical_sector);
+		info.access_sorted_index = sorted_index;
+		info.logical_sector = pos - td->sorted_sectors;
+
+		if(copy_to_user(&arg[sorted_index], &info, sizeof(struct sector_info)) != 0)
 			return -EFAULT;
+
+		sorted_index++;
 	}
 
 	return 0;
@@ -860,7 +868,7 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 		err = tdisk_get_sector_index(td, (struct sector_index __user *) arg);
 		break;
 	case TDISK_GET_ALL_SECTOR_INDICES:
-		err = tdisk_get_all_sector_indices(td, (struct sector_index __user *) arg);
+		err = tdisk_get_all_sector_indices(td, (struct sector_info __user *) arg);
 		break;
 	case TDISK_CLEAR_ACCESS_COUNT:
 		err = tdisk_clear_access_count(td);

@@ -7,6 +7,8 @@
 #define DRIVER_MAJOR_VERSION 1
 #define DRIVER_MINOR_VERSION 0
 
+#define MEASUE_RECORDS_SHIFT 16
+
 typedef __u8 tdisk_index;
 
 /*
@@ -53,6 +55,13 @@ struct sector_index
 	//This variable stores the access count of the physical sector
 	__u16 access_count;
 }; //end struct sector_index;
+
+struct sector_info
+{
+	__u64 logical_sector;
+	__u64 access_sorted_index;
+	struct sector_index physical_sector;
+}; //end struct sector_info
 
 struct tdisk_info {
 	//__u64			block_device;		/* ioctl r/o */

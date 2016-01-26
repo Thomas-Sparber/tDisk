@@ -2,10 +2,10 @@
 #define TDISK_FILE_H
 
 #include <linux/timex.h>
+#include "../include/tdisk/interface.h"
 
-#define RECORDS_SHIFT 16
-#define PREVIOUS_RECORDS ((1 << RECORDS_SHIFT) - 1)
-#define TIME_ONE_VALUE(val, mod) (val * (1 << RECORDS_SHIFT) + mod)
+#define PREVIOUS_RECORDS ((1 << MEASUE_RECORDS_SHIFT) - 1)
+#define TIME_ONE_VALUE(val, mod) (val * (1 << MEASUE_RECORDS_SHIFT) + mod)
 
 inline static loff_t file_get_size(struct file *file)
 {
@@ -55,9 +55,9 @@ inline static void file_update_performance(struct file *file, int direction, cyc
 		perf->stdev_read_time_cycles += diff + perf->mod_stdev_read;
 
 		perf->mod_avg_read = perf->avg_read_time_cycles & PREVIOUS_RECORDS;
-		perf->avg_read_time_cycles = perf->avg_read_time_cycles >> RECORDS_SHIFT;
+		perf->avg_read_time_cycles = perf->avg_read_time_cycles >> MEASUE_RECORDS_SHIFT;
 		perf->mod_stdev_read = perf->stdev_read_time_cycles & PREVIOUS_RECORDS;
-		perf->stdev_read_time_cycles = perf->stdev_read_time_cycles >> RECORDS_SHIFT;
+		perf->stdev_read_time_cycles = perf->stdev_read_time_cycles >> MEASUE_RECORDS_SHIFT;
 		break;
 	case WRITE:
 		if(perf->avg_write_time_cycles > time)
@@ -70,9 +70,9 @@ inline static void file_update_performance(struct file *file, int direction, cyc
 		perf->stdev_write_time_cycles += diff + perf->mod_stdev_write;
 
 		perf->mod_avg_write = perf->avg_write_time_cycles & PREVIOUS_RECORDS;
-		perf->avg_write_time_cycles = perf->avg_write_time_cycles >> RECORDS_SHIFT;
+		perf->avg_write_time_cycles = perf->avg_write_time_cycles >> MEASUE_RECORDS_SHIFT;
 		perf->mod_stdev_write = perf->stdev_write_time_cycles & PREVIOUS_RECORDS;
-		perf->stdev_write_time_cycles = perf->stdev_write_time_cycles >> RECORDS_SHIFT;
+		perf->stdev_write_time_cycles = perf->stdev_write_time_cycles >> MEASUE_RECORDS_SHIFT;
 		break;
 	}
 }

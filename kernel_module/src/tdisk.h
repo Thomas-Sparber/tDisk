@@ -11,6 +11,8 @@
 #include <linux/kthread.h>
 
 #include "../include/tdisk/interface.h"
+#include "worker_timeout.h"
+
 
 #define TDISK_MAX_PHYSICAL_DISKS ((tdisk_index)-1 -1) /*-1 because 0 means unused*/
 
@@ -72,7 +74,7 @@ struct tdisk {
 	int						state;
 	struct mutex			ctl_mutex;
 
-	struct kthread_worker	worker;
+	struct worker_timeout_data	worker_timeout;
 	struct task_struct		*worker_task;
 
 	struct request_queue	*queue;

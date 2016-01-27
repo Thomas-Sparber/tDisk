@@ -28,6 +28,10 @@
 
 #define COMPARE 1410
 
+#define DEFAULT_WORKER_TIMEOUT (5*HZ)
+
+static void tdisk_queue_work(void *private_data, struct kthread_work *work);
+
 static u_int TD_MAJOR = 0;
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Thomas Sparber <thomas@sparber.eu>");
@@ -387,16 +391,18 @@ static void reread_partitions(struct tdisk *td, struct block_device *bdev)
 
 static void unprepare_queue(struct tdisk *td)
 {
-	printk(KERN_DEBUG "tDisk: Unpreparing\n");
-	flush_kthread_worker(&td->worker);
+	flush_kthread_worker_timeout(&td->worker_timeout.worker);
 	kthread_stop(td->worker_task);
-	printk(KERN_DEBUG "tDisk: Unprepared\n");
 }
 
 static int prepare_queue(struct tdisk *td)
 {
-	init_kthread_worker(&td->worker);
-	td->worker_task = kthread_run(kthread_worker_fn, &td->worker, "td%d", td->number);
+	init_kthread_worker(&td->worker_timeout.worker);
+	td->worker_timeout.private_data = td;
+	td->worker_timeout.timeout = DEFAULT_WORKER_TIMEOUT;
+	td->worker_timeout.work_func = &tdisk_queue_work;
+	td->worker_task = kthread_run(kthread_worker_fn_timeout, &td->worker_timeout, "td%d", td->number);
+
 	if(IS_ERR(td->worker_task))
 		return -ENOMEM;
 	set_user_nice(td->worker_task, MIN_NICE);
@@ -977,7 +983,7 @@ static int tdisk_queue_rq(struct blk_mq_hw_ctx *hctx, const struct blk_mq_queue_
 	if(td->state != state_bound)
 		return -EIO;
 
-	queue_kthread_work(&td->worker, &cmd->td_work);
+	queue_kthread_work(&td->worker_timeout.worker, &cmd->td_work);
 
 	return BLK_MQ_RQ_QUEUE_OK;
 }
@@ -1005,19 +1011,35 @@ static void tdisk_handle_cmd(struct td_command *cmd)
 #endif
 }
 
-static void tdisk_queue_work(struct kthread_work *work)
+static void tdisk_queue_work(void *private_data, struct kthread_work *work)
 {
-	struct td_command *cmd = container_of(work, struct td_command, td_work);
-	struct tdisk *td = cmd->rq->q->queuedata;
-	tdisk_handle_cmd(cmd);
+	struct tdisk *td = private_data;
 
-	//kthread_work is in a circular list. If next is at the same
-	//address than the current thread then there is nothing to do.
-	//Then we have time to move the physical sectors.
-	if(work->node.next == &work->node && td->access_count_updated)
+	if(unlikely(!td))
 	{
-		td->access_count_updated = 0;
-		printk(KERN_DEBUG "tDisk: nothing to do anymore. Moving sectors\n");
+		printk_ratelimited("tDisk: private data in worker fn is NULL\n");
+		return;
+	}
+
+	//Since we are not using the standard kthread_work_fn
+	//It is possible that this funtion is called without work.
+	//The reason behind this is that we can reorganize the indices
+	//and sector operations when there is nothing to do
+	if(work)
+	{
+		struct td_command *cmd = container_of(work, struct td_command, td_work);
+		tdisk_handle_cmd(cmd);
+	}
+	else
+	{
+		//kthread_work is in a circular list. If next is at the same
+		//address than the current thread then there is nothing to do.
+		//Then we have time to move the physical sectors.
+		if(td->access_count_updated)
+		{
+			td->access_count_updated = 0;
+			printk(KERN_DEBUG "tDisk: nothing to do anymore. Moving sectors\n");
+		}
 	}
 }
 
@@ -1026,7 +1048,8 @@ static int tdisk_init_request(void *data, struct request *rq, unsigned int hctx_
 	struct td_command *cmd = blk_mq_rq_to_pdu(rq);
 
 	cmd->rq = rq;
-	init_kthread_work(&cmd->td_work, tdisk_queue_work);
+
+	init_thread_work_timeout(&cmd->td_work);
 
 	return 0;
 }

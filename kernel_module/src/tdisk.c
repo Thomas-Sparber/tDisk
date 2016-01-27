@@ -92,60 +92,10 @@ static int td_req_flush(struct tdisk *td)
 	return ret;
 }
 
-void reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
-{
-	struct sorted_sector_index *index;
-	struct sorted_sector_index *next;
-	struct sorted_sector_index *prev;
-
-	if(logical_sector >= td->max_sectors)
-	{
-		printk(KERN_ERR "tDisk: Can't sort sector %llu\n", logical_sector);
-		return;
-	}
-
-	index = &td->sorted_sectors[logical_sector];
-
-	//Move index backwards
-	while(index->list.next)
-	{
-		next = hlist_entry(index->list.next, struct sorted_sector_index, list);
-
-		if(index->physical_sector->access_count < next->physical_sector->access_count)
-		{
-			td->access_count_updated = 1;
-			//printk_ratelimited(KERN_DEBUG "tDisk: Moving index (%llu) backwards\n", logical_sector);
-			hlist_del_init(&next->list);
-			if(likely(index->list.pprev))
-				hlist_add_before(&next->list, &index->list);
-			else
-				hlist_add_head(&next->list, &td->sorted_sectors_head);
-				
-		}
-		else break;
-	}
-
-
-	//Move index forwards
-	while(index->list.pprev)
-	{
-		prev = hlist_entry(index->list.pprev, struct sorted_sector_index, list.next);
-
-		if(index->physical_sector->access_count > prev->physical_sector->access_count)
-		{
-			td->access_count_updated = 1;
-			//printk(KERN_DEBUG "tDisk: Moving index (%llu) forwards %u, %u, prev->prev: %p\n", logical_sector, index->physical_sector->access_count, prev->physical_sector->access_count, prev->list.pprev);
-			hlist_del_init(&index->list);
-			if(likely(index->list.pprev))
-				hlist_add_before(&index->list, &prev->list);
-			else
-				hlist_add_head(&index->list, &td->sorted_sectors_head);
-			break;
-		}
-		else break;
-	}
-}
-
+/**
+  * This callback is used by the insertsort to determine the
+  * order of a sector index
+ **/
 int sector_index_callback(struct hlist_node *a, struct hlist_node *b)
 {
 	struct sorted_sector_index *i_a = hlist_entry(a, struct sorted_sector_index, list);
@@ -154,11 +104,32 @@ int sector_index_callback(struct hlist_node *a, struct hlist_node *b)
 	return i_b->physical_sector->access_count - i_a->physical_sector->access_count;
 }
 
+void reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
+{
+	struct sorted_sector_index *index;
+	struct sorted_sector_index *next = NULL;
+	struct sorted_sector_index *prev = NULL;
+
+	if(logical_sector >= td->max_sectors)
+	{
+		printk(KERN_ERR "tDisk: Can't sort sector %llu\n", logical_sector);
+		return;
+	}
+
+	index = &td->sorted_sectors[logical_sector];
+	if(index->list.next)next = hlist_entry(index->list.next, struct sorted_sector_index, list);
+	if(index->list.pprev)prev = hlist_entry(index->list.pprev, struct sorted_sector_index, list.next);
+
+	if((next && index->physical_sector->access_count < next->physical_sector->access_count) || (prev && index->physical_sector->access_count > prev->physical_sector->access_count))
+	{
+		td->access_count_updated = 1;
+		hlist_del_init(&index->list);
+		hlist_insert_sorted(&index->list, &td->sorted_sectors_head, &sector_index_callback);
+	}
+}
+
 void reorganize_all_indices(struct tdisk *td)
 {
-	//sector_t logical_sector;
-	//for(logical_sector = 0; logical_sector < td->max_sectors; ++logical_sector)
-	//	reorganize_sorted_index(td, logical_sector);
 	hlist_insertsort(&td->sorted_sectors_head, &sector_index_callback);
 }
 

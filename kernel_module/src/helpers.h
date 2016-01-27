@@ -44,7 +44,8 @@ inline static void hlist_insert_sorted(struct hlist_node *entry, struct hlist_he
 	struct hlist_node *item;
 	struct hlist_node *last = NULL;
 
-	hlist_for_each(item, head) {
+	hlist_for_each(item, head)
+	{
 		if(callback(entry, item) < 0)
 		{
 			hlist_add_before(entry, item);

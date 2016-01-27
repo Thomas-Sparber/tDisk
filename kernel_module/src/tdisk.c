@@ -268,7 +268,6 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 		loff_t sector = pos_byte;
 		loff_t offset = __div64_32(&sector, td->blocksize);
 		sector_t actual_pos_byte;
-		sector += td->header_size;
 
 		perform_index_operation(td, READ, sector, &physical_sector);
 
@@ -445,6 +444,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		goto out_putf;
 	}
 
+	//Subtract header size from disk size
 	size -= (td->header_size*td->blocksize) >> 9;
 
 	error = -EFBIG;
@@ -541,7 +541,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		while((size_counter+td->blocksize) <= (size << 9))
 		{
 			int internal_ret;
-			sector_t logical_sector = td->header_size + td->size_blocks++;
+			sector_t logical_sector = td->size_blocks++;
 			size_counter += td->blocksize;
 			physical_sector->disk = header.disk_index + 1;	//+1 because 0 means unused
 			physical_sector->sector = td->header_size + sector++;

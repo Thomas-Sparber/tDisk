@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk Driver
+  * @author Thomas Sparber (2015)
+  *
+ **/
+
 #ifndef TDISK_H
 #define TDISK_H
 
@@ -32,8 +39,8 @@ struct tdisk_header
 }; //end struct tdisk_header
 
 /**
-  * A mapped_sector_index represents the mapping of a logical sector
-  * to a physical (disk & sector) sector
+  * A sorted_sector_index represents a physical sector
+  * sorted according to the access_count
  **/
 struct sorted_sector_index
 {
@@ -41,21 +48,32 @@ struct sorted_sector_index
 	struct hlist_node list;
 }; //end struct mapped sector index
 
+/**
+  * A td_internal_device represents an underlying
+  * physical device of a tDisk.
+ **/
 struct td_internal_device
 {
-	struct file *backing_file;
+	struct file *file;
 	gfp_t old_gfp_mask;
 
 	struct device_performance performance;
 }; //end struct td_internal_device
 
-/* Possible states of device */
+/**
+  * Possible states of a device
+ **/
 enum {
 	state_unbound,
 	state_bound,
 	state_cleared,
 };
 
+/**
+  * This struct represents a tDisk. It contains
+  * the internal devices, the sorted sectors and
+  * various other driver and kernel specific fields.
+ **/
 struct tdisk {
 	int			number;
 	atomic_t	refcount;
@@ -88,9 +106,13 @@ struct tdisk {
 	struct hlist_head sorted_sectors_head;
 	struct sorted_sector_index *sorted_sectors;	//The sectors sorted according to their access count;
 
-	int access_count_updated;		//Keeps track if the access_count was updated during a file request
+	int access_count_resort;		//Keeps track if the access_count was updated during a file request and needs to be resorted
 };
 
+/**
+  * A td_command is used by the worker thread to
+  * process a request.
+ **/
 struct td_command {
 	struct kthread_work td_work;
 	struct request *rq;
@@ -100,7 +122,5 @@ struct td_command {
 int tdisk_add(struct tdisk **l, int i, unsigned int blocksize, sector_t max_sectors);
 int tdisk_lookup(struct tdisk **l, int i);
 void tdisk_remove(struct tdisk *lo);
-
-extern struct idr td_index_idr;
 
 #endif //TDISK_H

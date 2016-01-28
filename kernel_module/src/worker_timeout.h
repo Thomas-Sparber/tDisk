@@ -1,17 +1,72 @@
+/**
+  *
+  * tDisk Driver
+  * @author Thomas Sparber (2015)
+  *
+ **/
+
 #ifndef WORKER_TIMEOUT_H
 #define WORKER_TIMEOUT_H
 
 #include <linux/kthread.h>
 
+/**
+  * Initializes a kthread_work to be used
+  * with a timeout_worker
+ **/
 #define init_thread_work_timeout(work) \
 	init_kthread_work((work), NULL);
 
+/**
+  * This enum represents the current status of
+  * the worker thread.
+  * It is returned from the user specific worker
+  * function and is used to decide about sleeping
+  * times. Normally it looks like this:
+  * Primary work (which is the work represented
+  * by struct kthread_work) always has the higher
+  * priority. If there is primary work to be done,
+  * it is done before any secondary work even if
+  * there is still some secondary work to do.
+  * When the function is called to do some primary
+  * work it usually should return next_primary_work
+  * to wait for the next primary work. If there is
+  * no primary work within the given timeout, the
+  * work function is called to do some secondary work
+  * then the worker function should either return
+  * secondary_work_finished or secondary_work_to_do.
+  * If secondary_work_to_do is returned, the worker
+  * function is immediately called again to do
+  * secondary work. Of course, only if there is no
+  * primary work to be done .If secondary_work_finished
+  * is returned. The thread goes to sleep and is only
+  * woken up if there is primary work to be done...
+ **/
+enum worker_status
+{
+	next_primary_work,
+	secondary_work_finished,
+	secondary_work_to_do
+}; //end enum worker_status
+
+/**
+  * This data needs to be handed over by kthread_run
+  * to start the timeout worker thread. e.g.
+  * kthread_run(kthread_worker_fn_timeout, worker_timeout_data...
+  * timeout is the default timeout which needs to be exceeded
+  * in order to start secondary work.
+  * private_data is the private data which should be handed
+  * over to the worker function, worker_func is the worker
+  * function which should be started for every work to be done.
+  * If kthread_work is null, then it is secondary work, if
+  * kthread_work is not null it is primary work.
+ **/
 struct worker_timeout_data
 {
 	struct kthread_worker worker;
 	long timeout;
 	void *private_data;
-	void(*work_func)(void*,struct kthread_work*);
+	enum worker_status(*work_func)(void*,struct kthread_work*);
 }; //end struct worker timeout data
 
 int kthread_worker_fn_timeout(void *worker_ptr);

@@ -1,20 +1,43 @@
+/**
+  *
+  * tDisk Driver
+  * @author Thomas Sparber (2015)
+  *
+ **/
+
 #include <linux/types.h>
 #include <linux/freezer.h>
 #include <linux/completion.h>
 
 #include "worker_timeout.h"
 
+/**
+  * This struct represents a work object which is
+  * used to flush the worker thread
+ **/
 struct kthread_flush_work {
 	struct kthread_work	work;
 	struct completion	done;
 };
 
+/**
+  * This function is called for the flush work.
+  * It notifies the completion object.
+ **/
 static void kthread_flush_work_fn_timeout(struct kthread_work *work)
 {
 	struct kthread_flush_work *fwork = container_of(work, struct kthread_flush_work, work);
 	complete(&fwork->done);
 }
 
+/**
+  * This function is more or less copied from the linux
+  * kernel version except that it is able to wake
+  * up after a specific timeout, even if there is no
+  * work to do.
+  * This makes it possible to do some background
+  * (secondary) work when there is nothing to do.
+ **/
 int kthread_worker_fn_timeout(void *worker_ptr)
 {
 	struct worker_timeout_data *data = worker_ptr;
@@ -53,17 +76,30 @@ int kthread_worker_fn_timeout(void *worker_ptr)
 	}
 	else if(work || current_timeout == 0)
 	{
-		current_timeout = data->timeout;
 		__set_current_state(TASK_RUNNING);
-		data->work_func(data->private_data, work);
+		switch(data->work_func(data->private_data, work))
+		{
+		case next_primary_work:
+			current_timeout = data->timeout;
+			break;
+		case secondary_work_finished:
+			current_timeout = MAX_SCHEDULE_TIMEOUT;
+			break;
+		case secondary_work_to_do:
+			current_timeout = 0;
+			break;
+		}
 	}
 	else if(!freezing(current))
-		current_timeout = schedule_timeout(data->timeout);
+		current_timeout = schedule_timeout(current_timeout);
 
 	try_to_freeze();
 	goto repeat;
 }
 
+/**
+  * Flushes the given worker thread
+ **/
 void flush_kthread_worker_timeout(struct kthread_worker *worker)
 {
 	struct kthread_flush_work fwork =

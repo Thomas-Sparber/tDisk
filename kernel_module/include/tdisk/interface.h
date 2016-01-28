@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk Driver
+  * @author Thomas Sparber (2015)
+  *
+ **/
+
 #ifndef TDISK_INTERFACE_H
 #define TDISK_INTERFACE_H
 
@@ -7,8 +14,21 @@
 #define DRIVER_MAJOR_VERSION 1
 #define DRIVER_MINOR_VERSION 0
 
+/**
+  * Amount of past operations which are averaged
+  * over the time to measure the performance of a device
+  * this value must be seen as a bit shift value. e.g
+  * (1 << MEASUE_RECORDS_SHIFT) --> (1 << 16) = 65536
+ **/
 #define MEASUE_RECORDS_SHIFT 16
 
+/**
+  * The data type which is used to store the disk indices.
+  * This is very important because it is also stored on the
+  * disks itself (@see struct sector_index)
+  * A tDisk can only have as much disks as this data type
+  * supports. BUT larger data type means more overhead.
+ **/
 typedef __u8 tdisk_index;
 
 /*
@@ -19,6 +39,15 @@ enum {
 	TD_FLAGS_AUTOCLEAR	= 4
 };
 
+/**
+  * This struct represents performance indicators of a
+  * physical disk. It contains the average and standard
+  * deviation values in processor cycles of read and write
+  * operations.
+  * Additionally, the residue of the averaging operations
+  * is stored to be able to use fixed point numbers instead
+  * of floating point.
+ **/
 struct device_performance
 {
 	__u64 avg_read_time_cycles;
@@ -35,6 +64,10 @@ struct device_performance
 	__u32 mod_stdev_write;
 }; //end struct device_performance
 
+/**
+  * This struct is used to transfer internal device
+  * specific information to user space
+ **/
 struct internal_device_info
 {
 	tdisk_index disk;
@@ -56,6 +89,10 @@ struct sector_index
 	__u16 access_count;
 }; //end struct sector_index;
 
+/**
+  * Thsi struct is used to transfer sector specific information
+  * to user space.
+ **/
 struct sector_info
 {
 	__u64 logical_sector;
@@ -63,6 +100,10 @@ struct sector_info
 	struct sector_index physical_sector;
 }; //end struct sector_info
 
+/**
+  * Thsi struct is used to transfer tDisk information
+  * to user space.
+ **/
 struct tdisk_info {
 	//__u64			block_device;		/* ioctl r/o */
 	__u64			max_sectors;		/* ioctl r/o */
@@ -75,8 +116,8 @@ struct tdisk_info {
  * IOCTL commands --- we will commandeer 0x4C ('L')
  */
 
-#define TDISK_SET_FD			0x4C00
-#define TDISK_CLR_FD			0x4C01
+#define TDISK_ADD_DISK			0x4C00
+#define TDISK_CLEAR				0x4C01
 //#define TDISK_SET_STATUS		0x4C04
 #define TDISK_GET_STATUS		0x4C05
 #define TDISK_GET_DEVICE_INFO	0x4C06
@@ -85,7 +126,7 @@ struct tdisk_info {
 #define TDISK_CLEAR_ACCESS_COUNT 0x4C09
 //#define TDISK_SET_CAPACITY		0x4C09
 
-/* /dev/loop-control interface */
+// /dev/td-control interface
 #define TDISK_CTL_ADD			0x4C80
 #define TDISK_CTL_REMOVE		0x4C81
 #define TDISK_CTL_GET_FREE		0x4C82

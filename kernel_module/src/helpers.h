@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk Driver
+  * @author Thomas Sparber (2015)
+  *
+ **/
+
 #ifndef HELPERS_H
 #define HELPERS_H
 
@@ -39,6 +46,11 @@ inline static uint32_t __div64_32(uint64_t *n, uint32_t base)
 	return rem;
 }
 
+/**
+  * Inserts the given entry into the given
+  * hlist in the sorted position according to the
+  * callback
+ **/
 inline static void hlist_insert_sorted(struct hlist_node *entry, struct hlist_head *head, int(*callback)(struct hlist_node*, struct hlist_node*))
 {
 	struct hlist_node *item;
@@ -60,6 +72,9 @@ inline static void hlist_insert_sorted(struct hlist_node *entry, struct hlist_he
 		hlist_add_behind(entry, last);
 }
 
+/**
+  * Sorts the given hlist according to the callback
+ **/
 inline static void hlist_insertsort(struct hlist_head *head, int(*callback)(struct hlist_node*, struct hlist_node*))
 {
 	struct hlist_head list_unsorted;

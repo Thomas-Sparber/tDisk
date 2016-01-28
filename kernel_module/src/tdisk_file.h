@@ -1,29 +1,70 @@
+/**
+  *
+  * tDisk Driver
+  * @author Thomas Sparber (2015)
+  *
+ **/
+
 #ifndef TDISK_FILE_H
 #define TDISK_FILE_H
 
 #include <linux/timex.h>
+#include <linux/version.h>
 #include "../include/tdisk/interface.h"
 
+/**
+  * Calculates the amount of measured records-1
+  * @see file_update_performance
+ **/
 #define PREVIOUS_RECORDS ((1 << MEASUE_RECORDS_SHIFT) - 1)
+
+/**
+  * If the performance of ONE operation was measured
+  * the reult is normally very low (e.g. 3 cycles) because
+  * it was averaged over the last (1 << MEASUE_RECORDS_SHIFT)
+  * operations.
+  * This macro calculates the time back to the actual amount
+  * of cycles.
+ **/
 #define TIME_ONE_VALUE(val, mod) (val * (1 << MEASUE_RECORDS_SHIFT) + mod)
 
+/*struct aio_data
+{
+	struct kiocb iocb;
+	struct request *rq;
+}; //end struct aio_data*/
+
+/**
+  * Returns whether the given file is a tDisk
+ **/
+static inline int file_is_tdisk(struct file *file, int MAJOR_NUMBER)
+{
+	struct inode *i = file->f_mapping->host;
+
+	return i && S_ISBLK(i->i_mode) && MAJOR(i->i_rdev) == MAJOR_NUMBER;
+}
+
+/**
+  * Returns the size of a file in 512 byte blocks
+ **/
 inline static loff_t file_get_size(struct file *file)
 {
 	return i_size_read(file->f_mapping->host) >> 9;
 }
 
-inline static int file_discard(struct file *file, struct request *rq, loff_t pos)
+/**
+  * Allocates the given space in the given file
+ **/
+inline static int file_alloc(struct file *file, loff_t pos, unsigned int length)
 {
 	//We use punch hole to reclaim the free space used by the image a.k.a. discard.
 	int ret = 0;
 	int mode = FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE;
 
 	if((!file->f_op->fallocate))
-	{
 		return -EOPNOTSUPP;
-	}
 
-	ret = file->f_op->fallocate(file, mode, pos, blk_rq_bytes(rq));
+	ret = file->f_op->fallocate(file, mode, pos, length);
 
 	if(unlikely(ret && ret != -EINVAL && ret != -EOPNOTSUPP))
 		ret = -EIO;
@@ -31,24 +72,39 @@ inline static int file_discard(struct file *file, struct request *rq, loff_t pos
 	return ret;
 }
 
+/**
+  * Flushes the given file
+ **/
 inline static int file_flush(struct file *file)
 {
 	return vfs_fsync(file, 0);
 }
 
+/**
+  * This function updates the performance data
+  * of the given device. Actually it calculates
+  * the average and standard deviation over the
+  * last (1 << MEASUE_RECORDS_SHIFT) requests
+ **/
 inline static void file_update_performance(struct file *file, int direction, cycles_t time, struct device_performance *perf)
 {
 	unsigned long diff;
 
-	if(perf == NULL)return;
+	//time is 0 on platforms which have no cycles measure
+	WARN_ONCE(time == 0, "Your processor doesn't count cycles. Performances values may be wrong!");
+	if(perf == NULL || time == 0)return;
 
 	switch(direction)
 	{
 	case READ:
+		//Avg difference
 		if(perf->avg_read_time_cycles > time)
 			diff = perf->avg_read_time_cycles-time;
 		else diff = time-perf->avg_read_time_cycles;
 
+		//The following lines calculate the following
+		//equation using bitshift for better performance
+		//avg = (avg*(records_count-1) + current_time) / (records_count)
 		perf->avg_read_time_cycles *= PREVIOUS_RECORDS;
 		perf->avg_read_time_cycles += time + perf->mod_avg_read;
 		perf->stdev_read_time_cycles *= PREVIOUS_RECORDS;
@@ -60,10 +116,14 @@ inline static void file_update_performance(struct file *file, int direction, cyc
 		perf->stdev_read_time_cycles = perf->stdev_read_time_cycles >> MEASUE_RECORDS_SHIFT;
 		break;
 	case WRITE:
+		//Avg difference
 		if(perf->avg_write_time_cycles > time)
 			diff = perf->avg_write_time_cycles-time;
 		else diff = time-perf->avg_write_time_cycles;
 
+		//The following lines calculate the following
+		//equation using bitshift for better performance
+		//avg = (avg*(records_count-1) + current_time) / (records_count)
 		perf->avg_write_time_cycles *= PREVIOUS_RECORDS;
 		perf->avg_write_time_cycles += time + perf->mod_avg_write;
 		perf->stdev_write_time_cycles *= PREVIOUS_RECORDS;
@@ -77,6 +137,10 @@ inline static void file_update_performance(struct file *file, int direction, cyc
 	}
 }
 
+/**
+  * This function writes the given bio_vec to
+  * file at the given position. It also measures the performance
+ **/
 inline static int file_write_bio_vec(struct file *file, struct bio_vec *bvec, loff_t *pos, struct device_performance *perf)
 {
 	int ret;
@@ -94,6 +158,10 @@ inline static int file_write_bio_vec(struct file *file, struct bio_vec *bvec, lo
 	return ret;
 }
 
+/**
+  * This function writes the given page to
+  * file at the given position. It also measures the performance
+ **/
 inline static int file_write_page(struct file *file, struct page *p, loff_t *pos, unsigned int length, struct device_performance *perf)
 {
 	struct bio_vec bvec = {
@@ -105,6 +173,10 @@ inline static int file_write_page(struct file *file, struct page *p, loff_t *pos
 	return file_write_bio_vec(file, &bvec, pos, perf);
 }
 
+/**
+  * This function writes the given bytes to
+  * file at the given position. It also measures the performance
+ **/
 inline static int file_write_data(struct file *file, void *data, loff_t pos, unsigned int length, struct device_performance *perf)
 {
 	int len;
@@ -139,6 +211,10 @@ inline static int file_write_data(struct file *file, void *data, loff_t pos, uns
 	return ret;
 }
 
+/**
+  * This function reads the given bio_vec from
+  * file at the given position. It also measures the performance
+ **/
 inline static int file_read_bio_vec(struct file *file, struct bio_vec *bvec, loff_t *pos, struct device_performance *perf)
 {
 	int ret;
@@ -154,6 +230,10 @@ inline static int file_read_bio_vec(struct file *file, struct bio_vec *bvec, lof
 	return ret;
 }
 
+/**
+  * This function reads the given page from
+  * file at the given position. It also measures the performance
+ **/
 inline static int file_read_page(struct file *file, struct page *p, loff_t *pos, unsigned int length, struct device_performance *perf)
 {
 	struct bio_vec bvec = {
@@ -165,6 +245,10 @@ inline static int file_read_page(struct file *file, struct page *p, loff_t *pos,
 	return file_read_bio_vec(file, &bvec, pos, perf);
 }
 
+/**
+  * This function reads the given bytes from
+  * file at the given position. It also measures the performance
+ **/
 inline static int file_read_data(struct file *file, void *data, loff_t pos, unsigned int length, struct device_performance *perf)
 {
 	int len;
@@ -197,5 +281,65 @@ inline static int file_read_data(struct file *file, void *data, loff_t pos, unsi
 	__free_page(p);
 	return ret;
 }
+
+/*static inline void handle_partial_read(struct aio_data *data, long bytes)  
+{
+	if(bytes < 0 || (data->rq->cmd_flags & REQ_WRITE))return;
+
+	if(unlikely(bytes < blk_rq_bytes(data->rq)))
+	{
+		struct bio *bio = data->rq->bio;
+
+		bio_advance(bio, bytes);
+		zero_fill_bio(bio);
+	}
+}
+
+static void lo_rw_aio_complete(struct kiocb *iocb, long ret, long ret2)
+{
+	struct aio_data *data = container_of(iocb, struct aio_data, iocb);
+	struct request *rq = data->rq;
+
+	handle_partial_read(data, ret);
+
+	if(ret > 0)
+		ret = 0;
+	else if(ret < 0)
+		ret = -EIO;
+
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+	rq->errors = ret;
+	blk_mq_complete_request(rq);
+#else
+	blk_mq_complete_request(rq, ret);
+#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+}
+
+static int lo_rw_aio(struct file *file, struct aio_data *data, loff_t pos, bool rw)
+{
+	struct iov_iter iter;
+	struct bio_vec *bvec;
+	struct bio *bio = data->rq->bio;
+	int ret;
+
+	//nomerge for request queue
+	WARN_ON(data->rq->bio != data->rq->biotail);
+
+	bvec = __bvec_iter_bvec(bio->bi_io_vec, bio->bi_iter);
+	iov_iter_bvec(&iter, ITER_BVEC | rw, bvec, bio_segments(bio), blk_rq_bytes(data->rq));
+
+	data->iocb.ki_pos = pos;
+	data->iocb.ki_filp = file;
+	data->iocb.ki_complete = lo_rw_aio_complete;
+	data->iocb.ki_flags = IOCB_DIRECT;
+
+	if(rw == WRITE)
+		ret = file->f_op->write_iter(&data->iocb, &iter);
+	else
+		ret = file->f_op->read_iter(&data->iocb, &iter);
+
+	if(ret != -EIOCBQUEUED)data->iocb.ki_complete(&data->iocb, ret, 0);
+	return 0;
+}*/
 
 #endif //TDISK_FILE_H

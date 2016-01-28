@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk Driver
+  * @author Thomas Sparber (2015)
+  *
+ **/
+
 #ifndef TDISK_CONTROL_H
 #define TDISK_CONTROL_H
 

@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk Driver
+  * @author Thomas Sparber (2015)
+  *
+ **/
+
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/fs.h>
@@ -15,6 +22,10 @@
 
 DEFINE_MUTEX(td_index_mutex);
 
+/**
+  * This function handles the ioctl calls
+  * of the td-control device
+ **/
 static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned long parm)
 {
 	struct tdisk *td;
@@ -50,12 +61,11 @@ static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned lo
 		}
 		td->kernel_disk->private_data = NULL;
 		mutex_unlock(&td->ctl_mutex);
-		idr_remove(&td_index_idr, td->number);
 		tdisk_remove(td);
 		break;
 	case TDISK_CTL_GET_FREE:
 		ret = tdisk_lookup(&td, -1);
-		if(ret >= 0)break;
+		if(ret >= 0)break;	//Means there is already an available device
 		ret = tdisk_add(&td, -1, 16384, 1024);		//TODO
 	}
 	mutex_unlock(&td_index_mutex);
@@ -63,6 +73,9 @@ static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned lo
 	return ret;
 }
 
+/**
+  * Represents the file operations of the td-control device
+ **/
 static const struct file_operations tdisk_ctl_fops = {
 	.open		= nonseekable_open,
 	.unlocked_ioctl	= tdisk_control_ioctl,
@@ -71,6 +84,9 @@ static const struct file_operations tdisk_ctl_fops = {
 	.llseek		= noop_llseek,
 };
 
+/**
+  * Mic device operations
+ **/
 static struct miscdevice tdisk_misc = {
 	.minor		= MISC_DYNAMIC_MINOR,
 	.name		= "td-control",
@@ -80,11 +96,17 @@ static struct miscdevice tdisk_misc = {
 MODULE_ALIAS_MISCDEV(MISC_DYNAMIC_MINOR);
 MODULE_ALIAS("devname:td-control");
 
+/**
+  * Registers the td-control device
+ **/
 int register_tdisk_control(void)
 {
 	return misc_register(&tdisk_misc);
 }
 
+/**
+  * Unregisters the td-control device
+ **/
 void unregister_tdisk_control(void)
 {
 	misc_deregister(&tdisk_misc);

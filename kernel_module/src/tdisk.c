@@ -30,7 +30,9 @@
 
 #define DEFAULT_WORKER_TIMEOUT (5*HZ)
 
-static void tdisk_queue_work(void *private_data, struct kthread_work *work);
+static int td_start_worker_thread(struct tdisk *td);
+static void td_stop_worker_thread(struct tdisk *td);
+static enum worker_status td_queue_work(void *private_data, struct kthread_work *work);
 
 static u_int TD_MAJOR = 0;
 MODULE_LICENSE("GPL");
@@ -40,46 +42,28 @@ MODULE_ALIAS_BLOCKDEV_MAJOR(TD_MAJOR);
 
 DEFINE_IDR(td_index_idr);
 
-
-static int td_discard(struct tdisk *td, struct request *rq, loff_t pos)
-{
-	unsigned int i;
-	int ret = 0;
-	int internal_ret = 0;
-	for(i = 0; i < td->internal_devices_count; ++i)
-	{
-		struct file *file = td->internal_devices[i].backing_file;
-		if(file)
-		{
-			internal_ret = file_discard(file, rq, pos);
-			if(internal_ret)ret = internal_ret;
-		}
-	}
-
-	return ret;
-}
-
 /*
- * Flush td device
+ * Flushes the td device (not the underlying devices)
  */
 static int td_flush(struct tdisk *td)
 {
-	//freeze queue and wait for completion of scheduled requests
+	//Freeze and unfreeze queue
 	blk_mq_freeze_queue(td->queue);
-
-	//unfreeze
 	blk_mq_unfreeze_queue(td->queue);
 
 	return 0;
 }
 
-static int td_req_flush(struct tdisk *td)
+/**
+  * Flushes the underlying devices of the tDisk
+ **/
+static int td_flush_devices(struct tdisk *td)
 {
 	unsigned int i;
 	int ret = 0;
 	for(i = 0; i < td->internal_devices_count; ++i)
 	{
-		struct file *file = td->internal_devices[i].backing_file;
+		struct file *file = td->internal_devices[i].file;
 		if(file)
 		{
 			int internal_ret = file_flush(file);
@@ -96,7 +80,7 @@ static int td_req_flush(struct tdisk *td)
   * This callback is used by the insertsort to determine the
   * order of a sector index
  **/
-int sector_index_callback(struct hlist_node *a, struct hlist_node *b)
+int td_sector_index_callback(struct hlist_node *a, struct hlist_node *b)
 {
 	struct sorted_sector_index *i_a = hlist_entry(a, struct sorted_sector_index, list);
 	struct sorted_sector_index *i_b = hlist_entry(b, struct sorted_sector_index, list);
@@ -104,7 +88,12 @@ int sector_index_callback(struct hlist_node *a, struct hlist_node *b)
 	return i_b->physical_sector->access_count - i_a->physical_sector->access_count;
 }
 
-void reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
+/**
+  * This function sorts the sector index just of the given
+  * logical sector. This is useful for continuously soriting
+  * the indices since in only touches one sector index
+ **/
+void td_reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
 {
 	struct sorted_sector_index *index;
 	struct sorted_sector_index *next = NULL;
@@ -116,24 +105,40 @@ void reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
 		return;
 	}
 
+	//Retrieve index of logical sector and sorrounding indices
 	index = &td->sorted_sectors[logical_sector];
 	if(index->list.next)next = hlist_entry(index->list.next, struct sorted_sector_index, list);
 	if(index->list.pprev)prev = hlist_entry(index->list.pprev, struct sorted_sector_index, list.next);
 
+	//Check if it doen's fit anymore
 	if((next && index->physical_sector->access_count < next->physical_sector->access_count) || (prev && index->physical_sector->access_count > prev->physical_sector->access_count))
 	{
-		td->access_count_updated = 1;
+		//Remove it and re-insert
+		td->access_count_resort = 1;
 		hlist_del_init(&index->list);
-		hlist_insert_sorted(&index->list, &td->sorted_sectors_head, &sector_index_callback);
+		hlist_insert_sorted(&index->list, &td->sorted_sectors_head, &td_sector_index_callback);
 	}
 }
 
-void reorganize_all_indices(struct tdisk *td)
+/**
+  * This function sorts all the sector indices
+  * This is useful at the loading time
+ **/
+void td_reorganize_all_indices(struct tdisk *td)
 {
-	hlist_insertsort(&td->sorted_sectors_head, &sector_index_callback);
+	//Sort entire arry
+	hlist_insertsort(&td->sorted_sectors_head, &td_sector_index_callback);
 }
 
-int perform_index_operation(struct tdisk *td_dev, int direction, sector_t logical_sector, struct sector_index *physical_sector)
+/**
+  * Performs the given index operation. This can be:
+  *  - READ: reads the physical sector index for the given logical sector
+  *  - WRITE: stores the given physical sector index for the given logical
+  *    sector. The data are also stored to each physical disk
+  *  - COMPARE: Compares the given physical sector index with the actual one.
+  *    This is useful to compare individual disks for consistency.
+ **/
+int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t logical_sector, struct sector_index *physical_sector)
 {
 	struct sector_index *actual;
 	loff_t position = td_dev->index_offset_byte + logical_sector * sizeof(struct sector_index);
@@ -142,9 +147,9 @@ int perform_index_operation(struct tdisk *td_dev, int direction, sector_t logica
 	if(position + length > td_dev->header_size * td_dev->blocksize)return 1;
 	actual = &td_dev->indices[logical_sector];
 
-	//Increment access count
+	//Increment access count and sort
 	actual->access_count++;
-	reorganize_sorted_index(td_dev, logical_sector);
+	td_reorganize_sorted_index(td_dev, logical_sector);
 
 	//index operation
 	if(direction == READ)
@@ -165,7 +170,7 @@ int perform_index_operation(struct tdisk *td_dev, int direction, sector_t logica
 		//Disk operations
 		for(j = 0; j < td_dev->internal_devices_count; ++j)
 		{
-			struct file *file = td_dev->internal_devices[j].backing_file;
+			struct file *file = td_dev->internal_devices[j].file;
 
 			if(file)
 			{
@@ -177,12 +182,20 @@ int perform_index_operation(struct tdisk *td_dev, int direction, sector_t logica
 	return 0;
 }
 
-static int read_header(struct file *file, struct tdisk_header *out, struct device_performance *perf)
+/**
+  * Reads the td header from the given file
+  * and measures the disk performance if perf != NULL
+ **/
+static int td_read_header(struct file *file, struct tdisk_header *out, struct device_performance *perf)
 {
 	return file_read_data(file, out, 0, sizeof(struct tdisk_header), perf);
 }
 
-static int write_header(struct file *file, struct tdisk_header *header, struct device_performance *perf)
+/**
+  * Writes the td header to the given file
+  * and measures the disk performance if perf != NULL
+ **/
+static int td_write_header(struct file *file, struct tdisk_header *header, struct device_performance *perf)
 {
 	memset(header->driver_name, 0, sizeof(header->driver_name));
 	strcpy(header->driver_name, DRIVER_NAME);
@@ -193,7 +206,11 @@ static int write_header(struct file *file, struct tdisk_header *header, struct d
 	return file_write_data(file, header, 0, sizeof(struct tdisk_header), perf);
 }
 
-static int read_all_indices(struct tdisk *td, struct file *file, u8 *data, struct device_performance *perf)
+/**
+  * Reads all the sector indices from the file and
+  * stores them in data.
+ **/
+static int td_read_all_indices(struct tdisk *td, struct file *file, u8 *data, struct device_performance *perf)
 {
 	int ret = 0;
 	unsigned int skip = sizeof(struct tdisk_header);
@@ -206,7 +223,10 @@ static int read_all_indices(struct tdisk *td, struct file *file, u8 *data, struc
 	return ret;
 }
 
-static int write_all_indices(struct tdisk *td, struct file *file, struct device_performance *perf)
+/**
+  * Writes all the sector indices to the file.
+ **/
+static int td_write_all_indices(struct tdisk *td, struct file *file, struct device_performance *perf)
 {
 	int ret = 0;
 
@@ -218,11 +238,20 @@ static int write_all_indices(struct tdisk *td, struct file *file, struct device_
 	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
 	else printk(KERN_DEBUG "tDisk: Success writing all disk indices\n");
 
-	//__free_page(p);
 	return ret;
 }
 
-static int is_compatible_header(struct tdisk *td, struct tdisk_header *header)
+/**
+  * Checks if the given disk header is compatible with the current driver.
+  * It returns one of the following values:
+  *  - 0 if the header is compatible (current driver version is higher or equal)
+  *  - 1 if the given header was from an entirely new disk. This means it needs to be initialized
+  *  - -1 if the the header was from a driver with a greater minor version than the
+  *    current driver. It may be compatible...
+  *  - -2 if the the header was from a driver with a greater major version than the
+  *    current driver. It may be compatible but probably not...
+ **/
+static int td_is_compatible_header(struct tdisk *td, struct tdisk_header *header)
 {
 	if(strcmp(header->driver_name, DRIVER_NAME) != 0)return 1;
 
@@ -235,11 +264,17 @@ static int is_compatible_header(struct tdisk *td, struct tdisk_header *header)
 	return 0;
 }
 
-static int do_req_filebacked(struct tdisk *td, struct request *rq)
+/**
+  * This function does the actual file operations. It extracts
+  * the logical sector and the data from the request. Then it
+  * searches for the corresponding disk and physical sector and
+  * does the actual file operation. Disk performances are also
+  * recorded.
+ **/
+static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 {
 	struct bio_vec bvec;
 	struct req_iterator iter;
-	//struct iov_iter i;
 	ssize_t len;
 	loff_t pos_byte;
 	int ret = 0;
@@ -249,17 +284,7 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 
 	//Handle flush operations
 	if((rq->cmd_flags & REQ_WRITE) && (rq->cmd_flags & REQ_FLUSH))
-	{
-		ret = td_req_flush(td);
-		goto finished;
-	}
-
-	//Handle discard operations
-	if((rq->cmd_flags & REQ_WRITE) && (rq->cmd_flags & REQ_DISCARD))
-	{
-		ret = td_discard(td, rq, pos_byte);
-		goto finished;
-	}
+		return td_flush_devices(td);
 
 	//Normal file operations
 	rq_for_each_segment(bvec, rq, iter)
@@ -269,27 +294,37 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 		loff_t offset = __div64_32(&sector, td->blocksize);
 		sector_t actual_pos_byte;
 
-		perform_index_operation(td, READ, sector, &physical_sector);
+		//Fetch physical index
+		td_perform_index_operation(td, READ, sector, &physical_sector);
 
+		//Calculate actual position in the physical disk
 		actual_pos_byte = physical_sector.sector*td->blocksize + offset;
 
 		if(physical_sector.disk == 0 || physical_sector.disk > td->internal_devices_count)
 		{
 			printk_ratelimited(KERN_ERR "tDisk: found invalid disk index for reading logical sector %llu: %u\n", sector, physical_sector.disk);
 			ret = -EIO;
-			break;
+			continue;
 		}
 
-		file = td->internal_devices[physical_sector.disk - 1].backing_file;	//-1 because 0 means unused
+		file = td->internal_devices[physical_sector.disk - 1].file;	//-1 because 0 means unused
 		if(!file)
 		{
-			printk_ratelimited(KERN_DEBUG "tDisk: backing_file is NULL, Disk probably not yet loaded...\n");
+			printk_ratelimited(KERN_DEBUG "tDisk: file is NULL, Disk probably not yet loaded...\n");
 			ret = -EIO;
-			continue; //TODO continue or break??
+			continue;
 		}
 
-		if(rq->cmd_flags & REQ_WRITE)
+		if((rq->cmd_flags & REQ_WRITE) && (rq->cmd_flags & REQ_DISCARD))
 		{
+			//Handle discard operations
+			len = bvec.bv_len;
+			ret = file_alloc(file, actual_pos_byte, bvec.bv_len);
+			if(ret)break;
+		}
+		else if(rq->cmd_flags & REQ_WRITE)
+		{
+			//Do write operation
 			len = file_write_bio_vec(file, &bvec, &actual_pos_byte, &td->internal_devices[physical_sector.disk - 1].performance);
 
 			if(unlikely(len != bvec.bv_len))
@@ -303,6 +338,7 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 		}
 		else
 		{
+			//Do read operation
 			len = file_read_bio_vec(file, &bvec, &actual_pos_byte, &td->internal_devices[physical_sector.disk - 1].performance);
 
 			if(len < 0)
@@ -325,18 +361,13 @@ static int do_req_filebacked(struct tdisk *td, struct request *rq)
 		cond_resched();
 	}
 
- finished:
 	return ret;
 }
 
-static inline int file_is_tdisk(struct file *file)
-{
-	struct inode *i = file->f_mapping->host;
-
-	return i && S_ISBLK(i->i_mode) && MAJOR(i->i_rdev) == TD_MAJOR;
-}
-
-static void reread_partitions(struct tdisk *td, struct block_device *bdev)
+/**
+  * Read the partition table of the tDisk
+ **/
+static void td_reread_partitions(struct tdisk *td, struct block_device *bdev)
 {
 #if 0
 	int rc;
@@ -359,27 +390,13 @@ static void reread_partitions(struct tdisk *td, struct block_device *bdev)
 	ioctl_by_bdev(bdev, BLKRRPART, 0);
 }
 
-static void unprepare_queue(struct tdisk *td)
-{
-	flush_kthread_worker_timeout(&td->worker_timeout.worker);
-	kthread_stop(td->worker_task);
-}
-
-static int prepare_queue(struct tdisk *td)
-{
-	init_kthread_worker(&td->worker_timeout.worker);
-	td->worker_timeout.private_data = td;
-	td->worker_timeout.timeout = DEFAULT_WORKER_TIMEOUT;
-	td->worker_timeout.work_func = &tdisk_queue_work;
-	td->worker_task = kthread_run(kthread_worker_fn_timeout, &td->worker_timeout, "td%d", td->number);
-
-	if(IS_ERR(td->worker_task))
-		return -ENOMEM;
-	set_user_nice(td->worker_task, MIN_NICE);
-	return 0;
-}
-
-static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bdev, unsigned int arg)
+/**
+  * Adds the given file descriptor to the tDisk.
+  * This function reads the disk header, performs the correct
+  * index operation (WRITE, READ, COMPARE), adds it to the tDisk
+  * and informs user space about any changes (size, partitions...)
+ **/
+static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev, unsigned int arg)
 {
 	struct file	*file;
 	struct inode *inode;
@@ -396,9 +413,8 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	int index_operation_to_do;
 	int first_device = (td->internal_devices_count == 0);
 
-	//This is safe, since we have a reference from open().
-	if(first_device)
-		__module_get(THIS_MODULE);
+	//Hold a reference of the driver to prevent unwanted rmmod's
+	if(first_device)__module_get(THIS_MODULE);
 
 	error = -EBADF;
 	file = fget(arg);
@@ -406,7 +422,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		goto out;
 
 	//Don't add current tDisk as backend file
-	if(file_is_tdisk(file) && file->f_mapping->host->i_bdev == bdev)
+	if(file_is_tdisk(file, TD_MAJOR) && file->f_mapping->host->i_bdev == bdev)
 	{
 		printk(KERN_WARNING "tDisk: Can't add myself as a backend file\n");
 		goto out_putf;
@@ -448,19 +464,10 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	size -= (td->header_size*td->blocksize) >> 9;
 
 	error = -EFBIG;
-	if((loff_t)(sector_t)size != size)
+	if((loff_t)(sector_t)size != size)	//sector_t overflow
 		goto out_putf;
 
-	if(first_device)
-	{
-		error = prepare_queue(td);
-		if(error)
-		{
-			printk(KERN_WARNING "tDisk: Error setting up queue\n");
-			goto out_putf;
-		}
-	}
-
+	//Check for disk limit
 	if(td->internal_devices_count == TDISK_MAX_PHYSICAL_DISKS)
 	{
 		printk(KERN_ERR "tDisk: Limit (255) of devices reached.\n");
@@ -468,10 +475,23 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		goto out_putf;
 	}
 
+	if(first_device)
+	{
+		//Start the worker thread which handles all the disk
+		//operations such as reading, writing and all the sector
+		//movements.
+		error = td_start_worker_thread(td);
+		if(error)
+		{
+			printk(KERN_WARNING "tDisk: Error setting up worker thread\n");
+			goto out_putf;
+		}
+	}
+
 	memset(&perf, 0, sizeof(struct device_performance));
-	read_header(file, &header, &perf);
+	td_read_header(file, &header, &perf);
 	printk(KERN_DEBUG "tDisk: File header: driver: %s, minor: %u, major: %u\n", header.driver_name, header.major_version, header.minor_version);
-	switch(is_compatible_header(td, &header))
+	switch(td_is_compatible_header(td, &header))
 	{
 	case 0:
 		//OK, compatible header.
@@ -501,18 +521,17 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		break;
 	default:
 		//Bug
-		printk(KERN_ERR "tDisk: Bug in is_compatible_header function\n");
+		printk(KERN_ERR "tDisk: Bug in td_is_compatible_header function\n");
 		goto out_putf;
 	}
 	if(header.disk_index >= td->internal_devices_count)td->internal_devices_count = header.disk_index+1;
 
+	//Put disk references in tDisk
 	new_device = &td->internal_devices[header.disk_index];
 	new_device->old_gfp_mask = mapping_gfp_mask(mapping);
 	mapping_set_gfp_mask(mapping, new_device->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
-	new_device->backing_file = file;
+	new_device->file = file;
 	new_device->performance = header.performance;
-
-	//printk(KERN_DEBUG "tDisk: %u devices, index operation: %s\n", td->internal_devices_count, index_operation_to_do == WRITE ? "write" : index_operation_to_do == READ ? "read" : "compare");
 
 	error = 0;
 
@@ -525,7 +544,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	{
 	case WRITE:
 		//Writing header to disk
-		write_header(file, &header, &perf);
+		td_write_header(file, &header, &perf);
 
 		//Setting approximate performance values using the values
 		//When reading and writing the header
@@ -534,7 +553,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		new_device->performance = perf;
 
 		//Save indices from previously added disks
-		write_all_indices(td, file, &new_device->performance);
+		td_write_all_indices(td, file, &new_device->performance);
 
 		//Save sector indices
 		physical_sector = vmalloc(sizeof(struct sector_index));
@@ -545,7 +564,7 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 			size_counter += td->blocksize;
 			physical_sector->disk = header.disk_index + 1;	//+1 because 0 means unused
 			physical_sector->sector = td->header_size + sector++;
-			internal_ret = perform_index_operation(td, WRITE, logical_sector, physical_sector);
+			internal_ret = td_perform_index_operation(td, WRITE, logical_sector, physical_sector);
 			if(internal_ret == 1)
 			{
 				printk(KERN_WARNING "tDisk: Additional disk doesn't fit in index. Shrinking to fit.\n");
@@ -555,13 +574,14 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		vfree(physical_sector);
 		break;
 	case COMPARE:
+		//Reading all indices into temporary memory
 		physical_sector = vmalloc(sizeof(struct sector_index) * td->max_sectors);
-		read_all_indices(td, file, (u8*)physical_sector, &new_device->performance);
+		td_read_all_indices(td, file, (u8*)physical_sector, &new_device->performance);
 
 		//Now comparing all sector indices
 		for(sector = 0; sector < td->max_sectors; ++sector)
 		{
-			int internal_ret = perform_index_operation(td, COMPARE, sector, &physical_sector[sector]);
+			int internal_ret = td_perform_index_operation(td, COMPARE, sector, &physical_sector[sector]);
 			if(internal_ret == -1)
 			{
 				printk_ratelimited(KERN_WARNING "tDisk: Disk index doesn't match. Probably wrong or corrupt disk attached. Pay attention before you write to disk!\n");
@@ -578,8 +598,9 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 		vfree(physical_sector);
 		break;
 	case READ:
-		read_all_indices(td, file, (u8*)td->indices, &new_device->performance);
-		reorganize_all_indices(td);
+		//reading all indices from disk
+		td_read_all_indices(td, file, (u8*)td->indices, &new_device->performance);
+		td_reorganize_all_indices(td);
 		while((size_counter+td->blocksize) <= (size << 9))
 		{
 			size_counter += td->blocksize;
@@ -592,32 +613,35 @@ static int tdisk_set_fd(struct tdisk *td, fmode_t mode, struct block_device *bde
 	if(!(flags & TD_FLAGS_READ_ONLY) && file->f_op->fsync)
 		blk_queue_flush(td->queue, REQ_FLUSH);
 
+	//let user-space know about this change
 	set_capacity(td->kernel_disk, (td->size_blocks*td->blocksize) >> 9);
 	bd_set_size(bdev, td->size_blocks*td->blocksize);
-	//loop_sysfs_init(lo);
-	//let user-space know about this change
 	kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);
 
-	//set_blocksize(bdev, blocksize);
-
 	td->state = state_bound;
-	//ioctl_by_bdev(bdev, BLKRRPART, 0);
-	reread_partitions(td, bdev);
+	td_reread_partitions(td, bdev);
 
 	//Grab the block_device to prevent its destruction after we
-	//put /dev/tdX inode. Later in tdisk_clr_fd() we bdput(bdev).
+	//put /dev/tdX inode. Later in td_clear() we bdput(bdev).
 	if(first_device)bdgrab(bdev);
 	return 0;
 
  out_putf:
 	fput(file);
  out:
-	//This is safe: open() is still holding a reference.
-	module_put(THIS_MODULE);
+	if(first_device)
+	{
+		//Release reference to the driver
+		module_put(THIS_MODULE);
+	}
 	return error;
 }
 
-static int tdisk_clr_fd(struct tdisk *td)
+/**
+  * This function removes all the internal devices and makes
+  * it ready to shut down
+ **/
+static int td_clear(struct tdisk *td)
 {
 	unsigned int i;
 	struct block_device *bdev = td->block_device;
@@ -642,56 +666,42 @@ static int tdisk_clr_fd(struct tdisk *td)
 		return 0;
 	}
 
+	set_capacity(td->kernel_disk, 0);
+
 	//freeze request queue during the transition
-	printk(KERN_DEBUG "tDisk: Before freeze\n");
-	blk_mq_freeze_queue(td->queue);
-	printk(KERN_DEBUG "tDisk: After freeze\n");
+	td_stop_worker_thread(td);
 
-	//spin_lock_irq(&td->lock);
 	td->state = state_cleared;
-	//td->lo_backing_file = NULL;
-	//spin_unlock_irq(&td->lock);
-
 	td->block_device = NULL;
 
 	if(bdev)
 	{
 		bdput(bdev);
 		invalidate_bdev(bdev);
-	}
 
-	set_capacity(td->kernel_disk, 0);
-	//loop_sysfs_exit(lo);
-
-	if(bdev)
-	{
-		bd_set_size(bdev, 0);
 		//let user-space know about this change
+		bd_set_size(bdev, 0);
 		kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);
 	}
 
-	td->state = state_unbound;
-	//This is safe: open() is still holding a reference.
+	//Release reference to the driver to make it possible to rmmod
 	module_put(THIS_MODULE);
-	printk(KERN_DEBUG "tDisk: Before unfreeze\n");
-	blk_mq_unfreeze_queue(td->queue);
-	printk(KERN_DEBUG "tDisk: After unfreeze\n");
 
-	if(bdev)reread_partitions(td, bdev);//ioctl_by_bdev(bdev, BLKRRPART, 0);
+	if(bdev)td_reread_partitions(td, bdev);
 	td->flags = 0;
-	unprepare_queue(td);
-	mutex_unlock(&td->ctl_mutex);
+
 	/*
 	 * Need not hold ctl_mutex to fput backing file.
 	 * Calling fput holding ctl_mutex triggers a circular
 	 * lock dependency possibility warning as fput can take
 	 * bd_mutex which is usually taken before ctl_mutex.
 	 */
+	mutex_unlock(&td->ctl_mutex);
 
 	for(i = 0; i < td->internal_devices_count; ++i)
 	{
-		struct file *file = td->internal_devices[i].backing_file;
-		td->internal_devices[i].backing_file = NULL;
+		struct file *file = td->internal_devices[i].file;
+		td->internal_devices[i].file = NULL;
 
 		if(file)
 		{
@@ -702,8 +712,8 @@ static int tdisk_clr_fd(struct tdisk *td)
 			gfp_t gfp = td->internal_devices[i].old_gfp_mask;
 
 			//Write current performance and index values to file
-			write_header(file, &header, NULL);
-			write_all_indices(td, file, NULL);
+			td_write_header(file, &header, NULL);
+			td_write_all_indices(td, file, NULL);
 
 			mapping_set_gfp_mask(file->f_mapping, gfp);
 
@@ -711,30 +721,18 @@ static int tdisk_clr_fd(struct tdisk *td)
 		}
 	}
 	td->internal_devices_count = 0;
-	//kfree(td->internal_devices);
+	td->state = state_unbound;
 
-	printk(KERN_DEBUG "tDisk: disk %d deleted\n", td->number);
+	printk(KERN_DEBUG "tDisk: disk %d cleared\n", td->number);
 
 	return 0;
 }
 
-/*static int tdisk_set_status64(struct tdisk *td, const struct tdisk_info __user *arg)
-{
-	struct tdisk_info info;
-
-	if(copy_from_user(&info, arg, sizeof(struct tdisk_info)) != 0)
-		return -EFAULT;
-
-	if(td->state != state_bound)
-		return -ENXIO;
-
-	if((td->flags & TD_FLAGS_AUTOCLEAR) != (info.flags & TD_FLAGS_AUTOCLEAR))
-		td->flags ^= TD_FLAGS_AUTOCLEAR;
-
-	return 0;
-}*/
-
-static int tdisk_get_status64(struct tdisk *td, struct tdisk_info __user *arg)
+/**
+  * This function transfers devicestatus information
+  * to user space
+ **/
+static int td_get_status(struct tdisk *td, struct tdisk_info __user *arg)
 {
 	struct tdisk_info info;
 
@@ -754,7 +752,11 @@ static int tdisk_get_status64(struct tdisk *td, struct tdisk_info __user *arg)
 	return 0;
 }
 
-static int tdisk_get_device_info(struct tdisk *td, struct internal_device_info __user *arg)
+/**
+  * This function transfers information about the internal
+  * devices to user space
+ **/
+static int td_get_device_info(struct tdisk *td, struct internal_device_info __user *arg)
 {
 	struct internal_device_info info;
 
@@ -772,7 +774,11 @@ static int tdisk_get_device_info(struct tdisk *td, struct internal_device_info _
 	return 0;
 }
 
-static int tdisk_get_sector_index(struct tdisk *td, struct sector_index __user *arg)
+/**
+  * This function transfers information about the given
+  * logical sector to user space
+ **/
+static int td_get_sector_index(struct tdisk *td, struct sector_index __user *arg)
 {
 	struct sector_index index;
 
@@ -787,7 +793,11 @@ static int tdisk_get_sector_index(struct tdisk *td, struct sector_index __user *
 	return 0;
 }
 
-static int tdisk_get_all_sector_indices(struct tdisk *td, struct sector_info __user *arg)
+/**
+  * This function transfers information about all
+  * logical sectors to user space
+ **/
+static int td_get_all_sector_indices(struct tdisk *td, struct sector_info __user *arg)
 {
 	struct sorted_sector_index *pos;
 	struct sector_info info;
@@ -808,7 +818,11 @@ static int tdisk_get_all_sector_indices(struct tdisk *td, struct sector_info __u
 	return 0;
 }
 
-static int tdisk_clear_access_count(struct tdisk *td)
+/**
+  * This function clears the access count of all
+  * sectors. This is just for debugging purposes
+ **/
+static int td_clear_access_count(struct tdisk *td)
 {
 	sector_t i;
 
@@ -820,6 +834,9 @@ static int tdisk_clear_access_count(struct tdisk *td)
 	return 0;
 }
 
+/**
+  * This function handles all ioctl coming from userspace
+ **/
 static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, unsigned long arg)
 {
 	struct tdisk *td = bdev->bd_disk->private_data;
@@ -828,38 +845,28 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 	mutex_lock_nested(&td->ctl_mutex, 1);
 	switch(cmd)
 	{
-	case TDISK_SET_FD:
-		err = tdisk_set_fd(td, mode, bdev, arg);
+	case TDISK_ADD_DISK:
+		err = td_add_disk(td, mode, bdev, arg);
 		break;
-	case TDISK_CLR_FD:
-		//tdisk_clr_fd would have unlocked ctl_mutex on success
-		err = tdisk_clr_fd(td);
+	case TDISK_CLEAR:
+		//td_clear would have unlocked ctl_mutex on success
+		err = td_clear(td);
 		if(!err)goto out_unlocked;
 		break;
-	//case TDISK_SET_STATUS:
-	//	err = -EPERM;
-	//	if((mode & FMODE_WRITE) || capable(CAP_SYS_ADMIN))
-	//		err = tdisk_set_status64(td, (struct tdisk_info __user *) arg);
-	//	break;
 	case TDISK_GET_STATUS:
-		err = tdisk_get_status64(td, (struct tdisk_info __user *) arg);
+		err = td_get_status(td, (struct tdisk_info __user *) arg);
 		break;
 	case TDISK_GET_DEVICE_INFO:
-		err = tdisk_get_device_info(td, (struct internal_device_info __user *) arg);
+		err = td_get_device_info(td, (struct internal_device_info __user *) arg);
 		break;
-	//case TDISK_GET_MAX_SECTORS:
-	//	if(copy_to_user((__u64 __user *)arg, &td->max_sectors, sizeof(__u64)) != 0)
-	//		err = -EFAULT;
-	//	else err = 0;
-	//	break;
 	case TDISK_GET_SECTOR_INDEX:
-		err = tdisk_get_sector_index(td, (struct sector_index __user *) arg);
+		err = td_get_sector_index(td, (struct sector_index __user *) arg);
 		break;
 	case TDISK_GET_ALL_SECTOR_INDICES:
-		err = tdisk_get_all_sector_indices(td, (struct sector_info __user *) arg);
+		err = td_get_all_sector_indices(td, (struct sector_info __user *) arg);
 		break;
 	case TDISK_CLEAR_ACCESS_COUNT:
-		err = tdisk_clear_access_count(td);
+		err = td_clear_access_count(td);
 		break;
 	default:
 		err = -EINVAL;
@@ -872,17 +879,20 @@ out_unlocked:
 
 //For older kernels
 #ifdef CONFIG_COMPAT
+/**
+  * This function handles all ioctl coming from userspace.
+  * Compatibility version.
+ **/
 static int td_compat_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, unsigned long arg)
 {
 	int err;
 
 	switch(cmd)
 	{
-	case TDISK_CLR_FD:
+	case TDISK_CLEAR:
 	case TDISK_GET_STATUS:
-	case TDISK_SET_STATUS:
 		arg = (unsigned long)compat_ptr(arg);
-	case TDISK_SET_FD:
+	case TDISK_ADD_DISK:
 		err = td_ioctl(bdev, mode, cmd, arg);
 		break;
 	default:
@@ -890,9 +900,16 @@ static int td_compat_ioctl(struct block_device *bdev, fmode_t mode, unsigned int
 		break;
 	}
 	return err;
+
+	//Added TODO so that it doesn't compile
+	TODO
 }
 #endif
 
+/**
+  * This function is called by the kernel whenever it
+  * it needs the device. This is useful for us to count the references
+ **/
 static int td_open(struct block_device *bdev, fmode_t mode)
 {
 	struct tdisk *td = bdev->bd_disk->private_data;
@@ -903,6 +920,12 @@ static int td_open(struct block_device *bdev, fmode_t mode)
 	return 0;
 }
 
+/**
+  * This function is called by the kernel whenever it doesn't
+  * need the device anymore. If we tried to clear the tDisk
+  * with an elevated reference count, we will clear it here
+  * once the reference count reaches 0.
+ **/
 static void td_release(struct gendisk *disk, fmode_t mode)
 {
 	struct tdisk *td = disk->private_data;
@@ -919,7 +942,7 @@ static void td_release(struct gendisk *disk, fmode_t mode)
 		 * In autoclear mode, stop the tdisk thread
 		 * and remove configuration after last close.
 		 */
-		err = tdisk_clr_fd(td);
+		err = td_clear(td);
 		if(!err)return;
 	}
 	else
@@ -934,6 +957,9 @@ static void td_release(struct gendisk *disk, fmode_t mode)
 	mutex_unlock(&td->ctl_mutex);
 }
 
+/**
+  * The block device operations which are presented to the kernel
+ **/
 static const struct block_device_operations td_fops = {
 	.owner =	THIS_MODULE,
 	.open =		td_open,
@@ -944,7 +970,56 @@ static const struct block_device_operations td_fops = {
 #endif
 };
 
-static int tdisk_queue_rq(struct blk_mq_hw_ctx *hctx, const struct blk_mq_queue_data *bd)
+/**
+  * This function starts the worker thread to handle
+  * the actual device operations.
+ **/
+static int td_start_worker_thread(struct tdisk *td)
+{
+	init_kthread_worker(&td->worker_timeout.worker);
+	td->worker_timeout.private_data = td;
+	td->worker_timeout.timeout = DEFAULT_WORKER_TIMEOUT;
+	td->worker_timeout.work_func = &td_queue_work;
+	td->worker_task = kthread_run(kthread_worker_fn_timeout, &td->worker_timeout, "td%d", td->number);
+
+	if(IS_ERR(td->worker_task))
+		return -ENOMEM;
+
+	set_user_nice(td->worker_task, MIN_NICE);
+	return 0;
+}
+
+/**
+  * Stops the worker thread
+ **/
+static void td_stop_worker_thread(struct tdisk *td)
+{
+	flush_kthread_worker_timeout(&td->worker_timeout.worker);
+	kthread_stop(td->worker_task);
+}
+
+/**
+  * This function is called for every request before it is
+  * given to the workr thread. This makes it possible to initialize it
+  * and add information
+ **/
+static int td_init_request(void *data, struct request *rq, unsigned int hctx_idx, unsigned int request_idx, unsigned int numa_node)
+{
+	struct td_command *cmd = blk_mq_rq_to_pdu(rq);
+
+	cmd->rq = rq;
+
+	init_thread_work_timeout(&cmd->td_work);
+
+	return 0;
+}
+
+/**
+  * This function is called by the kernel for each request
+  * it reqeives. This function hands it over to the worker
+  * thread.
+ **/
+static int td_queue_rq(struct blk_mq_hw_ctx *hctx, const struct blk_mq_queue_data *bd)
 {
 	struct td_command *cmd = blk_mq_rq_to_pdu(bd->rq);
 	struct tdisk *td = cmd->rq->q->queuedata;
@@ -959,38 +1034,14 @@ static int tdisk_queue_rq(struct blk_mq_hw_ctx *hctx, const struct blk_mq_queue_
 	return BLK_MQ_RQ_QUEUE_OK;
 }
 
-static void tdisk_handle_cmd(struct td_command *cmd)
-{
-	const bool write = cmd->rq->cmd_flags & REQ_WRITE;
-	struct tdisk *td = cmd->rq->q->queuedata;
-	int ret = 0;
-
-	if(write && (td->flags & TD_FLAGS_READ_ONLY))
-	{
-		ret = -EIO;
-		goto failed;
-	}
-
-	ret = do_req_filebacked(td, cmd->rq);
-
- failed:
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
-	if(ret)cmd->rq->errors = -EIO;
-	blk_mq_complete_request(cmd->rq);
-#else
-	blk_mq_complete_request(cmd->rq, ret ? -EIO : 0);
-#endif
-}
-
-static void tdisk_queue_work(void *private_data, struct kthread_work *work)
+/**
+  * This is the actual worker function which is called by
+  * the worker thread. It does the file operations and moves
+  * the sectors
+ **/
+static enum worker_status td_queue_work(void *private_data, struct kthread_work *work)
 {
 	struct tdisk *td = private_data;
-
-	if(unlikely(!td))
-	{
-		printk_ratelimited("tDisk: private data in worker fn is NULL\n");
-		return;
-	}
 
 	//Since we are not using the standard kthread_work_fn
 	//It is possible that this funtion is called without work.
@@ -999,38 +1050,53 @@ static void tdisk_queue_work(void *private_data, struct kthread_work *work)
 	if(work)
 	{
 		struct td_command *cmd = container_of(work, struct td_command, td_work);
-		tdisk_handle_cmd(cmd);
+		struct tdisk *td = cmd->rq->q->queuedata;
+		int ret = 0;
+
+		if(cmd->rq->cmd_flags & REQ_WRITE && (td->flags & TD_FLAGS_READ_ONLY))
+			ret = -EIO;
+		else
+			ret = td_do_disk_operation(td, cmd->rq);
+
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+		if(ret)cmd->rq->errors = -EIO;
+		blk_mq_complete_request(cmd->rq);
+#else
+		blk_mq_complete_request(cmd->rq, ret ? -EIO : 0);
+#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+
+		return next_primary_work;
 	}
 	else
 	{
-		//kthread_work is in a circular list. If next is at the same
-		//address than the current thread then there is nothing to do.
-		//Then we have time to move the physical sectors.
-		if(td->access_count_updated)
+		printk(KERN_DEBUG "tDisk: nothing to do anymore. Moving sectors\n");
+
+		//No work to do. This means we have reached the timeout
+		//and have now the opportunity to organize the sectors.
+		if(td->access_count_resort)
 		{
-			td->access_count_updated = 0;
-			printk(KERN_DEBUG "tDisk: nothing to do anymore. Moving sectors\n");
+			td->access_count_resort = 0;
 		}
+
+		if(td->access_count_resort)return secondary_work_to_do;
+		else return secondary_work_finished;
 	}
 }
 
-static int tdisk_init_request(void *data, struct request *rq, unsigned int hctx_idx, unsigned int request_idx, unsigned int numa_node)
-{
-	struct td_command *cmd = blk_mq_rq_to_pdu(rq);
-
-	cmd->rq = rq;
-
-	init_thread_work_timeout(&cmd->td_work);
-
-	return 0;
-}
-
+/**
+  * This struct defines the functions to dispatch requests
+ **/
 static struct blk_mq_ops tdisk_mq_ops = {
-	.queue_rq       = tdisk_queue_rq,
+	.queue_rq       = td_queue_rq,
 	.map_queue      = blk_mq_map_queue,
-	.init_request	= tdisk_init_request,
+	.init_request	= td_init_request,
 };
 
+/**
+  * This function creates a new tDisk with the given
+  * minor number, and blocksize. max_sectors is used
+  * to specify the maximum capacity of the new device
+ **/
 int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sectors)
 {
 	struct tdisk *td;
@@ -1066,6 +1132,7 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	if(err < 0)goto out_free_dev;
 	i = err;
 
+	//Set queue data
 	err = -ENOMEM;
 	td->tag_set.ops = &tdisk_mq_ops;
 	td->tag_set.nr_hw_queues = 1;
@@ -1074,7 +1141,6 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	td->tag_set.cmd_size = sizeof(struct td_command);
 	td->tag_set.flags = BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_SG_MERGE;
 	td->tag_set.driver_data = td;
-	td->blocksize = blocksize;
 
 	err = blk_mq_alloc_tag_set(&td->tag_set);
 	if(err)goto out_free_idr;
@@ -1098,6 +1164,7 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 
 	//Allocate disk indices
 	err = -ENOMEM;
+	td->blocksize = blocksize;
 	td->index_offset_byte = index_offset_byte;
 	td->header_size = header_size_byte/blocksize + ((header_size_byte%blocksize == 0) ? 0 : 1);
 	td->indices = vmalloc(td->header_size*td->blocksize - index_offset_byte);
@@ -1111,6 +1178,8 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	td->sorted_sectors = vmalloc(sizeof(struct sorted_sector_index) * td->max_sectors);
 	if(!td->sorted_sectors)goto out_free_indices;
 	memset(td->sorted_sectors, 0, sizeof(struct sorted_sector_index) * td->max_sectors);
+
+	//Insert sorted indices
 	INIT_HLIST_HEAD(&td->sorted_sectors_head);
 	for(j = 0; j < td->max_sectors; ++j)
 	{
@@ -1155,8 +1224,13 @@ out:
 	return err;
 }
 
+/**
+  * This function is called to remove a tDisk.
+  * this frees all the resources
+ **/
 void tdisk_remove(struct tdisk *td)
 {
+	idr_remove(&td_index_idr, td->number);
 	blk_cleanup_queue(td->queue);
 	del_gendisk(td->kernel_disk);
 	blk_mq_free_tag_set(&td->tag_set);
@@ -1166,7 +1240,11 @@ void tdisk_remove(struct tdisk *td)
 	kfree(td);
 }
 
-static int find_free_cb(int id, void *ptr, void *data)
+/**
+  * This function is used to find the next free minor
+  * number in the idr
+ **/
+static int tdisk_find_free_device_callback(int id, void *ptr, void *data)
 {
 	struct tdisk *td = ptr;
 	struct tdisk **t = data;
@@ -1179,6 +1257,12 @@ static int find_free_cb(int id, void *ptr, void *data)
 	return 0;
 }
 
+/**
+  * This function returns the tDisk for the given
+  * minor number. If the given minor number is < 0,
+  * the minor number of an unbound tDisk is returned
+  * or -ENODEV if there is no unbound tDisk
+ **/
 int tdisk_lookup(struct tdisk **t, int i)
 {
 	struct tdisk *td;
@@ -1186,26 +1270,31 @@ int tdisk_lookup(struct tdisk **t, int i)
 
 	if(i < 0)
 	{
-		int err = idr_for_each(&td_index_idr, &find_free_cb, &td);
-		if(err == 1)
+		if(idr_for_each(&td_index_idr, &tdisk_find_free_device_callback, &td))
 		{
 			*t = td;
 			ret = td->number;
 		}
-		goto out;
+	}
+	else
+	{
+		//lookup and return a specific i
+		td = idr_find(&td_index_idr, i);
+		if(td)
+		{
+			*t = td;
+			ret = td->number;
+		}
 	}
 
-	//lookup and return a specific i
-	td = idr_find(&td_index_idr, i);
-	if(td)
-	{
-		*t = td;
-		ret = td->number;
-	}
-out:
 	return ret;
 }
 
+/**
+  * This funtction is the main entry point of
+  * the driver. It registers the major number
+  * and the control "td-control" device
+ **/
 static int __init tdisk_init(void)
 {
 	int err;
@@ -1216,27 +1305,32 @@ static int __init tdisk_init(void)
 	TD_MAJOR = register_blkdev(TD_MAJOR, "td");
 	if(TD_MAJOR <= 0)
 	{
-		err = -EBUSY;
-		goto misc_out;
+		unregister_tdisk_control();
+		return -EBUSY;
 	}
 
 	printk(KERN_INFO "tDisk: driver loaded\n");
 	return 0;
-
-misc_out:
-	unregister_tdisk_control();
-	return err;
 }
 
-static int tdisk_exit_cb(int id, void *ptr, void *data)
+/**
+  * This callback function is called for each tDisk
+  * at driver exit time to clean up all remaining devices.
+ **/
+static int tdisk_exit_callback(int id, void *ptr, void *data)
 {
 	tdisk_remove((struct tdisk*)ptr);
 	return 0;
 }
 
+/**
+  * This is the exit function for the tDisk driver. It
+  * cleans up all remaining tDisks, unregisters the major
+  * number and unregisters the control device "td-control"
+ **/
 static void __exit tdisk_exit(void)
 {
-	idr_for_each(&td_index_idr, &tdisk_exit_cb, NULL);
+	idr_for_each(&td_index_idr, &tdisk_exit_callback, NULL);
 	idr_destroy(&td_index_idr);
 
 	unregister_blkdev(TD_MAJOR, "td");

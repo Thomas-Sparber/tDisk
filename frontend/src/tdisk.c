@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk Driver
+  * @author Thomas Sparber (2015)
+  *
+ **/
+
 #define _GNU_SOURCE
 
 #include <tdisk.h>
@@ -96,7 +103,7 @@ int tdisk_add_disk(const char *device, const char *new_disk)
 		return -ENOPERM;
 	}
 
-	ret = ioctl(dev, TDISK_SET_FD, file);
+	ret = ioctl(dev, TDISK_ADD_DISK, file);
 
 	close(dev);
 	close(file);
@@ -114,7 +121,7 @@ int tdisk_clear(const char *device)
 	dev = open(device, O_RDWR);
 	if(dev < 0)return -ENOPERM;
 
-	ret = ioctl(dev, TDISK_CLR_FD);
+	ret = ioctl(dev, TDISK_CLEAR);
 
 	close(dev);
 

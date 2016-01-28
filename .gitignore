@@ -13,3 +13,9 @@ big_disk
 other_disk
 frontend/tdisk
 web_interface/tdisk
+documentation/kernel_module/html
+documentation/kernel_module/latex
+documentation/kernel_module/doxygen_sqlite3.db
+documentation/frontend/html
+documentation/frontend/latex
+documentation/frontend/doxygen_sqlite3.db

@@ -19,7 +19,7 @@
 #include <linux/uio.h>
 #include <linux/version.h>
 #include <linux/vmalloc.h>
-#include <linux/list_sort.h>
+#include <linux/sort.h>
 
 #include "helpers.h"
 #include "tdisk.h"
@@ -41,6 +41,15 @@ MODULE_DESCRIPTION(DRIVER_NAME " Driver");
 MODULE_ALIAS_BLOCKDEV_MAJOR(TD_MAJOR);
 
 DEFINE_IDR(td_index_idr);
+
+struct sorted_internal_device
+{
+	struct td_internal_device *dev;
+	sector_t available_blocks;
+
+	struct hlist_head preferred_blocks;
+	sector_t amount_blocks;
+}; //end struct sorted_internal_device
 
 /*
  * Flushes the td device (not the underlying devices)
@@ -74,6 +83,302 @@ static int td_flush_devices(struct tdisk *td)
 	}
 
 	return ret;
+}
+
+/**
+  * Performs the given index operation. This can be:
+  *  - READ: reads the physical sector index for the given logical sector
+  *  - WRITE: stores the given physical sector index for the given logical
+  *    sector. The data are also stored to each physical disk
+  *  - COMPARE: Compares the given physical sector index with the actual one.
+  *    This is useful to compare individual disks for consistency.
+ **/
+int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t logical_sector, struct sector_index *physical_sector)
+{
+	struct sector_index *actual;
+	loff_t position = td_dev->index_offset_byte + logical_sector * sizeof(struct sector_index);
+	unsigned int length = sizeof(struct sector_index);
+
+	if(position + length > td_dev->header_size * td_dev->blocksize)return 1;
+	actual = &td_dev->indices[logical_sector];
+
+	//Increment access count and sort
+	actual->access_count++;
+	//td_reorganize_sorted_index(td_dev, logical_sector);
+
+	//index operation
+	if(direction == READ)
+		(*physical_sector) = (*actual);
+	else if(direction == COMPARE)
+	{
+		if(physical_sector->disk != actual->disk || physical_sector->sector != actual->sector)
+			return -1;
+	}
+	else if(direction == WRITE)
+	{
+		unsigned int j;
+
+		//Memory operation
+		actual->disk = physical_sector->disk;
+		actual->sector = physical_sector->sector;
+
+		//Disk operations
+		for(j = 0; j < td_dev->internal_devices_count; ++j)
+		{
+			struct file *file = td_dev->internal_devices[j].file;
+
+			if(file)
+			{
+				file_write_data(file, actual, position, length, &td_dev->internal_devices[j].performance);
+			}
+		}
+	}
+
+	return 0;
+}
+
+int td_sort_devices_callback(const void *a, const void *b)
+{
+	const struct sorted_internal_device *d_a = a;
+	const struct sorted_internal_device *d_b = b;
+
+	long performance_a = (d_a->dev->performance.avg_read_time_cycles + d_a->dev->performance.avg_write_time_cycles) >> 1;
+	long performance_b = (d_b->dev->performance.avg_read_time_cycles + d_b->dev->performance.avg_write_time_cycles) >> 1;
+
+	return performance_a - performance_b;
+}
+
+static void td_insert_sorted_internal_devices(struct tdisk *td, struct sorted_internal_device *sorted_devices)
+{
+	unsigned int i;
+
+	for(i = 0; i < td->internal_devices_count; ++i)
+	{
+		INIT_HLIST_HEAD(&sorted_devices[i].preferred_blocks);
+		sorted_devices[i].dev = &td->internal_devices[i];
+		sorted_devices[i].available_blocks = td->internal_devices[i].size_blocks;
+		sorted_devices[i].amount_blocks = 0;
+	}
+
+	sort(sorted_devices, td->internal_devices_count, sizeof(struct sorted_internal_device), &td_sort_devices_callback, NULL);
+}
+
+static struct sorted_internal_device* td_find_sorted_device(struct sorted_internal_device *sorted_devices, struct td_internal_device *desired_device, unsigned int devices)
+{
+	unsigned int i;
+
+	for(i = 0; i < devices; ++i)
+	{
+		if(sorted_devices[i].dev == desired_device)
+		{
+			return &sorted_devices[i];
+		}
+	}
+	return NULL;
+}
+
+static struct sorted_sector_index* td_find_sector_index(struct hlist_head *head, tdisk_index disk)
+{
+	struct sorted_sector_index *item;
+	struct sorted_sector_index *lowest = NULL;
+
+	hlist_for_each_entry(item, head, list)
+	{
+		if(item->physical_sector->disk == disk)
+		{
+			if(lowest == NULL || item->physical_sector->access_count < lowest->physical_sector->access_count)
+				lowest = item;
+		}
+	}
+
+	return lowest;
+}
+
+static struct sorted_sector_index* td_find_sector_index_acc(struct hlist_head *head, tdisk_index disk, __u16 access_count)
+{
+	struct sorted_sector_index *item;
+
+	hlist_for_each_entry(item, head, list)
+	{
+		if(item->physical_sector->disk == disk && item->physical_sector->access_count >= access_count)
+		{
+			return item;
+		}
+	}
+
+	return NULL;
+}
+
+static void td_assign_sectors(struct tdisk *td, struct sorted_internal_device *sorted_devices, struct sorted_sector_index *sorted_sectors)
+{
+	unsigned int sorted_disk = 1;
+	struct sorted_sector_index *item;
+	struct hlist_node *item_safe;
+
+	hlist_for_each_entry(item, &td->sorted_sectors_head, list)
+	{
+		unsigned int index = item - td->sorted_sectors;
+		if(item->physical_sector->disk == 0)continue;
+
+		while(sorted_devices[sorted_disk-1].available_blocks-- == 0)
+			sorted_disk++;
+
+		INIT_HLIST_NODE(&sorted_sectors[index].list);
+		hlist_add_head(&sorted_sectors[index].list, &sorted_devices[sorted_disk-1].preferred_blocks);
+
+		if(sorted_sectors[index].physical_sector->disk == sorted_devices[sorted_disk-1].dev-td->internal_devices+1)
+			sorted_devices[sorted_disk-1].amount_blocks++;
+	}
+
+	//Trying to optimize a bit...
+	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
+	{
+		//Iterating over each element and looking
+		//for wrong elements. If there is another
+		//wrong element in the corresponding disk
+		//with the same access count it is just a
+		//matter of the sorting algorithm and can
+		//simply be swapped.
+		hlist_for_each_entry_safe(item, item_safe, &sorted_devices[sorted_disk-1].preferred_blocks, list)
+		{
+			tdisk_index current_disk = sorted_devices[sorted_disk-1].dev-td->internal_devices+1;
+
+			BUG_ON(item->physical_sector->disk == 0 || item->physical_sector->disk > td->internal_devices_count);
+
+			if(item->physical_sector->disk != current_disk)
+			{
+				struct sorted_internal_device *corresponding = td_find_sorted_device(sorted_devices+sorted_disk-1, &td->internal_devices[item->physical_sector->disk-1], td->internal_devices_count-sorted_disk+1);
+				struct sorted_sector_index *to_swap;
+
+				if(!corresponding)continue;
+
+				to_swap = td_find_sector_index_acc(&corresponding->preferred_blocks, current_disk, item->physical_sector->access_count);
+
+				if(to_swap)
+				{
+					BUG_ON(to_swap->physical_sector->disk != current_disk);
+
+					hlist_del_init(&item->list);
+					hlist_del_init(&to_swap->list);
+
+					hlist_add_head(&item->list, &corresponding->preferred_blocks);
+					hlist_add_head(&to_swap->list, &sorted_devices[sorted_disk-1].preferred_blocks);
+
+					corresponding->amount_blocks++;
+					sorted_devices[sorted_disk-1].amount_blocks++;
+				}
+			}
+		}
+	}
+}
+
+static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_index *a, sector_t logical_b, struct sector_index *b)
+{
+	loff_t pos_a = a->sector * td->blocksize;
+	loff_t pos_b = b->sector * td->blocksize;
+	u8 *buffer_a = kmalloc(td->blocksize, GFP_KERNEL);
+	u8 *buffer_b = kmalloc(td->blocksize, GFP_KERNEL);
+	if(!buffer_a || !buffer_b)return;
+
+	printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u)\n", logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count);
+	//return;
+
+	//Reading blocks from both disks
+	file_read_data(td->internal_devices[a->disk-1].file, buffer_a, pos_a, td->blocksize, &td->internal_devices[a->disk-1].performance);
+	file_read_data(td->internal_devices[b->disk-1].file, buffer_b, pos_b, td->blocksize, &td->internal_devices[b->disk-1].performance);
+
+	//Saving swapped data to both disks
+	file_write_data(td->internal_devices[a->disk-1].file, buffer_b, pos_a, td->blocksize, &td->internal_devices[a->disk-1].performance);
+	file_write_data(td->internal_devices[b->disk-1].file, buffer_a, pos_b, td->blocksize, &td->internal_devices[b->disk-1].performance);
+
+	swap(a->disk, b->disk);
+	swap(a->sector, b->sector);
+
+	//Updating indices
+	td_perform_index_operation(td, WRITE, logical_a, a);
+	td_perform_index_operation(td, WRITE, logical_b, b);
+
+	kfree(buffer_a);
+	kfree(buffer_b);
+}
+
+static bool td_move_one_sector(struct tdisk *td)
+{
+	bool swapped = false;
+	unsigned int sorted_disk = 1;
+	unsigned int inv_disk = 1;
+	struct sorted_sector_index *item;
+	struct sorted_internal_device *sorted_devices = vmalloc(sizeof(struct sorted_internal_device) * td->internal_devices_count);
+	struct sorted_sector_index *sorted_sectors = vmalloc(sizeof(struct sorted_sector_index) * td->max_sectors);
+	if(!sorted_devices || !sorted_sectors)return false;
+
+	td_insert_sorted_internal_devices(td, sorted_devices);
+	memcpy(sorted_sectors, td->sorted_sectors, sizeof(struct sorted_sector_index) * td->max_sectors);
+
+	//Assigning the sorted sectors to the sorted devices...
+	td_assign_sectors(td, sorted_devices, sorted_sectors);
+
+	//Moving the sector with highest access count.
+	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
+	{
+		printk(KERN_DEBUG "tDisk: Internal disk %u (speed: %u rank): Capacity: %llu, Correctly stored: %llu, %u percent\n",
+						sorted_devices[sorted_disk-1].dev-td->internal_devices+1,
+						sorted_disk,
+						sorted_devices[sorted_disk-1].dev->size_blocks,
+						sorted_devices[sorted_disk-1].amount_blocks,
+						(size_t)sorted_devices[sorted_disk-1].amount_blocks*100 / (size_t)sorted_devices[sorted_disk-1].dev->size_blocks);
+	}
+
+	//Moving the sector with highest access count.
+	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
+	{
+		struct sorted_sector_index *highest = NULL;
+		tdisk_index current_disk = sorted_devices[sorted_disk-1].dev-td->internal_devices+1;
+
+		if(sorted_devices[sorted_disk-1].amount_blocks == sorted_devices[sorted_disk-1].dev->size_blocks)
+		{
+			//All blocks are correctly stored. Moving on to slower disk...
+			continue;
+		}
+
+		hlist_for_each_entry(item, &sorted_devices[sorted_disk-1].preferred_blocks, list)
+		{
+			if(item->physical_sector->disk != current_disk)
+			{
+				if(highest == NULL || item->physical_sector->access_count > highest->physical_sector->access_count)
+				{
+					highest = item;
+				}
+			}
+		}
+
+		BUG_ON(!highest);
+
+		//Now starting at the slowest disk and looking
+		//for a block that belongs to the current disk
+		for(inv_disk = td->internal_devices_count; inv_disk != sorted_disk; --inv_disk)
+		{
+			struct sorted_sector_index *to_swap = td_find_sector_index(&sorted_devices[inv_disk-1].preferred_blocks, current_disk);
+
+			if(to_swap != NULL)
+			{
+				//OK, now we found a sector of the possibly fastest disk
+				//which is stored on the possibly slowest disk. When we
+				//swap those sectors we gain the highest possible performance.
+
+				td_swap_sectors(td, highest-sorted_sectors, highest->physical_sector, to_swap-sorted_sectors, to_swap->physical_sector);
+				td->access_count_resort = 1;
+				swapped = true;
+				break;
+			}
+		}
+
+		if(swapped)break;
+	}
+
+	vfree(sorted_devices);
+	vfree(sorted_sectors);
+	return swapped;
 }
 
 /**
@@ -131,58 +436,6 @@ void td_reorganize_all_indices(struct tdisk *td)
 {
 	//Sort entire arry
 	hlist_insertsort(&td->sorted_sectors_head, &td_sector_index_callback);
-}
-
-/**
-  * Performs the given index operation. This can be:
-  *  - READ: reads the physical sector index for the given logical sector
-  *  - WRITE: stores the given physical sector index for the given logical
-  *    sector. The data are also stored to each physical disk
-  *  - COMPARE: Compares the given physical sector index with the actual one.
-  *    This is useful to compare individual disks for consistency.
- **/
-int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t logical_sector, struct sector_index *physical_sector)
-{
-	struct sector_index *actual;
-	loff_t position = td_dev->index_offset_byte + logical_sector * sizeof(struct sector_index);
-	unsigned int length = sizeof(struct sector_index);
-
-	if(position + length > td_dev->header_size * td_dev->blocksize)return 1;
-	actual = &td_dev->indices[logical_sector];
-
-	//Increment access count and sort
-	actual->access_count++;
-	td_reorganize_sorted_index(td_dev, logical_sector);
-
-	//index operation
-	if(direction == READ)
-		(*physical_sector) = (*actual);
-	else if(direction == COMPARE)
-	{
-		if(physical_sector->disk != actual->disk || physical_sector->sector != actual->sector)
-			return -1;
-	}
-	else if(direction == WRITE)
-	{
-		unsigned int j;
-
-		//Memory operation
-		actual->disk = physical_sector->disk;
-		actual->sector = physical_sector->sector;
-
-		//Disk operations
-		for(j = 0; j < td_dev->internal_devices_count; ++j)
-		{
-			struct file *file = td_dev->internal_devices[j].file;
-
-			if(file)
-			{
-				file_write_data(file, actual, position, length, &td_dev->internal_devices[j].performance);
-			}
-		}
-	}
-
-	return 0;
 }
 
 /**
@@ -302,6 +555,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 
 		//Calculate actual position in the physical disk
 		actual_pos_byte = physical_sector.sector*td->blocksize + offset;
+		BUG_ON(actual_pos_byte > (physical_sector.sector+1)*td->blocksize);
 
 		if(physical_sector.disk == 0 || physical_sector.disk > td->internal_devices_count)
 		{
@@ -1072,13 +1326,27 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 	}
 	else
 	{
-		printk(KERN_DEBUG "tDisk: nothing to do anymore. Moving sectors\n");
-
 		//No work to do. This means we have reached the timeout
 		//and have now the opportunity to organize the sectors.
-		if(td->access_count_resort)
+
+		if(td->access_count_resort == 0)
 		{
+			sector_t i;
+			printk(KERN_DEBUG "tDisk: nothing to do anymore. Sorting sectors\n");
+			for(i = 0; i < td->size_blocks; ++i)
+			{
+				td_reorganize_sorted_index(td, i);
+			}
+
+			//Setting to true so that we will always do move operations
+			td->access_count_resort = 1;
+		}
+		else
+		{
+			printk(KERN_DEBUG "tDisk: nothing to do anymore. Moving sectors\n");
+
 			td->access_count_resort = 0;
+			td_move_one_sector(td);
 		}
 
 		if(td->access_count_resort)return secondary_work_to_do;

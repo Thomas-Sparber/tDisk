@@ -529,12 +529,15 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	}
 	if(header.disk_index >= td->internal_devices_count)td->internal_devices_count = header.disk_index+1;
 
-	//Put disk references in tDisk
+	//Set disk references in tDisk
 	new_device = &td->internal_devices[header.disk_index];
 	new_device->old_gfp_mask = mapping_gfp_mask(mapping);
 	mapping_set_gfp_mask(mapping, new_device->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
 	new_device->file = file;
 	new_device->performance = header.performance;
+
+	new_device->size_blocks = (size << 9);
+	__div64_32(&new_device->size_blocks, td->blocksize);
 
 	error = 0;
 
@@ -591,24 +594,21 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			}
 		}
 
-		//Set new size
-		while((size_counter+td->blocksize) <= (size << 9))
-		{
-			size_counter += td->blocksize;
-			td->size_blocks++;
-		}
-
 		vfree(physical_sector);
 		break;
 	case READ:
 		//reading all indices from disk
 		td_read_all_indices(td, file, (u8*)td->indices, &new_device->performance);
 		td_reorganize_all_indices(td);
-		while((size_counter+td->blocksize) <= (size << 9))
+
+		for(sector = 0; sector < td->max_sectors; ++sector)
 		{
-			size_counter += td->blocksize;
-			td->size_blocks++;
+			if(td->indices[sector].disk > td->internal_devices_count)
+				td->internal_devices_count = td->indices[sector].disk;
+
+			if(td->indices[sector].disk == 0)break;
 		}
+		td->size_blocks = sector;
 		break;
 	}
 	printk(KERN_DEBUG "tDisk: new physical disk %u: size: %llu bytes. Logical size(%llu)\n", header.disk_index, size << 9, td->size_blocks*td->blocksize);

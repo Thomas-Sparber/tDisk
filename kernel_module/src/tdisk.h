@@ -58,6 +58,8 @@ struct td_internal_device
 	gfp_t old_gfp_mask;
 
 	struct device_performance performance;
+
+	sector_t size_blocks;
 }; //end struct td_internal_device
 
 /**

@@ -85,6 +85,9 @@ int td_sector_index_callback(struct hlist_node *a, struct hlist_node *b)
 	struct sorted_sector_index *i_a = hlist_entry(a, struct sorted_sector_index, list);
 	struct sorted_sector_index *i_b = hlist_entry(b, struct sorted_sector_index, list);
 
+	if(i_a->physical_sector->disk == 0)return 1;
+	if(i_b->physical_sector->disk == 0)return -1;
+
 	return i_b->physical_sector->access_count - i_a->physical_sector->access_count;
 }
 

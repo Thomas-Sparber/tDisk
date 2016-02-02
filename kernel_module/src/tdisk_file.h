@@ -28,12 +28,6 @@
  **/
 #define TIME_ONE_VALUE(val, mod) (val * (1 << MEASUE_RECORDS_SHIFT) + mod)
 
-/*struct aio_data
-{
-	struct kiocb iocb;
-	struct request *rq;
-}; //end struct aio_data*/
-
 /**
   * Returns whether the given file is a tDisk
  **/
@@ -282,40 +276,27 @@ inline static int file_read_data(struct file *file, void *data, loff_t pos, unsi
 	return ret;
 }
 
-/*static inline void handle_partial_read(struct aio_data *data, long bytes)  
+/*************************** AIO *******************************/
+
+struct aio_data
 {
-	if(bytes < 0 || (data->rq->cmd_flags & REQ_WRITE))return;
+	struct kiocb iocb;
+	void *private_data;
+	void (*callback)(void*,long);
 
-	if(unlikely(bytes < blk_rq_bytes(data->rq)))
-	{
-		struct bio *bio = data->rq->bio;
+	int rw;
+	struct device_performance *perf;
+}; //end struct aio_data
 
-		bio_advance(bio, bytes);
-		zero_fill_bio(bio);
-	}
-}
-
-static void lo_rw_aio_complete(struct kiocb *iocb, long ret, long ret2)
+inline static void lo_rw_aio_complete(struct kiocb *iocb, long ret, long ret2)
 {
 	struct aio_data *data = container_of(iocb, struct aio_data, iocb);
-	struct request *rq = data->rq;
 
-	handle_partial_read(data, ret);
-
-	if(ret > 0)
-		ret = 0;
-	else if(ret < 0)
-		ret = -EIO;
-
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
-	rq->errors = ret;
-	blk_mq_complete_request(rq);
-#else
-	blk_mq_complete_request(rq, ret);
-#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+	if(data->callback)data->callback(data->private_data, ret);
+	kfree(data);
 }
 
-static int lo_rw_aio(struct file *file, struct aio_data *data, loff_t pos, bool rw)
+/*inline static int lo_rw_aio(struct file *file, struct aio_data *data, loff_t pos, bool rw)
 {
 	struct iov_iter iter;
 	struct bio_vec *bvec;
@@ -341,5 +322,79 @@ static int lo_rw_aio(struct file *file, struct aio_data *data, loff_t pos, bool 
 	if(ret != -EIOCBQUEUED)data->iocb.ki_complete(&data->iocb, ret, 0);
 	return 0;
 }*/
+
+inline static void file_aio_request_callback(void *private_data, long bytes)
+{
+	struct request *rq = private_data;
+
+	if(bytes > 0)
+	{
+		//Handle partial reads
+		if(!(rq->cmd_flags & REQ_WRITE))
+		{
+			if(unlikely(bytes < blk_rq_bytes(rq)))
+			{
+				struct bio *bio = rq->bio;
+
+				bio_advance(bio, bytes);
+				zero_fill_bio(bio);
+			}
+		}
+
+		bytes = 0;
+	}
+	else bytes = -EIO;
+
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+	rq->errors = bytes;
+	blk_mq_complete_request(rq);
+#else
+	blk_mq_complete_request(rq, bytes);
+#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+}
+
+inline static void file_aio_prepare_request(struct request *rq, struct iov_iter *iter, int rw)
+{
+	struct bio_vec *bvec;
+	struct bio *bio = rq->bio;
+
+	//nomerge for request queue
+	WARN_ON(rq->bio != rq->biotail);
+
+	bvec = __bvec_iter_bvec(bio->bi_io_vec, bio->bi_iter);
+	iov_iter_bvec(iter, ITER_BVEC | rw, bvec, bio_segments(bio), blk_rq_bytes(rq));
+}
+
+inline static void file_aio_init_aio_data(struct aio_data *data, struct file *file, loff_t pos, void *private_data, void (*callback)(void*,long))
+{
+	data->iocb.ki_pos = pos;
+	data->iocb.ki_filp = file;
+	data->iocb.ki_complete = lo_rw_aio_complete;
+	data->iocb.ki_flags = IOCB_DIRECT;
+
+	data->private_data = private_data;
+	data->callback = callback;
+}
+
+inline static int file_aio_read_request(struct file *file, struct request *rq, loff_t pos)
+{
+	int ret;
+	struct iov_iter iter;
+	struct aio_data *data = kmalloc(sizeof(struct aio_data), GFP_KERNEL);
+
+	file_aio_prepare_request(rq, &iter, READ);
+
+	if(!data)return -ENOMEM;
+
+	file_aio_init_aio_data(data, file, pos, rq, file_aio_request_callback);
+
+	//if(rw == WRITE)
+	//	ret = file->f_op->write_iter(&data->iocb, &iter);
+	//else
+		ret = file->f_op->read_iter(&data->iocb, &iter);
+
+	if(ret != -EIOCBQUEUED)data->iocb.ki_complete(&data->iocb, ret, 0);
+	return 0;
+}
 
 #endif //TDISK_FILE_H

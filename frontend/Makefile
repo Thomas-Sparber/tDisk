@@ -20,9 +20,12 @@ tdisk: $(OBJECTS)
 	@echo "Linking" $@
 	@$(CC) -o $@ $(OBJECTS) $(LDFLAGS)
 
-bin/%.o: src/%.c
+bin/%.o: src/%.c bin
 	@echo "Compiling" $<
 	@$(CC) -MD $(CFLAGS) -o $@ $<
+
+bin:
+	mkdir bin
 
 clean:
 	@echo "Cleaning"

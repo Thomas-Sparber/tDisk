@@ -312,9 +312,28 @@ static bool td_move_one_sector(struct tdisk *td)
 	unsigned int sorted_disk = 1;
 	unsigned int inv_disk = 1;
 	struct sorted_sector_index *item;
-	struct sorted_internal_device *sorted_devices = vmalloc(sizeof(struct sorted_internal_device) * td->internal_devices_count);
-	struct sorted_sector_index *sorted_sectors = vmalloc(sizeof(struct sorted_sector_index) * td->max_sectors);
-	if(!sorted_devices || !sorted_sectors)return false;
+	struct sorted_internal_device *sorted_devices;
+	struct sorted_sector_index *sorted_sectors;
+
+	//Check if actually all devices are loaded
+	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
+	{
+		if(td->internal_devices[sorted_disk-1].file == NULL)
+		{
+			//Not all disks are loaded yet
+			return false;
+		}
+	}
+
+	sorted_devices = vmalloc(sizeof(struct sorted_internal_device) * td->internal_devices_count);
+	if(!sorted_devices)return false;
+
+	sorted_sectors = vmalloc(sizeof(struct sorted_sector_index) * td->max_sectors);
+	if(!sorted_sectors)
+	{
+		vfree(sorted_devices);
+		return false;
+	}
 
 	td_insert_sorted_internal_devices(td, sorted_devices);
 	memcpy(sorted_sectors, td->sorted_sectors, sizeof(struct sorted_sector_index) * td->max_sectors);
@@ -394,6 +413,7 @@ int td_sector_index_callback(struct hlist_node *a, struct hlist_node *b)
 	struct sorted_sector_index *i_a = hlist_entry(a, struct sorted_sector_index, list);
 	struct sorted_sector_index *i_b = hlist_entry(b, struct sorted_sector_index, list);
 
+	if(i_a->physical_sector->disk == 0 && i_b->physical_sector->disk == 0)return 0;
 	if(i_a->physical_sector->disk == 0)return 1;
 	if(i_b->physical_sector->disk == 0)return -1;
 
@@ -422,7 +442,7 @@ void td_reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
 	if(index->list.next)next = hlist_entry(index->list.next, struct sorted_sector_index, list);
 	if(index->list.pprev)prev = hlist_entry(index->list.pprev, struct sorted_sector_index, list.next);
 
-	//Check if it doen's fit anymore
+	//Check if it doens't fit anymore
 	if((next && index->physical_sector->access_count < next->physical_sector->access_count) || (prev && index->physical_sector->access_count > prev->physical_sector->access_count))
 	{
 		//Remove it and re-insert
@@ -1335,12 +1355,15 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 
 		if(td->access_count_resort == 0)
 		{
-			sector_t i;
+			//struct hlist_node *item_safe;
+			//struct sorted_sector_index *item;
+
 			printk(KERN_DEBUG "tDisk: nothing to do anymore. Sorting sectors\n");
-			for(i = 0; i < td->size_blocks; ++i)
-			{
-				td_reorganize_sorted_index(td, i);
-			}
+			//hlist_for_each_entry_safe(item, item_safe, &td->sorted_sectors_head, list)
+			//{
+			//	td_reorganize_sorted_index(td, item-td->sorted_sectors);
+			//}
+			td_reorganize_all_indices(td);
 
 			//Setting to true so that we will always do move operations
 			td->access_count_resort = 1;

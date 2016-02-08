@@ -10,6 +10,56 @@
 
 #include <linux/list.h>
 
+#define GET_MACRO(_0, _1, _2, _3, _4, _5, _6, NAME, ...) NAME
+#define MY_BUG_ON(...) GET_MACRO(__VA_ARGS__, MY_BUG_ON6, MY_BUG_ON5, MY_BUG_ON4, MY_BUG_ON3, MY_BUG_ON2, MY_BUG_ON1, MY_BUG_ON0)(__VA_ARGS__)
+
+#define PRINT_INT(var)		"%d",	var
+#define PRINT_UINT(var)		"%u",	var
+#define PRINT_LONG(var)		"%l",	var
+#define PRINT_ULONG(var)	"%lu",	var
+#define PRINT_LL(var)		"%ll",	var
+#define PRINT_ULL(var)		"%llu",	var
+#define PRINT_FLOAT(var)	"%d",	var
+
+#define MY_BUG_ON0(equation) \
+	do { \
+		if(unlikely(equation)) { \
+			printk_ratelimited(KERN_ERR "tDisk BUG: " #equation "\n"); \
+			BUG_ON(equation); \
+		} \
+	} while(0)
+		
+#define MY_BUG_ON2(equation, data_type, data) \
+	do { \
+		if(unlikely(equation)) { \
+			printk_ratelimited(KERN_ERR "tDisk BUG: " #equation "\n"); \
+			printk_ratelimited(KERN_ERR "tDisk BUG_DATA: " #data " = " data_type "\n", data); \
+			BUG_ON(equation); \
+		} \
+	} while(0)
+		
+#define MY_BUG_ON4(equation, data_type1, data1, data_type2, data2) \
+	do { \
+		if(unlikely(equation)) { \
+			printk_ratelimited(KERN_ERR "tDisk BUG: " #equation); \
+			printk_ratelimited(KERN_ERR "tDisk BUG_DATA: " #data1 " = " data_type1 "\n", data1); \
+			printk_ratelimited(KERN_ERR "tDisk BUG_DATA: " #data2 " = " data_type2 "\n", data2); \
+			BUG_ON(equation); \
+		} \
+	} while(0)
+		
+#define MY_BUG_ON6(equation, data_type1, data1, data_type2, data2, data_type3, data3) \
+	do { \
+		if(unlikely(equation)) { \
+			printk_ratelimited(KERN_ERR "tDisk BUG: " #equation); \
+			printk_ratelimited(KERN_ERR "tDisk BUG_DATA: " #data1 " = " data_type1 "\n", data1); \
+			printk_ratelimited(KERN_ERR "tDisk BUG_DATA: " #data2 " = " data_type2 "\n", data2); \
+			printk_ratelimited(KERN_ERR "tDisk BUG_DATA: " #data3 " = " data_type3 "\n", data3); \
+			BUG_ON(equation); \
+		} \
+	} while(0)
+	
+
 /**
   * Copied from div64.c
  **/

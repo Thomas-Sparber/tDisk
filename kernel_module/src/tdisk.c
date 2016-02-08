@@ -104,6 +104,10 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 
 	//Increment access count and sort
 	actual->access_count++;
+	MY_BUG_ON(direction == WRITE && physical_sector->disk == 0, PRINT_INT(physical_sector->disk), PRINT_ULL(logical_sector));
+	//MY_BUG_ON(direction == WRITE && physical_sector->disk > td_dev->internal_devices_count, PRINT_INT(physical_sector->disk), PRINT_ULL(logical_sector));
+	MY_BUG_ON(direction == READ && actual->disk == 0, PRINT_INT(actual->disk), PRINT_ULL(logical_sector));
+	//MY_BUG_ON(direction == READ && actual->disk > td_dev->internal_devices_count, PRINT_INT(physical_sector->disk), PRINT_ULL(logical_sector));
 	//td_reorganize_sorted_index(td_dev, logical_sector);
 
 	//index operation

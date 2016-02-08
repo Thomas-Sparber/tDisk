@@ -18,3 +18,4 @@ documentation/kernel_module/doxygen_sqlite3.db
 documentation/frontend/html
 documentation/frontend/doxygen_sqlite3.db
 web_interface/tdisk
+frontend/libtd-frontend.a

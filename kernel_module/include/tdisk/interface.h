@@ -117,7 +117,6 @@ struct tdisk_info {
  */
 
 #define TDISK_ADD_DISK			0x4C00
-#define TDISK_CLEAR				0x4C01
 //#define TDISK_SET_STATUS		0x4C04
 #define TDISK_GET_STATUS		0x4C05
 #define TDISK_GET_DEVICE_INFO	0x4C06

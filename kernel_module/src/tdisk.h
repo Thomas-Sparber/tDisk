@@ -123,6 +123,6 @@ struct td_command {
 
 int tdisk_add(struct tdisk **l, int i, unsigned int blocksize, sector_t max_sectors);
 int tdisk_lookup(struct tdisk **l, int i);
-void tdisk_remove(struct tdisk *lo);
+int tdisk_remove(struct tdisk *lo);
 
 #endif //TDISK_H

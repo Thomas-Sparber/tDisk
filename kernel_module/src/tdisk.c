@@ -694,9 +694,6 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	int index_operation_to_do;
 	int first_device = (td->internal_devices_count == 0);
 
-	//Hold a reference of the driver to prevent unwanted rmmod's
-	if(first_device)__module_get(THIS_MODULE);
-
 	error = -EBADF;
 	file = fget(arg);
 	if(!file)
@@ -910,103 +907,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
  out_putf:
 	fput(file);
  out:
-	if(first_device)
-	{
-		//Release reference to the driver
-		module_put(THIS_MODULE);
-	}
 	return error;
-}
-
-/**
-  * This function removes all the internal devices and makes
-  * it ready to shut down
- **/
-static int td_clear(struct tdisk *td)
-{
-	unsigned int i;
-	struct block_device *bdev = td->block_device;
-
-	if(td->state != state_bound)
-		return -ENXIO;
-
-	/*
-	 * If we've explicitly asked to tear down the tdisk device,
-	 * and it has an elevated reference count, set it for auto-teardown when
-	 * the last reference goes away. This stops $!~#$@ udev from
-	 * preventing teardown because it decided that it needs to run blkid on
-	 * the tdisk device whenever they appear. xfstests is notorious for
-	 * failing tests because blkid via udev races with a losetup
-	 * <dev>/do something like mkfs/losetup -d <dev> causing the losetup -d
-	 * command to fail with EBUSY.
-	 */
-	if(atomic_read(&td->refcount) > 1)
-	{
-		td->flags |= TD_FLAGS_AUTOCLEAR;
-		mutex_unlock(&td->ctl_mutex);
-		return 0;
-	}
-
-	set_capacity(td->kernel_disk, 0);
-
-	//freeze request queue during the transition
-	td_stop_worker_thread(td);
-
-	td->state = state_cleared;
-	td->block_device = NULL;
-
-	if(bdev)
-	{
-		bdput(bdev);
-		invalidate_bdev(bdev);
-
-		//let user-space know about this change
-		bd_set_size(bdev, 0);
-		kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);
-	}
-
-	//Release reference to the driver to make it possible to rmmod
-	module_put(THIS_MODULE);
-
-	if(bdev)td_reread_partitions(td, bdev);
-	td->flags = 0;
-
-	/*
-	 * Need not hold ctl_mutex to fput backing file.
-	 * Calling fput holding ctl_mutex triggers a circular
-	 * lock dependency possibility warning as fput can take
-	 * bd_mutex which is usually taken before ctl_mutex.
-	 */
-	mutex_unlock(&td->ctl_mutex);
-
-	for(i = 0; i < td->internal_devices_count; ++i)
-	{
-		struct file *file = td->internal_devices[i].file;
-		td->internal_devices[i].file = NULL;
-
-		if(file)
-		{
-			struct tdisk_header header = {
-				.disk_index = i,
-				.performance = td->internal_devices[i].performance,
-			};
-			gfp_t gfp = td->internal_devices[i].old_gfp_mask;
-
-			//Write current performance and index values to file
-			td_write_header(file, &header, NULL);
-			td_write_all_indices(td, file, NULL);
-
-			mapping_set_gfp_mask(file->f_mapping, gfp);
-
-			fput(file);
-		}
-	}
-	td->internal_devices_count = 0;
-	td->state = state_unbound;
-
-	printk(KERN_DEBUG "tDisk: disk %d cleared\n", td->number);
-
-	return 0;
 }
 
 /**
@@ -1129,11 +1030,6 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 	case TDISK_ADD_DISK:
 		err = td_add_disk(td, mode, bdev, arg);
 		break;
-	case TDISK_CLEAR:
-		//td_clear would have unlocked ctl_mutex on success
-		err = td_clear(td);
-		if(!err)goto out_unlocked;
-		break;
 	case TDISK_GET_STATUS:
 		err = td_get_status(td, (struct tdisk_info __user *) arg);
 		break;
@@ -1154,7 +1050,6 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 	}
 	mutex_unlock(&td->ctl_mutex);
 
-out_unlocked:
 	return err;
 }
 
@@ -1170,7 +1065,6 @@ static int td_compat_ioctl(struct block_device *bdev, fmode_t mode, unsigned int
 
 	switch(cmd)
 	{
-	case TDISK_CLEAR:
 	case TDISK_GET_STATUS:
 		arg = (unsigned long)compat_ptr(arg);
 	case TDISK_ADD_DISK:
@@ -1210,32 +1104,11 @@ static int td_open(struct block_device *bdev, fmode_t mode)
 static void td_release(struct gendisk *disk, fmode_t mode)
 {
 	struct tdisk *td = disk->private_data;
-	int err;
 
 	if(atomic_dec_return(&td->refcount))
 		return;
 
-	mutex_lock(&td->ctl_mutex);
-
-	if(td->flags & TD_FLAGS_AUTOCLEAR)
-	{
-		/*
-		 * In autoclear mode, stop the tdisk thread
-		 * and remove configuration after last close.
-		 */
-		err = td_clear(td);
-		if(!err)return;
-	}
-	else
-	{
-		/*
-		 * Otherwise keep thread (if running) and config,
-		 * but flush possible ongoing bios in thread.
-		 */
-		td_flush(td);
-	}
-
-	mutex_unlock(&td->ctl_mutex);
+	td_flush(td);
 }
 
 /**
@@ -1526,8 +1399,47 @@ out:
   * This function is called to remove a tDisk.
   * this frees all the resources
  **/
-void tdisk_remove(struct tdisk *td)
+int tdisk_remove(struct tdisk *td)
 {
+	unsigned int i;
+
+	if(atomic_read(&td->refcount) > 0)
+		return -EBUSY;
+
+	if(td->block_device)
+	{
+		bdput(td->block_device);
+		invalidate_bdev(td->block_device);
+	}
+
+	if(td->internal_devices_count)
+		td_stop_worker_thread(td);
+
+	for(i = 0; i < td->internal_devices_count; ++i)
+	{
+		struct file *file = td->internal_devices[i].file;
+		td->internal_devices[i].file = NULL;
+
+		if(file)
+		{
+			struct tdisk_header header = {
+				.disk_index = i,
+				.performance = td->internal_devices[i].performance,
+			};
+			gfp_t gfp = td->internal_devices[i].old_gfp_mask;
+
+			//Write current performance and index values to file
+			td_write_header(file, &header, NULL);
+			td_write_all_indices(td, file, NULL);
+
+			mapping_set_gfp_mask(file->f_mapping, gfp);
+
+			fput(file);
+		}
+	}
+
+	printk(KERN_DEBUG "tDisk: disk %d removed\n", td->number);
+
 	idr_remove(&td_index_idr, td->number);
 	blk_cleanup_queue(td->queue);
 	del_gendisk(td->kernel_disk);
@@ -1536,6 +1448,8 @@ void tdisk_remove(struct tdisk *td)
 	vfree(td->sorted_sectors);
 	vfree(td->indices);
 	kfree(td);
+
+	return 0;
 }
 
 /**
@@ -1617,8 +1531,7 @@ static int __init tdisk_init(void)
  **/
 static int tdisk_exit_callback(int id, void *ptr, void *data)
 {
-	tdisk_remove((struct tdisk*)ptr);
-	return 0;
+	return tdisk_remove((struct tdisk*)ptr);
 }
 
 /**

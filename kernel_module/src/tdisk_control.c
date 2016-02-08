@@ -46,22 +46,7 @@ static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned lo
 	case TDISK_CTL_REMOVE:
 		ret = tdisk_lookup(&td, parm);
 		if(ret < 0)break;
-		mutex_lock(&td->ctl_mutex);
-		if(td->state != state_unbound)
-		{
-			ret = -EBUSY;
-			mutex_unlock(&td->ctl_mutex);
-			break;
-		}
-		if(atomic_read(&td->refcount) > 0)
-		{
-			ret = -EBUSY;
-			mutex_unlock(&td->ctl_mutex);
-			break;
-		}
-		td->kernel_disk->private_data = NULL;
-		mutex_unlock(&td->ctl_mutex);
-		tdisk_remove(td);
+		ret = tdisk_remove(td);
 		break;
 	case TDISK_CTL_GET_FREE:
 		ret = tdisk_lookup(&td, -1);

@@ -650,7 +650,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
  **/
 static void td_reread_partitions(struct tdisk *td, struct block_device *bdev)
 {
-#if 0
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
 	int rc;
 
 	/**
@@ -667,8 +667,9 @@ static void td_reread_partitions(struct tdisk *td, struct block_device *bdev)
 		rc = blkdev_reread_part(bdev);
 
 	if(rc)pr_warn("tDisk: partition scan of loop%d failed (rc=%d)\n", td->number, rc);
-#endif
+#else
 	ioctl_by_bdev(bdev, BLKRRPART, 0);
+#endif
 }
 
 /**

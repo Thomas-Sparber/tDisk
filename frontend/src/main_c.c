@@ -108,18 +108,6 @@ int main(int argc, char* args[])
 		printf("%d device%s added successfully\n", argc-3, (argc==4) ? "" : "s");
 
 		break;
-	case clear:
-		if(argc <= 2)
-		{
-			fprintf(stderr, "Error: \"clear\" needs the td device\n");
-			ret = 1;
-			break;
-		}
-
-		ret = tdisk_clear(args[2]);
-		if(!print_error(ret))printf("Device %s cleared\n", args[2]);
-
-		break;
 	case get_max_sectors:
 		if(argc <= 2)
 		{

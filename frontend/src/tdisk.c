@@ -88,7 +88,7 @@ int tdisk_get_devices(char **devices, int size, int length)
 	}
 }
 
-int tdisk_add(char *out_name)
+int tdisk_add(char *out_name, unsigned int blocksize)
 {
 	int controller;
 	int device;
@@ -98,7 +98,7 @@ int tdisk_add(char *out_name)
 	controller = open(CONTROL_FILE, O_RDWR);
 	if(controller < 0)return -ENOPERM;
 
-	device = ioctl(controller, TDISK_CTL_GET_FREE);
+	device = ioctl(controller, TDISK_CTL_GET_FREE, blocksize);
 
 	if(device >= 0)
 		build_device_name(device, out_name);
@@ -108,7 +108,7 @@ int tdisk_add(char *out_name)
 	return device;
 }
 
-int tdisk_add_specific(char *out_name, int minor)
+int tdisk_add_specific(char *out_name, int minor, unsigned int blocksize)
 {
 	int controller;
 	int device;
@@ -118,7 +118,12 @@ int tdisk_add_specific(char *out_name, int minor)
 	controller = open(CONTROL_FILE, O_RDWR);
 	if(controller < 0)return -ENOPERM;
 
-	device = ioctl(controller, TDISK_CTL_ADD, minor);
+	struct tdisk_add_parameters params = {
+		.minornumber = minor,
+		.blocksize = blocksize
+	};
+
+	device = ioctl(controller, TDISK_CTL_ADD, &params);
 
 	if(device >= 0)
 		build_device_name(device, out_name);

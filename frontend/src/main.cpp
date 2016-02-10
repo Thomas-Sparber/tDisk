@@ -363,9 +363,27 @@ string handleCommand(int argc, char **args)
 
 string add_tDisk(int argc, char *args[])
 {
+	if(argc <= 2)throw FrontendException("\"add\" needs the desired blocksize (e.g. 16384)");
+
+	char *test;
 	tDisk disk;
-	if(argc > 2)disk = tDisk::create(atoi(args[2]));
-	else disk = tDisk::create();
+	if(argc > 3)
+	{
+		int number = strtol(args[2], &test, 10);
+		if(test != args[2] + strlen(args[2]))throw FrontendException("Invalid minor number ", args[2]);
+
+		unsigned int blocksize = strtol(args[3], &test, 10);
+		if(test != args[3] + strlen(args[3]))throw FrontendException("Invalid blocksize ", args[3]);
+
+		disk = tDisk::create(number, blocksize);
+	}
+	else
+	{
+		unsigned int blocksize = strtol(args[2], &test, 10);
+		if(test != args[2] + strlen(args[2]))throw FrontendException("Invalid blocksize ", args[2]);
+
+		disk = tDisk::create(blocksize);
+	}
 	return createResultString(td::concat("Device ", disk.getName(), " opened"), 0);
 }
 

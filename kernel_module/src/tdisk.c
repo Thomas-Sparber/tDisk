@@ -1452,6 +1452,12 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	int err;
 	unsigned int header_size_byte;
 
+	if(blocksize == 0 || blocksize % 4096)
+	{
+		printk(KERN_WARNING"tDisk: Failed to add tDisk. blocksize must be a multiple of 4096 but is %u\n", blocksize);
+		return -EINVAL;
+	}
+
 	//Calculate header size which consists
 	//of a header, disk mappings and indices
 	header_size_byte = sizeof(struct tdisk_header);

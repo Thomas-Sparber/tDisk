@@ -40,6 +40,16 @@ enum {
 };
 
 /**
+  * This struct is used when a tDisk with a specific
+  * minornumber should be added. It just bundles two variables
+ **/
+struct tdisk_add_parameters
+{
+	int minornumber;
+	unsigned int blocksize;
+}; //end tdisk_add_parameters
+
+/**
   * This struct represents performance indicators of a
   * physical disk. It contains the average and standard
   * deviation values in processor cycles of read and write

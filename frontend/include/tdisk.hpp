@@ -81,10 +81,10 @@ public:
 		else return tDisk(str);
 	}
 
-	static tDisk create(int i_minornumber)
+	static tDisk create(int i_minornumber, unsigned int blocksize)
 	{
 		char temp[256];
-		int ret = c::tdisk_add_specific(temp, i_minornumber);
+		int ret = c::tdisk_add_specific(temp, i_minornumber, blocksize);
 		try {
 			handleError(ret);
 		} catch(const tDiskException &e) {
@@ -97,10 +97,10 @@ public:
 		return tDisk(i_minornumber, temp);
 	}
 
-	static tDisk create()
+	static tDisk create(unsigned int blocksize)
 	{
 		char temp[256];
-		int ret = c::tdisk_add(temp);
+		int ret = c::tdisk_add(temp, blocksize);
 		try {
 			handleError(ret);
 		} catch(const tDiskException &e) {

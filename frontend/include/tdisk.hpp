@@ -2,10 +2,11 @@
 #define TDISK_HPP
 
 #include <errno.h>
-#include <sstream>
 #include <string>
 #include <string.h>
 #include <vector>
+
+#include <utils.hpp>
 
 namespace td
 {
@@ -17,11 +18,6 @@ namespace c
 		#include "tdisk.h"
 	}
 } //end namespace c
-
-template <class S> inline void concat(std::stringstream &ss, const S &s) { ss<<s; }
-template <class T> inline void concat(std::stringstream &ss, const std::vector<T> &v) { for(const T &t : v)concat(ss, t); }
-template <class S, class ...T> inline void concat(std::stringstream &ss, const S &s, T ...t) { concat(ss, s); concat(ss, t...); }
-template <class ...T> inline std::string concat(T ...t) { std::stringstream ss; concat(ss, t...); return ss.str(); }
 
 struct tDiskException
 {

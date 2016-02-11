@@ -4,9 +4,14 @@ CFLAGS=-c -g -Wall -Wextra -I../kernel_module/include -I./include -Wdouble-promo
 CPPFLAGS=-std=c++11 -Weffc++
 LDFLAGS=-L. -ltd-frontend
 SOURCES= \
-	src/tdisk.c
+	src/tdisk.c \
+	src/frontend_c.c
 
-OBJECTS=$(SOURCES:src/%.c=bin/%.o) bin/main.o
+CPP_SOURCES= \
+	src/frontend.cpp
+	
+
+OBJECTS=$(SOURCES:src/%.c=bin/%.o) $(CPP_SOURCES:src/%.cpp=bin/%.o)
 DEPS=$(OBJECTS:bin/%.o=bin/%.d)
 
 all: tdisk
@@ -17,7 +22,7 @@ libtd-frontend.a: $(OBJECTS)
 	@echo "Linking" $@
 	@ar rcs $@ $(OBJECTS)
 
-tdisk: libtd-frontend.a bin/tdisk.o
+tdisk: libtd-frontend.a bin/main.o
 	@echo "Linking" $@
 	@$(CXX) -o $@ bin/main.o $(LDFLAGS)
 

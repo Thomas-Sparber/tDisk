@@ -15,6 +15,9 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <errno.h>
+#include <dirent.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define CONTROL_FILE "/dev/td-control"
 
@@ -28,7 +31,64 @@ void build_device_name(int device, char *out_name)
 	sprintf(out_name, "/dev/td%d", device);
 }
 
-int tdisk_add(char *out_name)
+int tdisk_get_devices_count()
+{
+	DIR *dir;
+	struct dirent *ent;
+	int counted = 0;
+	char *end;
+
+	if((dir = opendir("/dev")) != NULL)
+	{
+		while((ent = readdir (dir)) != NULL)
+		{
+			size_t len = strlen(ent->d_name);
+			if(len < 3)continue;
+			if(strncmp(ent->d_name, "td", 2) != 0)continue;
+			strtol(ent->d_name+2, &end, 10);
+			if(end != ent->d_name + len)continue;
+			counted++;
+		}
+		closedir(dir);
+
+		return counted;
+	}
+	else
+	{
+		return -1;
+	}
+}
+
+int tdisk_get_devices(char **devices, int size, int length)
+{
+	DIR *dir;
+	struct dirent *ent;
+	int counter = 0;
+	char *end;
+
+	if((dir = opendir("/dev")) != NULL)
+	{
+		while((ent = readdir (dir)) != NULL)
+		{
+			size_t len = strlen(ent->d_name);
+			if(len < 3)continue;
+			if(strncmp(ent->d_name, "td", 2) != 0)continue;
+			strtol(ent->d_name+2, &end, 10);
+			if(end != ent->d_name + len)continue;
+			if(counter == length)return -2;
+			strncpy(devices[counter++], ent->d_name, (size_t)size);
+		}
+		closedir(dir);
+
+		return counter;
+	}
+	else
+	{
+		return -1;
+	}
+}
+
+int tdisk_add(char *out_name, unsigned int blocksize)
 {
 	int controller;
 	int device;
@@ -38,7 +98,7 @@ int tdisk_add(char *out_name)
 	controller = open(CONTROL_FILE, O_RDWR);
 	if(controller < 0)return -ENOPERM;
 
-	device = ioctl(controller, TDISK_CTL_GET_FREE);
+	device = ioctl(controller, TDISK_CTL_GET_FREE, blocksize);
 
 	if(device >= 0)
 		build_device_name(device, out_name);
@@ -48,7 +108,7 @@ int tdisk_add(char *out_name)
 	return device;
 }
 
-int tdisk_add_specific(char *out_name, int minor)
+int tdisk_add_specific(char *out_name, int minor, unsigned int blocksize)
 {
 	int controller;
 	int device;
@@ -58,7 +118,12 @@ int tdisk_add_specific(char *out_name, int minor)
 	controller = open(CONTROL_FILE, O_RDWR);
 	if(controller < 0)return -ENOPERM;
 
-	device = ioctl(controller, TDISK_CTL_ADD, minor);
+	struct tdisk_add_parameters params = {
+		.minornumber = minor,
+		.blocksize = blocksize
+	};
+
+	device = ioctl(controller, TDISK_CTL_ADD, &params);
 
 	if(device >= 0)
 		build_device_name(device, out_name);
@@ -107,23 +172,6 @@ int tdisk_add_disk(const char *device, const char *new_disk)
 
 	close(dev);
 	close(file);
-
-	return ret;
-}
-
-int tdisk_clear(const char *device)
-{
-	int dev;
-	int ret;
-
-	if(!check_td_control())return -EDRVNTLD;
-
-	dev = open(device, O_RDWR);
-	if(dev < 0)return -ENOPERM;
-
-	ret = ioctl(dev, TDISK_CLEAR);
-
-	close(dev);
 
 	return ret;
 }

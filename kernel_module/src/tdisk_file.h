@@ -39,11 +39,11 @@ static inline int file_is_tdisk(struct file *file, int MAJOR_NUMBER)
 }
 
 /**
-  * Returns the size of a file in 512 byte blocks
+  * Returns the size of a file 
  **/
 inline static loff_t file_get_size(struct file *file)
 {
-	return i_size_read(file->f_mapping->host) >> 9;
+	return i_size_read(file->f_mapping->host);
 }
 
 /**

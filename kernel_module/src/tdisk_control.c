@@ -29,44 +29,33 @@ DEFINE_MUTEX(td_index_mutex);
 static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned long parm)
 {
 	struct tdisk *td;
+	struct tdisk_add_parameters params;
 	int ret = -ENOSYS;
 
 	mutex_lock(&td_index_mutex);
 	switch(cmd)
 	{
 	case TDISK_CTL_ADD:
-		ret = tdisk_lookup(&td, parm);
+		if(copy_from_user(&params, (struct tdisk_add_parameters __user *)parm, sizeof(struct tdisk_add_parameters)) != 0)
+		{
+			ret = -EINVAL;
+			break;
+		}
+		ret = tdisk_lookup(&td, params.minornumber);
 		if(ret >= 0)
 		{
 			ret = -EEXIST;
 			break;
 		}
-		ret = tdisk_add(&td, parm, 16384, 1024);	//TODO
+		ret = tdisk_add(&td, params.minornumber, params.blocksize);
 		break;
 	case TDISK_CTL_REMOVE:
 		ret = tdisk_lookup(&td, parm);
 		if(ret < 0)break;
-		mutex_lock(&td->ctl_mutex);
-		if(td->state != state_unbound)
-		{
-			ret = -EBUSY;
-			mutex_unlock(&td->ctl_mutex);
-			break;
-		}
-		if(atomic_read(&td->refcount) > 0)
-		{
-			ret = -EBUSY;
-			mutex_unlock(&td->ctl_mutex);
-			break;
-		}
-		td->kernel_disk->private_data = NULL;
-		mutex_unlock(&td->ctl_mutex);
-		tdisk_remove(td);
+		ret = tdisk_remove(td);
 		break;
 	case TDISK_CTL_GET_FREE:
-		ret = tdisk_lookup(&td, -1);
-		if(ret >= 0)break;	//Means there is already an available device
-		ret = tdisk_add(&td, -1, 16384, 1024);		//TODO
+		ret = tdisk_add(&td, -1, parm);
 	}
 	mutex_unlock(&td_index_mutex);
 

@@ -35,7 +35,8 @@ struct tdisk_header
 	__u32 minor_version;
 	tdisk_index disk_index;	//disk index in the tdisk
 	struct device_performance performance;
-	char placeholder[80];	//For future releases
+	__u64 current_max_sectors;
+	char placeholder[72];	//For future releases
 }; //end struct tdisk_header
 
 /**
@@ -121,8 +122,8 @@ struct td_command {
 	struct list_head list;
 };
 
-int tdisk_add(struct tdisk **l, int i, unsigned int blocksize, sector_t max_sectors);
+int tdisk_add(struct tdisk **l, int i, unsigned int blocksize);
 int tdisk_lookup(struct tdisk **l, int i);
-void tdisk_remove(struct tdisk *lo);
+int tdisk_remove(struct tdisk *lo);
 
 #endif //TDISK_H

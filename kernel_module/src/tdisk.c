@@ -104,6 +104,10 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 
 	//Increment access count and sort
 	actual->access_count++;
+	MY_BUG_ON(direction == WRITE && physical_sector->disk == 0, PRINT_INT(physical_sector->disk), PRINT_ULL(logical_sector));
+	//MY_BUG_ON(direction == WRITE && physical_sector->disk > td_dev->internal_devices_count, PRINT_INT(physical_sector->disk), PRINT_ULL(logical_sector));
+	MY_BUG_ON(direction == READ && actual->disk == 0, PRINT_INT(actual->disk), PRINT_ULL(logical_sector));
+	//MY_BUG_ON(direction == READ && actual->disk > td_dev->internal_devices_count, PRINT_INT(physical_sector->disk), PRINT_ULL(logical_sector));
 	//td_reorganize_sorted_index(td_dev, logical_sector);
 
 	//index operation
@@ -308,9 +312,28 @@ static bool td_move_one_sector(struct tdisk *td)
 	unsigned int sorted_disk = 1;
 	unsigned int inv_disk = 1;
 	struct sorted_sector_index *item;
-	struct sorted_internal_device *sorted_devices = vmalloc(sizeof(struct sorted_internal_device) * td->internal_devices_count);
-	struct sorted_sector_index *sorted_sectors = vmalloc(sizeof(struct sorted_sector_index) * td->max_sectors);
-	if(!sorted_devices || !sorted_sectors)return false;
+	struct sorted_internal_device *sorted_devices;
+	struct sorted_sector_index *sorted_sectors;
+
+	//Check if actually all devices are loaded
+	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
+	{
+		if(td->internal_devices[sorted_disk-1].file == NULL)
+		{
+			//Not all disks are loaded yet
+			return false;
+		}
+	}
+
+	sorted_devices = vmalloc(sizeof(struct sorted_internal_device) * td->internal_devices_count);
+	if(!sorted_devices)return false;
+
+	sorted_sectors = vmalloc(sizeof(struct sorted_sector_index) * td->max_sectors);
+	if(!sorted_sectors)
+	{
+		vfree(sorted_devices);
+		return false;
+	}
 
 	td_insert_sorted_internal_devices(td, sorted_devices);
 	memcpy(sorted_sectors, td->sorted_sectors, sizeof(struct sorted_sector_index) * td->max_sectors);
@@ -390,6 +413,7 @@ int td_sector_index_callback(struct hlist_node *a, struct hlist_node *b)
 	struct sorted_sector_index *i_a = hlist_entry(a, struct sorted_sector_index, list);
 	struct sorted_sector_index *i_b = hlist_entry(b, struct sorted_sector_index, list);
 
+	if(i_a->physical_sector->disk == 0 && i_b->physical_sector->disk == 0)return 0;
 	if(i_a->physical_sector->disk == 0)return 1;
 	if(i_b->physical_sector->disk == 0)return -1;
 
@@ -418,7 +442,7 @@ void td_reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
 	if(index->list.next)next = hlist_entry(index->list.next, struct sorted_sector_index, list);
 	if(index->list.pprev)prev = hlist_entry(index->list.pprev, struct sorted_sector_index, list.next);
 
-	//Check if it doen's fit anymore
+	//Check if it doens't fit anymore
 	if((next && index->physical_sector->access_count < next->physical_sector->access_count) || (prev && index->physical_sector->access_count > prev->physical_sector->access_count))
 	{
 		//Remove it and re-insert
@@ -626,7 +650,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
  **/
 static void td_reread_partitions(struct tdisk *td, struct block_device *bdev)
 {
-#if 0
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
 	int rc;
 
 	/**
@@ -643,8 +667,86 @@ static void td_reread_partitions(struct tdisk *td, struct block_device *bdev)
 		rc = blkdev_reread_part(bdev);
 
 	if(rc)pr_warn("tDisk: partition scan of loop%d failed (rc=%d)\n", td->number, rc);
-#endif
+#else
 	ioctl_by_bdev(bdev, BLKRRPART, 0);
+#endif
+}
+
+int td_get_max_sectors_header_increase(struct tdisk *td, sector_t max_sectors)
+{
+	size_t header_size_byte = td->index_offset_byte + max_sectors * sizeof(struct sector_index);
+	size_t new_header_size = header_size_byte/td->blocksize + ((header_size_byte%td->blocksize == 0) ? 0 : 1);
+
+	return (new_header_size - td->header_size);
+}
+
+/**
+  * This function is used to resize the sector indices.
+  * It also sets all the required parameters in the tDisk.
+  * The function returns the amount of additional blocks
+  * which are used to store the increased amount of sectors
+  * (can be 0) or a negative value when an error happened.
+ **/
+int td_set_max_sectors(struct tdisk *td, sector_t max_sectors)
+{
+	int ret;
+	int j;
+	size_t header_size_byte = td->index_offset_byte + max_sectors * sizeof(struct sector_index);
+	size_t new_header_size = header_size_byte/td->blocksize + ((header_size_byte%td->blocksize == 0) ? 0 : 1);
+
+	struct sector_index *new_indices;
+	struct sorted_sector_index *new_sorted_sectors;
+
+	loff_t new_max_sectors = new_header_size*td->blocksize - td->index_offset_byte;
+	__div64_32(&new_max_sectors, sizeof(struct sector_index));
+
+	if(td->header_size == new_header_size)return 0;
+
+	//New max sectors must be greater or equal than before
+	MY_BUG_ON(td->max_sectors > new_max_sectors, PRINT_ULL(td->max_sectors), PRINT_ULL(new_max_sectors));
+
+	//Allocate disk indices
+	ret = -ENOMEM;
+	new_indices = vmalloc(sizeof(struct sector_index) * new_max_sectors);
+	if(!new_indices)goto out;
+
+	//Allocate sorted disk indices
+	ret = -ENOMEM;
+	new_sorted_sectors = vmalloc(sizeof(struct sorted_sector_index) * new_max_sectors);
+	if(!new_sorted_sectors)goto out_free_indices;
+
+	memset(new_indices, 0, sizeof(struct sector_index) * new_max_sectors);
+	memset(new_sorted_sectors, 0, sizeof(struct sorted_sector_index) * new_max_sectors);
+
+	//Copy old indices
+	memcpy(new_indices, td->indices, td->max_sectors * sizeof(struct sector_index));
+	memcpy(new_sorted_sectors, td->sorted_sectors, td->max_sectors * sizeof(struct sorted_sector_index));
+
+	//TODO lock index spinlock
+	swap(new_indices, td->indices);
+	swap(new_sorted_sectors, td->sorted_sectors);
+	swap(new_max_sectors, td->max_sectors);
+	swap(new_header_size, td->header_size);
+
+	//Insert sorted indices
+	INIT_HLIST_HEAD(&td->sorted_sectors_head);
+	for(j = 0; j < td->max_sectors; ++j)
+	{
+		INIT_HLIST_NODE(&td->sorted_sectors[j].list);
+		td->sorted_sectors[j].physical_sector = &td->indices[j];
+
+		if(j == 0)hlist_add_head(&td->sorted_sectors[j].list, &td->sorted_sectors_head);
+		else hlist_add_behind(&td->sorted_sectors[j].list, &td->sorted_sectors[j-1].list);
+	}
+	//TODO unlock index spinlock
+
+	ret = (td->header_size - new_header_size);
+
+	vfree(new_sorted_sectors);
+ out_free_indices:
+	vfree(new_indices);
+ out:
+	return ret;
 }
 
 /**
@@ -665,13 +767,12 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	loff_t size;
 	loff_t size_counter = 0;
 	sector_t sector = 0;
+	sector_t new_max_sectors;
 	struct sector_index *physical_sector;
 	struct td_internal_device *new_device = NULL;
 	int index_operation_to_do;
 	int first_device = (td->internal_devices_count == 0);
-
-	//Hold a reference of the driver to prevent unwanted rmmod's
-	if(first_device)__module_get(THIS_MODULE);
+	int additional_sectors;
 
 	error = -EBADF;
 	file = fget(arg);
@@ -707,23 +808,6 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		flags |= TD_FLAGS_READ_ONLY;
 	}
 
-	//File size in 512 byte blocks
-	size = file_get_size(file);
-
-	error = -EINVAL;
-	if(size < (((td->header_size+1)*td->blocksize) >> 9))	//Disk too small
-	{
-		printk(KERN_WARNING "tDisk: Can't add disk, too small: %llu. Should be at least %u\n", size, (((td->header_size+1)*td->blocksize) >> 9));
-		goto out_putf;
-	}
-
-	//Subtract header size from disk size
-	size -= (td->header_size*td->blocksize) >> 9;
-
-	error = -EFBIG;
-	if((loff_t)(sector_t)size != size)	//sector_t overflow
-		goto out_putf;
-
 	//Check for disk limit
 	if(td->internal_devices_count == TDISK_MAX_PHYSICAL_DISKS)
 	{
@@ -732,18 +816,12 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		goto out_putf;
 	}
 
-	if(first_device)
-	{
-		//Start the worker thread which handles all the disk
-		//operations such as reading, writing and all the sector
-		//movements.
-		error = td_start_worker_thread(td);
-		if(error)
-		{
-			printk(KERN_WARNING "tDisk: Error setting up worker thread\n");
-			goto out_putf;
-		}
-	}
+	//File size in bytes
+	size = file_get_size(file);
+
+	//error = -EFBIG;
+	//if((loff_t)(sector_t)size != size)	//sector_t overflow
+	//	goto out_putf;
 
 	memset(&perf, 0, sizeof(struct device_performance));
 	td_read_header(file, &header, &perf);
@@ -781,16 +859,69 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		printk(KERN_ERR "tDisk: Bug in td_is_compatible_header function\n");
 		goto out_putf;
 	}
-	if(header.disk_index >= td->internal_devices_count)td->internal_devices_count = header.disk_index+1;
+
+	//Calculate new max_sectors of tDisk
+	if(index_operation_to_do == WRITE)
+	{
+		size_counter = (loff_t)td->size_blocks * td->blocksize + size;
+		if(__div64_32(&size_counter, td->blocksize))size_counter++;
+		new_max_sectors = (sector_t)size_counter;
+	}
+	else new_max_sectors = td->max_sectors;
+
+	if(index_operation_to_do == READ && header.current_max_sectors > new_max_sectors)new_max_sectors = header.current_max_sectors;
+
+	error = -EINVAL;
+	additional_sectors = td_get_max_sectors_header_increase(td, new_max_sectors);
+	if(size < (td->header_size+additional_sectors+1)*td->blocksize)	//Disk too small
+	{
+		printk(KERN_WARNING "tDisk: Can't add disk, too small: %llu. Should be at least %u\n", size, (td->header_size+additional_sectors+1)*td->blocksize);
+		goto out_putf;
+	}
+
+	//Subtract (new) header size from disk size
+	size -= (td->header_size+additional_sectors)*td->blocksize;
+
+	//resize tDisk indices
+	if(additional_sectors != 0)
+	{
+		tdisk_index disk;
+
+		if(index_operation_to_do != WRITE && index_operation_to_do != READ)
+		{
+			printk(KERN_WARNING "tDisk: Can't add new disk because it would increase the tDisk index\n");
+			error = -EINVAL;
+			goto out_putf;
+		}
+
+		for(disk = 1; disk <= td->internal_devices_count; ++disk)
+		{
+			if(!td->internal_devices[disk-1].file)
+			{
+				printk(KERN_WARNING "tDisk: This disk would increase the tDisk index size but not all disks are loaded yet.\n");
+				printk(KERN_WARNING "tDisk: ...can't continue, please add all disks first.\n");
+				error = -EINVAL;
+				goto out_putf;
+			}
+		}
+	}
+
+	additional_sectors = td_set_max_sectors(td, new_max_sectors);
+	if(additional_sectors < 0)
+	{
+		error = additional_sectors;
+		goto out_putf;
+	}
 
 	//Set disk references in tDisk
+	if(header.disk_index >= td->internal_devices_count)td->internal_devices_count = header.disk_index+1;
 	new_device = &td->internal_devices[header.disk_index];
 	new_device->old_gfp_mask = mapping_gfp_mask(mapping);
 	mapping_set_gfp_mask(mapping, new_device->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
 	new_device->file = file;
 	new_device->performance = header.performance;
 
-	new_device->size_blocks = (size << 9);
+	new_device->size_blocks = size;
 	__div64_32(&new_device->size_blocks, td->blocksize);
 
 	error = 0;
@@ -804,6 +935,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	{
 	case WRITE:
 		//Writing header to disk
+		header.current_max_sectors = td->max_sectors;
 		td_write_header(file, &header, &perf);
 
 		//Setting approximate performance values using the values
@@ -816,8 +948,10 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		td_write_all_indices(td, file, &new_device->performance);
 
 		//Save sector indices
+		sector = 0;
+		size_counter = 0;
 		physical_sector = vmalloc(sizeof(struct sector_index));
-		while((size_counter+td->blocksize) <= (size << 9))
+		while((size_counter+td->blocksize) <= size)
 		{
 			int internal_ret;
 			sector_t logical_sector = td->size_blocks++;
@@ -827,7 +961,8 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			internal_ret = td_perform_index_operation(td, WRITE, logical_sector, physical_sector);
 			if(internal_ret == 1)
 			{
-				printk(KERN_WARNING "tDisk: Additional disk doesn't fit in index. Shrinking to fit.\n");
+				//This should be impossible since we increase the index everytime it is necessary
+				printk(KERN_ERR "tDisk: Additional disk doesn't fit in index. Shrinking to fit.\n");
 				break;
 			}
 		}
@@ -865,7 +1000,71 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		td->size_blocks = sector;
 		break;
 	}
-	printk(KERN_DEBUG "tDisk: new physical disk %u: size: %llu bytes. Logical size(%llu)\n", header.disk_index, size << 9, td->size_blocks*td->blocksize);
+
+	if(additional_sectors != 0)
+	{
+		//Header size increased. Let's create available sectors
+		//At the beginning of each disk by moving them to the new disk
+
+		sector_t sector;
+		sector_t search;
+
+		printk(KERN_DEBUG "tDisk: Need to move sectors because index size increased by %d\n", additional_sectors);
+
+		for(sector = 0; sector < td->max_sectors; ++sector)
+		{
+			if(td->indices[sector].disk != header.disk_index+1 && td->indices[sector].disk != 0)
+			{
+				if(td->indices[sector].sector < td->header_size)
+				{
+					tdisk_index disk = td->indices[sector].disk;
+					bool moved = false;
+
+					//This sector needs to be moved
+					for(search = td->size_blocks; search > sector; --search)
+					{
+						if(td->indices[search].disk == header.disk_index+1)
+						{
+							//Appropriate block found
+							printk(KERN_DEBUG "tDisk: Moved header block %llu (disk: %u, sector: %llu) to %llu (disk: %u, sector: %llu)",
+									sector, td->indices[sector].disk, td->indices[sector].sector, search, td->indices[search].disk, td->indices[search].sector);
+
+							td_swap_sectors(td, sector, &td->indices[sector], search, &td->indices[search]);
+
+							//Resetting moved-block values
+							td->indices[search].disk = 0;
+							td->indices[search].sector = 0;
+							td->indices[search].access_count = 0;
+
+							//Set disks size
+							td->size_blocks--;
+							td->internal_devices[disk].size_blocks--;
+					
+							moved = true;
+							break;
+						}
+					}
+					printk(KERN_DEBUG "tDisk: finished sector %llu: %s", sector, moved ? "true" : "false");
+					MY_BUG_ON(!moved, PRINT_INT(td->indices[sector].disk), PRINT_ULL(td->indices[sector].sector), PRINT_ULL(search));
+				}
+			}
+		}
+	}
+
+	if(first_device)
+	{
+		//Start the worker thread which handles all the disk
+		//operations such as reading, writing and all the sector
+		//movements.
+		error = td_start_worker_thread(td);
+		if(error)
+		{
+			printk(KERN_WARNING "tDisk: Error setting up worker thread\n");
+			goto out_putf;
+		}
+	}
+
+	printk(KERN_DEBUG "tDisk: new physical disk %u: size: %llu bytes. Logical size(%llu)\n", header.disk_index+1, size, td->size_blocks*td->blocksize);
 
 	if(!(flags & TD_FLAGS_READ_ONLY) && file->f_op->fsync)
 		blk_queue_flush(td->queue, REQ_FLUSH);
@@ -886,103 +1085,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
  out_putf:
 	fput(file);
  out:
-	if(first_device)
-	{
-		//Release reference to the driver
-		module_put(THIS_MODULE);
-	}
 	return error;
-}
-
-/**
-  * This function removes all the internal devices and makes
-  * it ready to shut down
- **/
-static int td_clear(struct tdisk *td)
-{
-	unsigned int i;
-	struct block_device *bdev = td->block_device;
-
-	if(td->state != state_bound)
-		return -ENXIO;
-
-	/*
-	 * If we've explicitly asked to tear down the tdisk device,
-	 * and it has an elevated reference count, set it for auto-teardown when
-	 * the last reference goes away. This stops $!~#$@ udev from
-	 * preventing teardown because it decided that it needs to run blkid on
-	 * the tdisk device whenever they appear. xfstests is notorious for
-	 * failing tests because blkid via udev races with a losetup
-	 * <dev>/do something like mkfs/losetup -d <dev> causing the losetup -d
-	 * command to fail with EBUSY.
-	 */
-	if(atomic_read(&td->refcount) > 1)
-	{
-		td->flags |= TD_FLAGS_AUTOCLEAR;
-		mutex_unlock(&td->ctl_mutex);
-		return 0;
-	}
-
-	set_capacity(td->kernel_disk, 0);
-
-	//freeze request queue during the transition
-	td_stop_worker_thread(td);
-
-	td->state = state_cleared;
-	td->block_device = NULL;
-
-	if(bdev)
-	{
-		bdput(bdev);
-		invalidate_bdev(bdev);
-
-		//let user-space know about this change
-		bd_set_size(bdev, 0);
-		kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);
-	}
-
-	//Release reference to the driver to make it possible to rmmod
-	module_put(THIS_MODULE);
-
-	if(bdev)td_reread_partitions(td, bdev);
-	td->flags = 0;
-
-	/*
-	 * Need not hold ctl_mutex to fput backing file.
-	 * Calling fput holding ctl_mutex triggers a circular
-	 * lock dependency possibility warning as fput can take
-	 * bd_mutex which is usually taken before ctl_mutex.
-	 */
-	mutex_unlock(&td->ctl_mutex);
-
-	for(i = 0; i < td->internal_devices_count; ++i)
-	{
-		struct file *file = td->internal_devices[i].file;
-		td->internal_devices[i].file = NULL;
-
-		if(file)
-		{
-			struct tdisk_header header = {
-				.disk_index = i,
-				.performance = td->internal_devices[i].performance,
-			};
-			gfp_t gfp = td->internal_devices[i].old_gfp_mask;
-
-			//Write current performance and index values to file
-			td_write_header(file, &header, NULL);
-			td_write_all_indices(td, file, NULL);
-
-			mapping_set_gfp_mask(file->f_mapping, gfp);
-
-			fput(file);
-		}
-	}
-	td->internal_devices_count = 0;
-	td->state = state_unbound;
-
-	printk(KERN_DEBUG "tDisk: disk %d cleared\n", td->number);
-
-	return 0;
 }
 
 /**
@@ -1105,11 +1208,6 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 	case TDISK_ADD_DISK:
 		err = td_add_disk(td, mode, bdev, arg);
 		break;
-	case TDISK_CLEAR:
-		//td_clear would have unlocked ctl_mutex on success
-		err = td_clear(td);
-		if(!err)goto out_unlocked;
-		break;
 	case TDISK_GET_STATUS:
 		err = td_get_status(td, (struct tdisk_info __user *) arg);
 		break;
@@ -1130,7 +1228,6 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 	}
 	mutex_unlock(&td->ctl_mutex);
 
-out_unlocked:
 	return err;
 }
 
@@ -1146,7 +1243,6 @@ static int td_compat_ioctl(struct block_device *bdev, fmode_t mode, unsigned int
 
 	switch(cmd)
 	{
-	case TDISK_CLEAR:
 	case TDISK_GET_STATUS:
 		arg = (unsigned long)compat_ptr(arg);
 	case TDISK_ADD_DISK:
@@ -1186,32 +1282,11 @@ static int td_open(struct block_device *bdev, fmode_t mode)
 static void td_release(struct gendisk *disk, fmode_t mode)
 {
 	struct tdisk *td = disk->private_data;
-	int err;
 
 	if(atomic_dec_return(&td->refcount))
 		return;
 
-	mutex_lock(&td->ctl_mutex);
-
-	if(td->flags & TD_FLAGS_AUTOCLEAR)
-	{
-		/*
-		 * In autoclear mode, stop the tdisk thread
-		 * and remove configuration after last close.
-		 */
-		err = td_clear(td);
-		if(!err)return;
-	}
-	else
-	{
-		/*
-		 * Otherwise keep thread (if running) and config,
-		 * but flush possible ongoing bios in thread.
-		 */
-		td_flush(td);
-	}
-
-	mutex_unlock(&td->ctl_mutex);
+	td_flush(td);
 }
 
 /**
@@ -1331,12 +1406,15 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 
 		if(td->access_count_resort == 0)
 		{
-			sector_t i;
+			//struct hlist_node *item_safe;
+			//struct sorted_sector_index *item;
+
 			printk(KERN_DEBUG "tDisk: nothing to do anymore. Sorting sectors\n");
-			for(i = 0; i < td->size_blocks; ++i)
-			{
-				td_reorganize_sorted_index(td, i);
-			}
+			//hlist_for_each_entry_safe(item, item_safe, &td->sorted_sectors_head, list)
+			//{
+			//	td_reorganize_sorted_index(td, item-td->sorted_sectors);
+			//}
+			td_reorganize_all_indices(td);
 
 			//Setting to true so that we will always do move operations
 			td->access_count_resort = 1;
@@ -1365,23 +1443,24 @@ static struct blk_mq_ops tdisk_mq_ops = {
 
 /**
   * This function creates a new tDisk with the given
-  * minor number, and blocksize. max_sectors is used
-  * to specify the maximum capacity of the new device
+  * minor number, and blocksize.
  **/
-int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sectors)
+int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 {
 	struct tdisk *td;
 	struct gendisk *disk;
 	int err;
-	sector_t j;
 	unsigned int header_size_byte;
-	unsigned int index_offset_byte;
+
+	if(blocksize == 0 || blocksize % 4096)
+	{
+		printk(KERN_WARNING"tDisk: Failed to add tDisk. blocksize must be a multiple of 4096 but is %u\n", blocksize);
+		return -EINVAL;
+	}
 
 	//Calculate header size which consists
 	//of a header, disk mappings and indices
 	header_size_byte = sizeof(struct tdisk_header);
-	index_offset_byte = header_size_byte;
-	header_size_byte += max_sectors * sizeof(struct sector_index);
 
 	err = -ENOMEM;
 	td = kzalloc(sizeof(struct tdisk), GFP_KERNEL);
@@ -1433,34 +1512,11 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	disk = td->kernel_disk = alloc_disk(1);
 	if(!disk)goto out_free_queue;
 
-	//Allocate disk indices
-	err = -ENOMEM;
 	td->blocksize = blocksize;
-	td->index_offset_byte = index_offset_byte;
-	td->header_size = header_size_byte/blocksize + ((header_size_byte%blocksize == 0) ? 0 : 1);
-	td->indices = vmalloc(td->header_size*td->blocksize - index_offset_byte);
-	if(!td->indices)goto out_free_queue;
-	memset(td->indices, 0, td->header_size*td->blocksize - index_offset_byte);
-	//printk(KERN_DEBUG "tDisk: indices created: %p - %p\n", td->indices, td->indices+td->header_size*td->blocksize);
-
-	//Allocate sorted disk indices
-	td->max_sectors = td->header_size*td->blocksize - td->index_offset_byte;
-	__div64_32(&td->max_sectors, sizeof(struct sector_index));
-	td->sorted_sectors = vmalloc(sizeof(struct sorted_sector_index) * td->max_sectors);
-	if(!td->sorted_sectors)goto out_free_indices;
-	memset(td->sorted_sectors, 0, sizeof(struct sorted_sector_index) * td->max_sectors);
-
-	//Insert sorted indices
-	INIT_HLIST_HEAD(&td->sorted_sectors_head);
-	for(j = 0; j < td->max_sectors; ++j)
-	{
-		INIT_HLIST_NODE(&td->sorted_sectors[j].list);
-		td->indices[j].access_count = 0;
-		td->sorted_sectors[j].physical_sector = &td->indices[j];
-
-		if(j == 0)hlist_add_head(&td->sorted_sectors[j].list, &td->sorted_sectors_head);
-		else hlist_add_behind(&td->sorted_sectors[j].list, &td->sorted_sectors[j-1].list);
-	}
+	td->index_offset_byte = header_size_byte;
+	//td->header_size = header_size_byte/blocksize + ((header_size_byte%blocksize == 0) ? 0 : 1);
+	err = td_set_max_sectors(td, 0);
+	if(err < 0)goto out_free_queue;
 
 	disk->flags |= GENHD_FL_EXT_DEVT;
 	mutex_init(&td->ctl_mutex);
@@ -1472,17 +1528,15 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize, sector_t max_sect
 	disk->fops		= &td_fops;
 	disk->private_data	= td;
 	disk->queue		= td->queue;
-	set_blocksize(td->block_device, blocksize);
+	//set_blocksize(td->block_device, blocksize);	TODO
 	sprintf(disk->disk_name, "td%d", i);
 	add_disk(disk);
 	*t = td;
 
-	printk(KERN_DEBUG "tDisk: new disk %s: max sectors: %llu, blocksize: %u, header size: %u sec\n", disk->disk_name, max_sectors, blocksize, td->header_size);
+	printk(KERN_DEBUG "tDisk: new disk %s: blocksize: %u, header size: %u sec\n", disk->disk_name, blocksize, td->header_size);
 
 	return td->number;
 
-out_free_indices:
-	vfree(td->indices);
 out_free_queue:
 	blk_cleanup_queue(td->queue);
 out_cleanup_tags:
@@ -1499,8 +1553,48 @@ out:
   * This function is called to remove a tDisk.
   * this frees all the resources
  **/
-void tdisk_remove(struct tdisk *td)
+int tdisk_remove(struct tdisk *td)
 {
+	unsigned int i;
+
+	if(atomic_read(&td->refcount) > 0)
+		return -EBUSY;
+
+	if(td->block_device)
+	{
+		bdput(td->block_device);
+		invalidate_bdev(td->block_device);
+	}
+
+	if(td->internal_devices_count)
+		td_stop_worker_thread(td);
+
+	for(i = 0; i < td->internal_devices_count; ++i)
+	{
+		struct file *file = td->internal_devices[i].file;
+		td->internal_devices[i].file = NULL;
+
+		if(file)
+		{
+			struct tdisk_header header = {
+				.disk_index = i,
+				.performance = td->internal_devices[i].performance,
+				.current_max_sectors = td->max_sectors
+			};
+			gfp_t gfp = td->internal_devices[i].old_gfp_mask;
+
+			//Write current performance and index values to file
+			td_write_header(file, &header, NULL);
+			td_write_all_indices(td, file, NULL);
+
+			mapping_set_gfp_mask(file->f_mapping, gfp);
+
+			fput(file);
+		}
+	}
+
+	printk(KERN_DEBUG "tDisk: disk %d removed\n", td->number);
+
 	idr_remove(&td_index_idr, td->number);
 	blk_cleanup_queue(td->queue);
 	del_gendisk(td->kernel_disk);
@@ -1509,6 +1603,8 @@ void tdisk_remove(struct tdisk *td)
 	vfree(td->sorted_sectors);
 	vfree(td->indices);
 	kfree(td);
+
+	return 0;
 }
 
 /**
@@ -1590,8 +1686,7 @@ static int __init tdisk_init(void)
  **/
 static int tdisk_exit_callback(int id, void *ptr, void *data)
 {
-	tdisk_remove((struct tdisk*)ptr);
-	return 0;
+	return tdisk_remove((struct tdisk*)ptr);
 }
 
 /**

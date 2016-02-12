@@ -1,11 +1,19 @@
 
-all: make_ko make_frontend web_interface/tdisk
+all: make_ko make_frontend web_interface/tdisk make_tests
 
 make_ko:
 	make -C kernel_module
 
 make_frontend:
 	make -C frontend
+
+make_tests:
+	make -C tests
+
+disks:
+	sudo dd if=/dev/zero of=slow_disk bs=512 count=1024
+	sudo dd if=/dev/zero of=big_disk bs=1M count=10
+	sudo dd if=/dev/zero of=other_disk bs=1M count=5
 
 web_interface/tdisk: frontend/tdisk
 	cp frontend/tdisk web_interface/tdisk

@@ -8,6 +8,8 @@ SOURCES= \
 	src/frontend_c.c
 
 CPP_SOURCES= \
+	src/configfile.cpp \
+	src/deviceadvisor.cpp \
 	src/frontend.cpp
 	
 

@@ -1,9 +1,10 @@
 #ifndef RESULTFORMATTER_HPP
 #define RESULTFORMATTER_HPP
 
-#include <string>
-#include <vector>
 #include <map>
+#include <string>
+#include <typeinfo>
+#include <vector>
 
 #include <ci_string.hpp>
 #include <utils.hpp>

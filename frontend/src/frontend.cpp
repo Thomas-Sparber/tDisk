@@ -1,6 +1,7 @@
 #include <typeinfo>
 
 #include <configfile.hpp>
+#include <deviceadvisor.hpp>
 #include <frontend.hpp>
 #include <resultformatter.hpp>
 #include <tdisk.hpp>
@@ -216,4 +217,10 @@ string td::load_config_file(const vector<string> &args, const ci_string &outputF
 	}
 
 	return createResultString(cfg, 0, outputFormat);
+}
+
+string td::get_device_advice(const vector<string> &args, const ci_string &outputFormat)
+{
+	vector<advisor::tdisk_advice> advices = advisor::getTDiskAdvices(args);
+	return "";
 }

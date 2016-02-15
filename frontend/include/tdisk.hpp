@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <utils.hpp>
+#include <resultformatter.hpp>
 
 namespace td
 {

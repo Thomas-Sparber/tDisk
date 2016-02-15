@@ -74,6 +74,7 @@ namespace td
 	std::string get_internal_devices_count(const std::vector<std::string> &args, const ci_string &outputFormat);
 	std::string get_device_info(const std::vector<std::string> &args, const ci_string &outputFormat);
 	std::string load_config_file(const std::vector<std::string> &args, const ci_string &outputFormat);
+	std::string get_device_advice(const std::vector<std::string> &args, const ci_string &outputFormat);
 
 } //end namespace td
 

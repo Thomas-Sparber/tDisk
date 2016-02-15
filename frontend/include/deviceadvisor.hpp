@@ -22,6 +22,7 @@ struct device_type
 	const static device_type file;
 	const static device_type raid1;
 	const static device_type raid5;
+	const static device_type raid6;
 
 	operator int() const
 	{
@@ -69,6 +70,7 @@ struct device
 
 	bool isValid() const
 	{
+		if(type == device_type::raid6 && subdevices.size() < 4)return false;
 		if(type == device_type::raid5 && subdevices.size() < 3)return false;
 		if(type == device_type::raid1 && subdevices.size() < 2)return false;
 		return true;

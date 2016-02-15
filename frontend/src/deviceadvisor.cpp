@@ -34,6 +34,7 @@ const advisor::device_type advisor::device_type::partition("partition", getNextN
 const advisor::device_type advisor::device_type::file("file", getNextNumber());
 const advisor::device_type advisor::device_type::raid1("raid1", getNextNumber());
 const advisor::device_type advisor::device_type::raid5("raid5", getNextNumber());
+const advisor::device_type advisor::device_type::raid6("raid6", getNextNumber());
 
 struct device_combination
 {
@@ -134,12 +135,37 @@ vector<advisor::tdisk_advice> advisor::getTDiskAdvices(const vector<string> &fil
 		const device_combination c = combinations.top();
 		combinations.pop();
 
+		if(c.available.size() >= 4)
+		{
+			//Create Raid6
+			for(std::size_t index : c.available)
+			{
+				//Not creating raid devices of raid devices
+				if(devices[index].type == device_type::raid6)continue;
+				if(devices[index].type == device_type::raid5)continue;
+				if(devices[index].type == device_type::raid1)continue;
+
+				device_combination new_c(c);
+				new_c.processed.push_back(index);
+				new_c.available.remove(index);
+
+				device d;
+				d.type = device_type::raid6;
+				d.subdevices.push_back(devices[index]);
+				index = addDevice(d, devices);
+
+				new_c.available.push_back(index);
+				combinations.push(new_c);
+			}
+		}
+
 		if(c.available.size() >= 3)
 		{
 			//Create Raid5
 			for(std::size_t index : c.available)
 			{
 				//Not creating raid devices of raid devices
+				if(devices[index].type == device_type::raid6)continue;
 				if(devices[index].type == device_type::raid5)continue;
 				if(devices[index].type == device_type::raid1)continue;
 
@@ -163,6 +189,7 @@ vector<advisor::tdisk_advice> advisor::getTDiskAdvices(const vector<string> &fil
 			for(std::size_t index : c.available)
 			{
 				//Not creating raid devices of raid devices
+				if(devices[index].type == device_type::raid6)continue;
 				if(devices[index].type == device_type::raid5)continue;
 				if(devices[index].type == device_type::raid1)continue;
 
@@ -183,11 +210,14 @@ vector<advisor::tdisk_advice> advisor::getTDiskAdvices(const vector<string> &fil
 		//Finish raid devices
 		for(std::size_t index : c.available)
 		{
-			if(devices[index].type != device_type::raid5 && devices[index].type != device_type::raid1)continue;
+			if(devices[index].type != device_type::raid6 &&
+				devices[index].type != device_type::raid5 &&
+				devices[index].type != device_type::raid1)continue;
 
 			for(std::size_t new_index : c.available)
 			{
 				//Not creating raid devices of raid devices
+				if(devices[new_index].type == device_type::raid6)continue;
 				if(devices[new_index].type == device_type::raid5)continue;
 				if(devices[new_index].type == device_type::raid1)continue;
 

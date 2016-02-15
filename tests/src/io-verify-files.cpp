@@ -7,6 +7,7 @@
 #include <input_processor.hpp>
 #include <tdisk.hpp>
 #include <test_utils.hpp>
+#include <utils.hpp>
 
 using std::cerr;
 using std::cin;
@@ -47,7 +48,7 @@ int main(int argc, char *args[])
 
 bool writeFile(const string &folder, unsigned long counter, const vector<char> &data)
 {
-	string filename = concat(folder, "/testfile", counter);
+	string filename = td::concat(folder, "/testfile", counter);
 
 	fstream file(filename, std::ios_base::binary | std::ios_base::out);
 	file.write(&data[0], data.size());
@@ -57,7 +58,7 @@ bool writeFile(const string &folder, unsigned long counter, const vector<char> &
 
 bool readFile(const string &folder, unsigned long counter, vector<char> &data)
 {
-	string filename = concat(folder, "/testfile", counter);
+	string filename = td::concat(folder, "/testfile", counter);
 
 	fstream file(filename, std::ios_base::binary | std::ios_base::in);
 	file.read(&data[0], data.size());
@@ -69,7 +70,7 @@ void clearFiles(const string &folder, unsigned long counter)
 {
 	for(unsigned long i = 0; i <= counter; ++i)
 	{
-		string filename = concat(folder, "/testfile", i);
+		string filename = td::concat(folder, "/testfile", i);
 		unlink(filename.c_str());
 	}
 }

@@ -16,7 +16,7 @@ CPP_SOURCES= \
 OBJECTS=$(SOURCES:src/%.c=bin/%.o) $(CPP_SOURCES:src/%.cpp=bin/%.o)
 DEPS=$(OBJECTS:bin/%.o=bin/%.d)
 
-all: tdisk
+all: tdisk bin
 
 -include $(DEPS)
 
@@ -28,11 +28,11 @@ tdisk: libtd-frontend.a bin/main.o
 	@echo "Linking" $@
 	@$(CXX) -o $@ bin/main.o $(LDFLAGS)
 
-bin/%.o: src/%.c bin
+bin/%.o: src/%.c
 	@echo "Compiling" $<
 	@$(CC) -MD $(CFLAGS) -o $@ $<
 
-bin/%.o: src/%.cpp bin
+bin/%.o: src/%.cpp
 	@echo "Compiling" $<
 	@$(CXX) -MD $(CFLAGS) $(CPPFLAGS) -o $@ $<
 

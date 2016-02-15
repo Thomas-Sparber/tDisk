@@ -8,7 +8,7 @@ PROGRAMS= \
 OBJECTS=$(PROGRAMS:%=bin/%.o)
 DEPS=$(PROGRAMS:%=bin/%.d)
 
-all: $(PROGRAMS)
+all: $(PROGRAMS) bin
 
 -include $(DEPS)
 
@@ -20,7 +20,7 @@ $(PROGRAMS): $(PROGRAMS:%=bin/%.o)
 	@echo "Linking" $@
 	@$(CXX) -o $@ $(@:%=bin/%.o) $(LDFLAGS)
 
-bin/%.o: src/%.cpp bin
+bin/%.o: src/%.cpp
 	@echo "Compiling" $<
 	@$(CXX) -MD $(CFLAGS) -o $@ $<
 

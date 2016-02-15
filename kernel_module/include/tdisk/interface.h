@@ -22,6 +22,8 @@
  **/
 #define MEASUE_RECORDS_SHIFT 16
 
+#define TDISK_BLOCKSIZE_MOD 4096
+
 /**
   * The data type which is used to store the disk indices.
   * This is very important because it is also stored on the
@@ -30,6 +32,8 @@
   * supports. BUT larger data type means more overhead.
  **/
 typedef __u8 tdisk_index;
+
+#define TDISK_MAX_PHYSICAL_DISKS ((tdisk_index)-1 -1) /*-1 because 0 means unused*/
 
 /*
  * tDisk flags

@@ -39,4 +39,5 @@ C_FUNCTION_IMPLEMENTATION(get_all_sector_indices)
 C_FUNCTION_IMPLEMENTATION(clear_access_count)
 C_FUNCTION_IMPLEMENTATION(get_internal_devices_count)
 C_FUNCTION_IMPLEMENTATION(get_device_info)
+C_FUNCTION_IMPLEMENTATION(load_config_file)
 

@@ -1,5 +1,6 @@
 #include <typeinfo>
 
+#include <configfile.hpp>
 #include <frontend.hpp>
 #include <resultformatter.hpp>
 #include <tdisk.hpp>
@@ -10,94 +11,65 @@ using std::vector;
 namespace td
 {
 
-	template <> string createResultString(const sector_index &index, unsigned int hierarchy, const ci_string &outputFormat)
+	vector<Option> options {
+		Option("output-format", { "text", "json" })
+	};
+
+	void addOption(const Option &option)
 	{
-		if(outputFormat == "json")
-			return concat(
-				"{\n",
-					vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(index, disk, hierarchy+1, outputFormat), ",\n",
-					vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(index, sector, hierarchy+1, outputFormat), ",\n",
-					vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(index, access_count, hierarchy+1, outputFormat), "\n",
-				vector<char>(hierarchy, '\t'), "}"
-			);
-		else if(outputFormat == "text")
-			return concat(
-					CREATE_RESULT_STRING_MEMBER_TEXT(index, disk, hierarchy+1, outputFormat), "\n",
-					CREATE_RESULT_STRING_MEMBER_TEXT(index, sector, hierarchy+1, outputFormat), "\n",
-					CREATE_RESULT_STRING_MEMBER_TEXT(index, access_count, hierarchy+1, outputFormat), "\n"
-			);
+		if(optionExists(option.name))
+			getOption(option.name) = option;
 		else
-			throw FrontendException("Invalid output-format ", outputFormat);
+			options.push_back(option);
+	}
+	
+	bool optionExists(const ci_string &name)
+	{
+		for(const Option &option : options)
+		{
+			if(option.name == name)
+				return true;
+		}
+
+		return false;
 	}
 
-	template <> string createResultString(const sector_info &info, unsigned int hierarchy, const ci_string &outputFormat)
+	Option& getOption(const ci_string &name)
 	{
-		if(outputFormat == "json")
-			return concat(
-				"{\n",
-					vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(info, logical_sector, hierarchy+1, outputFormat), ",\n",
-					vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(info, access_sorted_index, hierarchy+1, outputFormat), ",\n",
-					vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(info, physical_sector, hierarchy+1, outputFormat), "\n",
-				vector<char>(hierarchy, '\t'), "}"
-			);
-		else if(outputFormat == "text")
-			return concat(
-					CREATE_RESULT_STRING_MEMBER_TEXT(info, logical_sector, hierarchy+1, outputFormat), "\n",
-					CREATE_RESULT_STRING_MEMBER_TEXT(info, access_sorted_index, hierarchy+1, outputFormat), "\n",
-					createResultString(info.physical_sector, hierarchy+1, outputFormat), "\n"
-			);
-		else
-			throw FrontendException("Invalid output-format ", outputFormat);
+		for(Option &option : options)
+		{
+			if(option.name == name)
+				return option;
+		}
+
+		throw FrontendException("Option \"", name ,"\" is not set");
 	}
 
-	template <> string createResultString(const device_performance &perf, unsigned int hierarchy, const ci_string &outputFormat)
+	ci_string getOptionValue(const ci_string &name)
 	{
-		double avg_read_dec		= (double)perf.mod_avg_read / (1 << MEASUE_RECORDS_SHIFT);
-		double stdev_read_dec	= (double)perf.mod_stdev_write / (1 << MEASUE_RECORDS_SHIFT);
-		double avg_write_dec	= (double)perf.mod_avg_write / (1 << MEASUE_RECORDS_SHIFT);
-		double stdev_write_dec	= (double)perf.mod_stdev_write / (1 << MEASUE_RECORDS_SHIFT);
-
-		double avg_read_time_cycles = (double)perf.avg_read_time_cycles			+ avg_read_dec;
-		double stdev_read_time_cycles = (double)perf.stdev_read_time_cycles		+ stdev_read_dec;
-		double avg_write_time_cycles = (double)perf.avg_write_time_cycles		+ avg_write_dec;
-		double stdev_write_time_cycles = (double)perf.stdev_write_time_cycles	+ stdev_write_dec;
-
-		if(outputFormat == "json")
-			return concat(
-				"{\n",
-					vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_NONMEMBER_JSON(avg_read_time_cycles, hierarchy+1, outputFormat), ",\n",
-					vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_NONMEMBER_JSON(stdev_read_time_cycles, hierarchy+1, outputFormat), ",\n",
-					vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_NONMEMBER_JSON(avg_write_time_cycles, hierarchy+1, outputFormat), ",\n",
-					vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_NONMEMBER_JSON(stdev_write_time_cycles, hierarchy+1, outputFormat), "\n",
-				vector<char>(hierarchy, '\t'), "}"
-			);
-		else if(outputFormat == "text")
-			return concat(
-					CREATE_RESULT_STRING_NONMEMBER_TEXT(avg_read_time_cycles, hierarchy+1, outputFormat), "\n",
-					CREATE_RESULT_STRING_NONMEMBER_TEXT(stdev_read_time_cycles, hierarchy+1, outputFormat), "\n",
-					CREATE_RESULT_STRING_NONMEMBER_TEXT(avg_write_time_cycles, hierarchy+1, outputFormat), "\n",
-					CREATE_RESULT_STRING_NONMEMBER_TEXT(stdev_write_time_cycles, hierarchy+1, outputFormat), "\n"
-			);
-		else
-			throw FrontendException("Invalid output-format ", outputFormat);
+		return getOption(name).value;
 	}
 
-	template <> string createResultString(const internal_device_info &info, unsigned int hierarchy, const ci_string &outputFormat)
+	void setOptionValue(const ci_string &name, const ci_string &value)
 	{
-		if(outputFormat == "json")
-			return concat(
-				"{\n",
-					vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(info, disk, hierarchy+1, outputFormat), ",\n",
-					vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(info, performance, hierarchy+1, outputFormat), "\n",
-				vector<char>(hierarchy, '\t'), "}"
-			);
-		else if(outputFormat == "text")
-			return concat(
-					CREATE_RESULT_STRING_MEMBER_TEXT(info, disk, hierarchy+1, outputFormat), "\n",
-					createResultString(info.performance, hierarchy+1, outputFormat), "\n"
-			);
-		else
-			throw FrontendException("Invalid output-format ", outputFormat);
+		Option &o = getOption(name);
+
+		if(!o.values.empty())
+		{
+			bool valueFound = false;
+			for(const ci_string &v : o.values)
+			{
+				if(v == value)
+				{
+					valueFound = true;
+					break;
+				}
+			}
+
+			if(!valueFound)
+				throw FrontendException("Invalid value \"", value ,"\" for option ", name);
+		}
+		o.value = value;
 	}
 
 } //end namespace td
@@ -217,4 +189,31 @@ string td::get_device_info(const vector<string> &args, const ci_string &outputFo
 	tDisk d = tDisk::get(args[0]);
 	internal_device_info info = d.getDeviceInfo((tdisk_index)device);
 	return createResultString(info, 0, outputFormat);
+}
+
+string td::load_config_file(const vector<string> &args, const ci_string &outputFormat)
+{
+	if(args.empty())throw FrontendException("\"load_config_file\" needs at least one donfig file to load\n");
+
+	configuration cfg;
+	for(std::size_t i = 0; i < args.size(); ++i)
+	{
+		struct configuration config = loadConfiguration(args[i]);
+		cfg.merge(config);
+	}
+
+	for(const tdisk_global_option &option : cfg.global_options)
+		setOptionValue(option.name, option.value);
+
+	for(const tdisk_config &config : cfg.tdisks)
+	{
+		tDisk disk;
+		if(config.minornumber < 0)disk = tDisk::create(config.blocksize);
+		else disk = tDisk::create(config.minornumber, config.blocksize);
+
+		for(const string device : config.devices)
+			disk.addDisk(device);
+	}
+
+	return createResultString(cfg, 0, outputFormat);
 }

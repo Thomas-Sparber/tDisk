@@ -282,6 +282,96 @@ private:
 
 }; //end class tDisk
 
+template <> inline std::string createResultString(const sector_index &index, unsigned int hierarchy, const ci_string &outputFormat)
+{
+	if(outputFormat == "json")
+		return concat(
+			"{\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(index, disk, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(index, sector, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(index, access_count, hierarchy+1, outputFormat), "\n",
+			std::vector<char>(hierarchy, '\t'), "}"
+		);
+	else if(outputFormat == "text")
+		return concat(
+				CREATE_RESULT_STRING_MEMBER_TEXT(index, disk, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_MEMBER_TEXT(index, sector, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_MEMBER_TEXT(index, access_count, hierarchy+1, outputFormat), "\n"
+		);
+	else
+		throw FormatException("Invalid output-format ", outputFormat);
+}
+
+template <> inline std::string createResultString(const sector_info &info, unsigned int hierarchy, const ci_string &outputFormat)
+{
+	if(outputFormat == "json")
+		return concat(
+			"{\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(info, logical_sector, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(info, access_sorted_index, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(info, physical_sector, hierarchy+1, outputFormat), "\n",
+			std::vector<char>(hierarchy, '\t'), "}"
+		);
+	else if(outputFormat == "text")
+		return concat(
+				CREATE_RESULT_STRING_MEMBER_TEXT(info, logical_sector, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_MEMBER_TEXT(info, access_sorted_index, hierarchy+1, outputFormat), "\n",
+				createResultString(info.physical_sector, hierarchy+1, outputFormat), "\n"
+		);
+	else
+		throw FormatException("Invalid output-format ", outputFormat);
+}
+
+template <> inline std::string createResultString(const device_performance &perf, unsigned int hierarchy, const ci_string &outputFormat)
+{
+	double avg_read_dec		= (double)perf.mod_avg_read / (1 << MEASUE_RECORDS_SHIFT);
+	double stdev_read_dec	= (double)perf.mod_stdev_write / (1 << MEASUE_RECORDS_SHIFT);
+	double avg_write_dec	= (double)perf.mod_avg_write / (1 << MEASUE_RECORDS_SHIFT);
+	double stdev_write_dec	= (double)perf.mod_stdev_write / (1 << MEASUE_RECORDS_SHIFT);
+
+	double avg_read_time_cycles = (double)perf.avg_read_time_cycles			+ avg_read_dec;
+	double stdev_read_time_cycles = (double)perf.stdev_read_time_cycles		+ stdev_read_dec;
+	double avg_write_time_cycles = (double)perf.avg_write_time_cycles		+ avg_write_dec;
+	double stdev_write_time_cycles = (double)perf.stdev_write_time_cycles	+ stdev_write_dec;
+
+	if(outputFormat == "json")
+		return concat(
+			"{\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_NONMEMBER_JSON(avg_read_time_cycles, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_NONMEMBER_JSON(stdev_read_time_cycles, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_NONMEMBER_JSON(avg_write_time_cycles, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_NONMEMBER_JSON(stdev_write_time_cycles, hierarchy+1, outputFormat), "\n",
+			std::vector<char>(hierarchy, '\t'), "}"
+		);
+	else if(outputFormat == "text")
+		return concat(
+				CREATE_RESULT_STRING_NONMEMBER_TEXT(avg_read_time_cycles, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_NONMEMBER_TEXT(stdev_read_time_cycles, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_NONMEMBER_TEXT(avg_write_time_cycles, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_NONMEMBER_TEXT(stdev_write_time_cycles, hierarchy+1, outputFormat), "\n"
+		);
+	else
+		throw FormatException("Invalid output-format ", outputFormat);
+}
+
+template <> inline std::string createResultString(const internal_device_info &info, unsigned int hierarchy, const ci_string &outputFormat)
+{
+	if(outputFormat == "json")
+		return concat(
+			"{\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(info, disk, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(info, performance, hierarchy+1, outputFormat), "\n",
+			std::vector<char>(hierarchy, '\t'), "}"
+		);
+	else if(outputFormat == "text")
+		return concat(
+				CREATE_RESULT_STRING_MEMBER_TEXT(info, disk, hierarchy+1, outputFormat), "\n",
+				createResultString(info.performance, hierarchy+1, outputFormat), "\n"
+		);
+	else
+		throw FormatException("Invalid output-format ", outputFormat);
+}
+
 }
 
 #endif //TDISK_HPP

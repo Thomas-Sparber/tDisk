@@ -1452,7 +1452,7 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	int err;
 	unsigned int header_size_byte;
 
-	if(blocksize == 0 || blocksize % 4096)
+	if(blocksize == 0 || blocksize % TDISK_BLOCKSIZE_MOD)
 	{
 		printk(KERN_WARNING"tDisk: Failed to add tDisk. blocksize must be a multiple of 4096 but is %u\n", blocksize);
 		return -EINVAL;

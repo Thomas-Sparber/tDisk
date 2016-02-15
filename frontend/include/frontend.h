@@ -10,5 +10,6 @@ int get_all_sector_indices(int argc, char *args[], char *format, char *out, int 
 int clear_access_count(int argc, char *args[], char *format, char *out, int out_length);
 int get_internal_devices_count(int argc, char *args[], char *format, char *out, int out_length);
 int get_device_info(int argc, char *args[], char *format, char *out, int out_length);
+int load_config_file(int argc, char *args[], char *format, char *out, int out_length);
 
 #endif //FRONTEND_H

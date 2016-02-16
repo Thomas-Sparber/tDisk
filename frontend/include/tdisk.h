@@ -8,6 +8,8 @@
 #ifndef TDISK_H
 #define TDISK_H
 
+#include <stdint.h>
+
 #define EDRVNTLD 1234
 #define ENOPERM 1235
 

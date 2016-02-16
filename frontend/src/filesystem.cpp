@@ -1,4 +1,5 @@
 #include <atomic>
+#include <string.h>
 
 #ifdef __linux__
 #include <fcntl.h>
@@ -32,7 +33,7 @@ const fs::device_type fs::device_type::raid6("raid6", getNextNumber());
 
 #ifdef __linux__
 
-device fs::getDevice(const string &name)
+fs::device fs::getDevice(const string &name)
 {
 	device device;
 

@@ -27,6 +27,39 @@
 
 #define CONTROL_FILE "/dev/td-control"
 
+inline static void set_sector_index(struct f_sector_index *target, const struct sector_index *source)
+{
+	target->disk = source->disk;
+	target->sector = source->sector;
+	target->access_count = source->access_count;
+}
+
+inline static void set_sector_info(struct f_sector_info *target, const struct sector_info *source)
+{
+	target->logical_sector = source->logical_sector;
+	target->access_sorted_index = source->access_sorted_index;
+	set_sector_index(&target->physical_sector, &source->physical_sector);
+}
+
+inline static void set_device_performance(struct f_device_performance *target, const struct device_performance *source)
+{
+	target->avg_read_time_cycles = source->avg_read_time_cycles;
+	target->stdev_read_time_cycles = source->stdev_read_time_cycles;
+	target->avg_write_time_cycles = source->avg_write_time_cycles;
+	target->stdev_write_time_cycles = source->stdev_write_time_cycles;
+
+	target->mod_avg_read = source->mod_avg_read;
+	target->mod_stdev_read = source->mod_stdev_read;
+	target->mod_avg_write = source->mod_avg_write;
+	target->mod_stdev_write = source->mod_stdev_write;
+}
+
+inline static void set_internal_device_info(struct f_internal_device_info *target, const struct internal_device_info *source)
+{
+	target->disk = source->disk;
+	set_device_performance(&target->performance, &source->performance);
+}
+
 int check_td_control()
 {
 	return (access(CONTROL_FILE, F_OK) != -1);
@@ -214,7 +247,7 @@ int tdisk_get_sector_index(const char *device, uint64_t logical_sector, struct f
 
 	temp.sector = logical_sector;
 	ret = ioctl(dev, TDISK_GET_SECTOR_INDEX, &temp);
-	(*out) = temp;
+	set_sector_index(out, &temp);
 
 	close(dev);
 
@@ -223,10 +256,10 @@ int tdisk_get_sector_index(const char *device, uint64_t logical_sector, struct f
 
 int tdisk_get_all_sector_indices(const char *device, struct f_sector_info *out, uint64_t size)
 {
-	int i;
+	uint64_t i;
 	int dev;
 	int ret;
-	struct sector_info *temp = malloc(sizeof(struct sector_info) * size);
+	struct sector_info *temp = malloc((size_t)(sizeof(struct sector_info) * size));
 	if(!temp)return -ENOMEM;
 
 	if(!check_td_control())
@@ -245,7 +278,7 @@ int tdisk_get_all_sector_indices(const char *device, struct f_sector_info *out, 
 	ret = ioctl(dev, TDISK_GET_ALL_SECTOR_INDICES, temp);
 	
 	for(i = 0; i < size; ++i)
-		out[i] = temp[i];
+		set_sector_info(&out[i], &temp[i]);
 
 	free(temp);
 
@@ -290,7 +323,7 @@ int tdisk_get_internal_devices_count(const char *device, unsigned int *out)
 	return ret;
 }
 
-int tdisk_get_device_info(const char *device, tdisk_index disk, struct internal_device_info *out)
+int tdisk_get_device_info(const char *device, unsigned int disk, struct f_internal_device_info *out)
 {
 	int dev;
 	int ret;
@@ -301,16 +334,16 @@ int tdisk_get_device_info(const char *device, tdisk_index disk, struct internal_
 	dev = open(device, O_RDWR);
 	if(dev < 0)return -ENOPERM;
 
-	temp.disk = disk;
+	temp.disk = (tdisk_index)disk;
 	ret = ioctl(dev, TDISK_GET_DEVICE_INFO, &temp);
-	(*out) = temp;
+	set_internal_device_info(out, &temp);
 
 	close(dev);
 
 	return ret;
 }
 
-unsigned int get_measure_recores_shift()
+unsigned int get_measure_records_shift()
 {
 	return MEASURE_RECORDS_SHIFT;
 }

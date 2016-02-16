@@ -5,6 +5,7 @@ CPPFLAGS=-std=c++11 -Weffc++
 LDFLAGS=-L. -ltd-frontend
 SOURCES= \
 	src/tdisk.c \
+	src/tdisk_fake.c \
 	src/frontend_c.c
 
 CPP_SOURCES= \

@@ -650,7 +650,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
  **/
 static void td_reread_partitions(struct tdisk *td, struct block_device *bdev)
 {
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4,1,14)
 	int rc;
 
 	/**

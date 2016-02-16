@@ -16,17 +16,17 @@
   * Calculates the amount of measured records-1
   * @see file_update_performance
  **/
-#define PREVIOUS_RECORDS ((1 << MEASUE_RECORDS_SHIFT) - 1)
+#define PREVIOUS_RECORDS ((1 << MEASURE_RECORDS_SHIFT) - 1)
 
 /**
   * If the performance of ONE operation was measured
   * the reult is normally very low (e.g. 3 cycles) because
-  * it was averaged over the last (1 << MEASUE_RECORDS_SHIFT)
+  * it was averaged over the last (1 << MEASURE_RECORDS_SHIFT)
   * operations.
   * This macro calculates the time back to the actual amount
   * of cycles.
  **/
-#define TIME_ONE_VALUE(val, mod) (val * (1 << MEASUE_RECORDS_SHIFT) + mod)
+#define TIME_ONE_VALUE(val, mod) (val * (1 << MEASURE_RECORDS_SHIFT) + mod)
 
 /**
   * Returns whether the given file is a tDisk
@@ -78,7 +78,7 @@ inline static int file_flush(struct file *file)
   * This function updates the performance data
   * of the given device. Actually it calculates
   * the average and standard deviation over the
-  * last (1 << MEASUE_RECORDS_SHIFT) requests
+  * last (1 << MEASURE_RECORDS_SHIFT) requests
  **/
 inline static void file_update_performance(struct file *file, int direction, cycles_t time, struct device_performance *perf)
 {
@@ -105,9 +105,9 @@ inline static void file_update_performance(struct file *file, int direction, cyc
 		perf->stdev_read_time_cycles += diff + perf->mod_stdev_read;
 
 		perf->mod_avg_read = perf->avg_read_time_cycles & PREVIOUS_RECORDS;
-		perf->avg_read_time_cycles = perf->avg_read_time_cycles >> MEASUE_RECORDS_SHIFT;
+		perf->avg_read_time_cycles = perf->avg_read_time_cycles >> MEASURE_RECORDS_SHIFT;
 		perf->mod_stdev_read = perf->stdev_read_time_cycles & PREVIOUS_RECORDS;
-		perf->stdev_read_time_cycles = perf->stdev_read_time_cycles >> MEASUE_RECORDS_SHIFT;
+		perf->stdev_read_time_cycles = perf->stdev_read_time_cycles >> MEASURE_RECORDS_SHIFT;
 		break;
 	case WRITE:
 		//Avg difference
@@ -124,9 +124,9 @@ inline static void file_update_performance(struct file *file, int direction, cyc
 		perf->stdev_write_time_cycles += diff + perf->mod_stdev_write;
 
 		perf->mod_avg_write = perf->avg_write_time_cycles & PREVIOUS_RECORDS;
-		perf->avg_write_time_cycles = perf->avg_write_time_cycles >> MEASUE_RECORDS_SHIFT;
+		perf->avg_write_time_cycles = perf->avg_write_time_cycles >> MEASURE_RECORDS_SHIFT;
 		perf->mod_stdev_write = perf->stdev_write_time_cycles & PREVIOUS_RECORDS;
-		perf->stdev_write_time_cycles = perf->stdev_write_time_cycles >> MEASUE_RECORDS_SHIFT;
+		perf->stdev_write_time_cycles = perf->stdev_write_time_cycles >> MEASURE_RECORDS_SHIFT;
 		break;
 	}
 }

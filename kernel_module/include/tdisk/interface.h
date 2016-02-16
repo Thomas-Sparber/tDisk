@@ -20,7 +20,7 @@
   * this value must be seen as a bit shift value. e.g
   * (1 << MEASUE_RECORDS_SHIFT) --> (1 << 16) = 65536
  **/
-#define MEASUE_RECORDS_SHIFT 16
+#define MEASURE_RECORDS_SHIFT 16
 
 #define TDISK_BLOCKSIZE_MOD 4096
 

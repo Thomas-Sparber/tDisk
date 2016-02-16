@@ -12,6 +12,7 @@ slow_disk
 big_disk
 other_disk
 frontend/tdisk
+frontend/tdisk.exe
 web_interface/tdisk
 documentation/kernel_module/html
 documentation/kernel_module/doxygen_sqlite3.db
@@ -23,4 +24,4 @@ tests/io-verify
 tests/io-verify-files
 tests/random-ios
 **/node_modules
-**npm_debug.log
+**/npm-debug.log

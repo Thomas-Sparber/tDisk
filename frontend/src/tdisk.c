@@ -1,3 +1,7 @@
+//This file contains basic communication functions to the linux kernel
+//and is only available in linux
+#ifdef __linux__
+
 /**
   *
   * tDisk Driver
@@ -18,6 +22,8 @@
 #include <dirent.h>
 #include <string.h>
 #include <stdlib.h>
+
+#include <tdisk/interface.h>
 
 #define CONTROL_FILE "/dev/td-control"
 
@@ -176,7 +182,7 @@ int tdisk_add_disk(const char *device, const char *new_disk)
 	return ret;
 }
 
-int tdisk_get_max_sectors(const char *device, __u64 *out)
+int tdisk_get_max_sectors(const char *device, uint64_t *out)
 {
 	int dev;
 	int ret;
@@ -195,35 +201,53 @@ int tdisk_get_max_sectors(const char *device, __u64 *out)
 	return ret;
 }
 
-int tdisk_get_sector_index(const char *device, __u64 logical_sector, struct sector_index *out)
+int tdisk_get_sector_index(const char *device, uint64_t logical_sector, struct f_sector_index *out)
 {
 	int dev;
 	int ret;
+	struct sector_index temp;
 
 	if(!check_td_control())return -EDRVNTLD;
 
 	dev = open(device, O_RDWR);
 	if(dev < 0)return -ENOPERM;
 
-	out->sector = logical_sector;
-	ret = ioctl(dev, TDISK_GET_SECTOR_INDEX, out);
+	temp.sector = logical_sector;
+	ret = ioctl(dev, TDISK_GET_SECTOR_INDEX, &temp);
+	(*out) = temp;
 
 	close(dev);
 
 	return ret;
 }
 
-int tdisk_get_all_sector_indices(const char *device, struct sector_info *out)
+int tdisk_get_all_sector_indices(const char *device, struct f_sector_info *out, uint64_t size)
 {
+	int i;
 	int dev;
 	int ret;
+	struct sector_info *temp = malloc(sizeof(struct sector_info) * size);
+	if(!temp)return -ENOMEM;
 
-	if(!check_td_control())return -EDRVNTLD;
+	if(!check_td_control())
+	{
+		free(temp);
+		return -EDRVNTLD;
+	}
 
 	dev = open(device, O_RDWR);
-	if(dev < 0)return -ENOPERM;
+	if(dev < 0)
+	{
+		free(temp);
+		return -ENOPERM;
+	}
 
-	ret = ioctl(dev, TDISK_GET_ALL_SECTOR_INDICES, out);
+	ret = ioctl(dev, TDISK_GET_ALL_SECTOR_INDICES, temp);
+	
+	for(i = 0; i < size; ++i)
+		out[i] = temp[i];
+
+	free(temp);
 
 	close(dev);
 
@@ -247,7 +271,7 @@ int tdisk_clear_access_count(const char *device)
 	return ret;
 }
 
-int tdisk_get_internal_devices_count(const char *device, tdisk_index *out)
+int tdisk_get_internal_devices_count(const char *device, unsigned int *out)
 {
 	int dev;
 	int ret;
@@ -270,16 +294,35 @@ int tdisk_get_device_info(const char *device, tdisk_index disk, struct internal_
 {
 	int dev;
 	int ret;
+	struct internal_device_info temp;
 
 	if(!check_td_control())return -EDRVNTLD;
 
 	dev = open(device, O_RDWR);
 	if(dev < 0)return -ENOPERM;
 
-	out->disk = disk;
-	ret = ioctl(dev, TDISK_GET_DEVICE_INFO, out);
+	temp.disk = disk;
+	ret = ioctl(dev, TDISK_GET_DEVICE_INFO, &temp);
+	(*out) = temp;
 
 	close(dev);
 
 	return ret;
 }
+
+unsigned int get_measure_recores_shift()
+{
+	return MEASURE_RECORDS_SHIFT;
+}
+
+unsigned int get_tdisk_blocksize_mod()
+{
+	return TDISK_BLOCKSIZE_MOD;
+}
+
+unsigned int get_tdisk_max_physical_disks()
+{
+	return TDISK_MAX_PHYSICAL_DISKS;
+}
+
+#endif //__linux__

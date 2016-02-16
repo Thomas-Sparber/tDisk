@@ -119,7 +119,6 @@ struct sector_info
   * to user space.
  **/
 struct tdisk_info {
-	//__u64			block_device;		/* ioctl r/o */
 	__u64			max_sectors;		/* ioctl r/o */
 	__u32			number;				/* ioctl r/o */
 	__u32			flags;				/* ioctl r/o */

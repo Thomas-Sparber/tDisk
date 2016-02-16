@@ -104,7 +104,7 @@ const char* getName(const char *it, const char *end, ci_string &out)
 	{
 		if(isspace(*it))continue;
 
-		if(const char *colon = index(it, ':'))
+		if(const char *colon = strchr(it, ':'))
 		{
 			const char *it2 = colon + 1;
 			while(colon > it && isspace(*(colon-1)))colon--;

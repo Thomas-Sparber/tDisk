@@ -25,3 +25,4 @@ tests/io-verify-files
 tests/random-ios
 **/node_modules
 **/npm-debug.log
+web_interface/tdisk_module/build

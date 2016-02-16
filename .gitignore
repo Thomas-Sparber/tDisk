@@ -22,3 +22,5 @@ frontend/libtd-frontend.a
 tests/io-verify
 tests/io-verify-files
 tests/random-ios
+**/node_modules
+**npm_debug.log

@@ -26,11 +26,10 @@ struct tDiskException
 	std::string message;
 }; //end class tDiskException
 
-using c::device_performance;
-using c::internal_device_info;
-using c::sector_index;
-using c::sector_info;
-using c::tdisk_index;
+using c::f_device_performance;
+using c::f_internal_device_info;
+using c::f_sector_index;
+using c::f_sector_info;
 
 class tDisk
 {
@@ -196,7 +195,7 @@ public:
 
 	unsigned long long getMaxSectors() const
 	{
-		c::__u64 maxSectors;
+		uint64_t maxSectors;
 		int ret = c::tdisk_get_max_sectors(name.c_str(), &maxSectors);
 
 		try {
@@ -208,9 +207,9 @@ public:
 		return maxSectors;
 	}
 
-	sector_index getSectorIndex(unsigned long long logicalSector)
+	f_sector_index getSectorIndex(unsigned long long logicalSector)
 	{
-		sector_index index;
+		f_sector_index index;
 		int ret = c::tdisk_get_sector_index(name.c_str(), logicalSector, &index);
 
 		try {
@@ -222,12 +221,12 @@ public:
 		return std::move(index);
 	}
 
-	std::vector<sector_info> getAllSectorIndices() const
+	std::vector<f_sector_info> getAllSectorIndices() const
 	{
 		unsigned long long max_sectors = getMaxSectors();
 
-		std::vector<sector_info> indices((std::size_t)max_sectors);
-		int ret = c::tdisk_get_all_sector_indices(name.c_str(), &indices[0]);
+		std::vector<f_sector_info> indices((std::size_t)max_sectors);
+		int ret = c::tdisk_get_all_sector_indices(name.c_str(), &indices[0], max_sectors);
 		
 		try {
 			handleError(ret);
@@ -249,9 +248,9 @@ public:
 		}
 	}
 
-	tdisk_index getInternalDevicesCount() const
+	unsigned int getInternalDevicesCount() const
 	{
-		tdisk_index devices;
+		unsigned int devices;
 		int ret = c::tdisk_get_internal_devices_count(name.c_str(), &devices);
 
 		try {
@@ -263,9 +262,9 @@ public:
 		return devices;
 	}
 
-	internal_device_info getDeviceInfo(tdisk_index device) const
+	f_internal_device_info getDeviceInfo(unsigned int device) const
 	{
-		internal_device_info info;
+		f_internal_device_info info;
 		int ret = tdisk_get_device_info(name.c_str(), device, &info);
 
 		try {
@@ -283,7 +282,7 @@ private:
 
 }; //end class tDisk
 
-template <> inline std::string createResultString(const sector_index &index, unsigned int hierarchy, const ci_string &outputFormat)
+template <> inline std::string createResultString(const f_sector_index &index, unsigned int hierarchy, const ci_string &outputFormat)
 {
 	if(outputFormat == "json")
 		return concat(
@@ -303,7 +302,7 @@ template <> inline std::string createResultString(const sector_index &index, uns
 		throw FormatException("Invalid output-format ", outputFormat);
 }
 
-template <> inline std::string createResultString(const sector_info &info, unsigned int hierarchy, const ci_string &outputFormat)
+template <> inline std::string createResultString(const f_sector_info &info, unsigned int hierarchy, const ci_string &outputFormat)
 {
 	if(outputFormat == "json")
 		return concat(
@@ -323,12 +322,12 @@ template <> inline std::string createResultString(const sector_info &info, unsig
 		throw FormatException("Invalid output-format ", outputFormat);
 }
 
-template <> inline std::string createResultString(const device_performance &perf, unsigned int hierarchy, const ci_string &outputFormat)
+template <> inline std::string createResultString(const f_device_performance &perf, unsigned int hierarchy, const ci_string &outputFormat)
 {
-	double avg_read_dec		= (double)perf.mod_avg_read / (1 << MEASUE_RECORDS_SHIFT);
-	double stdev_read_dec	= (double)perf.mod_stdev_write / (1 << MEASUE_RECORDS_SHIFT);
-	double avg_write_dec	= (double)perf.mod_avg_write / (1 << MEASUE_RECORDS_SHIFT);
-	double stdev_write_dec	= (double)perf.mod_stdev_write / (1 << MEASUE_RECORDS_SHIFT);
+	double avg_read_dec		= (double)perf.mod_avg_read / (1 << c::get_measure_records_shift());
+	double stdev_read_dec	= (double)perf.mod_stdev_write / (1 << c::get_measure_records_shift());
+	double avg_write_dec	= (double)perf.mod_avg_write / (1 << c::get_measure_records_shift());
+	double stdev_write_dec	= (double)perf.mod_stdev_write / (1 << c::get_measure_records_shift());
 
 	double avg_read_time_cycles = (double)perf.avg_read_time_cycles			+ avg_read_dec;
 	double stdev_read_time_cycles = (double)perf.stdev_read_time_cycles		+ stdev_read_dec;
@@ -355,7 +354,7 @@ template <> inline std::string createResultString(const device_performance &perf
 		throw FormatException("Invalid output-format ", outputFormat);
 }
 
-template <> inline std::string createResultString(const internal_device_info &info, unsigned int hierarchy, const ci_string &outputFormat)
+template <> inline std::string createResultString(const f_internal_device_info &info, unsigned int hierarchy, const ci_string &outputFormat)
 {
 	if(outputFormat == "json")
 		return concat(

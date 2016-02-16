@@ -18,7 +18,6 @@ using std::stringstream;
 using std::vector;
 
 using td::FrontendException;
-using td::tdisk_index;
 
 const char* loadTDisk(const char *it, const char *end, td::tdisk_config &out);
 const char* loadOption(const ci_string &name, const char *it, const char *end, td::tdisk_global_option &out);
@@ -273,12 +272,12 @@ const char* loadTDisk(const char *it, const char *end, td::tdisk_config &out)
 	//for(const string device: out.devices)
 	//	cout<<"   - "<<device<<endl;
 
-	if(out.blocksize == 0 || out.blocksize % TDISK_BLOCKSIZE_MOD)
-		throw FrontendException("blocksize must be a multiple of ", TDISK_BLOCKSIZE_MOD);
+	if(out.blocksize == 0 || out.blocksize % td::c::get_tdisk_blocksize_mod())
+		throw FrontendException("blocksize must be a multiple of ", td::c::get_tdisk_blocksize_mod());
 	if(out.devices.empty())
 		throw FrontendException("Please specify at least one device");
-	if(out.devices.size() > TDISK_MAX_PHYSICAL_DISKS)
-		throw FrontendException("Exceeded maximum number (", TDISK_MAX_PHYSICAL_DISKS,") of internal devices: ", out.devices.size());
+	if(out.devices.size() > td::c::get_tdisk_max_physical_disks())
+		throw FrontendException("Exceeded maximum number (", td::c::get_tdisk_max_physical_disks(),") of internal devices: ", out.devices.size());
 
 	return end+1;
 }

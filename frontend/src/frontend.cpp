@@ -144,7 +144,7 @@ string td::get_sector_index(const vector<string> &args, const ci_string &outputF
 	if(test != args[1].c_str() + args[1].length())throw FrontendException(args[1], " is not a valid number");
 
 	tDisk d = tDisk::get(args[0]);
-	sector_index index = d.getSectorIndex(logicalSector);
+	f_sector_index index = d.getSectorIndex(logicalSector);
 	return createResultString(index, 0, outputFormat);
 }
 
@@ -153,7 +153,7 @@ string td::get_all_sector_indices(const vector<string> &args, const ci_string &o
 	if(args.empty())throw FrontendException("\"get_all_sector_indices\" needs the td device");
 
 	tDisk d = tDisk::get(args[0]);
-	vector<sector_info> sectorIndices = d.getAllSectorIndices();
+	vector<f_sector_info> sectorIndices = d.getAllSectorIndices();
 	return createResultString(sectorIndices, 0, outputFormat);
 }
 
@@ -171,7 +171,7 @@ string td::get_internal_devices_count(const vector<string> &args, const ci_strin
 	if(args.empty())throw FrontendException("\"get_internal_device_count\" needs the td device\n");
 
 	tDisk d = tDisk::get(args[0]);
-	tdisk_index devices = d.getInternalDevicesCount();
+	unsigned int devices = d.getInternalDevicesCount();
 	return createResultString(devices, 0, outputFormat);
 }
 
@@ -180,15 +180,12 @@ string td::get_device_info(const vector<string> &args, const ci_string &outputFo
 	if(args.size() < 2)throw FrontendException("\"get_device_info\" needs the td device and the device to retrieve infos for\n");
 
 	char *test;
-	long device = strtol(args[1].c_str(), &test, 10);
+	unsigned int device = strtol(args[1].c_str(), &test, 10);
 	if(test != args[1].c_str() + args[1].length())
 		throw FrontendException("Invalid number ", args[1], " for device index");
 
-	if(device != (tdisk_index)device)
-		throw FrontendException("Device index ", device, " exceeds limit of devices");
-
 	tDisk d = tDisk::get(args[0]);
-	internal_device_info info = d.getDeviceInfo((tdisk_index)device);
+	f_internal_device_info info = d.getDeviceInfo(device);
 	return createResultString(info, 0, outputFormat);
 }
 

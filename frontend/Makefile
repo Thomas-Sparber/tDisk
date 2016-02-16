@@ -10,6 +10,7 @@ SOURCES= \
 CPP_SOURCES= \
 	src/configfile.cpp \
 	src/deviceadvisor.cpp \
+	src/filesystem.cpp \
 	src/frontend.cpp
 	
 

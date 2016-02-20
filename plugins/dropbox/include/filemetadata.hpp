@@ -25,8 +25,15 @@ struct FileMetadata
 		root(),
 		client_mtime(),
 		mime_type(),
-		photo_info({}),
-		video_info ({}),
+		photo_info({
+			{ 0, 0 },
+			""
+		}),
+		video_info ({
+			{ 0, 0 },
+			"",
+			""
+		}),
 		contents(),
 		revision()
 	{

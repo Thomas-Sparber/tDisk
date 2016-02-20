@@ -26,3 +26,6 @@ tests/random-ios
 **/node_modules
 **/npm-debug.log
 web_interface/tdisk_module/build
+plugins/dropbox/dropbox
+plugins/libs/*
+!plugins/libs/clone.sh

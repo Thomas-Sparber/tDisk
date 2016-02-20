@@ -1,5 +1,5 @@
 
-all: make_ko make_frontend web_interface/tdisk make_tests
+all: make_ko make_frontend make_tests make_plugins web_interface/tdisk
 
 make_ko:
 	make -C kernel_module
@@ -9,6 +9,9 @@ make_frontend:
 
 make_tests:
 	make -C tests
+
+make_plugins:
+	make -C plugins
 
 disks:
 	sudo dd if=/dev/zero of=slow_disk bs=512 count=1024
@@ -25,3 +28,6 @@ doc:
 clean:
 	make -C kernel_module clean
 	make -C frontend clean
+	make -C tests clean
+	make -C plugins clean
+	rm web_interface/tdisk

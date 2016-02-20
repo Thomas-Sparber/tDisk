@@ -53,7 +53,7 @@ bool writeFile(const string &folder, unsigned long counter, const vector<char> &
 	fstream file(filename, std::ios_base::binary | std::ios_base::out);
 	file.write(&data[0], data.size());
 
-	return file;
+	return static_cast<bool>(file);
 }
 
 bool readFile(const string &folder, unsigned long counter, vector<char> &data)
@@ -63,7 +63,7 @@ bool readFile(const string &folder, unsigned long counter, vector<char> &data)
 	fstream file(filename, std::ios_base::binary | std::ios_base::in);
 	file.read(&data[0], data.size());
 
-	return file;
+	return static_cast<bool>(file);
 }
 
 void clearFiles(const string &folder, unsigned long counter)

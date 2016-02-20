@@ -8,7 +8,7 @@ PROGRAMS= \
 OBJECTS=$(PROGRAMS:%=bin/%.o)
 DEPS=$(PROGRAMS:%=bin/%.d)
 
-all: $(PROGRAMS) bin
+all: bin $(PROGRAMS)
 
 -include $(DEPS)
 

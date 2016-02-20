@@ -13,12 +13,12 @@ CPP_SOURCES= \
 	src/deviceadvisor.cpp \
 	src/filesystem.cpp \
 	src/frontend.cpp
-	
+
 
 OBJECTS=$(SOURCES:src/%.c=bin/%.o) $(CPP_SOURCES:src/%.cpp=bin/%.o)
 DEPS=$(OBJECTS:bin/%.o=bin/%.d)
 
-all: tdisk bin
+all: bin tdisk
 
 -include $(DEPS)
 

@@ -119,7 +119,7 @@ inline std::ostream &operator<<(std::ostream &out, const AccountInfo &info)
 	out<<"\t\t\"quota\": "<<info.quota_info.quota<<","<<std::endl;
 	out<<"\t\t\"normal\": "<<info.quota_info.normal<<""<<std::endl;
 	out<<"\t}"<<std::endl;
-	out<<"}"<<std::endl;
+	out<<"}";
 	return out;
 }
 

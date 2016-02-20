@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include <accountinfo.hpp>
+#include <filemetadata.hpp>
 #include <liboauthcpp/liboauthcpp.h>
 
 class Dropbox
@@ -23,10 +24,20 @@ public:
 
 	std::string downloadFile(const std::string &path, long long start=0, std::size_t length=0) const;
 
+	FileMetadata uploadFile(const std::string &path, const std::string &content);
+
+	void uploadFile(const std::string &path, const std::string &content, long long offset);
+
 private:
 	std::string loadOAuthToken();
 
 	std::string getDropboxSite(const std::string &site, long long start=0, std::size_t length=0) const;
+
+	std::string postDropboxSite(const std::string &site, const std::string &data, long long offset=0) const;
+
+	std::string putDropboxSite(const std::string &site, const std::string &queryParams, const std::string &data) const;
+
+	void handleError(long code, const std::string &response) const;
 
 private:
 	OAuth::Consumer consumer;

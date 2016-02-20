@@ -1,6 +1,7 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include <json/json.h>
 #include <sstream>
 
 template <class S>

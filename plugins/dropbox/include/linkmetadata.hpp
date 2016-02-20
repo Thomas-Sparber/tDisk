@@ -1,17 +1,18 @@
-#ifndef FILEMETADATA_HPP
-#define FILEMETADATA_HPP
+#ifndef LINKMETADATA_HPP
+#define LINKMETADATA_HPP
 
 #include <json/json.h>
 #include <ostream>
 #include <string>
 #include <vector>
 
+#include <filemetadata.hpp>
 #include <jsonutils.hpp>
 
-struct FileMetadata
+struct LinkMetadata
 {
 
-	FileMetadata(const Json::Value &r) :
+	LinkMetadata(const Json::Value &r) :
 		size(),
 		rev(),
 		hash(),
@@ -19,12 +20,14 @@ struct FileMetadata
 		thumb_exists(),
 		modified(),
 		path(),
+		link(),
 		is_dir(),
-		is_deleted(),
+		in_dropbox(),
 		icon(),
 		root(),
 		client_mtime(),
 		mime_type(),
+		visibility(),
 		photo_info({
 			{ 0, 0 },
 			""
@@ -44,12 +47,14 @@ struct FileMetadata
 		extractJson(thumb_exists, r, "thumb_exists");
 		extractJson(modified, r, "modified");
 		extractJson(path, r, "path");
+		extractJson(link, r, "link");
 		extractJson(is_dir, r, "is_dir");
-		extractJsonOptional(is_deleted, r, "is_deleted");
+		extractJson(in_dropbox, r, "in_dropbox");
 		extractJson(icon, r, "icon");
 		extractJson(root, r, "root");
 		extractJson(client_mtime, r, "client_mtime");
 		extractJson(mime_type, r, "mime_type");
+		extractJson(visibility, r, "visibility");
 
 		extractJsonOptional(photo_info.lat_long, r, "photo_info", "lat_long");
 		extractJsonOptional(photo_info.time_taken, r, "photo_info", "time_taken");
@@ -83,14 +88,17 @@ struct FileMetadata
 	//The last time the file was modified on Dropbox, in the standard date format (not included for the root folder). 
 	std::string modified;
 
-	//Returns the canonical path to the file or folder.
+	//Returns the path to the file or folder relative to the shared link's root. If the in_dropbox value is true and the shared link points to a file or folder within the authenticated user's Dropbox, it returns the same path that would be returned by the /metadata endpoint. If the request is made without an authenticated user or the shared link is not in the authenticated user's Dropbox, this will always return null.
 	std::string path;
+
+	//Shared link of the requested file or subfolder.
+	std::string link;
 
 	//Whether the given entry is a folder or not.
 	bool is_dir;
 
-	//Whether the given entry is deleted (only included if deleted files are being returned).
-	bool is_deleted;
+	//Returns true if the file or folder is in the authenticated user's Dropbox. If no access token is passed, then this will always return false.
+	bool in_dropbox;
 
 	//The name of the icon used to illustrate the file type in Dropbox's icon library.
 	std::string icon;
@@ -101,6 +109,9 @@ struct FileMetadata
 	//For files, this is the modification time set by the desktop client when the file was added to Dropbox, in the standard date format. Since this time is not verified (the Dropbox server stores whatever the desktop client sends up), this should only be used for display purposes (such as sorting) and not, for example, to determine if a file has changed or not.
 	std::string client_mtime;
 	std::string mime_type;
+
+	//Visibility of the shared link. Possible values are PUBLIC, TEAM_ONLY, PASSWORD, TEAM_AND_PASSWORD, or SHARED_FOLDER_ONLY, though additional values may be added in the future.
+	std::string visibility;
 
 	//Only returned when the include_media_info parameter is true and the file is an image.
 	struct
@@ -132,24 +143,9 @@ struct FileMetadata
 	//A deprecated field that semi-uniquely identifies a file. Use rev instead.
 	unsigned int revision;
 
-	//TODO
-	/*
-shared_folder
-	This field will be included for shared folders. The value is a dictionary with the field id. If the include_membership parameter is passed, there will additionally be a membership field and a groups field. See /shared_folders for a sample shared folder response.
+}; //end struct LinkMetadata
 
-read_only
-	For shared folders, this field specifies whether the user has read-only access to the folder. For files within a shared folder, this specifies the read-only status of the parent shared folder.
-
-parent_shared_folder_id
-	For files within a shared folder, this field specifies the ID of the containing shared folder.
-
-modifier
-	For files within a shared folder, this field specifies which user last modified this file. The value is a user dictionary with the fields uid (user ID), email, email_verified, display_name, and, if the linked account is a member of a Dropbox for Business team, same_team (whether the user is on the same team as the linked account). If this endpoint is called by a Dropbox for Business app and the user is on that team, a member_id field will also be present in the user dictionary. If the modifying user no longer exists, the value will be null.
-	*/
-
-}; //end struct FileMetadata
-
-inline std::ostream& operator<< (std::ostream &out, const FileMetadata &file)
+inline std::ostream& operator<< (std::ostream &out, const LinkMetadata &file)
 {
 	out<<"{"<<std::endl;
 	out<<"\t\"size\": \""<<file.size<<"\","<<std::endl;
@@ -159,12 +155,14 @@ inline std::ostream& operator<< (std::ostream &out, const FileMetadata &file)
 	out<<"\t\"thumb_exists\": "<<file.thumb_exists<<","<<std::endl;
 	out<<"\t\"modified\": \""<<file.modified<<"\","<<std::endl;
 	out<<"\t\"path\": \""<<file.path<<"\","<<std::endl;
+	out<<"\t\"link\": \""<<file.link<<"\","<<std::endl;
 	out<<"\t\"is_dir\": "<<file.is_dir<<","<<std::endl;
-	out<<"\t\"is_deleted\": "<<file.is_deleted<<","<<std::endl;
+	out<<"\t\"in_dropbox\": "<<file.in_dropbox<<","<<std::endl;
 	out<<"\t\"icon\": \""<<file.icon<<"\","<<std::endl;
 	out<<"\t\"root\": \""<<file.root<<"\","<<std::endl;
 	out<<"\t\"client_mtime\": \""<<file.client_mtime<<"\","<<std::endl;
 	out<<"\t\"mime_type\": \""<<file.mime_type<<"\","<<std::endl;
+	out<<"\t\"visibility\": \""<<file.visibility<<"\","<<std::endl;
 
 	if(!file.photo_info.time_taken.empty())
 	{
@@ -207,4 +205,4 @@ inline std::ostream& operator<< (std::ostream &out, const FileMetadata &file)
 	return out;
 }
 
-#endif //FILEMETADATA_HPP
+#endif //LINKMETADATA_HPP

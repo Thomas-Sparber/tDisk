@@ -7,6 +7,7 @@
 #include <accountinfo.hpp>
 #include <filemetadata.hpp>
 #include <liboauthcpp/liboauthcpp.h>
+#include <linkmetadata.hpp>
 
 class Dropbox
 {
@@ -26,14 +27,18 @@ public:
 
 	FileMetadata uploadFile(const std::string &path, const std::string &content);
 
-	void uploadFile(const std::string &path, const std::string &content, long long offset);
+	FileMetadata uploadFile(const std::string &path, const std::string &content, long long offset);
+
+	FileMetadata getMetadata(const std::string &path) const;
+
+	//LinkMetadata getLink(const std::string &link, bool list=true, bool mediaInfo=false, unsigned int fileLimit=10000) const;
 
 private:
 	std::string loadOAuthToken();
 
 	std::string getDropboxSite(const std::string &site, long long start=0, std::size_t length=0) const;
 
-	std::string postDropboxSite(const std::string &site, const std::string &data, long long offset=0) const;
+	std::string postDropboxSite(const std::string &site, const std::string &data) const;
 
 	std::string putDropboxSite(const std::string &site, const std::string &queryParams, const std::string &data) const;
 

@@ -68,4 +68,11 @@ inline void extractJson(double &out, const Json::Value &v, const std::string &va
 	out = v[value].asDouble();
 }
 
+template <>
+inline void extractJson(uint32_t &out, const Json::Value &v, const std::string &value)
+{
+	if(v[value].type() != Json::uintValue && v[value].type() != Json::intValue)throw DropboxException("Json value ", value, " is not a uint");
+	out = v[value].asUInt();
+}
+
 #endif //JSONUTILS_HPP

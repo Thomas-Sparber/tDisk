@@ -2,6 +2,7 @@
 #include <json/json.h>
 #include <vector>
 
+#include <chunkedupload.hpp>
 #include <curldefinitions.hpp>
 #include <dropbox.hpp>
 #include <dropboxexception.hpp>
@@ -83,29 +84,24 @@ string Dropbox::getDropboxSite(const string &site, long long start, std::size_t 
 	return result;
 }
 
-string Dropbox::postDropboxSite(const string &site, const string &data, long long offset) const
+string Dropbox::postDropboxSite(const string &site, const string &postData) const
 {
-	string oAuthQueryString = oauth.getURLQueryString(OAuth::Http::Post, site);
+	string q = site + (postData.empty() ? "" : "?"+postData);
+	string oAuthQueryString = oauth.getURLQueryString(OAuth::Http::Post, q);
 
-	vector<string> header;
-	if(offset != 0)
-	{
-		header.push_back(concat("Range: bytes=",offset,"-"));
-	}
+	cout<<oAuthQueryString<<endl;
 
 	long code;
 	string contentType;
-	string result = getSite(site+"?"+oAuthQueryString, header, data, code, contentType);
+	string result = getSite(site, oAuthQueryString, code, contentType);
 	handleError(code, result);
 	return result;
 }
 
-string Dropbox::putDropboxSite(const string &site, const std::string &queryParams, const string &data) const
+string Dropbox::putDropboxSite(const string &site, const std::string &getParams, const string &data) const
 {
-	string q = site + (queryParams.empty() ? "" : "?"+queryParams);
+	string q = site + (getParams.empty() ? "" : "?"+getParams);
 	string oAuthQueryString = oauth.getURLQueryString(OAuth::Http::Put, site);
-
-	cout<<site<<"?"<<oAuthQueryString<<endl;
 
 	long code;
 	string contentType;
@@ -124,6 +120,7 @@ void Dropbox::handleError(long code, const string &response) const
 	case 403: throw DropboxException("Bad OAuth request: ", response);
 	case 404: throw DropboxException("File or folder not found at the specified path: ", response);
 	case 405: throw DropboxException("Request method not expected: ", response);
+	case 406: throw DropboxException("Too many file entries to return: ", response);
 	case 409: throw DropboxException("Conflict occurred: ", response);
 	case 411: throw DropboxException("MIssing content length header: ", response);
 	case 429: throw DropboxException("tDisk is making too many requests and is now rate limited: ", response);
@@ -164,15 +161,53 @@ FileMetadata Dropbox::uploadFile(const string &path, const string &content)
 	return std::move(file);
 }
 
-void Dropbox::uploadFile(const string &path, const string &content, long long offset)
+FileMetadata Dropbox::uploadFile(const string &path, const string &content, long long offset)
 {
-	//Json::Value root;
-	//Json::Reader reader;
+	Json::Value root;
+	Json::Reader reader;
 	string response = putDropboxSite(string("https://content.dropboxapi.com/1/chunked_upload"), concat("offset=", offset), content);
 
-	//if(!reader.parse(response, root) || root.type() != Json::objectValue)
-	//	throw DropboxException("Invalid json object for a file metadata");
+	if(!reader.parse(response, root) || root.type() != Json::objectValue)
+		throw DropboxException("Invalid json object for a chunked upload");
 
-	cout<<response<<endl;
-	//return FileMetadata;
+	ChunkedUpload upload(root);
+	root = Json::Value();
+
+	response = postDropboxSite(string("https://content.dropboxapi.com/1/commit_chunked_upload/auto/")+encodeURI(path, false), concat("upload_id=", upload.upload_id));
+
+	if(!reader.parse(response, root) || root.type() != Json::objectValue)
+		throw DropboxException("Invalid json object for a file metadata");
+
+	FileMetadata file(root);
+	return std::move(file);
 }
+
+FileMetadata Dropbox::getMetadata(const std::string &path) const
+{
+	Json::Value root;
+	Json::Reader reader;
+	string response = getDropboxSite(string("https://api.dropboxapi.com/1/metadata/auto/")+encodeURI(path, false));
+
+	if(!reader.parse(response, root) || root.type() != Json::objectValue)
+		throw DropboxException("Invalid json object for a file metadata");
+
+	FileMetadata file(root);
+	return std::move(file);
+}
+
+/*LinkMetadata Dropbox::getLink(const std::string &link, bool list, bool mediaInfo, unsigned int fileLimit) const
+{
+	Json::Value root;
+	Json::Reader reader;
+	string response = postDropboxSite(string("https://api.dropbox.com/1/metadata/link"),
+		concat("link=",link,
+				"&list=",(list?"true":"false"),
+				"&include_media_info=",(mediaInfo?"true":"false"),
+				"&file_limit=",fileLimit));
+
+	if(!reader.parse(response, root) || root.type() != Json::objectValue)
+		throw DropboxException("Invalid json object for a link metadata");
+
+	LinkMetadata l(root);
+	return std::move(l);
+}*/

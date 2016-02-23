@@ -10,9 +10,13 @@ SOURCES= \
 
 CPP_SOURCES= \
 	src/configfile.cpp \
+	src/device.cpp \
 	src/deviceadvisor.cpp \
 	src/filesystem.cpp \
-	src/frontend.cpp
+	src/frontend.cpp \
+	src/option.cpp \
+	src/options.cpp \
+	src/tdisk_advice.cpp
 
 
 OBJECTS=$(SOURCES:src/%.c=bin/%.o) $(CPP_SOURCES:src/%.cpp=bin/%.o)

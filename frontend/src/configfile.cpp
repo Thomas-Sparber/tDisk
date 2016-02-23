@@ -6,7 +6,7 @@
 
 #include <ci_string.hpp>
 #include <configfile.hpp>
-#include <frontend.hpp>
+#include <frontendexception.hpp>
 #include <tdisk.hpp>
 
 using std::cout;
@@ -17,10 +17,10 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
-using td::FrontendException;
+using namespace td;
 
 const char* loadTDisk(const char *it, const char *end, td::tdisk_config &out);
-const char* loadOption(const ci_string &name, const char *it, const char *end, td::tdisk_global_option &out);
+const char* loadOption(const ci_string &name, const char *it, const char *end, td::tdisk_global_option &out, const td::Options &options);
 
 void td::configuration::merge(const configuration &config)
 {
@@ -68,7 +68,7 @@ void td::configuration::addOption(const tdisk_global_option &option)
 	if(!found)global_options.push_back(option);
 }
 
-struct td::configuration td::loadConfiguration(const string &file)
+void configuration::load(const string &file, const td::Options &options)
 {
 	string str;
 	stringstream ss;
@@ -80,21 +80,19 @@ struct td::configuration td::loadConfiguration(const string &file)
 		ss<<str;
 	}
 
-	struct configuration config;
-	process(ss.str(), config);
-	return config;
+	process(ss.str(), options);
 }
 
-void td::saveConfiguration(td::configuration &config, const string &file)
+void configuration::save(const string &file) const
 {
 	fstream out(file, fstream::out);
 
 	out<<"# Auto generated config file by tDisk backend"<<endl<<endl;
 
-	for(const tdisk_global_option &option : config.global_options)
+	for(const tdisk_global_option &option : global_options)
 		out<<createResultString(option, 0, "json")<<endl;
 
-	for(const tdisk_config &tdisk : config.tdisks)
+	for(const tdisk_config &tdisk : tdisks)
 		out<<"tDisk: "<<createResultString(tdisk, 0, "json")<<endl;
 }
 
@@ -125,7 +123,7 @@ const char* getName(const char *it, const char *end, ci_string &out)
 	throw FrontendException("No name found");
 }
 
-void td::process(const string &str, td::configuration &config)
+void configuration::process(const string &str, const td::Options &options)
 {
 	const char *end = str.c_str()+str.length();
 	for(const char *it = str.c_str(); it < end; ++it)
@@ -137,13 +135,13 @@ void td::process(const string &str, td::configuration &config)
 		{
 			td::tdisk_config tdc;
 			it = loadTDisk(it, end, tdc);
-			config.addDevice(std::move(tdc));
+			addDevice(std::move(tdc));
 		}
 		else
 		{
 			td::tdisk_global_option tgo;
-			it = loadOption(name, it, end, tgo);
-			config.addOption(std::move(tgo));
+			it = loadOption(name, it, end, tgo, options);
+			addOption(std::move(tgo));
 		}
 
 		if(it < end && *it == ',')it++;
@@ -282,13 +280,61 @@ const char* loadTDisk(const char *it, const char *end, td::tdisk_config &out)
 	return end+1;
 }
 
-const char* loadOption(const ci_string &name, const char *it, const char *end, td::tdisk_global_option &out)
+const char* loadOption(const ci_string &name, const char *it, const char *end, td::tdisk_global_option &out, const td::Options &options)
 {
-	if(!td::optionExists(name))throw FrontendException("Option ", name, " does not exist!");
+	if(!options.optionExists(name))throw FrontendException("Option ", name, " does not exist!");
 
 	string value;
 	out.name = name;
 	end = getStringValue(it, end, value);
 	out.value = value.c_str();
 	return end;
+}
+
+template <> std::string td::createResultString(const configuration &config, unsigned int hierarchy, const ci_string &outputFormat)
+{
+	if(outputFormat == "json")
+		return concat(
+			"{\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(config, global_options, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(config, tdisks, hierarchy+1, outputFormat), "\n",
+			std::vector<char>(hierarchy, '\t'), "}"
+		);
+	else if(outputFormat == "text")
+		return concat(
+				createResultString(config.global_options, hierarchy+1, outputFormat), "\n",
+				createResultString(config.tdisks, hierarchy+1, outputFormat), "\n"
+		);
+	else
+		throw FormatException("Invalid output-format ", outputFormat);
+}
+
+template <> std::string td::createResultString(const tdisk_global_option &option, unsigned int /*hierarchy*/, const ci_string &outputFormat)
+{
+	if(outputFormat == "json")
+		return concat("\"", option.name, "\": \"", option.value, "\"");
+	else if(outputFormat == "text")
+		return concat(option.name, " = ", option.value);
+	else
+		throw FormatException("Invalid output-format ", outputFormat);
+}
+
+template <> std::string td::createResultString(const tdisk_config &config, unsigned int hierarchy, const ci_string &outputFormat)
+{
+	if(outputFormat == "json")
+		return concat(
+			"{\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(config, minornumber, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(config, blocksize, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(config, devices, hierarchy+1, outputFormat), "\n",
+			std::vector<char>(hierarchy, '\t'), "}"
+		);
+	else if(outputFormat == "text")
+		return concat(
+				CREATE_RESULT_STRING_MEMBER_TEXT(config, minornumber, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_MEMBER_TEXT(config, blocksize, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_MEMBER_TEXT(config, devices, hierarchy+1, outputFormat), "\n"
+		);
+	else
+		throw FormatException("Invalid output-format ", outputFormat);
 }

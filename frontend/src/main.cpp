@@ -7,6 +7,7 @@
 #include <ci_string.hpp>
 #include <tdisk.hpp>
 #include <frontend.hpp>
+#include <frontendexception.hpp>
 
 using std::cerr;
 using std::cout;
@@ -22,9 +23,9 @@ using namespace td;
 
 struct Command
 {
-	Command(const ci_string &str_name, function<string(const vector<string>&,const ci_string&)> fn_func) : name(str_name), func(fn_func) {}
+	Command(const ci_string &str_name, function<string(const vector<string>&,Options&)> fn_func) : name(str_name), func(fn_func) {}
 	ci_string name;
-	function<string(const vector<string>&,const ci_string&)> func;
+	function<string(const vector<string>&,Options&)> func;
 }; //end struct Command
 
 std::string handleCommand(int argc, char **args);
@@ -66,6 +67,7 @@ int main(int argc, char *args[])
 string handleCommand(int argc, char **args)
 {
 	string programName = args[0];
+	td::Options options;
 
 	ci_string option;
 	while(argc > 1 && (option = args[1]).substr(0, 2) == "--")
@@ -76,7 +78,7 @@ string handleCommand(int argc, char **args)
 		ci_string name = option.substr(2, pos-2);
 		ci_string value = option.substr(pos+1);
 
-		setOptionValue(name, value);
+		options.setOptionValue(name, value);
 	}
 
 	if(argc <= 1)
@@ -92,7 +94,7 @@ string handleCommand(int argc, char **args)
 		if(command.name == cmd)
 		{
 			vector<string> v_args(args+2, args+argc);
-			return command.func(v_args, getOptionValue("output-format"));
+			return command.func(v_args, options);
 		}
 	}
 

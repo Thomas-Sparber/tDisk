@@ -17,7 +17,7 @@ using namespace td;
 
 struct device_combination
 {
-	device_combination(const vector<fs::device> *v_devices) :
+	device_combination(const vector<fs::Device> *v_devices) :
 		available(),
 		score(),
 		redundancy_level(),
@@ -31,14 +31,6 @@ struct device_combination
 	device_combination(const device_combination&) = default;
 
 	device_combination& operator= (const device_combination&) = default;
-
-	int getRecommendationSum() const
-	{
-		int sum = 0;
-		for(std::size_t index : available)
-			sum += (*devices)[index].recommendation_score;
-		return sum;
-	}
 
 	bool operator< (const device_combination &other) const
 	{
@@ -59,17 +51,17 @@ struct device_combination
 
 		for(std::size_t index : available)
 		{
-			const fs::device &device = (*devices)[index];
+			const fs::Device &device = (*devices)[index];
 
 			uint64_t minSpace = uint64_t(-1);
-			for(const fs::device &d : device.subdevices)
+			for(const fs::Device &d : device.subdevices)
 			{
 				minSpace = std::min(minSpace, d.size);
 				if(d.type == fs::device_type::file_part)splitted_count++;
 				if(d.type == fs::device_type::blockdevice_part)splitted_count++;
 			}
 
-			for(const fs::device &d : device.subdevices)
+			for(const fs::Device &d : device.subdevices)
 				wasted_space += d.size - minSpace;
 
 			if(device.type == fs::device_type::raid6)redundancy_level = std::min(redundancy_level, 2);
@@ -90,10 +82,10 @@ struct device_combination
 	int score;
 	int redundancy_level;
 	uint64_t wasted_space;
-	const vector<fs::device> *devices;
+	const vector<fs::Device> *devices;
 }; //end struct device_combination
 
-std::size_t addDevice(const fs::device &d, vector<fs::device> &devices)
+std::size_t addDevice(const fs::Device &d, vector<fs::Device> &devices)
 {
 	for(std::size_t i = 0; i < devices.size(); ++i)
 	{
@@ -103,7 +95,7 @@ std::size_t addDevice(const fs::device &d, vector<fs::device> &devices)
 	return devices.size() - 1;
 }
 
-void createNewRaid(const device_combination &c, multiset<device_combination> &combinations, vector<fs::device> &devices, fs::device_type raidType, unsigned int minDevices)
+void createNewRaid(const device_combination &c, multiset<device_combination> &combinations, vector<fs::Device> &devices, fs::device_type raidType, unsigned int minDevices)
 {
 	if(c.available.size() >= minDevices)
 	{
@@ -117,7 +109,7 @@ void createNewRaid(const device_combination &c, multiset<device_combination> &co
 			device_combination new_c(c);
 			new_c.available.remove(index);
 
-			fs::device d;
+			fs::Device d;
 			d.type = raidType;
 			d.subdevices.push_back(devices[index]);
 			index = addDevice(d, devices);
@@ -131,7 +123,7 @@ void createNewRaid(const device_combination &c, multiset<device_combination> &co
 vector<advisor::tdisk_advice> advisor::getTDiskAdvices(const vector<string> &files)
 {
 	vector<tdisk_advice> advices;
-	vector<fs::device> devices;
+	vector<fs::Device> devices;
 
 	for(const string &name : files)
 	{
@@ -170,7 +162,7 @@ vector<advisor::tdisk_advice> advisor::getTDiskAdvices(const vector<string> &fil
 				new_c.available.remove(index);
 				new_c.available.remove(new_index);
 
-				fs::device d = devices[index];
+				fs::Device d = devices[index];
 				d.subdevices.push_back(devices[new_index]);
 				std::size_t new_device = addDevice(d, devices);
 
@@ -180,15 +172,15 @@ vector<advisor::tdisk_advice> advisor::getTDiskAdvices(const vector<string> &fil
 
 				//Try to split device
 				uint64_t minSize = uint64_t(-1);
-				for(const fs::device &dev : devices[index].subdevices)
+				for(const fs::Device &dev : devices[index].subdevices)
 					minSize = std::min(minSize, dev.size);
 
 				if(minSize < devices[new_index].size)
 				{
 					//new_index-device is larger than smallest subdevice
 					// --> It makes sense to split the device
-					fs::device splitted_a = devices[new_index].getSplitted(minSize);
-					fs::device splitted_b = devices[new_index].getSplitted(devices[new_index].size - minSize);
+					fs::Device splitted_a = devices[new_index].getSplitted(minSize);
+					fs::Device splitted_b = devices[new_index].getSplitted(devices[new_index].size - minSize);
 
 					addDevice(splitted_a, devices);
 					std::size_t splitted_index_b = addDevice(splitted_b, devices);
@@ -198,7 +190,7 @@ vector<advisor::tdisk_advice> advisor::getTDiskAdvices(const vector<string> &fil
 					splitted_c.available.remove(new_index);
 					splitted_c.available.push_back(splitted_index_b);
 
-					fs::device splitted_d = devices[index];
+					fs::Device splitted_d = devices[index];
 					splitted_d.subdevices.push_back(splitted_a);
 					std::size_t new_splitted_device = addDevice(splitted_d, devices);
 

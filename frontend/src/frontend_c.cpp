@@ -3,6 +3,8 @@
 #include <string.h>
 
 #include <frontend.hpp>
+#include <frontendexception.hpp>
+#include <options.hpp>
 #include <tdisk.hpp>
 
 extern "C" {
@@ -13,10 +15,11 @@ using std::string;
 using std::vector;
 
 #define C_FUNCTION_IMPLEMENTATION(name) \
-int name(int argc, char *args[], char *format, char *out, int out_length) \
+int name(int argc, char *args[], struct Options *options, char *out, int out_length) \
 { \
 	try { \
-		const string &result = td::name(vector<string>(args, args+argc), format); \
+		td::Options *o = (td::Options*)options; \
+		const string &result = td::name(vector<string>(args, args+argc), *o); \
 		strncpy(out, result.c_str(), out_length); \
 		return 0; \
 	} catch (const td::FrontendException &e) { \

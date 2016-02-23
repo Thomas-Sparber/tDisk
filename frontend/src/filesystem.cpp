@@ -11,6 +11,7 @@
 #endif //__linux__
 
 #include <filesystem.hpp>
+#include <frontendexception.hpp>
 
 using std::string;
 
@@ -33,9 +34,9 @@ const fs::device_type fs::device_type::raid6("raid6", getNextNumber());
 
 #ifdef __linux__
 
-fs::device fs::getDevice(const string &name)
+fs::Device fs::getDevice(const string &name)
 {
-	device device;
+	Device device;
 
 	struct stat info;
 	if(stat(name.c_str(), &info) != 0)
@@ -66,9 +67,9 @@ fs::device fs::getDevice(const string &name)
 
 #else
 
-fs::device fs::getDevice(const string &name)
+fs::Device fs::getDevice(const string &name)
 {
-	fs::device device;
+	fs::Device device;
 	device.name = name;
 
 	if(rand() % 2)

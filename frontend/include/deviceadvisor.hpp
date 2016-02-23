@@ -8,43 +8,13 @@
 #include <filesystem.hpp>
 #include <frontend.hpp>
 #include <resultformatter.hpp>
+#include <tdisk_advice.hpp>
 
 namespace td
 {
 
 namespace advisor
 {
-
-struct tdisk_advice
-{
-	tdisk_advice() :
-		devices(),
-		recommendation_score(),
-		redundancy_level(),
-		wasted_space()
-	{}
-
-	bool operator== (const tdisk_advice &other)
-	{
-		if(devices.size() != other.devices.size())return false;
-
-		for(const fs::device &d : other.devices)
-			if(std::find(devices.begin(), devices.end(), d) == devices.cend())return false;
-
-		return true;
-	}
-
-	bool operator< (const tdisk_advice &other) const
-	{
-		if(recommendation_score == other.recommendation_score)return wasted_space > other.wasted_space;
-		return recommendation_score < other.recommendation_score;
-	}
-
-	std::vector<fs::device> devices;
-	int recommendation_score;
-	int redundancy_level;
-	uint64_t wasted_space;
-}; //end struct tdisk_advice
 
 std::vector<tdisk_advice> getTDiskAdvices(const std::vector<std::string> &files);
 

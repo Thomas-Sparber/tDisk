@@ -2,6 +2,7 @@
 #define UTILS_HPP
 
 #include <sstream>
+#include <vector>
 
 namespace td
 {

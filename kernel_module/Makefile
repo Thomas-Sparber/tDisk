@@ -3,6 +3,7 @@ ccflags-y := -I$(PWD)/../include
 tdisk-objs := \
 	src/tdisk.o \
 	src/tdisk_control.o \
+	src/tdisk_nl.o \
 	src/worker_timeout.o
 
 module:

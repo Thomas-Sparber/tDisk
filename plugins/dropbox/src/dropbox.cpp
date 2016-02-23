@@ -14,6 +14,8 @@ using std::endl;
 using std::string;
 using std::vector;
 
+using namespace td;
+
 const string consumerKey("6k27q1pie9lcdm0");
 const string consumerSecret("3kbyrif1dpppoo7");
 
@@ -22,6 +24,7 @@ const string authorize_url("https://www.dropbox.com/1/oauth/authorize");
 const string access_token_url("https://api.dropboxapi.com/1/oauth/access_token");
 
 Dropbox::Dropbox(const std::string &str_accessToken) :
+	Plugin("dropbox", true),
 	consumer(consumerKey, consumerSecret),
 	token("", ""),
 	oauth(nullptr),
@@ -211,3 +214,13 @@ FileMetadata Dropbox::getMetadata(const std::string &path) const
 	LinkMetadata l(root);
 	return std::move(l);
 }*/
+
+bool Dropbox::read(unsigned long long offset, char *data, std::size_t length) const
+{
+
+}
+
+bool Dropbox::write(unsigned long long offset, char *data, std::size_t length)
+{
+
+}

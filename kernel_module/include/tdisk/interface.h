@@ -125,9 +125,8 @@ struct tdisk_info {
 	tdisk_index		internaldevices;	/* ioctl r/o */
 };
 
-/*
- * IOCTL commands --- we will commandeer 0x4C ('L')
- */
+
+/****************** IOCTL commands ******************/
 
 #define TDISK_ADD_DISK			0x4C00
 //#define TDISK_SET_STATUS		0x4C04
@@ -142,5 +141,30 @@ struct tdisk_info {
 #define TDISK_CTL_ADD			0x4C80
 #define TDISK_CTL_REMOVE		0x4C81
 #define TDISK_CTL_GET_FREE		0x4C82
+
+
+/****************** Netlink interfaces **************/
+
+enum nl_tdisk_msg_types {
+	NLTD_CMD_READ = 0,
+	NLTD_CMD_WRITE,
+	NLTD_CMD_FINISHED,
+	NLTD_CMD_REGISTER,
+	NLTD_CMD_UNREGISTER,
+	NLTD_CMD_MAX
+};
+
+enum nl_tdisk_attr {
+	NLTD_UNSPEC,
+	NLTD_PLUGIN_NAME,
+	__NLTD_MAX,
+};
+#define NLTD_MAX (__NLTD_MAX - 1)
+
+#define NLTD_NAME DRIVER_NAME
+#define NLTD_HEADER_SIZE 0
+#define NLTD_VERSION 1
+
+#define NLTD_MAX_NAME 256
 
 #endif //TDISK_INTERFACE_H

@@ -25,6 +25,7 @@
 #include "tdisk.h"
 #include "tdisk_control.h"
 #include "tdisk_file.h"
+#include "tdisk_nl.h"
 
 #define COMPARE 1410
 
@@ -1667,17 +1668,24 @@ static int __init tdisk_init(void)
 	int err;
 
 	err = register_tdisk_control();
-	if(err < 0)return err;
+	if(err < 0)goto error;
 
+	err = nltd_register();
+	if(err < 0)goto error_tdisk_control;
+
+	err = -EBUSY;
 	TD_MAJOR = register_blkdev(TD_MAJOR, "td");
-	if(TD_MAJOR <= 0)
-	{
-		unregister_tdisk_control();
-		return -EBUSY;
-	}
+	if(TD_MAJOR <= 0)goto error_nltd;
 
 	printk(KERN_INFO "tDisk: driver loaded\n");
 	return 0;
+
+ error_nltd:
+	nltd_unregister();
+ error_tdisk_control:
+	unregister_tdisk_control();
+ error:
+	return err;
 }
 
 /**
@@ -1701,6 +1709,7 @@ static void __exit tdisk_exit(void)
 
 	unregister_blkdev(TD_MAJOR, "td");
 
+	nltd_unregister();
 	unregister_tdisk_control();
 }
 

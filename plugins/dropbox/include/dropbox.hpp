@@ -4,12 +4,16 @@
 #include <string>
 #include <sstream>
 
+#include <plugin.hpp>
 #include <accountinfo.hpp>
 #include <filemetadata.hpp>
 #include <liboauthcpp/liboauthcpp.h>
 #include <linkmetadata.hpp>
 
-class Dropbox
+namespace td
+{
+
+class Dropbox : public Plugin
 {
 
 public:
@@ -33,6 +37,10 @@ public:
 
 	//LinkMetadata getLink(const std::string &link, bool list=true, bool mediaInfo=false, unsigned int fileLimit=10000) const;
 
+	virtual bool read(unsigned long long offset, char *data, std::size_t length) const;
+
+	virtual bool write(unsigned long long offset, char *data, std::size_t length);
+
 private:
 	std::string loadOAuthToken();
 
@@ -51,5 +59,7 @@ private:
 	std::string accessToken;
 
 }; //end class Dropbox
+
+} //end namespace td
 
 #endif //DROPBOX_HPP

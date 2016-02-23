@@ -9,6 +9,8 @@ using std::cerr;
 using std::cout;
 using std::endl;
 
+using namespace td;
+
 int main(int argc, char *args[])
 {
 	void initCurl();

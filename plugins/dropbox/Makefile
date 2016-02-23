@@ -2,7 +2,7 @@ CC=gcc
 CXX=g++
 CFLAGS=-c -g -Wall -Wextra  -I./include -I../base/include -isystem../libs/liboauthcpp/include/ -isystem../libs/jsoncpp/include -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wunsafe-loop-optimizations -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast
 CPPFLAGS=-std=c++11 -Weffc++
-LDFLAGS=-lcurl -L../libs/liboauthcpp -loauthcpp -L../libs/jsoncpp/src/lib_json -ljsoncpp -L../libs/libnl/lib/.libs -lnl-3 -lnl-genl-3 -L../base -lplugin-base
+LDFLAGS=-lcurl -L../libs/liboauthcpp -loauthcpp -L../libs/jsoncpp/src/lib_json -ljsoncpp -L../base -lplugin-base -L../libs/libnl/lib/.libs -l:libnl-3.a -l:libnl-genl-3.a -lpthread
 SOURCES=
 
 CPP_SOURCES= \

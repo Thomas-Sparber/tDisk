@@ -11,7 +11,7 @@
 namespace td
 {
 
-	extern Options defaultOptions;
+	Options getDefaultOptions();
 
 	std::string add_tDisk(const std::vector<std::string> &args, Options &options);
 	std::string remove_tDisk(const std::vector<std::string> &args, Options &options);

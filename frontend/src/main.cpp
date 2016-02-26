@@ -67,7 +67,7 @@ int main(int argc, char *args[])
 string handleCommand(int argc, char **args)
 {
 	string programName = args[0];
-	td::Options options;
+	td::Options options = getDefaultOptions();
 
 	ci_string option;
 	while(argc > 1 && (option = args[1]).substr(0, 2) == "--")

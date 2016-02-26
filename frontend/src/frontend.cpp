@@ -11,9 +11,12 @@
 using std::string;
 using std::vector;
 
-td::Options td::defaultOptions({
-	Option::output_format
-});
+td::Options td::getDefaultOptions()
+{
+	return Options({
+		Option::output_format
+	});
+}
 
 string td::add_tDisk(const vector<string> &args, Options &options)
 {

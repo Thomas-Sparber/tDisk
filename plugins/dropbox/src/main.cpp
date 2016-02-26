@@ -17,6 +17,9 @@ int main(int argc, char *args[])
 
 	try{
 		Dropbox api("oauth_token_secret=d7z7oc0i6ueomsi&oauth_token=yhqzektts3cithe6&uid=24443477");
+		api.registerInKernel();
+
+		api.listen();
 
 		cout<<api.getAccountInfo()<<endl;
 		//cout<<api.downloadFile("App/2DO hispotme.txt")<<endl;

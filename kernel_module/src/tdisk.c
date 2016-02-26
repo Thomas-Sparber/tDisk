@@ -1452,12 +1452,15 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	struct gendisk *disk;
 	int err;
 	unsigned int header_size_byte;
+	char c[256];
 
 	if(blocksize == 0 || blocksize % TDISK_BLOCKSIZE_MOD)
 	{
 		printk(KERN_WARNING"tDisk: Failed to add tDisk. blocksize must be a multiple of 4096 but is %u\n", blocksize);
 		return -EINVAL;
 	}
+
+	nltd_write_sync("dropbox", 0, c, 256);
 
 	//Calculate header size which consists
 	//of a header, disk mappings and indices

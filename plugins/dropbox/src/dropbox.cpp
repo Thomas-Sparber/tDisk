@@ -24,7 +24,7 @@ const string authorize_url("https://www.dropbox.com/1/oauth/authorize");
 const string access_token_url("https://api.dropboxapi.com/1/oauth/access_token");
 
 Dropbox::Dropbox(const std::string &str_accessToken) :
-	Plugin("dropbox", true),
+	Plugin("dropbox", false),
 	consumer(consumerKey, consumerSecret),
 	token("", ""),
 	oauth(nullptr),
@@ -215,12 +215,12 @@ FileMetadata Dropbox::getMetadata(const std::string &path) const
 	return std::move(l);
 }*/
 
-bool Dropbox::read(unsigned long long offset, char *data, std::size_t length) const
+bool Dropbox::read(unsigned long long offset, vector<char> &data, std::size_t length) const
 {
 
 }
 
-bool Dropbox::write(unsigned long long offset, char *data, std::size_t length)
+bool Dropbox::write(unsigned long long offset, const vector<char> &data, std::size_t length)
 {
 
 }

@@ -37,9 +37,9 @@ public:
 
 	//LinkMetadata getLink(const std::string &link, bool list=true, bool mediaInfo=false, unsigned int fileLimit=10000) const;
 
-	virtual bool read(unsigned long long offset, char *data, std::size_t length) const;
+	virtual bool read(unsigned long long offset, std::vector<char> &data, std::size_t length) const;
 
-	virtual bool write(unsigned long long offset, char *data, std::size_t length);
+	virtual bool write(unsigned long long offset, const std::vector<char> &data, std::size_t length);
 
 private:
 	std::string loadOAuthToken();

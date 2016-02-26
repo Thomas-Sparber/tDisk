@@ -3,10 +3,17 @@
 
 #include "../include/tdisk/interface.h"
 
-int nltd_register(void);
+#define NLTD_TIMEOUT_MSECS 10000
 
+typedef void (*plugin_callback)(void*,int);
+
+int nltd_register(void);
 void nltd_unregister(void);
 
+void nltd_read_async(const char *plugin, loff_t offset, char *buffer, int length, plugin_callback callback, void *userobject);
+void nltd_write_async(const char *plugin, loff_t offset, char *buffer, int length, plugin_callback callback, void *userobject);
 
+int nltd_read_sync(const char *plugin, loff_t offset, char *buffer, int length);
+int nltd_write_sync(const char *plugin, loff_t offset, char *buffer, int length);
 
 #endif //TDISK_NL

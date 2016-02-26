@@ -1,8 +1,15 @@
 #include <netlink/netlink.h>
 #include <netlink/socket.h>
+#include <netlink/types.h>
 #include <netlink/genl/genl.h>
 #include <netlink/genl/ctrl.h>
+#include <netlink/genl/mngt.h>
 #include <iostream>
+#include <set>
+#include <signal.h>
+#include <thread>
+#include <unistd.h>
+#include <vector>
 
 namespace td {
 	namespace c {
@@ -11,48 +18,116 @@ namespace td {
 		}
 	}
 }
+
+#include <communication_helper.hpp>
 #include <plugin.hpp>
 
 using std::cerr;
+using std::cout;
 using std::endl;
 using std::string;
+using std::thread;
+using std::vector;
+using std::set;
 
 using namespace td;
 using namespace c;
 
-static int worker_function(struct nl_msg *msg, void *arg)
+set<Plugin*> currentPlugins;
+
+namespace td
 {
-	Plugin *currentPlugin = static_cast<Plugin*>(arg);
-	//nl_send_auto(sk, msg)
-	//int nl_send_simple(struct nl_sock *sk, int type, int flags, void *buf, size_t size);
 
-	//int genl_send_simple  ( struct nl_sock *  sk,  int  family,  int  cmd,  int  version,  int  flags  )
-
-	/*nl_msg *response = nlmsg_alloc();
-	genlmsg_put(response, 0, 0, currentPlugin->familyId, 0, flags, cmd, 0);
-	NLA_PUT_U32(response, NL80211_ATTR_IFINDEX, ifIndex);
-	ret = nl_send_auto(currentPlugin->socket, response);
-	nl_complete_msg(currentPlugin->socket, response);
-	nlmsg_free(response);*/
-	//nl_recvmsgs_default(currentPlugin->socket);
-
-	return 0;
+void Plugin::stopAllPlugins()
+{
+	for(Plugin *p : currentPlugins)
+	{
+		p->stop();
+	}
 }
+
+void signalHandler(int)
+{
+	cout<<"Received signal. Stopping all plugins."<<endl;
+	Plugin::stopAllPlugins();
+}
+
+int worker_function(nl_msg *msg, void *arg)
+{
+	Plugin *currentPlugin = (Plugin*)arg;
+
+	genlmsghdr *header = genlmsg_hdr(nlmsg_hdr(msg));
+	nlattr *attrs = genlmsg_attrdata(header, NLTD_HEADER_SIZE);
+	int attributes = genlmsg_attrlen(header, NLTD_HEADER_SIZE);
+
+	if(!currentPlugin)
+	{
+		cerr<<"Plugin can't be null!"<<endl;
+		return -1;
+	}
+
+	nlattr *requestNumber = nla_find(attrs, attributes, NLTD_REQ_NUMBER);
+	nlattr *offset = nla_find(attrs, attributes, NLTD_REQ_OFFSET);
+	nlattr *length = nla_find(attrs, attributes, NLTD_REQ_LENGTH);
+	nlattr *buffer = nla_find(attrs, attributes, NLTD_REQ_BUFFER);
+
+	if(!requestNumber)
+	{
+		cerr<<"Received a message without request number!"<<endl;
+		return -1;
+	}
+
+	if(!offset || !length)
+	{
+		cerr<<"Received a message without an offset or length!"<<endl;
+		return -1;
+	}
+
+	PluginOperation operation;
+	if(header->cmd == NLTD_CMD_READ)operation = PluginOperation::read;
+	else if(header->cmd ==  NLTD_CMD_WRITE)operation = PluginOperation::write;
+	else
+	{
+		cerr<<"Invalid message type "<<header->cmd<<endl;
+		return -1;
+	}
+
+	int l = nla_get_s32(length);
+	if(l < 0)
+	{
+		cerr<<"Length can't be < 0: "<<l<<endl;
+		return -1;
+	}
+
+	vector<char> b;
+	if(buffer)b = vector<char>((char*)nla_data(buffer), (char*)nla_data(buffer) + l);
+
+	bool success = currentPlugin->messageReceived(nla_get_u32(requestNumber), operation, nla_get_u64(offset), b, l);
+
+	if(success)return 0;
+	else return -1;
+}
+
+} //end namespace td
 
 Plugin::Plugin(const string &str_name, bool b_registerInKernel) :
 	name(str_name),
 	socket(nullptr),
-	familyId()
+	familyId(),
+	running(false)
 {
 	if(b_registerInKernel)
 	{
 		registerInKernel();
 	}
+
+	currentPlugins.insert(this);
 }
 
 Plugin::~Plugin()
 {
 	unregister();
+	currentPlugins.erase(this);
 }
 
 void Plugin::registerInKernel()
@@ -60,57 +135,31 @@ void Plugin::registerInKernel()
 	unregister();
 
 	socket = nl_socket_alloc();
+	nl_socket_disable_seq_check(socket);
+	nl_socket_modify_cb(socket, NL_CB_VALID, NL_CB_CUSTOM, worker_function, this);
+	nl_socket_modify_err_cb(socket, NL_CB_DEBUG, nullptr, nullptr);
+	nl_socket_set_buffer_size(socket, 65536, 65536);
+
 	genl_connect(socket);
 	familyId = genl_ctrl_resolve(socket, NLTD_NAME);
 
-	nl_socket_modify_cb(socket, NL_CB_VALID, NL_CB_CUSTOM, worker_function, this);
+	signal(SIGINT, signalHandler);
 
-	int ret;
-	char tempName[NLTD_MAX_NAME];
-	strncpy(tempName, name.c_str(), NLTD_MAX_NAME);
-
-	nl_msg *msg = nlmsg_alloc();
-	genlmsg_put(msg, 0, NL_AUTO_SEQ, familyId, NLTD_HEADER_SIZE, 0, NLTD_CMD_REGISTER, NLTD_VERSION);
-	NLA_PUT(msg, NLTD_PLUGIN_NAME, NLTD_MAX_NAME, tempName);
-	ret = nl_send_auto(socket, msg);
-	nl_complete_msg(socket, msg);
-	nlmsg_free(msg);
-
-	return;
-
- nla_put_failure:
-	cerr<<"Can't add attribute"<<endl;
-	nlmsg_free(msg);
-
-	//uint32_t nl_socket_get_local_port(const struct nl_sock *sk);
-	//int nl_socket_set_nonblocking(const struct nl_sock *sk);
-
-	//Message buffer size. Default 32 KiB
-	//int nl_socket_set_buffer_size(struct nl_sock *sk, int rx, int tx);
+	sendNlMessage(socket, NLTD_CMD_REGISTER, 0, familyId,
+		createArg<NLTD_PLUGIN_NAME>(name)
+	);
 }
 
 void Plugin::unregister()
 {
+	stop();
+
 	if(socket)
 	{
-		int ret;
-		char tempName[NLTD_MAX_NAME];
-		strncpy(tempName, name.c_str(), NLTD_MAX_NAME);
+		sendNlMessage(socket, NLTD_CMD_UNREGISTER, 0, familyId,
+			createArg<NLTD_PLUGIN_NAME>(name)
+		);
 
-		nl_msg *msg = nlmsg_alloc();
-		genlmsg_put(msg, 0, NL_AUTO_SEQ, familyId, NLTD_HEADER_SIZE, 0, NLTD_CMD_UNREGISTER, NLTD_VERSION);
-		NLA_PUT(msg, NLTD_PLUGIN_NAME, NLTD_MAX_NAME, tempName);
-		ret = nl_send_auto(socket, msg);
-		nl_complete_msg(socket, msg);
-		nlmsg_free(msg);
-
-		nl_socket_free(socket);
-		socket = nullptr;
-		return;
-
- nla_put_failure:
-		cerr<<"Can't add attribute"<<endl;
-		nlmsg_free(msg);
 		nl_socket_free(socket);
 		socket = nullptr;
 	}
@@ -118,5 +167,59 @@ void Plugin::unregister()
 
 void Plugin::listen()
 {
-	nl_recvmsgs_default(socket);
+	running = true;
+
+	while(running)
+	{
+		if(!poll(1000))continue;
+
+		int ret = receive();
+		if(ret != 0)cout<<"Code: "<<ret<<": "<<nl_geterror(ret)<<endl;
+	}
+}
+
+bool Plugin::poll(unsigned int time)
+{
+	struct pollfd fd;
+	fd.fd = nl_socket_get_fd(socket);;
+	fd.events = POLLIN;
+	const int result = ::poll(&fd, 1, time);
+	return (result > 0);
+}
+
+int Plugin::receive()
+{
+	return nl_recvmsgs_default(socket);
+}
+
+bool Plugin::messageReceived(uint32_t sequenceNumber, PluginOperation operation, unsigned long long offset, vector<char> &data, int length)
+{
+	bool success;
+	if(operation == PluginOperation::read)
+	{
+		data = vector<char>(length);
+		success = read(offset, data, length);
+	}
+	else if(operation == PluginOperation::write)
+	{
+		success = write(offset, data, length);
+	}
+	else
+	{
+		cerr<<"Invalid message type "<<(char)operation<<endl;
+		success = false;
+	}
+
+	if(data.size() != (std::size_t)length)success = false;
+
+	return sendFinishedMessage(sequenceNumber, data, success ? length : -1);
+}
+
+bool Plugin::sendFinishedMessage(uint32_t sequenceNumber, vector<char> &data, int length)
+{
+	return sendNlMessage(socket, NLTD_CMD_FINISHED, 0, familyId,
+		createArg<NLTD_REQ_NUMBER>(sequenceNumber),
+		createArg<NLTD_REQ_BUFFER>(data),
+		createArg<NLTD_REQ_LENGTH>(length)
+	);
 }

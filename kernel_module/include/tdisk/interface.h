@@ -157,6 +157,10 @@ enum nl_tdisk_msg_types {
 enum nl_tdisk_attr {
 	NLTD_UNSPEC,
 	NLTD_PLUGIN_NAME,
+	NLTD_REQ_NUMBER,
+	NLTD_REQ_OFFSET,
+	NLTD_REQ_LENGTH,
+	NLTD_REQ_BUFFER,
 	__NLTD_MAX,
 };
 #define NLTD_MAX (__NLTD_MAX - 1)

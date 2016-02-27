@@ -80,7 +80,7 @@ inline void addNlArg(nl_msg *msg, const int &length)
 template <int type, typename = typename std::enable_if<type == c::NLTD_REQ_BUFFER>::type>
 inline void addNlArg(nl_msg *msg, const std::vector<char> &data)
 {
-	NLA_PUT(msg, c::NLTD_REQ_LENGTH, data.size(), &data[0]);
+	NLA_PUT(msg, c::NLTD_REQ_BUFFER, data.size(), &data[0]);
 	return;
 
  nla_put_failure:

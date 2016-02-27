@@ -194,6 +194,11 @@ static u32 get_plugin_port(const char *name)
 	return port;
 }
 
+int nltd_is_registered(const char *plugin)
+{
+	return (get_plugin_port(plugin) != 0);
+}
+
 static const char* get_plugin_name(u32 port)
 {
 	char *name = NULL;

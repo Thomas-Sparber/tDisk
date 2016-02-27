@@ -193,6 +193,6 @@ enum nl_tdisk_attr {
 #define NLTD_HEADER_SIZE 0
 #define NLTD_VERSION 1
 
-#define NLTD_MAX_NAME 256
+#define NLTD_MAX_NAME TDISK_MAX_INTERNAL_DEVICE_NAME
 
 #endif //TDISK_INTERFACE_H

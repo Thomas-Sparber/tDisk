@@ -25,7 +25,7 @@
 #include "tdisk.h"
 #include "tdisk_control.h"
 #include "tdisk_file.h"
-#include "tdisk_nl.h"
+#include "tdisk_plugin.h"
 
 #define COMPARE 1410
 
@@ -64,6 +64,117 @@ static int td_flush(struct tdisk *td)
 	return 0;
 }
 
+static int write_data(struct td_internal_device *device, void *data, loff_t position, unsigned int length)
+{
+	switch(device->type)
+	{
+	case internal_device_type_file:
+		if(unlikely(!device->file))return -ENODEV;
+		return file_write_data(device->file, data, position, length, &device->performance);
+	case internal_device_type_plugin:
+		return plugin_write_data(device->name, data, position, length, &device->performance);
+	default:
+		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
+		MY_BUG_ON(true, PRINT_INT(device->type));
+		return -EINVAL;
+	}
+}
+
+static int read_data(struct td_internal_device *device, void *data, loff_t position, unsigned int length)
+{
+	switch(device->type)
+	{
+	case internal_device_type_file:
+		if(unlikely(!device->file))return -ENODEV;
+		return file_read_data(device->file, data, position, length, &device->performance);
+	case internal_device_type_plugin:
+		return plugin_read_data(device->name, data, position, length, &device->performance);
+	default:
+		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
+		MY_BUG_ON(true, PRINT_INT(device->type));
+		return -EINVAL;
+	}
+}
+
+static int write_bio_vec(struct td_internal_device *device, struct bio_vec *bvec, loff_t *position)
+{
+	switch(device->type)
+	{
+	case internal_device_type_file:
+		if(unlikely(!device->file))return -ENODEV;
+		return file_write_bio_vec(device->file, bvec, position, &device->performance);
+	case internal_device_type_plugin:
+		return plugin_write_bio_vec(device->name, bvec, position, &device->performance);
+	default:
+		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
+		MY_BUG_ON(true, PRINT_INT(device->type));
+		return -EINVAL;
+	}
+}
+
+static int read_bio_vec(struct td_internal_device *device, struct bio_vec *bvec, loff_t *position)
+{
+	switch(device->type)
+	{
+	case internal_device_type_file:
+		if(unlikely(!device->file))return -ENODEV;
+		return file_read_bio_vec(device->file, bvec, position, &device->performance);
+	case internal_device_type_plugin:
+		return plugin_read_bio_vec(device->name, bvec, position, &device->performance);
+	default:
+		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
+		MY_BUG_ON(true, PRINT_INT(device->type));
+		return -EINVAL;
+	}
+}
+
+static int flush_device(struct td_internal_device *device)
+{
+	switch(device->type)
+	{
+	case internal_device_type_file:
+		if(unlikely(!device->file))return -ENODEV;
+		return file_flush(device->file);
+	case internal_device_type_plugin:
+		return plugin_flush(device->name);
+	default:
+		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
+		MY_BUG_ON(true, PRINT_INT(device->type));
+		return -EINVAL;
+	}
+}
+
+static int device_alloc(struct td_internal_device *device, loff_t position, unsigned int length)
+{
+	switch(device->type)
+	{
+	case internal_device_type_file:
+		if(unlikely(!device->file))return -ENODEV;
+		return file_alloc(device->file, position, length);
+	case internal_device_type_plugin:
+		return 0; //TODO
+	default:
+		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
+		MY_BUG_ON(true, PRINT_INT(device->type));
+		return -EINVAL;
+	}
+}
+
+static bool device_is_ready(struct td_internal_device *device)
+{
+	switch(device->type)
+	{
+	case internal_device_type_file:
+		return (device->file != NULL);
+	case internal_device_type_plugin:
+		return plugin_is_loaded(device->name);
+	default:
+		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
+		MY_BUG_ON(true, PRINT_INT(device->type));
+		return -EINVAL;
+	}
+}
+
 /**
   * Flushes the underlying devices of the tDisk
  **/
@@ -73,14 +184,14 @@ static int td_flush_devices(struct tdisk *td)
 	int ret = 0;
 	for(i = 0; i < td->internal_devices_count; ++i)
 	{
-		struct file *file = td->internal_devices[i].file;
-		if(file)
-		{
-			int internal_ret = file_flush(file);
+		//struct file *file = td->internal_devices[i].file;
+		//if(file)
+		//{
+		int internal_ret = flush_device(&td->internal_devices[i]);//file_flush(file);
 
-			if(unlikely(internal_ret && internal_ret != -EINVAL))
-				ret = -EIO;
-		}
+		if(unlikely(internal_ret && internal_ret != -EINVAL))
+			ret = -EIO;
+		//}
 	}
 
 	return ret;
@@ -130,12 +241,12 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 		//Disk operations
 		for(j = 0; j < td_dev->internal_devices_count; ++j)
 		{
-			struct file *file = td_dev->internal_devices[j].file;
+			//struct file *file = td_dev->internal_devices[j].file;
 
-			if(file)
-			{
-				file_write_data(file, actual, position, length, &td_dev->internal_devices[j].performance);
-			}
+			//if(file)
+			//{
+			write_data(&td_dev->internal_devices[j], actual, position, length);
+			//}
 		}
 	}
 
@@ -285,16 +396,15 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	u8 *buffer_b = kmalloc(td->blocksize, GFP_KERNEL);
 	if(!buffer_a || !buffer_b)return;
 
-	printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u)\n", logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count);
-	//return;
+	//printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u)\n", logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count);
 
 	//Reading blocks from both disks
-	file_read_data(td->internal_devices[a->disk-1].file, buffer_a, pos_a, td->blocksize, &td->internal_devices[a->disk-1].performance);
-	file_read_data(td->internal_devices[b->disk-1].file, buffer_b, pos_b, td->blocksize, &td->internal_devices[b->disk-1].performance);
+	read_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);
+	read_data(&td->internal_devices[b->disk-1], buffer_b, pos_b, td->blocksize);
 
 	//Saving swapped data to both disks
-	file_write_data(td->internal_devices[a->disk-1].file, buffer_b, pos_a, td->blocksize, &td->internal_devices[a->disk-1].performance);
-	file_write_data(td->internal_devices[b->disk-1].file, buffer_a, pos_b, td->blocksize, &td->internal_devices[b->disk-1].performance);
+	write_data(&td->internal_devices[a->disk-1], buffer_b, pos_a, td->blocksize);
+	write_data(&td->internal_devices[b->disk-1], buffer_a, pos_b, td->blocksize);
 
 	swap(a->disk, b->disk);
 	swap(a->sector, b->sector);
@@ -319,7 +429,7 @@ static bool td_move_one_sector(struct tdisk *td)
 	//Check if actually all devices are loaded
 	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
 	{
-		if(td->internal_devices[sorted_disk-1].file == NULL)
+		if(!device_is_ready(&td->internal_devices[sorted_disk-1]))
 		{
 			//Not all disks are loaded yet
 			return false;
@@ -343,7 +453,7 @@ static bool td_move_one_sector(struct tdisk *td)
 	td_assign_sectors(td, sorted_devices, sorted_sectors);
 
 	//Moving the sector with highest access count.
-	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
+	/*for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
 	{
 		printk(KERN_DEBUG "tDisk: Internal disk %u (speed: %u rank): Capacity: %llu, Correctly stored: %llu, %u percent\n",
 						sorted_devices[sorted_disk-1].dev-td->internal_devices+1,
@@ -351,7 +461,7 @@ static bool td_move_one_sector(struct tdisk *td)
 						sorted_devices[sorted_disk-1].dev->size_blocks,
 						sorted_devices[sorted_disk-1].amount_blocks,
 						(size_t)sorted_devices[sorted_disk-1].amount_blocks*100 / (size_t)sorted_devices[sorted_disk-1].dev->size_blocks);
-	}
+	}*/
 
 	//Moving the sector with highest access count.
 	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
@@ -494,10 +604,10 @@ static int td_read_header(struct tdisk *td, struct td_internal_device *device, s
 {
 	int error;
 
-	error = file_read_data(device->file, header, 0, sizeof(struct tdisk_header), &device->performance);
+	error = read_data(device, header, 0, sizeof(struct tdisk_header));
 	if(error)return error;
 
-	printk(KERN_DEBUG "tDisk: File header: driver: %s, minor: %u, major: %u\n", header->driver_name, header->major_version, header->minor_version);
+	printk(KERN_DEBUG "tDisk: Header: driver: %s, minor: %u, major: %u\n", header->driver_name, header->major_version, header->minor_version);
 	switch(td_is_compatible_header(td, header))
 	{
 	case 1:
@@ -539,7 +649,7 @@ static int td_read_header(struct tdisk *td, struct td_internal_device *device, s
 }
 
 /**
-  * Writes the td header to the given file
+  * Writes the td header to the given device
   * and measures the disk performance if perf != NULL
  **/
 static int td_write_header(struct td_internal_device *device, struct tdisk_header *header)
@@ -550,11 +660,11 @@ static int td_write_header(struct td_internal_device *device, struct tdisk_heade
 	header->major_version = DRIVER_MAJOR_VERSION;
 	header->minor_version = DRIVER_MINOR_VERSION;
 
-	return file_write_data(device->file, header, 0, sizeof(struct tdisk_header), &device->performance);
+	return write_data(device, header, 0, sizeof(struct tdisk_header));
 }
 
 /**
-  * Reads all the sector indices from the file and
+  * Reads all the sector indices from the device and
   * stores them in data.
  **/
 static int td_read_all_indices(struct tdisk *td, struct td_internal_device *device, u8 *data)
@@ -562,7 +672,7 @@ static int td_read_all_indices(struct tdisk *td, struct td_internal_device *devi
 	int ret = 0;
 	unsigned int skip = sizeof(struct tdisk_header);
 	loff_t length = td->header_size*td->blocksize - skip;
-	ret = file_read_data(device->file, data, skip, length, &device->performance);
+	ret = read_data(device, data, skip, length);
 
 	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
 	else printk(KERN_DEBUG "tDisk: Success reading all disk indices\n");
@@ -571,7 +681,7 @@ static int td_read_all_indices(struct tdisk *td, struct td_internal_device *devi
 }
 
 /**
-  * Writes all the sector indices to the file.
+  * Writes all the sector indices to the device.
  **/
 static int td_write_all_indices(struct tdisk *td, struct td_internal_device *device)
 {
@@ -580,7 +690,7 @@ static int td_write_all_indices(struct tdisk *td, struct td_internal_device *dev
 	unsigned int skip = sizeof(struct tdisk_header);
 	void *data = td->indices;
 	loff_t length = td->header_size*td->blocksize - skip;
-	ret = file_write_data(device->file, data, skip, length, &device->performance);
+	ret = write_data(device, data, skip, length);
 
 	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
 	else printk(KERN_DEBUG "tDisk: Success writing all disk indices\n");
@@ -589,10 +699,10 @@ static int td_write_all_indices(struct tdisk *td, struct td_internal_device *dev
 }
 
 /**
-  * This function does the actual file operations. It extracts
+  * This function does the actual device operations. It extracts
   * the logical sector and the data from the request. Then it
   * searches for the corresponding disk and physical sector and
-  * does the actual file operation. Disk performances are also
+  * does the actual device operation. Disk performances are also
   * recorded.
  **/
 static int td_do_disk_operation(struct tdisk *td, struct request *rq)
@@ -613,7 +723,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 	//Normal file operations
 	rq_for_each_segment(bvec, rq, iter)
 	{
-		struct file *file;
+		struct td_internal_device *device;
 		loff_t sector = pos_byte;
 		loff_t offset = __div64_32(&sector, td->blocksize);
 		sector_t actual_pos_byte;
@@ -632,10 +742,10 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 			continue;
 		}
 
-		file = td->internal_devices[physical_sector.disk - 1].file;	//-1 because 0 means unused
-		if(!file)
+		device = &td->internal_devices[physical_sector.disk - 1];	//-1 because 0 means unused
+		if(!device_is_ready(device))
 		{
-			printk_ratelimited(KERN_DEBUG "tDisk: file is NULL, Disk probably not yet loaded...\n");
+			printk_ratelimited(KERN_DEBUG "tDisk: Device %u is not ready. Probably not yet loaded...\n", physical_sector.disk);
 			ret = -EIO;
 			continue;
 		}
@@ -644,13 +754,13 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		{
 			//Handle discard operations
 			len = bvec.bv_len;
-			ret = file_alloc(file, actual_pos_byte, bvec.bv_len);
+			ret = device_alloc(device, actual_pos_byte, bvec.bv_len);//file_alloc(file, actual_pos_byte, bvec.bv_len);
 			if(ret)break;
 		}
 		else if(rq->cmd_flags & REQ_WRITE)
 		{
 			//Do write operation
-			len = file_write_bio_vec(file, &bvec, &actual_pos_byte, &td->internal_devices[physical_sector.disk - 1].performance);
+			len = write_bio_vec(device, &bvec, &actual_pos_byte);
 
 			if(unlikely(len != bvec.bv_len))
 			{
@@ -664,7 +774,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		else
 		{
 			//Do read operation
-			len = file_read_bio_vec(file, &bvec, &actual_pos_byte, &td->internal_devices[physical_sector.disk - 1].performance);
+			len = read_bio_vec(device, &bvec, &actual_pos_byte);
 
 			if(len < 0)
 			{
@@ -695,8 +805,6 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 static void td_reread_partitions(struct tdisk *td, struct block_device *bdev)
 {
 #if LINUX_VERSION_CODE > KERNEL_VERSION(4,1,14)
-	int rc;
-
 	/**
 	  * bd_mutex has been held already in release path, so don't
 	  * acquire it if this function is called in such case.
@@ -706,11 +814,10 @@ static void td_reread_partitions(struct tdisk *td, struct block_device *bdev)
 	  * current holder is released.
 	 **/
 	if(!atomic_read(&td->refcount))
-		rc = __blkdev_reread_part(bdev);
+		__blkdev_reread_part(bdev);
 	else
-		rc = blkdev_reread_part(bdev);
+		blkdev_reread_part(bdev);
 
-	if(rc)pr_warn("tDisk: partition scan of loop%d failed (rc=%d)\n", td->number, rc);
 #else
 	ioctl_by_bdev(bdev, BLKRRPART, 0);
 #endif
@@ -923,7 +1030,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 
 		for(disk = 1; disk <= td->internal_devices_count; ++disk)
 		{
-			if(!td->internal_devices[disk-1].file)
+			if(!device_is_ready(&td->internal_devices[disk-1]))
 			{
 				printk(KERN_WARNING "tDisk: This disk would increase the tDisk index size but not all disks are loaded yet.\n");
 				printk(KERN_WARNING "tDisk: ...can't continue, please add all disks first.\n");
@@ -1433,7 +1540,7 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 			//struct hlist_node *item_safe;
 			//struct sorted_sector_index *item;
 
-			printk(KERN_DEBUG "tDisk: nothing to do anymore. Sorting sectors\n");
+			//printk(KERN_DEBUG "tDisk: nothing to do anymore. Sorting sectors\n");
 			//hlist_for_each_entry_safe(item, item_safe, &td->sorted_sectors_head, list)
 			//{
 			//	td_reorganize_sorted_index(td, item-td->sorted_sectors);
@@ -1445,7 +1552,7 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 		}
 		else
 		{
-			printk(KERN_DEBUG "tDisk: nothing to do anymore. Moving sectors\n");
+			//printk(KERN_DEBUG "tDisk: nothing to do anymore. Moving sectors\n");
 
 			td->access_count_resort = 0;
 			td_move_one_sector(td);
@@ -1597,19 +1704,19 @@ int tdisk_remove(struct tdisk *td)
 	{
 		struct file *file = td->internal_devices[i].file;
 
+		struct tdisk_header header = {
+			.disk_index = i,
+			.performance = td->internal_devices[i].performance,
+			.current_max_sectors = td->max_sectors
+		};
+		gfp_t gfp = td->internal_devices[i].old_gfp_mask;
+
+		//Write current performance and index values to file
+		td_write_header(&td->internal_devices[i], &header);
+		td_write_all_indices(td, &td->internal_devices[i]);
+
 		if(file)
 		{
-			struct tdisk_header header = {
-				.disk_index = i,
-				.performance = td->internal_devices[i].performance,
-				.current_max_sectors = td->max_sectors
-			};
-			gfp_t gfp = td->internal_devices[i].old_gfp_mask;
-
-			//Write current performance and index values to file
-			td_write_header(&td->internal_devices[i], &header);
-			td_write_all_indices(td, &td->internal_devices[i]);
-
 			mapping_set_gfp_mask(file->f_mapping, gfp);
 
 			fput(file);

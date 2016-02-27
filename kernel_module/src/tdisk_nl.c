@@ -12,6 +12,8 @@
 
 spinlock_t plugin_lock;
 
+#define SIZE 65438
+
 struct tdisk_plugin
 {
 	char name[NLTD_MAX_NAME];
@@ -232,6 +234,14 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 		return -EINVAL;
 	}
 
+	if(!info->attrs[NLTD_REQ_LENGTH])
+	{
+		const char *plugin_name = get_plugin_name(info->snd_portid);
+
+		printk(KERN_WARNING "tDisk: Probably broken plugin: %s (%u) - didn't send a length\n", (plugin_name ? plugin_name : "Unknown"), info->snd_portid);
+		return -EINVAL;
+	}
+
 	//Get fields from message
 	request_number = nla_get_u32(info->attrs[NLTD_REQ_NUMBER]);
 	length = nla_get_s32(info->attrs[NLTD_REQ_LENGTH]);
@@ -246,12 +256,22 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 		return -EINVAL;
 	}
 
-	//If the type was a read operation, the
+	//If the type was not write operation, the
 	//data need to be stored back to the original data
-	if(req->type == READ && length > 0)
+	if(req->type != READ && length > 0)
 	{
-		void *data = nla_data(info->attrs[NLTD_REQ_BUFFER]);
-		memcpy(req->buffer, data, min(length, req->buffer_length));
+		void *data;
+		if(!info->attrs[NLTD_REQ_BUFFER])
+		{
+			const char *plugin_name = get_plugin_name(info->snd_portid);
+			printk(KERN_WARNING "tDisk: Probably broken plugin: %s (%u) - type is not READ but no buffer was sent.\n", (plugin_name ? plugin_name : "Unknown"), info->snd_portid);
+			length = -EINVAL;
+		}
+		else
+		{
+			data = nla_data(info->attrs[NLTD_REQ_BUFFER]);
+			memcpy(req->buffer, data, min(length, req->buffer_length));
+		}
 	}
 
 	//Finally call callback that the request finished
@@ -281,6 +301,8 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 	err = -ENOBUFS;
 	if(operation == READ)
 		hdr = genlmsg_put(msg, port, 0, &genl_tdisk_family, 0, NLTD_CMD_READ);
+	else if(operation == SIZE)
+		hdr = genlmsg_put(msg, port, 0, &genl_tdisk_family, 0, NLTD_CMD_SIZE);
 	else if(operation == WRITE)
 		hdr = genlmsg_put(msg, port, 0, &genl_tdisk_family, 0, NLTD_CMD_WRITE);
 	else
@@ -367,6 +389,25 @@ int nltd_write_sync(const char *plugin, loff_t offset, char *buffer, int length)
 	wait_for_completion(&sync.done);
 
 	return sync.ret;
+}
+
+loff_t nltd_get_size(const char *plugin)
+{
+	int ret;
+	loff_t size = 0;
+
+	struct sync_request sync = {
+		0,
+		COMPLETION_INITIALIZER_ONSTACK(sync.done),
+	};
+
+	ret = nltd_send_async(plugin, 0, (char*)&size, sizeof(loff_t), SIZE, sync_request_callback, &sync);
+	if(ret)return 0;
+
+	wait_for_completion(&sync.done);
+
+	if(sync.ret < 0)return 0;
+	return size;
 }
 
 void clear_timed_out_requests(unsigned long data);

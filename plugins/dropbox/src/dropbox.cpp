@@ -224,3 +224,8 @@ bool Dropbox::write(unsigned long long offset, const vector<char> &data, std::si
 {
 
 }
+
+unsigned long long Dropbox::getSize() const
+{
+	return 5;
+}

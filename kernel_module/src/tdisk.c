@@ -943,7 +943,7 @@ static int td_add_check_file(struct tdisk *td, fmode_t mode, struct block_device
  **/
 static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev, struct internal_device_add_parameters __user *arg)
 {
-	struct file	*file;
+	struct file	*file = NULL;
 	struct address_space *mapping;
 	struct tdisk_header header;
 	//struct device_performance perf;
@@ -972,27 +972,40 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	if(copy_from_user(&parameters, arg, sizeof(struct internal_device_add_parameters)) != 0)
 		goto out;
 
-	error = -EBADF;
-	file = fget(parameters.fd);
-	if(!file)goto out;
-
-	error = td_add_check_file(td, mode, bdev, file);
-	if(error)goto out_putf;
-
 	memset(&new_device, 0, sizeof(struct td_internal_device));
-	mapping = file->f_mapping;
-	new_device.old_gfp_mask = mapping_gfp_mask(mapping);
-	mapping_set_gfp_mask(mapping, new_device.old_gfp_mask & ~(__GFP_IO|__GFP_FS));
-	new_device.file = file;
 	new_device.type = parameters.type;
 	memcpy(new_device.name, parameters.name, TDISK_MAX_INTERNAL_DEVICE_NAME);
 
-	//memset(&perf, 0, sizeof(struct device_performance));
+	switch(parameters.type)
+	{
+	case internal_device_type_file:
+		error = -EBADF;
+		file = fget(parameters.fd);
+		if(!file)goto out;
+
+		error = td_add_check_file(td, mode, bdev, file);
+		if(error)goto out_putf;
+
+		mapping = file->f_mapping;
+		new_device.old_gfp_mask = mapping_gfp_mask(mapping);
+		mapping_set_gfp_mask(mapping, new_device.old_gfp_mask & ~(__GFP_IO|__GFP_FS));
+		new_device.file = file;
+
+		//File size in bytes
+		size = file_get_size(file);
+		break;
+	case internal_device_type_plugin:
+		//Plugin size in bytes
+		size = plugin_get_size(new_device.name);
+		break;
+	default:
+		printk(KERN_WARNING "tDisk: Invalid device type %d\n", parameters.type);
+		error = -EINVAL;
+		goto out;
+	}
+
 	error = td_read_header(td, &new_device, &header, first_device, &index_operation_to_do);
 	if(error)goto out_putf;
-
-	//File size in bytes
-	size = file_get_size(file);
 
 	//Calculate new max_sectors of tDisk
 	if(index_operation_to_do == WRITE)
@@ -1212,7 +1225,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	return 0;
 
  out_putf:
-	fput(file);
+	if(file)fput(file);
  out:
 	return error;
 }

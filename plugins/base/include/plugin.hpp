@@ -13,7 +13,8 @@ namespace td
 enum class PluginOperation : char
 {
 	read = 'r',
-	write = 'w'
+	write = 'w',
+	size = 's'
 }; //end class PluginOperation
 
 class Plugin
@@ -39,6 +40,8 @@ public:
 	virtual bool read(unsigned long long offset, std::vector<char> &data, std::size_t length) const = 0;
 
 	virtual bool write(unsigned long long offset, const std::vector<char> &data, std::size_t length) = 0;
+
+	virtual unsigned long long getSize() const = 0;
 
 	void listen();
 

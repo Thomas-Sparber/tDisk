@@ -86,6 +86,7 @@ int worker_function(nl_msg *msg, void *arg)
 	PluginOperation operation;
 	if(header->cmd == NLTD_CMD_READ)operation = PluginOperation::read;
 	else if(header->cmd ==  NLTD_CMD_WRITE)operation = PluginOperation::write;
+	else if(header->cmd ==  NLTD_CMD_SIZE)operation = PluginOperation::size;
 	else
 	{
 		cerr<<"Invalid message type "<<header->cmd<<endl;
@@ -203,6 +204,13 @@ bool Plugin::messageReceived(uint32_t sequenceNumber, PluginOperation operation,
 	else if(operation == PluginOperation::write)
 	{
 		success = write(offset, data, length);
+	}
+	else if(operation == PluginOperation::size)
+	{
+		data = vector<char>(length);
+		if(length != sizeof(unsigned long long))cerr<<"Data type long long is not "<<length<<" bytes!"<<endl;
+		(*(unsigned long long*)(&data[0])) = getSize();
+		success = true;
 	}
 	else
 	{

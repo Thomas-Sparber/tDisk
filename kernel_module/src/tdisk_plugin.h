@@ -9,6 +9,11 @@ inline static bool plugin_is_loaded(const char *plugin)
 	return nltd_is_registered(plugin);
 }
 
+inline static loff_t plugin_get_size(const char *plugin)
+{
+	return nltd_get_size(plugin);
+}
+
 inline static int plugin_write_data(const char *plugin, void *data, loff_t pos, unsigned int length, struct device_performance *perf)
 {
 	int ret;
@@ -35,6 +40,7 @@ inline static int plugin_read_data(const char *plugin, void *data, loff_t pos, u
 
 inline static int plugin_flush(const char *plugin)
 {
+	//TODO
 	plugin = plugin;
 	return 0;
 }

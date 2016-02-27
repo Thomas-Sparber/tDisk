@@ -41,6 +41,8 @@ public:
 
 	virtual bool write(unsigned long long offset, const std::vector<char> &data, std::size_t length);
 
+	virtual unsigned long long getSize() const;
+
 private:
 	std::string loadOAuthToken();
 

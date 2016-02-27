@@ -24,6 +24,8 @@
 
 #define TDISK_BLOCKSIZE_MOD 4096
 
+#define TDISK_MAX_INTERNAL_DEVICE_NAME 256
+
 /**
   * The data type which is used to store the disk indices.
   * This is very important because it is also stored on the
@@ -52,6 +54,26 @@ struct tdisk_add_parameters
 	int minornumber;
 	unsigned int blocksize;
 }; //end tdisk_add_parameters
+
+/**
+  * Defines the type on an internal device
+ **/
+enum internal_device_type
+{
+	internal_device_type_file,
+	internal_device_type_plugin
+}; //end enum internal_device_type
+
+/**
+  * This struct is used for the "ADD_DISK"
+  * ioctl to add a specific device to a tDisk
+ **/
+struct internal_device_add_parameters
+{
+	enum internal_device_type type;
+	char name[TDISK_MAX_INTERNAL_DEVICE_NAME];
+	unsigned int fd;
+}; //end struct internal_device_add_parameters
 
 /**
   * This struct represents performance indicators of a
@@ -85,6 +107,8 @@ struct device_performance
 struct internal_device_info
 {
 	tdisk_index disk;
+	enum internal_device_type type;
+	char name[TDISK_MAX_INTERNAL_DEVICE_NAME];
 	struct device_performance performance;
 }; //end struct internal_device_info
 

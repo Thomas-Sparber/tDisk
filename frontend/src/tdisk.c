@@ -194,11 +194,21 @@ int tdisk_add_disk(const char *device, const char *new_disk)
 	int dev;
 	int ret;
 	int file;
+	struct internal_device_add_parameters parameters;
 
 	if(!check_td_control())return -EDRVNTLD;
 
 	file = open(new_disk, O_RDWR/* | O_SYNC | O_DIRECT*/);
-	if(!file)return -EIO;
+	if(file > 0)
+	{
+		parameters.type = internal_device_type_file;
+		parameters.fd = (unsigned int)file;
+	}
+	else
+	{
+		parameters.type = internal_device_type_plugin;
+	}
+	strncpy(parameters.name, new_disk, TDISK_MAX_INTERNAL_DEVICE_NAME);
 
 	dev = open(device, O_RDWR);
 	if(dev < 0)
@@ -207,7 +217,7 @@ int tdisk_add_disk(const char *device, const char *new_disk)
 		return -ENOPERM;
 	}
 
-	ret = ioctl(dev, TDISK_ADD_DISK, file);
+	ret = ioctl(dev, TDISK_ADD_DISK, &parameters);
 
 	close(dev);
 	close(file);

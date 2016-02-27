@@ -13,6 +13,30 @@
 #define EDRVNTLD 1234
 #define ENOPERM 1235
 
+#define F_TDISK_MAX_INTERNAL_DEVICE_NAME 256
+
+/**
+  * Frontend version
+  * Defines the type on an internal device
+ **/
+enum f_internal_device_type
+{
+	f_internal_device_type_file,
+	f_internal_device_type_plugin
+}; //end enum internal_device_type
+
+/**
+  * Frontend version
+  * This struct is used for the "ADD_DISK"
+  * ioctl to add a specific device to a tDisk
+ **/
+/*struct f_internal_device_add_parameters
+{
+	enum f_internal_device_type type;
+	char name[F_TDISK_MAX_INTERNAL_DEVICE_NAME];
+	unsigned int fd;
+}; //end struct internal_device_add_parameters*/
+
 /**
   * Frontend version
   * This struct represents performance indicators of a
@@ -47,6 +71,8 @@ struct f_device_performance
 struct f_internal_device_info
 {
 	unsigned int disk;
+	enum f_internal_device_type type;
+	char name[F_TDISK_MAX_INTERNAL_DEVICE_NAME];
 	struct f_device_performance performance;
 }; //end struct f_internal_device_info
 

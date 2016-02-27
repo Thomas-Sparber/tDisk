@@ -464,65 +464,6 @@ void td_reorganize_all_indices(struct tdisk *td)
 }
 
 /**
-  * Reads the td header from the given file
-  * and measures the disk performance if perf != NULL
- **/
-static int td_read_header(struct file *file, struct tdisk_header *out, struct device_performance *perf)
-{
-	return file_read_data(file, out, 0, sizeof(struct tdisk_header), perf);
-}
-
-/**
-  * Writes the td header to the given file
-  * and measures the disk performance if perf != NULL
- **/
-static int td_write_header(struct file *file, struct tdisk_header *header, struct device_performance *perf)
-{
-	memset(header->driver_name, 0, sizeof(header->driver_name));
-	strcpy(header->driver_name, DRIVER_NAME);
-	header->driver_name[sizeof(header->driver_name)-1] = 0;
-	header->major_version = DRIVER_MAJOR_VERSION;
-	header->minor_version = DRIVER_MINOR_VERSION;
-
-	return file_write_data(file, header, 0, sizeof(struct tdisk_header), perf);
-}
-
-/**
-  * Reads all the sector indices from the file and
-  * stores them in data.
- **/
-static int td_read_all_indices(struct tdisk *td, struct file *file, u8 *data, struct device_performance *perf)
-{
-	int ret = 0;
-	unsigned int skip = sizeof(struct tdisk_header);
-	loff_t length = td->header_size*td->blocksize - skip;
-	ret = file_read_data(file, data, skip, length, perf);
-
-	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
-	else printk(KERN_DEBUG "tDisk: Success reading all disk indices\n");
-
-	return ret;
-}
-
-/**
-  * Writes all the sector indices to the file.
- **/
-static int td_write_all_indices(struct tdisk *td, struct file *file, struct device_performance *perf)
-{
-	int ret = 0;
-
-	unsigned int skip = sizeof(struct tdisk_header);
-	void *data = td->indices;
-	loff_t length = td->header_size*td->blocksize - skip;
-	ret = file_write_data(file, data, skip, length, perf);
-
-	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
-	else printk(KERN_DEBUG "tDisk: Success writing all disk indices\n");
-
-	return ret;
-}
-
-/**
   * Checks if the given disk header is compatible with the current driver.
   * It returns one of the following values:
   *  - 0 if the header is compatible (current driver version is higher or equal)
@@ -543,6 +484,108 @@ static int td_is_compatible_header(struct tdisk *td, struct tdisk_header *header
 	else if(header->major_version > DRIVER_MAJOR_VERSION)return -2;
 
 	return 0;
+}
+
+/**
+  * Reads the td header from the given file
+  * and measures the disk performance if perf != NULL
+ **/
+static int td_read_header(struct tdisk *td, struct td_internal_device *device, struct tdisk_header *header, bool first_device, int *index_operation_to_do)
+{
+	int error;
+
+	error = file_read_data(device->file, header, 0, sizeof(struct tdisk_header), &device->performance);
+	if(error)return error;
+
+	printk(KERN_DEBUG "tDisk: File header: driver: %s, minor: %u, major: %u\n", header->driver_name, header->major_version, header->minor_version);
+	switch(td_is_compatible_header(td, header))
+	{
+	case 1:
+		//Entirely new disk.
+		header->disk_index = td->internal_devices_count;
+		(*index_operation_to_do) = WRITE;
+		break;
+	case 0:
+		//OK, compatible header.
+		//Either same or lower (compatible) driver version
+		//Disk was already part of a tDisk.
+		//So doing nothing to preserve indices etc.
+	case -1:
+		//Oops, the disk was part of a tdisk
+		//But using a driver with a higher minor number
+		//Assuming that user space knows if it's compatible...
+		//Doing nothing
+	case -2:
+		//Oops, the disk was part of a tdisk
+		//But using a driver with a higher major number
+		//Assuming that user space knows if it's compatible...
+		//Doing nothing
+
+		if(first_device)
+			(*index_operation_to_do) = READ;
+		else
+			(*index_operation_to_do) = COMPARE;
+
+		device->performance = header->performance;
+		break;
+	default:
+		//Bug
+		printk(KERN_ERR "tDisk: Bug in td_is_compatible_header function\n");
+		BUG_ON(td_is_compatible_header(td, header));
+		(*index_operation_to_do) = 123456;
+	}
+
+	return 0;
+}
+
+/**
+  * Writes the td header to the given file
+  * and measures the disk performance if perf != NULL
+ **/
+static int td_write_header(struct td_internal_device *device, struct tdisk_header *header)
+{
+	memset(header->driver_name, 0, sizeof(header->driver_name));
+	strcpy(header->driver_name, DRIVER_NAME);
+	header->driver_name[sizeof(header->driver_name)-1] = 0;
+	header->major_version = DRIVER_MAJOR_VERSION;
+	header->minor_version = DRIVER_MINOR_VERSION;
+
+	return file_write_data(device->file, header, 0, sizeof(struct tdisk_header), &device->performance);
+}
+
+/**
+  * Reads all the sector indices from the file and
+  * stores them in data.
+ **/
+static int td_read_all_indices(struct tdisk *td, struct td_internal_device *device, u8 *data)
+{
+	int ret = 0;
+	unsigned int skip = sizeof(struct tdisk_header);
+	loff_t length = td->header_size*td->blocksize - skip;
+	ret = file_read_data(device->file, data, skip, length, &device->performance);
+
+	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
+	else printk(KERN_DEBUG "tDisk: Success reading all disk indices\n");
+
+	return ret;
+}
+
+/**
+  * Writes all the sector indices to the file.
+ **/
+static int td_write_all_indices(struct tdisk *td, struct td_internal_device *device)
+{
+	int ret = 0;
+
+	unsigned int skip = sizeof(struct tdisk_header);
+	void *data = td->indices;
+	loff_t length = td->header_size*td->blocksize - skip;
+	ret = file_write_data(device->file, data, skip, length, &device->performance);
+
+	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
+	else printk(KERN_DEBUG "tDisk: Success writing all disk indices\n");
+
+	return ret;
 }
 
 /**
@@ -750,51 +793,25 @@ int td_set_max_sectors(struct tdisk *td, sector_t max_sectors)
 	return ret;
 }
 
-/**
-  * Adds the given file descriptor to the tDisk.
-  * This function reads the disk header, performs the correct
-  * index operation (WRITE, READ, COMPARE), adds it to the tDisk
-  * and informs user space about any changes (size, partitions...)
- **/
-static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev, unsigned int arg)
+static int td_add_check_file(struct tdisk *td, fmode_t mode, struct block_device *bdev, struct file *file)
 {
-	struct file	*file;
 	struct inode *inode;
 	struct address_space *mapping;
-	struct tdisk_header header;
-	struct device_performance perf;
-	int flags = 0;
-	int error;
-	loff_t size;
-	loff_t size_counter = 0;
-	sector_t sector = 0;
-	sector_t new_max_sectors;
-	struct sector_index *physical_sector;
-	struct td_internal_device *new_device = NULL;
-	int index_operation_to_do;
-	int first_device = (td->internal_devices_count == 0);
-	int additional_sectors;
-
-	error = -EBADF;
-	file = fget(arg);
-	if(!file)
-		goto out;
 
 	//Don't add current tDisk as backend file
 	if(file_is_tdisk(file, TD_MAJOR) && file->f_mapping->host->i_bdev == bdev)
 	{
 		printk(KERN_WARNING "tDisk: Can't add myself as a backend file\n");
-		goto out_putf;
+		return -EINVAL;
 	}
 
 	mapping = file->f_mapping;
 	inode = mapping->host;
 
-	error = -EINVAL;
 	if(!S_ISREG(inode->i_mode) && !S_ISBLK(inode->i_mode))
 	{
 		printk(KERN_WARNING "tDisk: Given file is not a regular file and not a blockdevice\n");
-		goto out_putf;
+		return -EINVAL;
 	}
 
 	if(!(file->f_mode & FMODE_WRITE) || !(mode & FMODE_WRITE) || !file->f_op->write_iter)
@@ -802,64 +819,73 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		if(td->internal_devices_count && !(td->flags & TD_FLAGS_READ_ONLY))
 		{
 			printk(KERN_WARNING "Can't add a readonly file to a non read only device!\n");
-			error = -EPERM;
-			goto out_putf;
+			return -EPERM;
 		}
 
-		flags |= TD_FLAGS_READ_ONLY;
+		//flags |= TD_FLAGS_READ_ONLY;
 	}
+
+	return 0;
+}
+
+/**
+  * Adds the given file descriptor to the tDisk.
+  * This function reads the disk header, performs the correct
+  * index operation (WRITE, READ, COMPARE), adds it to the tDisk
+  * and informs user space about any changes (size, partitions...)
+ **/
+static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev, struct internal_device_add_parameters __user *arg)
+{
+	struct file	*file;
+	struct address_space *mapping;
+	struct tdisk_header header;
+	//struct device_performance perf;
+	//int flags = 0;
+	int error;
+	loff_t size;
+	loff_t size_counter = 0;
+	sector_t sector = 0;
+	sector_t new_max_sectors;
+	struct sector_index *physical_sector;
+	struct td_internal_device new_device;
+	int index_operation_to_do;
+	int first_device = (td->internal_devices_count == 0);
+	int additional_sectors;
+	struct internal_device_add_parameters parameters;
 
 	//Check for disk limit
 	if(td->internal_devices_count == TDISK_MAX_PHYSICAL_DISKS)
 	{
 		printk(KERN_ERR "tDisk: Limit (255) of devices reached.\n");
 		error = -ENODEV;
-		goto out_putf;
+		goto out;
 	}
+
+	error = -EFAULT;
+	if(copy_from_user(&parameters, arg, sizeof(struct internal_device_add_parameters)) != 0)
+		goto out;
+
+	error = -EBADF;
+	file = fget(parameters.fd);
+	if(!file)goto out;
+
+	error = td_add_check_file(td, mode, bdev, file);
+	if(error)goto out_putf;
+
+	memset(&new_device, 0, sizeof(struct td_internal_device));
+	mapping = file->f_mapping;
+	new_device.old_gfp_mask = mapping_gfp_mask(mapping);
+	mapping_set_gfp_mask(mapping, new_device.old_gfp_mask & ~(__GFP_IO|__GFP_FS));
+	new_device.file = file;
+	new_device.type = parameters.type;
+	memcpy(new_device.name, parameters.name, TDISK_MAX_INTERNAL_DEVICE_NAME);
+
+	//memset(&perf, 0, sizeof(struct device_performance));
+	error = td_read_header(td, &new_device, &header, first_device, &index_operation_to_do);
+	if(error)goto out_putf;
 
 	//File size in bytes
 	size = file_get_size(file);
-
-	//error = -EFBIG;
-	//if((loff_t)(sector_t)size != size)	//sector_t overflow
-	//	goto out_putf;
-
-	memset(&perf, 0, sizeof(struct device_performance));
-	td_read_header(file, &header, &perf);
-	printk(KERN_DEBUG "tDisk: File header: driver: %s, minor: %u, major: %u\n", header.driver_name, header.major_version, header.minor_version);
-	switch(td_is_compatible_header(td, &header))
-	{
-	case 0:
-		//OK, compatible header.
-		//Either same or lower (compatible) driver version
-		//Disk was already part of a tDisk.
-		//So doing nothing to preserve indices etc.
-		index_operation_to_do = (first_device) ? READ : COMPARE;
-		break;
-	case 1:
-		//Entirely new disk.
-		header.disk_index = td->internal_devices_count;
-		index_operation_to_do = WRITE;
-		break;
-	case -1:
-		//Oops, the disk was part of a tdisk
-		//But using a driver with a higher minor number
-		//Assuming that user space knows if it's compatible...
-		//Doing nothing
-		index_operation_to_do = (first_device) ? READ : COMPARE;
-		break;
-	case -2:
-		//Oops, the disk was part of a tdisk
-		//But using a driver with a higher major number
-		//Assuming that user space knows if it's compatible...
-		//Doing nothing
-		index_operation_to_do = (first_device) ? READ : COMPARE;
-		break;
-	default:
-		//Bug
-		printk(KERN_ERR "tDisk: Bug in td_is_compatible_header function\n");
-		goto out_putf;
-	}
 
 	//Calculate new max_sectors of tDisk
 	if(index_operation_to_do == WRITE)
@@ -916,32 +942,28 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 
 	//Set disk references in tDisk
 	if(header.disk_index >= td->internal_devices_count)td->internal_devices_count = header.disk_index+1;
-	new_device = &td->internal_devices[header.disk_index];
-	new_device->old_gfp_mask = mapping_gfp_mask(mapping);
-	mapping_set_gfp_mask(mapping, new_device->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
-	new_device->file = file;
-	new_device->performance = header.performance;
 
-	new_device->size_blocks = size;
-	__div64_32(&new_device->size_blocks, td->blocksize);
+	//Calculate actual device size
+	new_device.size_blocks = size;
+	__div64_32(&new_device.size_blocks, td->blocksize);
 
 	error = 0;
 
-	set_device_ro(bdev, (flags & TD_FLAGS_READ_ONLY) != 0);
+	//set_device_ro(bdev, (td->flags & TD_FLAGS_READ_ONLY) != 0); //TODO move to function where tdisk is created
 
 	td->block_device = bdev;
-	td->flags = flags;
+	//td->flags = flags;
 
 	switch(index_operation_to_do)
 	{
 	case WRITE:
 		//Writing header to disk
 		header.current_max_sectors = td->max_sectors;
-		td_write_header(file, &header, &perf);
-		new_device->performance = perf;
+		td_write_header(&new_device, &header);
+		//new_device->performance = perf;
 
 		//Save indices from previously added disks
-		td_write_all_indices(td, file, &new_device->performance);
+		td_write_all_indices(td, &new_device);
 
 		//Save sector indices
 		sector = 0;
@@ -967,7 +989,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	case COMPARE:
 		//Reading all indices into temporary memory
 		physical_sector = vmalloc(sizeof(struct sector_index) * td->max_sectors);
-		td_read_all_indices(td, file, (u8*)physical_sector, &new_device->performance);
+		td_read_all_indices(td, &new_device, (u8*)physical_sector);
 
 		//Now comparing all sector indices
 		for(sector = 0; sector < td->max_sectors; ++sector)
@@ -983,7 +1005,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		break;
 	case READ:
 		//reading all indices from disk
-		td_read_all_indices(td, file, (u8*)td->indices, &new_device->performance);
+		td_read_all_indices(td, &new_device, (u8*)td->indices);
 		td_reorganize_all_indices(td);
 
 		for(sector = 0; sector < td->max_sectors; ++sector)
@@ -995,6 +1017,9 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		}
 		td->size_blocks = sector;
 		break;
+	default:
+		printk(KERN_ERR "tDisk: Invalid index_operation_to_do: %d\n", index_operation_to_do);
+		BUG_ON(true);
 	}
 
 	if(additional_sectors != 0)
@@ -1060,10 +1085,11 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		}
 	}
 
+	td->internal_devices[header.disk_index] = new_device;
 	printk(KERN_DEBUG "tDisk: new physical disk %u: size: %llu bytes. Logical size(%llu)\n", header.disk_index+1, size, td->size_blocks*td->blocksize);
 
-	if(!(flags & TD_FLAGS_READ_ONLY) && file->f_op->fsync)
-		blk_queue_flush(td->queue, REQ_FLUSH);
+	//if(!(td->flags & TD_FLAGS_READ_ONLY) && file->f_op->fsync)
+	//	blk_queue_flush(td->queue, REQ_FLUSH);
 
 	//let user-space know about this change
 	set_capacity(td->kernel_disk, (td->size_blocks*td->blocksize) >> 9);
@@ -1121,7 +1147,9 @@ static int td_get_device_info(struct tdisk *td, struct internal_device_info __us
 
 	if(info.disk == 0 || info.disk > td->internal_devices_count)
 		return -EINVAL;
-	
+
+	info.type = td->internal_devices[info.disk-1].type;
+	memcpy(info.name, td->internal_devices[info.disk-1].name, TDISK_MAX_INTERNAL_DEVICE_NAME);
 	info.performance = td->internal_devices[info.disk-1].performance;
 
 	if(copy_to_user(arg, &info, sizeof(info)) != 0)
@@ -1202,7 +1230,7 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 	switch(cmd)
 	{
 	case TDISK_ADD_DISK:
-		err = td_add_disk(td, mode, bdev, arg);
+		err = td_add_disk(td, mode, bdev, (struct internal_device_add_parameters __user *) arg);
 		break;
 	case TDISK_GET_STATUS:
 		err = td_get_status(td, (struct tdisk_info __user *) arg);
@@ -1447,15 +1475,12 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	struct gendisk *disk;
 	int err;
 	unsigned int header_size_byte;
-	char c[256];
 
 	if(blocksize == 0 || blocksize % TDISK_BLOCKSIZE_MOD)
 	{
 		printk(KERN_WARNING"tDisk: Failed to add tDisk. blocksize must be a multiple of 4096 but is %u\n", blocksize);
 		return -EINVAL;
 	}
-
-	nltd_write_sync("dropbox", 0, c, 256);
 
 	//Calculate header size which consists
 	//of a header, disk mappings and indices
@@ -1571,7 +1596,6 @@ int tdisk_remove(struct tdisk *td)
 	for(i = 0; i < td->internal_devices_count; ++i)
 	{
 		struct file *file = td->internal_devices[i].file;
-		td->internal_devices[i].file = NULL;
 
 		if(file)
 		{
@@ -1583,8 +1607,8 @@ int tdisk_remove(struct tdisk *td)
 			gfp_t gfp = td->internal_devices[i].old_gfp_mask;
 
 			//Write current performance and index values to file
-			td_write_header(file, &header, NULL);
-			td_write_all_indices(td, file, NULL);
+			td_write_header(&td->internal_devices[i], &header);
+			td_write_all_indices(td, &td->internal_devices[i]);
 
 			mapping_set_gfp_mask(file->f_mapping, gfp);
 

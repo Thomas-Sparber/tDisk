@@ -19,16 +19,6 @@
 #define PREVIOUS_RECORDS ((1 << MEASURE_RECORDS_SHIFT) - 1)
 
 /**
-  * If the performance of ONE operation was measured
-  * the reult is normally very low (e.g. 3 cycles) because
-  * it was averaged over the last (1 << MEASURE_RECORDS_SHIFT)
-  * operations.
-  * This macro calculates the time back to the actual amount
-  * of cycles.
- **/
-#define TIME_ONE_VALUE(val, mod) (val * (1 << MEASURE_RECORDS_SHIFT) + mod)
-
-/**
   * Returns whether the given file is a tDisk
  **/
 static inline int file_is_tdisk(struct file *file, int MAJOR_NUMBER)
@@ -91,6 +81,14 @@ inline static void file_update_performance(struct file *file, int direction, cyc
 	switch(direction)
 	{
 	case READ:
+		if(unlikely(perf->avg_read_time_cycles == 0))
+		{
+			//Means it was the first read operation of this file.
+			//Assuming that this is the averyge read performance
+			perf->avg_read_time_cycles = time;
+			break;
+		}
+
 		//Avg difference
 		if(perf->avg_read_time_cycles > time)
 			diff = perf->avg_read_time_cycles-time;
@@ -110,6 +108,14 @@ inline static void file_update_performance(struct file *file, int direction, cyc
 		perf->stdev_read_time_cycles = perf->stdev_read_time_cycles >> MEASURE_RECORDS_SHIFT;
 		break;
 	case WRITE:
+		if(unlikely(perf->avg_write_time_cycles == 0))
+		{
+			//Means it was the first read operation of this file.
+			//Assuming that this is the averyge read performance
+			perf->avg_write_time_cycles = time;
+			break;
+		}
+
 		//Avg difference
 		if(perf->avg_write_time_cycles > time)
 			diff = perf->avg_write_time_cycles-time;

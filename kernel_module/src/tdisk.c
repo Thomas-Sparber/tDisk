@@ -605,6 +605,7 @@ static int td_read_header(struct tdisk *td, struct td_internal_device *device, s
 	int error;
 
 	error = read_data(device, header, 0, sizeof(struct tdisk_header));
+	printk(KERN_DEBUG "tDisk: Finished reading header: %d\n", error);
 	if(error)return error;
 
 	printk(KERN_DEBUG "tDisk: Header: driver: %s, minor: %u, major: %u\n", header->driver_name, header->major_version, header->minor_version);
@@ -654,13 +655,19 @@ static int td_read_header(struct tdisk *td, struct td_internal_device *device, s
  **/
 static int td_write_header(struct td_internal_device *device, struct tdisk_header *header)
 {
+	int ret;
+
 	memset(header->driver_name, 0, sizeof(header->driver_name));
 	strcpy(header->driver_name, DRIVER_NAME);
 	header->driver_name[sizeof(header->driver_name)-1] = 0;
 	header->major_version = DRIVER_MAJOR_VERSION;
 	header->minor_version = DRIVER_MINOR_VERSION;
 
-	return write_data(device, header, 0, sizeof(struct tdisk_header));
+	ret = write_data(device, header, 0, sizeof(struct tdisk_header));
+
+	if(ret)printk(KERN_ERR "tDisk: Error writing header: %d\n", ret);
+
+	return ret;
 }
 
 /**
@@ -692,7 +699,7 @@ static int td_write_all_indices(struct tdisk *td, struct td_internal_device *dev
 	loff_t length = td->header_size*td->blocksize - skip;
 	ret = write_data(device, data, skip, length);
 
-	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
+	if(ret)printk(KERN_ERR "tDisk: Error writing all disk indices: %d. Offset: %u, length: %llu\n", ret, skip, length);
 	else printk(KERN_DEBUG "tDisk: Success writing all disk indices\n");
 
 	return ret;
@@ -764,7 +771,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 
 			if(unlikely(len != bvec.bv_len))
 			{
-				printk(KERN_ERR "tDisk: Write error at byte offset %llu, length %i.\n", (unsigned long long)pos_byte, bvec.bv_len);
+				printk(KERN_ERR "tDisk: Write error at byte offset %llu, length %i/%i.\n", (unsigned long long)pos_byte, len, bvec.bv_len);
 
 				if(len >= 0)ret = -EIO;
 				else ret = len;
@@ -1595,6 +1602,11 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	struct gendisk *disk;
 	int err;
 	unsigned int header_size_byte;
+
+	char data[152];
+	loff_t testsize = nltd_get_size("dropbox_tommy_infancy@yahoo.de_tdisk1");
+	nltd_read_sync("dropbox_tommy_infancy@yahoo.de_tdisk1", 0, data, 152);
+	nltd_write_sync("dropbox_tommy_infancy@yahoo.de_tdisk1", 0, data, 152);
 
 	if(blocksize == 0 || blocksize % TDISK_BLOCKSIZE_MOD)
 	{

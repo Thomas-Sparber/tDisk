@@ -246,6 +246,8 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 	request_number = nla_get_u32(info->attrs[NLTD_REQ_NUMBER]);
 	length = nla_get_s32(info->attrs[NLTD_REQ_LENGTH]);
 
+	if(length < 0)printk(KERN_DEBUG "tDisk: received error message %d\n", length);
+
 	//Get original request structure from pending request
 	req = pop_request(request_number);
 	if(!req)
@@ -258,7 +260,7 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 
 	//If the type was not write operation, the
 	//data need to be stored back to the original data
-	if(req->type != READ && length > 0)
+	if(req->type != WRITE && length > 0)
 	{
 		void *data;
 		if(!info->attrs[NLTD_REQ_BUFFER])
@@ -288,6 +290,10 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 	struct sk_buff *msg;
 	struct pending_request *req;
 	u32 port = get_plugin_port(plugin);
+	unsigned int msg_size = 4 /*u32 -> req_nr*/ +
+							8 /*u64 -> offset*/ +
+							4 /*s32 -> length*/ +
+							length /* buffer */;
 
 	//0 means unregistered
 	err = -ENODEV;
@@ -295,7 +301,7 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 
 	//TODO set good size
 	err = -ENOMEM;
-	msg = nlmsg_new(NLMSG_GOODSIZE, GFP_KERNEL);
+	msg = nlmsg_new(msg_size, GFP_KERNEL);
 	if(!msg)goto error;
 
 	err = -ENOBUFS;
@@ -324,10 +330,20 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 	req->buffer = buffer;
 	req->buffer_length = length;
 
-	nla_put_u32(msg, NLTD_REQ_NUMBER, req->seq_nr);
-	nla_put_u64(msg, NLTD_REQ_OFFSET, offset);
-	nla_put_s32(msg, NLTD_REQ_LENGTH, length);
-	if(operation != READ)nla_put(msg, NLTD_REQ_BUFFER, length, buffer);
+	err = nla_put_u32(msg, NLTD_REQ_NUMBER, req->seq_nr);
+	if(err)goto nlmsg_failure;
+
+	err = nla_put_u64(msg, NLTD_REQ_OFFSET, offset);
+	if(err)goto nlmsg_failure;
+
+	err = nla_put_s32(msg, NLTD_REQ_LENGTH, length);
+	if(err)goto nlmsg_failure;
+
+	if(operation != READ)
+	{
+		err = nla_put(msg, NLTD_REQ_BUFFER, length, buffer);
+		if(err)goto nlmsg_failure;
+	}
 	genlmsg_end(msg, hdr);
 
 	err = genlmsg_unicast(&init_net, msg, port);
@@ -370,12 +386,10 @@ int nltd_read_sync(const char *plugin, loff_t offset, char *buffer, int length)
 	};
 
 	nltd_read_async(plugin, offset, buffer, length, sync_request_callback, &sync);
-	if(wait_for_completion_timeout(&sync.done, msecs_to_jiffies(NLTD_TIMEOUT_MSECS)) == 0)
-	{
-		return -ETIMEDOUT;
-	}
+	wait_for_completion(&sync.done);
 
-	return sync.ret;
+	if(sync.ret < 0)return -EIO;
+	else return 0;
 }
 
 int nltd_write_sync(const char *plugin, loff_t offset, char *buffer, int length)
@@ -388,7 +402,8 @@ int nltd_write_sync(const char *plugin, loff_t offset, char *buffer, int length)
 	nltd_write_async(plugin, offset, buffer, length, sync_request_callback, &sync);
 	wait_for_completion(&sync.done);
 
-	return sync.ret;
+	if(sync.ret < 0)return -EIO;
+	else return 0;
 }
 
 loff_t nltd_get_size(const char *plugin)
@@ -436,12 +451,13 @@ void clear_timed_out_requests(unsigned long data)
 
 	list_for_each_entry_safe(request, n, &removed, list)
 	{
+		printk(KERN_DEBUG "tDisk: Timing out request %u: time: %llu jiffies (%u/sec)\n", request->seq_nr, get_jiffies_64()-request->started, HZ);
 		if(request->callback)request->callback(request->userobject, -ETIMEDOUT);
 		kfree(request);
 		amount++;
 	}
 
-	if(amount)printk(KERN_DEBUG "tDisk: Cleared %d timed out requests\n", amount);
+	if(amount)printk(KERN_WARNING "tDisk: Cleared %d timed out requests\n", amount);
 
 	timeout_timer.expires = get_jiffies_64() + HZ;
 	add_timer(&timeout_timer);

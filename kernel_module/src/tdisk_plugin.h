@@ -49,7 +49,11 @@ inline static int plugin_write_bio_vec(const char *plugin, struct bio_vec *bvec,
 {
 	char *data = page_address(bvec->bv_page) + bvec->bv_offset;
 	int ret = plugin_write_data(plugin, data, (*pos), bvec->bv_len, perf);
-	if(ret > 0)(*pos) += bvec->bv_len;
+	if(ret == 0)
+	{
+		(*pos) += bvec->bv_len;
+		return bvec->bv_len;
+	}
 	return ret;
 }
 
@@ -57,7 +61,11 @@ inline static int plugin_read_bio_vec(const char *plugin, struct bio_vec *bvec, 
 {
 	char *data = page_address(bvec->bv_page) + bvec->bv_offset;
 	int ret = plugin_read_data(plugin, data, (*pos), bvec->bv_len, perf);
-	if(ret > 0)(*pos) += bvec->bv_len;
+	if(ret == 0)
+	{
+		(*pos) += bvec->bv_len;
+		return bvec->bv_len;
+	}
 	return ret;
 }
 

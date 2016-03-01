@@ -2,12 +2,14 @@
 #include <string>
 
 #include <curldefinitions.hpp>
-#include <dropbox.hpp>
+#include <dropboxtdisk.hpp>
 #include <dropboxexception.hpp>
 
 using std::cerr;
 using std::cout;
 using std::endl;
+using std::string;
+using std::vector;
 
 using namespace td;
 
@@ -16,18 +18,18 @@ int main(int argc, char *args[])
 	void initCurl();
 
 	try{
-		Dropbox api("oauth_token_secret=d7z7oc0i6ueomsi&oauth_token=yhqzektts3cithe6&uid=24443477");
+		DropboxTDisk api("oauth_token_secret=d7z7oc0i6ueomsi&oauth_token=yhqzektts3cithe6&uid=24443477", "tdisk1/", 163840, 20*1024*1024);
+		api.reserveSpace();
 		api.registerInKernel();
-
 		api.listen();
-
-		cout<<api.getAccountInfo()<<endl;
-		//cout<<api.downloadFile("App/2DO hispotme.txt")<<endl;
-		//api.uploadFile("test.txt", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-		//api.uploadFile("test.txt", "bbbbb", 50);
-		//cout<<api.getMetadata("test.txt")<<endl;
-		//cout<<api.getLink("https://www.dropbox.com/s/pf6ffwnqxivcsri/Wedding.7z?dl=0")<<endl;
-		//cout<<api.downloadFile("test.txt")<<endl;
+		//api.isEnoughSpaceAvailable();
+		//vector<char> buffer(32768-152, 'a');
+		//api.write(152, &buffer[0], buffer.size());
+		//buffer = vector<char>(50, 'b');
+		//api.write(4234596, &buffer[0], buffer.size());
+		//buffer = vector<char>(60);
+		//api.read(4234566, &buffer[0], buffer.size());
+		//api.listen();
 	} catch(const DropboxException &e) {
 		cerr<<"Error: "<<e.what<<endl;
 	}

@@ -6,8 +6,9 @@ LDFLAGS=-lcurl -L../libs/liboauthcpp -loauthcpp -L../libs/jsoncpp/src/lib_json -
 SOURCES=
 
 CPP_SOURCES= \
-	src/dropbox.cpp
-	
+	src/dropbox.cpp \
+	src/dropboxtdisk.cpp \
+	src/main.cpp
 
 OBJECTS=$(SOURCES:src/%.c=bin/%.o) $(CPP_SOURCES:src/%.cpp=bin/%.o)
 DEPS=$(OBJECTS:bin/%.o=bin/%.d)
@@ -16,9 +17,9 @@ all: bin dropbox
 
 -include $(DEPS)
 
-dropbox: $(OBJECTS) bin/main.o
+dropbox: $(OBJECTS)
 	@echo "Linking" $@
-	@$(CXX) -o $@ bin/main.o $(OBJECTS) $(LDFLAGS)
+	@$(CXX) -o $@ $(OBJECTS) $(LDFLAGS)
 
 bin/%.o: src/%.c
 	@echo "Compiling" $<

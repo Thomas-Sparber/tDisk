@@ -1,0 +1,186 @@
+#include <iostream>
+#include <list>
+#include <string>
+#include <string.h>
+
+#include <dropboxtdisk.hpp>
+
+using std::cerr;
+using std::cout;
+using std::endl;
+using std::list;
+using std::min;
+using std::string;
+using std::vector;
+
+using namespace td;
+
+inline string getFileName(const string &tDiskPath, unsigned int i)
+{
+	return concat("/",tDiskPath,"/",i,".td");
+}
+
+DropboxTDisk::DropboxTDisk(const string &str_tDiskPath, unsigned int ui_blocksize, unsigned long long llu_size) :
+	Plugin(),
+	Dropbox(),
+	user(),
+	tDiskPath(str_tDiskPath),
+	blocksize(ui_blocksize),
+	size(llu_size)
+{
+	if(!tDiskPath.empty() && tDiskPath[0] == '/')tDiskPath = tDiskPath.substr(1);
+	if(!tDiskPath.empty() && tDiskPath[tDiskPath.length()-1] == '/')tDiskPath = tDiskPath.substr(0, tDiskPath.length()-1);
+}
+
+DropboxTDisk::DropboxTDisk(const string &str_accessToken, const string &str_tDiskPath, unsigned int ui_blocksize, unsigned long long llu_size) :
+	Plugin(),
+	Dropbox(str_accessToken),
+	user(),
+	tDiskPath(str_tDiskPath),
+	blocksize(ui_blocksize),
+	size(llu_size)
+{
+	if(!tDiskPath.empty() && tDiskPath[0] == '/')tDiskPath = tDiskPath.substr(1);
+	if(!tDiskPath.empty() && tDiskPath[tDiskPath.length()-1] == '/')tDiskPath = tDiskPath.substr(0, tDiskPath.length()-1);
+	user = loadDropboxUser();
+	Plugin::setName(concat("dropbox_",user,"_",tDiskPath));
+}
+
+string DropboxTDisk::loadDropboxUser() const
+{
+	const AccountInfo info = Dropbox::getAccountInfo();
+	return std::move(info.email);
+}
+
+bool DropboxTDisk::read(unsigned long long offset, char *data, std::size_t length) const
+{
+	cout<<"Read request: "<<offset<<" - "<<offset+length<<endl;
+
+	try {
+		while(length > 0)
+		{
+			unsigned long long file = offset / blocksize;
+			std::size_t fileOffset = std::size_t(offset % blocksize);
+			std::size_t currentLength = min(length, blocksize-fileOffset);
+
+			//string result;
+			const string fileName = getFileName(tDiskPath, unsigned(file));
+			//if(fileOffset == 0 && currentLength == blocksize)
+			const string result = downloadFile(fileName);
+			//else
+			//	result = downloadFile(fileName, fileOffset, currentLength);
+
+			if(result.length() != blocksize)
+			{
+				cerr<<"Warning: downloaded file length is not as expected: "<<result.length()<<"/"<<blocksize<<endl;
+				return false;
+			}
+			memcpy(data, result.c_str()+fileOffset, min(result.length()-fileOffset, currentLength));
+
+			length -= currentLength;
+			data += currentLength;
+		}
+		return true;
+	} catch(const DropboxException &e) {
+		cerr<<"Error reading data "<<offset<<" - "<<offset+length<<": "<<e.what<<endl;
+		return false;
+	}
+}
+
+bool DropboxTDisk::write(unsigned long long offset, const char *data, std::size_t length)
+{
+	cout<<"Write request: "<<offset<<" - "<<offset+length<<endl;
+
+	try {
+		while(length > 0)
+		{
+			unsigned long long file = offset / blocksize;
+			std::size_t fileOffset = std::size_t(offset % blocksize);
+			std::size_t currentLength = min(length, blocksize-fileOffset);
+
+			const string fileName = getFileName(tDiskPath, unsigned(file));
+			if(fileOffset == 0 && currentLength == blocksize)
+			{
+				uploadFile(fileName, string(data, length));
+			}
+			else
+			{
+				string result = downloadFile(fileName);
+				if(result.length() != blocksize)
+				{
+					cerr<<"Warning: downloaded file length is not as expected: "<<result.length()<<"/"<<blocksize<<endl;
+					return false;
+				}
+				result.replace(fileOffset, currentLength, data, currentLength);
+				uploadFile(fileName, result);
+			}
+
+			length -= currentLength;
+			data += currentLength;
+		}
+		return true;
+	} catch(const DropboxException &e) {
+		cerr<<"Error reading data "<<offset<<" - "<<offset+length<<": "<<e.what<<endl;
+		return false;
+	}
+}
+
+bool DropboxTDisk::isEnoughSpaceAvailable() const
+{
+	const AccountInfo info = Dropbox::getAccountInfo();
+
+	unsigned long long requiredSize = size;
+	unsigned long long available = info.quota_info.quota - info.quota_info.normal;
+
+	try {
+		const FileMetadata data = getMetadata(tDiskPath);
+		for(const FileMetadata &file : data.contents)
+		{
+			if(file.bytes > requiredSize)
+			{
+				//We have more files allocated than we need...
+				requiredSize = 0;
+				break;
+			}
+			requiredSize -= file.bytes;
+		}
+	} catch(const DropboxException &) {
+		//Folder does not exist yet. Ignoring it...
+	}
+
+	cout<<"Available: "<<available<<", Required: "<<requiredSize<<"/"<<size<<endl;
+	return available >= requiredSize;
+}
+
+void DropboxTDisk::reserveSpace()
+{
+	string buffer(blocksize, 0);
+	list<FileMetadata> existing;
+
+	try {
+		const FileMetadata data = getMetadata(tDiskPath);
+		existing.insert(existing.end(), data.contents.begin(), data.contents.end());
+	} catch(const DropboxException &e) {
+		//Folder does not exist yet. Ignoring it...
+	}
+
+	for(unsigned int i = 0; (unsigned long long)i*blocksize < size; ++i)
+	{
+		const string path = getFileName(tDiskPath, i);
+
+		bool exists = false;
+		for(auto it = existing.begin(); it != existing.end(); ++it)
+		{
+			if(it->path == path && it->bytes == blocksize)
+			{
+				existing.erase(it);
+				exists = true;
+				break;
+			}
+		}
+		if(exists)continue;
+
+		cout<<"Creating file "<<path<<" ("<<buffer.size()<<")"<<endl;
+		uploadFile(path, buffer);
+	}
+}

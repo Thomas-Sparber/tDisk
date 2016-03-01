@@ -48,8 +48,8 @@ struct FileMetadata
 		extractJsonOptional(is_deleted, r, "is_deleted");
 		extractJson(icon, r, "icon");
 		extractJson(root, r, "root");
-		extractJson(client_mtime, r, "client_mtime");
-		extractJson(mime_type, r, "mime_type");
+		extractJsonOptional(client_mtime, r, "client_mtime");
+		extractJsonOptional(mime_type, r, "mime_type");
 
 		extractJsonOptional(photo_info.lat_long, r, "photo_info", "lat_long");
 		extractJsonOptional(photo_info.time_taken, r, "photo_info", "time_taken");

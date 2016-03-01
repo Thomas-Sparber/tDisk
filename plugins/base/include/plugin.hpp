@@ -21,7 +21,7 @@ class Plugin
 {
 
 public:
-	Plugin(const std::string &name, bool registerInKernel);
+	Plugin(const std::string &name="", bool registerInKernel=false);
 
 	Plugin(Plugin &&other) = default;
 
@@ -35,11 +35,11 @@ public:
 
 	void registerInKernel();
 
-	void unregister();
+	bool unregister();
 
-	virtual bool read(unsigned long long offset, std::vector<char> &data, std::size_t length) const = 0;
+	virtual bool read(unsigned long long offset, char *data, std::size_t length) const = 0;
 
-	virtual bool write(unsigned long long offset, const std::vector<char> &data, std::size_t length) = 0;
+	virtual bool write(unsigned long long offset, const char *data, std::size_t length) = 0;
 
 	virtual unsigned long long getSize() const = 0;
 
@@ -67,6 +67,13 @@ protected:
 	bool messageReceived(uint32_t sequenceNumber, PluginOperation operation, unsigned long long offset, std::vector<char> &data, int length);
 
 	bool sendFinishedMessage(uint32_t sequenceNumber, std::vector<char> &data, int length);
+
+	void setName(const std::string &str_name)
+	{
+		bool wasRegistered = unregister();
+		name = str_name;
+		if(wasRegistered)registerInKernel();
+	}
 
 private:
 	std::string name;

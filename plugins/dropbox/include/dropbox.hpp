@@ -4,7 +4,6 @@
 #include <string>
 #include <sstream>
 
-#include <plugin.hpp>
 #include <accountinfo.hpp>
 #include <filemetadata.hpp>
 #include <liboauthcpp/liboauthcpp.h>
@@ -13,12 +12,11 @@
 namespace td
 {
 
-class Dropbox : public Plugin
+class Dropbox
 {
 
 public:
 	Dropbox(const std::string &accessToken="");
-
 
 	bool isAuthenticated() const
 	{
@@ -33,20 +31,14 @@ public:
 
 	FileMetadata uploadFile(const std::string &path, const std::string &content, long long offset);
 
-	FileMetadata getMetadata(const std::string &path) const;
+	FileMetadata getMetadata(const std::string &path, bool list=true, bool mediaInfo=false, unsigned int fileLimit=10000) const;
 
 	//LinkMetadata getLink(const std::string &link, bool list=true, bool mediaInfo=false, unsigned int fileLimit=10000) const;
-
-	virtual bool read(unsigned long long offset, std::vector<char> &data, std::size_t length) const;
-
-	virtual bool write(unsigned long long offset, const std::vector<char> &data, std::size_t length);
-
-	virtual unsigned long long getSize() const;
 
 private:
 	std::string loadOAuthToken();
 
-	std::string getDropboxSite(const std::string &site, long long start=0, std::size_t length=0) const;
+	std::string getDropboxSite(const std::string &site, const std::string &getData="", long long start=0, std::size_t length=0) const;
 
 	std::string postDropboxSite(const std::string &site, const std::string &data) const;
 

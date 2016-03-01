@@ -135,11 +135,13 @@ void Plugin::registerInKernel()
 {
 	unregister();
 
+	cout<<"Registering plugin \""<<name<<"\""<<endl;
+
 	socket = nl_socket_alloc();
 	nl_socket_disable_seq_check(socket);
 	nl_socket_modify_cb(socket, NL_CB_VALID, NL_CB_CUSTOM, worker_function, this);
 	nl_socket_modify_err_cb(socket, NL_CB_DEBUG, nullptr, nullptr);
-	nl_socket_set_buffer_size(socket, 65536, 65536);
+	nl_socket_set_buffer_size(socket, 2097152, 2097152);
 
 	genl_connect(socket);
 	familyId = genl_ctrl_resolve(socket, NLTD_NAME);
@@ -151,7 +153,7 @@ void Plugin::registerInKernel()
 	);
 }
 
-void Plugin::unregister()
+bool Plugin::unregister()
 {
 	stop();
 
@@ -163,7 +165,10 @@ void Plugin::unregister()
 
 		nl_socket_free(socket);
 		socket = nullptr;
+		return true;
 	}
+
+	return false;
 }
 
 void Plugin::listen()
@@ -199,11 +204,16 @@ bool Plugin::messageReceived(uint32_t sequenceNumber, PluginOperation operation,
 	if(operation == PluginOperation::read)
 	{
 		data = vector<char>(length);
-		success = read(offset, data, length);
+		success = read(offset, &data[0], length);
 	}
 	else if(operation == PluginOperation::write)
 	{
-		success = write(offset, data, length);
+		if(int(data.size()) != length)
+		{
+			cerr<<"Invalid data size given: "<<data.size()<<"/"<<length<<endl;
+			success = false;
+		}
+		else success = write(offset, &data[0], length);
 	}
 	else if(operation == PluginOperation::size)
 	{
@@ -218,13 +228,18 @@ bool Plugin::messageReceived(uint32_t sequenceNumber, PluginOperation operation,
 		success = false;
 	}
 
-	if(data.size() != (std::size_t)length)success = false;
+	if(data.size() != (std::size_t)length)
+	{
+		cerr<<"Data size mismach: "<<data.size()<<"/"<<length<<endl;
+		success = false;
+	}
 
 	return sendFinishedMessage(sequenceNumber, data, success ? length : -1);
 }
 
 bool Plugin::sendFinishedMessage(uint32_t sequenceNumber, vector<char> &data, int length)
 {
+	cout<<"Finished message length: "<<length<<endl;
 	return sendNlMessage(socket, NLTD_CMD_FINISHED, 0, familyId,
 		createArg<NLTD_REQ_NUMBER>(sequenceNumber),
 		createArg<NLTD_REQ_BUFFER>(data),

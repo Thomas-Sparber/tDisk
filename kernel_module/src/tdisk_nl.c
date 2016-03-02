@@ -347,6 +347,7 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 	genlmsg_end(msg, hdr);
 
 	err = genlmsg_unicast(&init_net, msg, port);
+	if(err)goto nlmsg_failure;
 	return 0;
 
  nlmsg_failure:

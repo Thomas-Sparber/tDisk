@@ -254,7 +254,7 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 	{
 		const char *plugin_name = get_plugin_name(info->snd_portid);
 
-		printk(KERN_WARNING "tDisk: Plugin %s (%u) finished a request I didn't know\n", (plugin_name ? plugin_name : "Unknown"), info->snd_portid);
+		printk(KERN_WARNING "tDisk: Plugin %s (%u) finished a request I didn't know of\n", (plugin_name ? plugin_name : "Unknown"), info->snd_portid);
 		return -EINVAL;
 	}
 
@@ -266,7 +266,7 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 		if(!info->attrs[NLTD_REQ_BUFFER])
 		{
 			const char *plugin_name = get_plugin_name(info->snd_portid);
-			printk(KERN_WARNING "tDisk: Probably broken plugin: %s (%u) - type is not READ but no buffer was sent.\n", (plugin_name ? plugin_name : "Unknown"), info->snd_portid);
+			printk(KERN_WARNING "tDisk: Probably broken plugin: %s (%u) - type is not WRITE but no buffer was sent.\n", (plugin_name ? plugin_name : "Unknown"), info->snd_portid);
 			length = -EINVAL;
 		}
 		else

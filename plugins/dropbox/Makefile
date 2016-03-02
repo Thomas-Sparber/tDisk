@@ -34,4 +34,4 @@ bin:
 
 clean:
 	@echo "Cleaning"
-	@rm -rf bin/*.o bin/*.d tdisk libtd-frontend.a
+	@rm -rf bin/*.o bin/*.d dropbox

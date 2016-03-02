@@ -111,11 +111,13 @@ int worker_function(nl_msg *msg, void *arg)
 
 } //end namespace td
 
-Plugin::Plugin(const string &str_name, bool b_registerInKernel) :
+Plugin::Plugin(const string &str_name, unsigned long long maxWriteBytesJoin, unsigned int maxHistoryBuffer, bool b_registerInKernel) :
 	name(str_name),
 	socket(nullptr),
 	familyId(),
-	running(false)
+	running(false),
+	writeBuffer(maxWriteBytesJoin),
+	history(maxHistoryBuffer)
 {
 	if(b_registerInKernel)
 	{
@@ -177,11 +179,15 @@ void Plugin::listen()
 
 	while(running)
 	{
+		if(writeBuffer.age() > 5)writeBufferedData();
+
 		if(!poll(1000))continue;
 
 		int ret = receive();
 		if(ret != 0)cout<<"Code: "<<ret<<": "<<nl_geterror(ret)<<endl;
 	}
+
+	writeBufferedData();
 }
 
 bool Plugin::poll(unsigned int time)
@@ -198,13 +204,28 @@ int Plugin::receive()
 	return nl_recvmsgs_default(socket);
 }
 
+bool Plugin::writeBufferedData()
+{
+	unsigned long long oldPos;
+	vector<char> oldData = writeBuffer.getAndPop(oldPos);
+	if(oldData.empty())return true;
+	return write(oldPos, &oldData[0], oldData.size());
+}
+
 bool Plugin::messageReceived(uint32_t sequenceNumber, PluginOperation operation, unsigned long long offset, vector<char> &data, int length)
 {
 	bool success;
 	if(operation == PluginOperation::read)
 	{
-		data = vector<char>(length);
-		success = read(offset, &data[0], length);
+		if(data.size() != unsigned(length))data = vector<char>(length);
+
+		if(history.get(offset, &data[0], length) || writeBuffer.read(offset, &data[0], length))
+			success = true;
+		else
+		{
+			success = read(offset, &data[0], length);
+			if(success)history.set(offset, &data[0], length);
+		}
 	}
 	else if(operation == PluginOperation::write)
 	{
@@ -213,7 +234,22 @@ bool Plugin::messageReceived(uint32_t sequenceNumber, PluginOperation operation,
 			cerr<<"Invalid data size given: "<<data.size()<<"/"<<length<<endl;
 			success = false;
 		}
-		else success = write(offset, &data[0], length);
+		else
+		{
+			if(!writeBuffer.canBeCombined(offset, &data[0], length))
+			{
+				writeBufferedData();	//TODO check return value
+			}
+
+			if(writeBuffer.append(offset, &data[0], length))
+			{
+				success = writeBufferedData();
+			}
+			else success = true;
+
+			if(success)history.set(offset, &data[0], length);
+			data.clear();
+		}
 	}
 	else if(operation == PluginOperation::size)
 	{
@@ -228,18 +264,17 @@ bool Plugin::messageReceived(uint32_t sequenceNumber, PluginOperation operation,
 		success = false;
 	}
 
-	if(data.size() != (std::size_t)length)
+	/*if(data.size() != (std::size_t)length)
 	{
 		cerr<<"Data size mismach: "<<data.size()<<"/"<<length<<endl;
 		success = false;
-	}
+	}*/
 
 	return sendFinishedMessage(sequenceNumber, data, success ? length : -1);
 }
 
 bool Plugin::sendFinishedMessage(uint32_t sequenceNumber, vector<char> &data, int length)
 {
-	cout<<"Finished message length: "<<length<<endl;
 	return sendNlMessage(socket, NLTD_CMD_FINISHED, 0, familyId,
 		createArg<NLTD_REQ_NUMBER>(sequenceNumber),
 		createArg<NLTD_REQ_BUFFER>(data),

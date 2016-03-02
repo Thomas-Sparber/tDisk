@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 
+#include <historybuffer.hpp>
+#include <writebuffer.hpp>
+
 struct nl_sock;
 struct nl_msg;
 
@@ -21,7 +24,7 @@ class Plugin
 {
 
 public:
-	Plugin(const std::string &name="", bool registerInKernel=false);
+	Plugin(const std::string &name="", unsigned long long maxWriteBytesJoin=0, unsigned int maxHistoryBuffer=0, bool registerInKernel=false);
 
 	Plugin(Plugin &&other) = default;
 
@@ -68,6 +71,8 @@ protected:
 
 	bool sendFinishedMessage(uint32_t sequenceNumber, std::vector<char> &data, int length);
 
+	bool writeBufferedData();
+
 	void setName(const std::string &str_name)
 	{
 		bool wasRegistered = unregister();
@@ -80,6 +85,8 @@ private:
 	mutable struct nl_sock *socket;
 	int familyId;
 	bool running;
+	WriteBuffer writeBuffer;
+	HistoryBuffer history;
 
 }; //end class Plugin
 

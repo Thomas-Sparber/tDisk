@@ -20,25 +20,27 @@ inline string getFileName(const string &tDiskPath, unsigned int i)
 	return concat("/",tDiskPath,"/",i,".td");
 }
 
-DropboxTDisk::DropboxTDisk(const string &str_tDiskPath, unsigned int ui_blocksize, unsigned long long llu_size) :
+DropboxTDisk::DropboxTDisk(const string &str_tDiskPath, unsigned int ui_blocksize, unsigned long long llu_size, unsigned int maxHistoryBuffer) :
 	Plugin(),
 	Dropbox(),
 	user(),
 	tDiskPath(str_tDiskPath),
 	blocksize(ui_blocksize),
-	size(llu_size)
+	size(llu_size),
+	dropboxHistory(maxHistoryBuffer)
 {
 	if(!tDiskPath.empty() && tDiskPath[0] == '/')tDiskPath = tDiskPath.substr(1);
 	if(!tDiskPath.empty() && tDiskPath[tDiskPath.length()-1] == '/')tDiskPath = tDiskPath.substr(0, tDiskPath.length()-1);
 }
 
-DropboxTDisk::DropboxTDisk(const string &str_accessToken, const string &str_tDiskPath, unsigned int ui_blocksize, unsigned long long llu_size) :
-	Plugin(),
+DropboxTDisk::DropboxTDisk(const string &str_accessToken, const string &str_tDiskPath, unsigned int ui_blocksize, unsigned long long llu_size, unsigned int maxHistoryBuffer) :
+	Plugin("", ui_blocksize),
 	Dropbox(str_accessToken),
 	user(),
 	tDiskPath(str_tDiskPath),
 	blocksize(ui_blocksize),
-	size(llu_size)
+	size(llu_size),
+	dropboxHistory(maxHistoryBuffer)
 {
 	if(!tDiskPath.empty() && tDiskPath[0] == '/')tDiskPath = tDiskPath.substr(1);
 	if(!tDiskPath.empty() && tDiskPath[tDiskPath.length()-1] == '/')tDiskPath = tDiskPath.substr(0, tDiskPath.length()-1);
@@ -52,9 +54,9 @@ string DropboxTDisk::loadDropboxUser() const
 	return std::move(info.email);
 }
 
-bool DropboxTDisk::read(unsigned long long offset, char *data, std::size_t length) const
+bool DropboxTDisk::internalRead(unsigned long long offset, char *data, std::size_t length, bool saveHistory) const
 {
-	cout<<"Read request: "<<offset<<" - "<<offset+length<<endl;
+	if(dropboxHistory.get(offset, data, length))return 2;
 
 	try {
 		while(length > 0)
@@ -63,22 +65,75 @@ bool DropboxTDisk::read(unsigned long long offset, char *data, std::size_t lengt
 			std::size_t fileOffset = std::size_t(offset % blocksize);
 			std::size_t currentLength = min(length, blocksize-fileOffset);
 
-			//string result;
-			const string fileName = getFileName(tDiskPath, unsigned(file));
-			//if(fileOffset == 0 && currentLength == blocksize)
-			const string result = downloadFile(fileName);
-			//else
-			//	result = downloadFile(fileName, fileOffset, currentLength);
-
-			if(result.length() != blocksize)
+			if(!dropboxHistory.get(offset, data, currentLength))
 			{
-				cerr<<"Warning: downloaded file length is not as expected: "<<result.length()<<"/"<<blocksize<<endl;
-				return false;
+				//string result;
+				const string fileName = getFileName(tDiskPath, unsigned(file));
+				//if(fileOffset == 0 && currentLength == blocksize)
+				const string result = downloadFile(fileName);
+				//else
+				//	result = downloadFile(fileName, fileOffset, currentLength);
+
+				if(result.length() != blocksize)
+				{
+					cerr<<"Warning: downloaded file length is not as expected: "<<result.length()<<"/"<<blocksize<<endl;
+					return false;
+				}
+				if(saveHistory)dropboxHistory.set(file*blocksize, result.c_str(), blocksize);
+				memcpy(data, result.c_str()+fileOffset, min(result.length()-fileOffset, currentLength));
 			}
-			memcpy(data, result.c_str()+fileOffset, min(result.length()-fileOffset, currentLength));
 
 			length -= currentLength;
 			data += currentLength;
+			offset += currentLength;
+		}
+		return true;
+	} catch(const DropboxException &e) {
+		cerr<<"Error reading data "<<offset<<" - "<<offset+length<<": "<<e.what<<endl;
+		return false;
+	}
+}
+
+bool DropboxTDisk::read(unsigned long long offset, char *data, std::size_t length) const
+{
+	cout<<"Read request: "<<offset<<" - "<<offset+length<<endl;
+
+	return internalRead(offset, data, length, true);
+}
+
+bool DropboxTDisk::internalWrite(unsigned long long offset, const char *data, std::size_t length)
+{
+	try {
+		vector<char> buffer(blocksize);
+
+		while(length > 0)
+		{
+			unsigned long long file = offset / blocksize;
+			std::size_t fileOffset = std::size_t(offset % blocksize);
+			std::size_t currentLength = min(length, blocksize-fileOffset);
+
+			const string fileName = getFileName(tDiskPath, unsigned(file));
+			if(fileOffset == 0 && currentLength == blocksize)
+			{
+				uploadFile(fileName, string(data, currentLength));
+			}
+			else
+			{
+				internalRead(file*blocksize, &buffer[0], blocksize, false);
+				string result(&buffer[0], buffer.size());// = downloadFile(fileName);
+				if(result.length() != blocksize)
+				{
+					cerr<<"Warning: downloaded file length is not as expected: "<<result.length()<<"/"<<blocksize<<endl;
+					return false;
+				}
+				result.replace(fileOffset, currentLength, data, currentLength);
+				dropboxHistory.set(file*blocksize, result.c_str(), blocksize);
+				uploadFile(fileName, result);
+			}
+
+			length -= currentLength;
+			data += currentLength;
+			offset += currentLength;
 		}
 		return true;
 	} catch(const DropboxException &e) {
@@ -91,38 +146,7 @@ bool DropboxTDisk::write(unsigned long long offset, const char *data, std::size_
 {
 	cout<<"Write request: "<<offset<<" - "<<offset+length<<endl;
 
-	try {
-		while(length > 0)
-		{
-			unsigned long long file = offset / blocksize;
-			std::size_t fileOffset = std::size_t(offset % blocksize);
-			std::size_t currentLength = min(length, blocksize-fileOffset);
-
-			const string fileName = getFileName(tDiskPath, unsigned(file));
-			if(fileOffset == 0 && currentLength == blocksize)
-			{
-				uploadFile(fileName, string(data, length));
-			}
-			else
-			{
-				string result = downloadFile(fileName);
-				if(result.length() != blocksize)
-				{
-					cerr<<"Warning: downloaded file length is not as expected: "<<result.length()<<"/"<<blocksize<<endl;
-					return false;
-				}
-				result.replace(fileOffset, currentLength, data, currentLength);
-				uploadFile(fileName, result);
-			}
-
-			length -= currentLength;
-			data += currentLength;
-		}
-		return true;
-	} catch(const DropboxException &e) {
-		cerr<<"Error reading data "<<offset<<" - "<<offset+length<<": "<<e.what<<endl;
-		return false;
-	}
+	return internalWrite(offset, data, length);
 }
 
 bool DropboxTDisk::isEnoughSpaceAvailable() const

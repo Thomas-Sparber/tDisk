@@ -20,9 +20,6 @@
 #include "../include/tdisk/interface.h"
 #include "worker_timeout.h"
 
-
-#define TDISK_MAX_PHYSICAL_DISKS ((tdisk_index)-1 -1) /*-1 because 0 means unused*/
-
 /**
   * Describes the header (first bytes) of a physical
   * disk. This makes it possible to identify it as a
@@ -55,6 +52,8 @@ struct sorted_sector_index
  **/
 struct td_internal_device
 {
+	enum internal_device_type type;
+	char name[TDISK_MAX_INTERNAL_DEVICE_NAME];
 	struct file *file;
 	gfp_t old_gfp_mask;
 

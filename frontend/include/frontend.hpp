@@ -4,31 +4,26 @@
 #include <string>
 #include <vector>
 
-#include <utils.hpp>
 #include <ci_string.hpp>
+#include <options.hpp>
+#include <utils.hpp>
 
 namespace td
 {
 
-	struct FrontendException
-	{
-		template <class ...T>
-		FrontendException(T ...t) :
-			what(td::concat(t...))
-		{}
+	Options getDefaultOptions();
 
-		std::string what;
-	}; //end class FrontendException
-
-	std::string add_tDisk(const std::vector<std::string> &args, const ci_string &outputFormat);
-	std::string remove_tDisk(const std::vector<std::string> &args, const ci_string &outputFormat);
-	std::string add_disk(const std::vector<std::string> &args, const ci_string &outputFormat);
-	std::string get_max_sectors(const std::vector<std::string> &args, const ci_string &outputFormat);
-	std::string get_sector_index(const std::vector<std::string> &args, const ci_string &outputFormat);
-	std::string get_all_sector_indices(const std::vector<std::string> &args, const ci_string &outputFormat);
-	std::string clear_access_count(const std::vector<std::string> &args, const ci_string &outputFormat);
-	std::string get_internal_devices_count(const std::vector<std::string> &args, const ci_string &outputFormat);
-	std::string get_device_info(const std::vector<std::string> &args, const ci_string &outputFormat);
+	std::string add_tDisk(const std::vector<std::string> &args, Options &options);
+	std::string remove_tDisk(const std::vector<std::string> &args, Options &options);
+	std::string add_disk(const std::vector<std::string> &args, Options &options);
+	std::string get_max_sectors(const std::vector<std::string> &args, Options &options);
+	std::string get_sector_index(const std::vector<std::string> &args, Options &options);
+	std::string get_all_sector_indices(const std::vector<std::string> &args, Options &options);
+	std::string clear_access_count(const std::vector<std::string> &args, Options &options);
+	std::string get_internal_devices_count(const std::vector<std::string> &args, Options &options);
+	std::string get_device_info(const std::vector<std::string> &args, Options &options);
+	std::string load_config_file(const std::vector<std::string> &args, Options &options);
+	std::string get_device_advice(const std::vector<std::string> &args, Options &options);
 
 } //end namespace td
 

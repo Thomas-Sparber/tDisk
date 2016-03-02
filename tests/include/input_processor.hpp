@@ -7,6 +7,8 @@
 #include <typeinfo>
 #include <vector>
 
+#include <utils.hpp>
+
 struct InputDefinition
 {
 
@@ -50,13 +52,9 @@ struct InputDefinition
 
 }; //end struct InputDefinition
 
-template <class S> inline void concat(std::stringstream &ss, const S &s) { ss<<s; }
-template <class S, class ...T> inline void concat(std::stringstream &ss, const S &s, T ...t) { ss<<s; concat(ss, t...); }
-template <class ...T> inline std::string concat(T ...t) { std::stringstream ss; concat(ss, t...); return ss.str(); }
-
 struct InputException
 {
-	template <class ...T> InputException(T ...t) : message(concat(t...)) {}
+	template <class ...T> InputException(T ...t) : message(td::concat(t...)) {}
 	std::string message;
 }; //end struct InputException
 

@@ -5,16 +5,24 @@ CPPFLAGS=-std=c++11 -Weffc++
 LDFLAGS=-L. -ltd-frontend
 SOURCES= \
 	src/tdisk.c \
+	src/tdisk_fake.c \
 	src/frontend_c.c
 
 CPP_SOURCES= \
-	src/frontend.cpp
-	
+	src/configfile.cpp \
+	src/device.cpp \
+	src/deviceadvisor.cpp \
+	src/filesystem.cpp \
+	src/frontend.cpp \
+	src/option.cpp \
+	src/options.cpp \
+	src/tdisk_advice.cpp
+
 
 OBJECTS=$(SOURCES:src/%.c=bin/%.o) $(CPP_SOURCES:src/%.cpp=bin/%.o)
 DEPS=$(OBJECTS:bin/%.o=bin/%.d)
 
-all: tdisk
+all: bin tdisk
 
 -include $(DEPS)
 
@@ -26,11 +34,11 @@ tdisk: libtd-frontend.a bin/main.o
 	@echo "Linking" $@
 	@$(CXX) -o $@ bin/main.o $(LDFLAGS)
 
-bin/%.o: src/%.c bin
+bin/%.o: src/%.c
 	@echo "Compiling" $<
 	@$(CC) -MD $(CFLAGS) -o $@ $<
 
-bin/%.o: src/%.cpp bin
+bin/%.o: src/%.cpp
 	@echo "Compiling" $<
 	@$(CXX) -MD $(CFLAGS) $(CPPFLAGS) -o $@ $<
 

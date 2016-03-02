@@ -7,6 +7,7 @@
 #include <ci_string.hpp>
 #include <tdisk.hpp>
 #include <frontend.hpp>
+#include <frontendexception.hpp>
 
 using std::cerr;
 using std::cout;
@@ -22,18 +23,10 @@ using namespace td;
 
 struct Command
 {
-	Command(const ci_string &str_name, function<string(const vector<string>&,const ci_string&)> fn_func) : name(str_name), func(fn_func) {}
+	Command(const ci_string &str_name, function<string(const vector<string>&,Options&)> fn_func) : name(str_name), func(fn_func) {}
 	ci_string name;
-	function<string(const vector<string>&,const ci_string&)> func;
+	function<string(const vector<string>&,Options&)> func;
 }; //end struct Command
-
-struct Option
-{
-	Option(const ci_string &str_name, const vector<ci_string> &v_values) : name(str_name), values(v_values), value(values.empty() ? "" : values[0]) {}
-	ci_string name;
-	vector<ci_string> values;
-	ci_string value;
-}; //end struct option
 
 std::string handleCommand(int argc, char **args);
 void printHelp(const string &progName);
@@ -47,23 +40,10 @@ vector<Command> commands {
 	Command("get_all_sector_indices", get_all_sector_indices),
 	Command("clear_access_count", clear_access_count),
 	Command("get_internal_devices_count", get_internal_devices_count),
-	Command("get_device_info", get_device_info)
+	Command("get_device_info", get_device_info),
+	Command("load_config_file", load_config_file),
+	Command("get_device_advice", get_device_advice)
 };
-
-vector<Option> options {
-	Option("output-format", { "text", "json" })
-};
-
-ci_string getOptionValue(const ci_string &name)
-{
-	for(const Option &option : options)
-	{
-		if(option.name == name)
-			return option.value;
-	}
-
-	throw FrontendException("Option \"", name ,"\" is not set");
-}
 
 int main(int argc, char *args[])
 {
@@ -87,43 +67,18 @@ int main(int argc, char *args[])
 string handleCommand(int argc, char **args)
 {
 	string programName = args[0];
+	td::Options options = getDefaultOptions();
 
 	ci_string option;
 	while(argc > 1 && (option = args[1]).substr(0, 2) == "--")
 	{
 		argc--; args++;
-		bool found = false;
 		size_t pos = option.find("=");
 		if(pos == option.npos)throw FrontendException("Invalid option format ", option);
 		ci_string name = option.substr(2, pos-2);
 		ci_string value = option.substr(pos+1);
 
-		for(Option &o : options)
-		{
-			if(o.name == name)
-			{
-				found = true;
-				if(!o.values.empty())
-				{
-					bool valueFound = false;
-					for(const ci_string &v : o.values)
-					{
-						if(v == value)
-						{
-							valueFound = true;
-							break;
-						}
-					}
-
-					if(!valueFound)
-						throw FrontendException("Invalid value \"", value ,"\" for option ", name);
-				}
-				o.value = value;
-				break;
-			}
-		}
-
-		if(!found)throw FrontendException("Invalid option \"", option ,"\"");
+		options.setOptionValue(name, value);
 	}
 
 	if(argc <= 1)
@@ -139,7 +94,7 @@ string handleCommand(int argc, char **args)
 		if(command.name == cmd)
 		{
 			vector<string> v_args(args+2, args+argc);
-			return command.func(v_args, getOptionValue("output-format"));
+			return command.func(v_args, options);
 		}
 	}
 

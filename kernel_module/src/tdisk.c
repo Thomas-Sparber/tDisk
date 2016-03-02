@@ -1550,7 +1550,7 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 
 		return next_primary_work;
 	}
-	else
+	/*else
 	{
 		//No work to do. This means we have reached the timeout
 		//and have now the opportunity to organize the sectors.
@@ -1579,8 +1579,8 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 		}
 
 		if(td->access_count_resort)return secondary_work_to_do;
-		else return secondary_work_finished;
-	}
+		else */return secondary_work_finished;
+	//} TODO
 }
 
 /**
@@ -1602,11 +1602,6 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	struct gendisk *disk;
 	int err;
 	unsigned int header_size_byte;
-
-	char data[152];
-	loff_t testsize = nltd_get_size("dropbox_tommy_infancy@yahoo.de_tdisk1");
-	nltd_read_sync("dropbox_tommy_infancy@yahoo.de_tdisk1", 0, data, 152);
-	nltd_write_sync("dropbox_tommy_infancy@yahoo.de_tdisk1", 0, data, 152);
 
 	if(blocksize == 0 || blocksize % TDISK_BLOCKSIZE_MOD)
 	{

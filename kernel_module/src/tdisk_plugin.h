@@ -33,7 +33,7 @@ inline static int plugin_read_data(const char *plugin, void *data, loff_t pos, u
 
 	time = get_cycles();
 	ret = nltd_read_sync(plugin, pos, data, length);
-	update_performance(WRITE, get_cycles()-time, perf);
+	update_performance(READ, get_cycles()-time, perf);
 
 	return ret;
 }

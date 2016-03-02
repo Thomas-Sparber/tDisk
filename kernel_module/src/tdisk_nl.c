@@ -254,7 +254,7 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 	{
 		const char *plugin_name = get_plugin_name(info->snd_portid);
 
-		printk(KERN_WARNING "tDisk: Plugin %s (%u) finished a request I didn't know\n", (plugin_name ? plugin_name : "Unknown"), info->snd_portid);
+		printk(KERN_WARNING "tDisk: Plugin %s (%u) finished a request I didn't know of\n", (plugin_name ? plugin_name : "Unknown"), info->snd_portid);
 		return -EINVAL;
 	}
 
@@ -266,7 +266,7 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 		if(!info->attrs[NLTD_REQ_BUFFER])
 		{
 			const char *plugin_name = get_plugin_name(info->snd_portid);
-			printk(KERN_WARNING "tDisk: Probably broken plugin: %s (%u) - type is not READ but no buffer was sent.\n", (plugin_name ? plugin_name : "Unknown"), info->snd_portid);
+			printk(KERN_WARNING "tDisk: Probably broken plugin: %s (%u) - type is not WRITE but no buffer was sent.\n", (plugin_name ? plugin_name : "Unknown"), info->snd_portid);
 			length = -EINVAL;
 		}
 		else
@@ -295,13 +295,15 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 							4 /*s32 -> length*/ +
 							length /* buffer */;
 
+	if(length > PAGE_SIZE)printk(KERN_WARNING "tDisk: Warning when sending nl msg: length (%d) is larger than PAGE_SIZE(%lu)\n", length, PAGE_SIZE);
+
 	//0 means unregistered
 	err = -ENODEV;
 	if(port == 0)goto error;
 
 	//TODO set good size
 	err = -ENOMEM;
-	msg = nlmsg_new(msg_size, GFP_KERNEL);
+	msg = genlmsg_new(msg_size, 0);	//GFP_KERNEL
 	if(!msg)goto error;
 
 	err = -ENOBUFS;
@@ -347,6 +349,7 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 	genlmsg_end(msg, hdr);
 
 	err = genlmsg_unicast(&init_net, msg, port);
+	if(err)goto nlmsg_failure;
 	return 0;
 
  nlmsg_failure:
@@ -380,30 +383,46 @@ void nltd_write_async(const char *plugin, loff_t offset, char *buffer, int lengt
 
 int nltd_read_sync(const char *plugin, loff_t offset, char *buffer, int length)
 {
-	struct sync_request sync = {
-		0,
-		COMPLETION_INITIALIZER_ONSTACK(sync.done),
-	};
+	int pos;
 
-	nltd_read_async(plugin, offset, buffer, length, sync_request_callback, &sync);
-	wait_for_completion(&sync.done);
+	for(pos = 0; pos < length; pos += PAGE_SIZE)
+	{
+		int currentLength = min(PAGE_SIZE, (unsigned long)(length-pos));
 
-	if(sync.ret < 0)return -EIO;
-	else return 0;
+		struct sync_request sync = {
+			0,
+			COMPLETION_INITIALIZER_ONSTACK(sync.done),
+		};
+
+		nltd_read_async(plugin, offset+pos, buffer+pos, currentLength, sync_request_callback, &sync);
+		wait_for_completion(&sync.done);
+
+		if(sync.ret < 0)return -EIO;
+	}
+
+	return 0;
 }
 
 int nltd_write_sync(const char *plugin, loff_t offset, char *buffer, int length)
 {
-	struct sync_request sync = {
-		0,
-		COMPLETION_INITIALIZER_ONSTACK(sync.done),
-	};
+	int pos;
 
-	nltd_write_async(plugin, offset, buffer, length, sync_request_callback, &sync);
-	wait_for_completion(&sync.done);
+	for(pos = 0; pos < length; pos += PAGE_SIZE)
+	{
+		int currentLength = min(PAGE_SIZE, (unsigned long)(length-pos));
 
-	if(sync.ret < 0)return -EIO;
-	else return 0;
+		struct sync_request sync = {
+			0,
+			COMPLETION_INITIALIZER_ONSTACK(sync.done),
+		};
+
+		nltd_write_async(plugin, offset+pos, buffer+pos, currentLength, sync_request_callback, &sync);
+		wait_for_completion(&sync.done);
+
+		if(sync.ret < 0)return -EIO;
+	}
+
+	return 0;
 }
 
 loff_t nltd_get_size(const char *plugin)

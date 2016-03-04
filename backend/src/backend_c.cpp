@@ -45,3 +45,18 @@ C_FUNCTION_IMPLEMENTATION(get_device_info)
 C_FUNCTION_IMPLEMENTATION(load_config_file)
 C_FUNCTION_IMPLEMENTATION(get_device_advice)
 
+Options* create_options()
+{
+	return (struct Options*)new td::Options();
+}
+
+Options* create_default_options()
+{
+	return (struct Options*)new td::Options(td::getDefaultOptions());
+}
+
+void free_options(Options *o)
+{
+	delete (td::Options*)o;
+}
+

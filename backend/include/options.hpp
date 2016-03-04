@@ -33,18 +33,18 @@ public:
 
 	void addOption(const Option &option);
 	
-	bool optionExists(const ci_string &name) const;
+	bool optionExists(const utils::ci_string &name) const;
 
-	Option& getOption(const ci_string &name);
+	Option& getOption(const utils::ci_string &name);
 
-	const Option& getOption(const ci_string &name) const;
+	const Option& getOption(const utils::ci_string &name) const;
 
-	ci_string getOptionValue(const ci_string &name) const
+	utils::ci_string getOptionValue(const utils::ci_string &name) const
 	{
 		return getOption(name).getStringValue();
 	}
 
-	void setOptionValue(const ci_string &name, const ci_string &value)
+	void setOptionValue(const utils::ci_string &name, const utils::ci_string &value)
 	{
 		getOption(name).setValue(value);
 	}

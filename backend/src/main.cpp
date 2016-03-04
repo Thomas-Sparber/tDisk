@@ -21,6 +21,8 @@ using std::vector;
 
 using namespace td;
 
+using utils::ci_string;
+
 struct Command
 {
 	Command(const ci_string &str_name, function<string(const vector<string>&,Options&)> fn_func) : name(str_name), func(fn_func) {}

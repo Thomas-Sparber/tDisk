@@ -16,6 +16,8 @@ using std::fstream;
 using std::string;
 using std::vector;
 
+using namespace td;
+
 void doTests();
 
 vector<InputDefinition> inputs {
@@ -78,7 +80,7 @@ void doTests()
 	{
 		unsigned long long pos = random() % (end-start-blocksize) + start;
 
-		generateRandomData(data);
+		utils::generateRandomData(data);
 
 		file.seekp(pos);
 		file.write(&data[0], data.size());

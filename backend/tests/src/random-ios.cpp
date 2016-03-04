@@ -16,7 +16,8 @@ using std::fstream;
 using std::move;
 using std::string;
 using std::vector;
-using td::tDisk;
+
+using namespace td;
 
 void doTests();
 
@@ -88,7 +89,7 @@ void doTests()
 		}
 		else
 		{
-			generateRandomData(data);
+			utils::generateRandomData(data);
 			file.seekp(pos);
 			file.write(&data[0], data.size());
 		}
@@ -104,6 +105,6 @@ void doTests()
 
 	string unit;
 	long double performance = (long double)(iterations*blocksize) / (endTime-startTime);
-	getSizeValue(performance, unit);
+	utils::getSizeValue(performance, unit);
 	cout<<"Test finished. AVG "<<(read ? "read" : "write")<<" performance: "<<performance<<" "<<unit<<"/sec"<<endl;
 }

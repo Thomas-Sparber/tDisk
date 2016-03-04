@@ -17,6 +17,9 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
+using td::utils::ci_string;
+using td::utils::concat;
+
 using namespace td;
 
 const char* loadTDisk(const char *it, const char *end, td::tdisk_config &out);

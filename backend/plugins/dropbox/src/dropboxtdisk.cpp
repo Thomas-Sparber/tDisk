@@ -17,7 +17,7 @@ using namespace td;
 
 inline string getFileName(const string &tDiskPath, unsigned int i)
 {
-	return concat("/",tDiskPath,"/",i,".td");
+	return utils::concat("/",tDiskPath,"/",i,".td");
 }
 
 DropboxTDisk::DropboxTDisk(const string &str_tDiskPath, unsigned int ui_blocksize, unsigned long long llu_size, unsigned int maxHistoryBuffer) :
@@ -45,7 +45,7 @@ DropboxTDisk::DropboxTDisk(const string &str_accessToken, const string &str_tDis
 	if(!tDiskPath.empty() && tDiskPath[0] == '/')tDiskPath = tDiskPath.substr(1);
 	if(!tDiskPath.empty() && tDiskPath[tDiskPath.length()-1] == '/')tDiskPath = tDiskPath.substr(0, tDiskPath.length()-1);
 	user = loadDropboxUser();
-	Plugin::setName(concat("dropbox_",user,"_",tDiskPath));
+	Plugin::setName(utils::concat("dropbox_",user,"_",tDiskPath));
 }
 
 string DropboxTDisk::loadDropboxUser() const

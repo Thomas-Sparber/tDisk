@@ -11,6 +11,8 @@
 using std::string;
 using std::vector;
 
+using td::utils::concat;
+
 td::Options td::getDefaultOptions()
 {
 	return Options({

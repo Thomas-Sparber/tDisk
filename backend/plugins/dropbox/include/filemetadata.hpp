@@ -8,6 +8,9 @@
 
 #include <jsonutils.hpp>
 
+namespace td
+{
+
 struct FileMetadata
 {
 
@@ -206,5 +209,7 @@ inline std::ostream& operator<< (std::ostream &out, const FileMetadata &file)
 
 	return out;
 }
+
+} //end namespace td
 
 #endif //FILEMETADATA_HPP

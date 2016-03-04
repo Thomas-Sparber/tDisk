@@ -9,6 +9,9 @@
 #include <filemetadata.hpp>
 #include <jsonutils.hpp>
 
+namespace td
+{
+
 struct LinkMetadata
 {
 
@@ -204,5 +207,7 @@ inline std::ostream& operator<< (std::ostream &out, const LinkMetadata &file)
 
 	return out;
 }
+
+} // end namespace td
 
 #endif //LINKMETADATA_HPP

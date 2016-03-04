@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <ci_string.hpp>
+#include <utils.hpp>
 
 namespace td
 {
@@ -13,9 +14,9 @@ class Option
 {
 
 public:
-	Option(const ci_string &name, const std::string &description, const std::vector<ci_string> &values);
+	Option(const utils::ci_string &name, const std::string &description, const std::vector<utils::ci_string> &values);
 
-	const ci_string& getName() const
+	const utils::ci_string& getName() const
 	{
 		return name;
 	}
@@ -28,12 +29,12 @@ public:
 	template <class T>
 	void setValue(const T &t)
 	{
-		setValue(concat(t));
+		setValue(utils::concat(t));
 	}
 
-	void setValue(const ci_string &value);
+	void setValue(const utils::ci_string &value);
 
-	const ci_string& getStringValue() const
+	const utils::ci_string& getStringValue() const
 	{
 		return value;
 	}
@@ -51,10 +52,10 @@ public:
 	const static Option output_format;
 
 private:
-	ci_string name;
+	utils::ci_string name;
 	std::string description;
-	std::vector<ci_string> values;
-	ci_string value;
+	std::vector<utils::ci_string> values;
+	utils::ci_string value;
 
 }; //end class Option
 

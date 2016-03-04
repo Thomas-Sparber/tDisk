@@ -13,7 +13,7 @@ struct PluginException
 
 	template <class ...T>
 	PluginException(T ...t) :
-		what(concat(t...))
+		what(utils::concat(t...))
 	{}
 
 	std::string what;

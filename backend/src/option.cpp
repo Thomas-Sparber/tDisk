@@ -3,6 +3,8 @@
 
 using namespace td;
 
+using utils::ci_string;
+
 const Option Option::output_format(
 	"output-format",
 	"Defnes the output format. This can either be \"text\" or \"json\"",

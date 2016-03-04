@@ -10,6 +10,9 @@ using std::vector;
 using namespace td;
 using namespace fs;
 
+using utils::ci_string;
+using utils::concat;
+
 Device::Device() :
 	name(),
 	type(device_type::invalid),

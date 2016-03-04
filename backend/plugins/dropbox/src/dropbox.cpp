@@ -77,7 +77,7 @@ string Dropbox::getDropboxSite(const string &site, const string &getData, long l
 	vector<string> header;
 	if(start != 0 && length != 0)
 	{
-		header.push_back(concat("Range: bytes=",start,"-",start+length));
+		header.push_back(utils::concat("Range: bytes=",start,"-",start+length));
 	}
 
 	long code;
@@ -184,7 +184,7 @@ FileMetadata Dropbox::uploadFile(const string &path, const string &content, long
 	try {
 		Json::Value root;
 		Json::Reader reader;
-		string response = putDropboxSite(string("https://content.dropboxapi.com/1/chunked_upload"), concat("offset=", offset), content);
+		string response = putDropboxSite(string("https://content.dropboxapi.com/1/chunked_upload"), utils::concat("offset=", offset), content);
 
 		if(!reader.parse(response, root) || root.type() != Json::objectValue)
 			throw DropboxException("Invalid json object for a chunked upload");
@@ -192,7 +192,7 @@ FileMetadata Dropbox::uploadFile(const string &path, const string &content, long
 		ChunkedUpload upload(root);
 		root = Json::Value();
 
-		response = postDropboxSite(string("https://content.dropboxapi.com/1/commit_chunked_upload/auto")+encodeURI(path, false), concat("upload_id=", upload.upload_id));
+		response = postDropboxSite(string("https://content.dropboxapi.com/1/commit_chunked_upload/auto")+encodeURI(path, false), utils::concat("upload_id=", upload.upload_id));
 
 		if(!reader.parse(response, root) || root.type() != Json::objectValue)
 			throw DropboxException("File", path, " uploaded but received an invalid json object for a file metadata");
@@ -214,7 +214,7 @@ FileMetadata Dropbox::getMetadata(const std::string &path, bool list, bool media
 		Json::Value root;
 		Json::Reader reader;
 		string response = getDropboxSite(string("https://api.dropboxapi.com/1/metadata/auto/")+encodeURI(path, false),
-			concat("list=",(list?"true":"false"),
+			utils::concat("list=",(list?"true":"false"),
 				"&include_media_info=",(mediaInfo?"true":"false"),
 				"&file_limit=",fileLimit));
 
@@ -233,7 +233,7 @@ FileMetadata Dropbox::getMetadata(const std::string &path, bool list, bool media
 	Json::Value root;
 	Json::Reader reader;
 	string response = postDropboxSite(string("https://api.dropbox.com/1/metadata/link"),
-		concat("link=",link,
+		utils::concat("link=",link,
 				"&list=",(list?"true":"false"),
 				"&include_media_info=",(mediaInfo?"true":"false"),
 				"&file_limit=",fileLimit));

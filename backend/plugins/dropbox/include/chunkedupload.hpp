@@ -7,6 +7,9 @@
 
 #include <jsonutils.hpp>
 
+namespace td
+{
+
 struct ChunkedUpload
 {
 
@@ -25,5 +28,7 @@ struct ChunkedUpload
 	unsigned long long offset;
 
 }; //end class ChunkedUpload
+
+} //end namespace td
 
 #endif //CHUNKEDUPLOAD_HPP

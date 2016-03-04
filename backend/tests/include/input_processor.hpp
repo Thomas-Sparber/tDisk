@@ -54,7 +54,7 @@ struct InputDefinition
 
 struct InputException
 {
-	template <class ...T> InputException(T ...t) : message(td::concat(t...)) {}
+	template <class ...T> InputException(T ...t) : message(td::utils::concat(t...)) {}
 	std::string message;
 }; //end struct InputException
 

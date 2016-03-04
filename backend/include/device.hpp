@@ -39,7 +39,7 @@ struct Device
 } //end namespace fs
 
 
-template <> std::string createResultString(const fs::Device &device, unsigned int hierarchy, const ci_string &outputFormat);
+template <> std::string createResultString(const fs::Device &device, unsigned int hierarchy, const utils::ci_string &outputFormat);
 
 } //end namespace td
 

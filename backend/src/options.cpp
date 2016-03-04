@@ -3,6 +3,8 @@
 
 using namespace td;
 
+using utils::ci_string;
+
 Options::Options(const std::vector<Option> &v_options) :
 	options()
 {

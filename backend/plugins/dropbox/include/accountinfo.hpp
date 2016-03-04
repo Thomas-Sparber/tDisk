@@ -5,6 +5,9 @@
 #include <ostream>
 #include <string>
 
+namespace td
+{
+
 struct AccountInfo
 {
 
@@ -122,5 +125,7 @@ inline std::ostream &operator<<(std::ostream &out, const AccountInfo &info)
 	out<<"}";
 	return out;
 }
+
+} //end namespace td
 
 #endif //ACCOUNTINFO_HPP

@@ -11,7 +11,7 @@
 #endif //__linux__
 
 #include <filesystem.hpp>
-#include <frontendexception.hpp>
+#include <backendexception.hpp>
 
 using std::string;
 
@@ -40,7 +40,7 @@ fs::Device fs::getDevice(const string &name)
 
 	struct stat info;
 	if(stat(name.c_str(), &info) != 0)
-		throw FrontendException("Can't get device info for \"", name, "\": ", strerror(errno));
+		throw BackendException("Can't get device info for \"", name, "\": ", strerror(errno));
 
 	device.name = name;
 
@@ -54,13 +54,13 @@ fs::Device fs::getDevice(const string &name)
 		device.type = device_type::blockdevice;
 
 		int fd = open(name.c_str(), O_RDONLY);
-		if(fd == -1)throw FrontendException("Can't get size of block device ", name, ": ", strerror(errno));
+		if(fd == -1)throw BackendException("Can't get size of block device ", name, ": ", strerror(errno));
 		uint64_t size;
 		if(ioctl(fd, BLKGETSIZE64, &size) == -1)
-			throw FrontendException("Can't get size of block device ", name, ": ", strerror(errno));
+			throw BackendException("Can't get size of block device ", name, ": ", strerror(errno));
 		device.size = size;
 	}
-	else throw FrontendException("Unknown device type ", name);
+	else throw BackendException("Unknown device type ", name);
 
 	return std::move(device);
 }

@@ -6,8 +6,8 @@
 
 #include <ci_string.hpp>
 #include <tdisk.hpp>
-#include <frontend.hpp>
-#include <frontendexception.hpp>
+#include <backend.hpp>
+#include <backendexception.hpp>
 
 using std::cerr;
 using std::cout;
@@ -52,7 +52,7 @@ int main(int argc, char *args[])
 
 	try {
 		result = handleCommand(argc, args);
-	} catch(const FrontendException &e) {
+	} catch(const BackendException &e) {
 		error = e.what;
 	} catch(const tDiskException &e) {
 		error = e.message;
@@ -74,7 +74,7 @@ string handleCommand(int argc, char **args)
 	{
 		argc--; args++;
 		size_t pos = option.find("=");
-		if(pos == option.npos)throw FrontendException("Invalid option format ", option);
+		if(pos == option.npos)throw BackendException("Invalid option format ", option);
 		ci_string name = option.substr(2, pos-2);
 		ci_string value = option.substr(pos+1);
 
@@ -84,7 +84,7 @@ string handleCommand(int argc, char **args)
 	if(argc <= 1)
 	{
 		printHelp(programName);
-		throw FrontendException("Please provide a command");
+		throw BackendException("Please provide a command");
 	}
 
 	ci_string cmd = args[1];
@@ -99,7 +99,7 @@ string handleCommand(int argc, char **args)
 	}
 
 	printHelp(programName);
-	throw FrontendException("Unknown command ", cmd);
+	throw BackendException("Unknown command ", cmd);
 }
 
 void printHelp(const string &progName)

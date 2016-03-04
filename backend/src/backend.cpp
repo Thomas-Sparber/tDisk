@@ -2,8 +2,8 @@
 
 #include <configfile.hpp>
 #include <deviceadvisor.hpp>
-#include <frontend.hpp>
-#include <frontendexception.hpp>
+#include <backend.hpp>
+#include <backendexception.hpp>
 #include <resultformatter.hpp>
 #include <tdisk.hpp>
 #include <utils.hpp>
@@ -20,24 +20,24 @@ td::Options td::getDefaultOptions()
 
 string td::add_tDisk(const vector<string> &args, Options &options)
 {
-	if(args.empty())throw FrontendException("\"add\" needs the desired blocksize (e.g. 16384)");
+	if(args.empty())throw BackendException("\"add\" needs the desired blocksize (e.g. 16384)");
 
 	char *test;
 	tDisk disk;
 	if(args.size() > 1)
 	{
 		int number = strtol(args[0].c_str(), &test, 10);
-		if(test != args[0].c_str() + args[0].length())throw FrontendException("Invalid minor number ", args[0]);
+		if(test != args[0].c_str() + args[0].length())throw BackendException("Invalid minor number ", args[0]);
 
 		unsigned int blocksize = strtol(args[1].c_str(), &test, 10);
-		if(test != args[1].c_str() + args[1].length())throw FrontendException("Invalid blocksize ", args[1]);
+		if(test != args[1].c_str() + args[1].length())throw BackendException("Invalid blocksize ", args[1]);
 
 		disk = tDisk::create(number, blocksize);
 	}
 	else
 	{
 		unsigned int blocksize = strtol(args[0].c_str(), &test, 10);
-		if(test != args[0].c_str() + args[0].length())throw FrontendException("Invalid blocksize ", args[0]);
+		if(test != args[0].c_str() + args[0].length())throw BackendException("Invalid blocksize ", args[0]);
 
 		disk = tDisk::create(blocksize);
 	}
@@ -46,7 +46,7 @@ string td::add_tDisk(const vector<string> &args, Options &options)
 
 string td::remove_tDisk(const vector<string> &args, Options &options)
 {
-	if(args.empty())throw FrontendException("\"remove\" needs the device to be removed");
+	if(args.empty())throw BackendException("\"remove\" needs the device to be removed");
 
 	tDisk d = tDisk::get(args[0]);
 	d.remove();
@@ -55,7 +55,7 @@ string td::remove_tDisk(const vector<string> &args, Options &options)
 
 string td::add_disk(const vector<string> &args, Options &options)
 {
-	if(args.size() < 2)throw FrontendException("\"add_disk\" needs the tDisk and at least one file to add");
+	if(args.size() < 2)throw BackendException("\"add_disk\" needs the tDisk and at least one file to add");
 
 	vector<string> results;
 	tDisk d = tDisk::get(args[0]);
@@ -69,7 +69,7 @@ string td::add_disk(const vector<string> &args, Options &options)
 
 string td::get_max_sectors(const vector<string> &args, Options &options)
 {
-	if(args.empty())throw FrontendException("\"get_max_sectors\" needs the td device");
+	if(args.empty())throw BackendException("\"get_max_sectors\" needs the td device");
 
 	tDisk d = tDisk::get(args[0]);
 	unsigned long long maxSectors = d.getMaxSectors();
@@ -78,11 +78,11 @@ string td::get_max_sectors(const vector<string> &args, Options &options)
 
 string td::get_sector_index(const vector<string> &args, Options &options)
 {
-	if(args.size() < 2)throw FrontendException("\"get_sector_index\" needs the td device and the sector index to retrieve");
+	if(args.size() < 2)throw BackendException("\"get_sector_index\" needs the td device and the sector index to retrieve");
 
 	char *test;
 	unsigned long long logicalSector = strtoull(args[1].c_str(), &test, 10);
-	if(test != args[1].c_str() + args[1].length())throw FrontendException(args[1], " is not a valid number");
+	if(test != args[1].c_str() + args[1].length())throw BackendException(args[1], " is not a valid number");
 
 	tDisk d = tDisk::get(args[0]);
 	f_sector_index index = d.getSectorIndex(logicalSector);
@@ -91,7 +91,7 @@ string td::get_sector_index(const vector<string> &args, Options &options)
 
 string td::get_all_sector_indices(const vector<string> &args, Options &options)
 {
-	if(args.empty())throw FrontendException("\"get_all_sector_indices\" needs the td device");
+	if(args.empty())throw BackendException("\"get_all_sector_indices\" needs the td device");
 
 	tDisk d = tDisk::get(args[0]);
 	vector<f_sector_info> sectorIndices = d.getAllSectorIndices();
@@ -100,7 +100,7 @@ string td::get_all_sector_indices(const vector<string> &args, Options &options)
 
 string td::clear_access_count(const vector<string> &args, Options &options)
 {
-	if(args.empty())throw FrontendException("\"clear_access_count\" needs the td device\n");
+	if(args.empty())throw BackendException("\"clear_access_count\" needs the td device\n");
 
 	tDisk d = tDisk::get(args[0]);
 	d.clearAccessCount();
@@ -109,7 +109,7 @@ string td::clear_access_count(const vector<string> &args, Options &options)
 
 string td::get_internal_devices_count(const vector<string> &args, Options &options)
 {
-	if(args.empty())throw FrontendException("\"get_internal_device_count\" needs the td device\n");
+	if(args.empty())throw BackendException("\"get_internal_device_count\" needs the td device\n");
 
 	tDisk d = tDisk::get(args[0]);
 	unsigned int devices = d.getInternalDevicesCount();
@@ -118,12 +118,12 @@ string td::get_internal_devices_count(const vector<string> &args, Options &optio
 
 string td::get_device_info(const vector<string> &args, Options &options)
 {
-	if(args.size() < 2)throw FrontendException("\"get_device_info\" needs the td device and the device to retrieve infos for\n");
+	if(args.size() < 2)throw BackendException("\"get_device_info\" needs the td device and the device to retrieve infos for\n");
 
 	char *test;
 	unsigned int device = strtol(args[1].c_str(), &test, 10);
 	if(test != args[1].c_str() + args[1].length())
-		throw FrontendException("Invalid number ", args[1], " for device index");
+		throw BackendException("Invalid number ", args[1], " for device index");
 
 	tDisk d = tDisk::get(args[0]);
 	f_internal_device_info info = d.getDeviceInfo(device);
@@ -132,7 +132,7 @@ string td::get_device_info(const vector<string> &args, Options &options)
 
 string td::load_config_file(const vector<string> &args, Options &options)
 {
-	if(args.empty())throw FrontendException("\"load_config_file\" needs at least one donfig file to load\n");
+	if(args.empty())throw BackendException("\"load_config_file\" needs at least one donfig file to load\n");
 
 	configuration cfg;
 	for(std::size_t i = 0; i < args.size(); ++i)

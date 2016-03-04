@@ -2,7 +2,7 @@
 #include <vector>
 
 #include <device.hpp>
-#include <frontendexception.hpp>
+#include <backendexception.hpp>
 
 using std::string;
 using std::vector;
@@ -48,7 +48,7 @@ Device Device::getSplitted(uint64_t newsize) const
 	else if(type == device_type::blockdevice || type == device_type::blockdevice_part)
 		d.type = device_type::blockdevice_part;
 	else
-		throw FrontendException("Can't split a device of type ", type.getName());
+		throw BackendException("Can't split a device of type ", type.getName());
 
 	return std::move(d);
 }

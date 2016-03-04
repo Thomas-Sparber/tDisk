@@ -2,13 +2,13 @@
 #include <vector>
 #include <string.h>
 
-#include <frontend.hpp>
-#include <frontendexception.hpp>
+#include <backend.hpp>
+#include <backendexception.hpp>
 #include <options.hpp>
 #include <tdisk.hpp>
 
 extern "C" {
-	#include <frontend.h>
+	#include <backend.h>
 }
 
 using std::string;
@@ -22,7 +22,7 @@ int name(int argc, char *args[], struct Options *options, char *out, int out_len
 		const string &result = td::name(vector<string>(args, args+argc), *o); \
 		strncpy(out, result.c_str(), out_length); \
 		return 0; \
-	} catch (const td::FrontendException &e) { \
+	} catch (const td::BackendException &e) { \
 		strncpy(out, e.what.c_str(), out_length); \
 		return -1; \
 	} catch (const td::tDiskException &e) { \

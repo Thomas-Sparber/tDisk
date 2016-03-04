@@ -6,7 +6,7 @@
 
 #include <ci_string.hpp>
 #include <configfile.hpp>
-#include <frontendexception.hpp>
+#include <backendexception.hpp>
 #include <tdisk.hpp>
 
 using std::cout;
@@ -36,14 +36,14 @@ void td::configuration::addDevice(const tdisk_config &device)
 	for(const tdisk_config &orig_config : tdisks)
 	{
 		if(device.minornumber == orig_config.minornumber)
-			throw FrontendException("Minornumber ", orig_config.minornumber, " is used twice");
+			throw BackendException("Minornumber ", orig_config.minornumber, " is used twice");
 
 		for(const string new_device : device.devices)
 		{
 			for(const string orig_device : orig_config.devices)
 			{
 				if(new_device == orig_device)
-					throw FrontendException("Two different tDisks can't share the same device");
+					throw BackendException("Two different tDisks can't share the same device");
 			}
 		}
 	}
@@ -110,17 +110,17 @@ const char* getName(const char *it, const char *end, ci_string &out)
 			if(*it == '"' || *it == '\'')
 			{
 				it++;
-				if(*(colon-1) != '"' && *(colon-1) != '\'')throw FrontendException("No trailing quote found for name");
+				if(*(colon-1) != '"' && *(colon-1) != '\'')throw BackendException("No trailing quote found for name");
 				colon--;
 			}
 
 			out = ci_string(it, colon);
 			return it2;
 		}
-		else throw FrontendException("Didn't find a colon");
+		else throw BackendException("Didn't find a colon");
 	}
 
-	throw FrontendException("No name found");
+	throw BackendException("No name found");
 }
 
 void configuration::process(const string &str, const td::Options &options)
@@ -191,7 +191,7 @@ const char* getStringValue(const char *it, const char *end, string &out)
 	if(*it == '"' || *it == '\'')
 	{
 		it++;
-		if(*end != '"' && *end != '\'')throw FrontendException("String not closed: ", *end);
+		if(*end != '"' && *end != '\'')throw BackendException("String not closed: ", *end);
 	}
 
 	out = string(it, end);
@@ -206,7 +206,7 @@ const char* getLongValue(const char *it, const char *end, T &out)
 
 	char *test;
 	out = strtol(str.c_str(), &test, 10);
-	if(test != str.c_str()+str.length())throw FrontendException("Invalid number ", str);
+	if(test != str.c_str()+str.length())throw BackendException("Invalid number ", str);
 	return end;
 }
 
@@ -216,11 +216,11 @@ const char* getStringArrayValue(const char *it, const char *end, vector<string> 
 	{
 		if(isspace(*it))continue;
 		if(*it == '[')break;
-		throw FrontendException("Expected '['");
+		throw BackendException("Expected '['");
 	}
 
 	end = getClosingbracket(it, end, '[', ']');
-	if(!end)throw FrontendException("Expected ']' at the end of declaration");
+	if(!end)throw BackendException("Expected ']' at the end of declaration");
 
 	for(it = it+1; it < end; ++it)
 	{
@@ -246,11 +246,11 @@ const char* loadTDisk(const char *it, const char *end, td::tdisk_config &out)
 	{
 		if(isspace(*it))continue;
 		if(*it == '{')break;
-		throw FrontendException("Invalid tDisk config declaration: '{' expected");
+		throw BackendException("Invalid tDisk config declaration: '{' expected");
 	}
 
 	end = getClosingbracket(it, end, '{', '}');
-	if(!end)throw FrontendException("Expected '}' at the end of tdisk declaration");
+	if(!end)throw BackendException("Expected '}' at the end of tdisk declaration");
 
 	for(it = it+1; it < end; ++it)
 	{
@@ -260,7 +260,7 @@ const char* loadTDisk(const char *it, const char *end, td::tdisk_config &out)
 		if(name == "minornumber")it = getLongValue(it, end, out.minornumber);
 		else if(name == "blocksize")it = getLongValue(it, end, out.blocksize);
 		else if(name == "devices")it = getStringArrayValue(it, end, out.devices);
-		else throw FrontendException("Invalid tDisk option ", name);
+		else throw BackendException("Invalid tDisk option ", name);
 	}
 
 	//cout<<"New tDisk:"<<endl;
@@ -271,18 +271,18 @@ const char* loadTDisk(const char *it, const char *end, td::tdisk_config &out)
 	//	cout<<"   - "<<device<<endl;
 
 	if(out.blocksize == 0 || out.blocksize % td::c::get_tdisk_blocksize_mod())
-		throw FrontendException("blocksize must be a multiple of ", td::c::get_tdisk_blocksize_mod());
+		throw BackendException("blocksize must be a multiple of ", td::c::get_tdisk_blocksize_mod());
 	if(out.devices.empty())
-		throw FrontendException("Please specify at least one device");
+		throw BackendException("Please specify at least one device");
 	if(out.devices.size() > td::c::get_tdisk_max_physical_disks())
-		throw FrontendException("Exceeded maximum number (", td::c::get_tdisk_max_physical_disks(),") of internal devices: ", out.devices.size());
+		throw BackendException("Exceeded maximum number (", td::c::get_tdisk_max_physical_disks(),") of internal devices: ", out.devices.size());
 
 	return end+1;
 }
 
 const char* loadOption(const ci_string &name, const char *it, const char *end, td::tdisk_global_option &out, const td::Options &options)
 {
-	if(!options.optionExists(name))throw FrontendException("Option ", name, " does not exist!");
+	if(!options.optionExists(name))throw BackendException("Option ", name, " does not exist!");
 
 	string value;
 	out.name = name;

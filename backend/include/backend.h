@@ -1,5 +1,5 @@
-#ifndef FRONTEND_H
-#define FRONTEND_H
+#ifndef BACKEND_H
+#define BACKEND_H
 
 struct Options;
 
@@ -15,4 +15,4 @@ int get_device_info(int argc, char *args[], Options *options, char *out, int out
 int load_config_file(int argc, char *args[], Options *options, char *out, int out_length);
 int get_device_advice(int argc, char *args[], Options *options, char *out, int out_length);
 
-#endif //FRONTEND_H
+#endif //BACKEND_H

@@ -1,4 +1,4 @@
-#include <frontendexception.hpp>
+#include <backendexception.hpp>
 #include <option.hpp>
 
 using namespace td;
@@ -18,7 +18,7 @@ Option::Option(const ci_string &str_name, const std::string &str_description, co
 
 char Option::getCharValue() const
 {
-	if(value.empty())throw FrontendException("Value is empty");
+	if(value.empty())throw BackendException("Value is empty");
 	return value[0];
 }
 
@@ -26,7 +26,7 @@ long Option::getLongValue() const
 {
 	char *test;
 	long v = strtol(value.c_str(), &test, 10);
-	if(test != value.c_str()+value.length())throw FrontendException("Invalid number ", value);
+	if(test != value.c_str()+value.length())throw BackendException("Invalid number ", value);
 	return v;
 }
 
@@ -45,7 +45,7 @@ void Option::setValue(const ci_string &str_value)
 		}
 
 		if(!valueFound)
-			throw FrontendException("Invalid value \"", str_value ,"\" for option ", name);
+			throw BackendException("Invalid value \"", str_value ,"\" for option ", name);
 	}
 	value = str_value;
 }

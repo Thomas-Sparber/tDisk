@@ -1,4 +1,4 @@
-#include <frontendexception.hpp>
+#include <backendexception.hpp>
 #include <options.hpp>
 
 using namespace td;
@@ -37,7 +37,7 @@ Option& Options::getOption(const ci_string &name)
 			return option;
 	}
 
-	throw FrontendException("Option \"", name ,"\" is not set");
+	throw BackendException("Option \"", name ,"\" is not set");
 }
 
 const Option& Options::getOption(const ci_string &name) const
@@ -48,5 +48,5 @@ const Option& Options::getOption(const ci_string &name) const
 			return option;
 	}
 
-	throw FrontendException("Option \"", name ,"\" is not set");
+	throw BackendException("Option \"", name ,"\" is not set");
 }

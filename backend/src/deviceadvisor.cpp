@@ -232,8 +232,8 @@ vector<advisor::tdisk_advice> advisor::getTDiskAdvices(const vector<string> &fil
 	}
 
 	std::sort(advices.begin(), advices.end());
-	for(const tdisk_advice &advice : advices)
-		cout<<createResultString(advice, 0, "json")<<endl;
+	//for(const tdisk_advice &advice : advices)
+	//	cout<<createResultString(advice, 0, "json")<<endl;
 
 	return std::move(advices);
 }

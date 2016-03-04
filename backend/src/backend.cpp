@@ -160,5 +160,5 @@ string td::load_config_file(const vector<string> &args, Options &options)
 string td::get_device_advice(const vector<string> &args, Options &options)
 {
 	vector<advisor::tdisk_advice> advices = advisor::getTDiskAdvices(args);
-	return "";
+	return createResultString(advices, 0, options.getOptionValue("output-format"));
 }

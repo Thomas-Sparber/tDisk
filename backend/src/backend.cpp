@@ -143,10 +143,10 @@ string td::load_config_file(const vector<string> &args, Options &options)
 		cfg.merge(config);
 	}
 
-	for(const tdisk_global_option &option : cfg.global_options)
+	for(const configuration::tdisk_global_option &option : cfg.global_options)
 		options.setOptionValue(option.name, option.value);
 
-	for(const tdisk_config &config : cfg.tdisks)
+	for(const configuration::tdisk_config &config : cfg.tdisks)
 	{
 		tDisk disk;
 		if(config.minornumber < 0)disk = tDisk::create(config.blocksize);

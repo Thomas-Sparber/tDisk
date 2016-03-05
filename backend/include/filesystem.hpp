@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk Driver
+  * @author Thomas Sparber (2015)
+  *
+ **/
+
 #ifndef FILESYSTEM_HPP
 #define FILESYSTEM_HPP
 
@@ -13,6 +20,9 @@ namespace td
 namespace fs
 {
 
+	/**
+	  * Gets device information for the with the given name
+	 **/
 	Device getDevice(const std::string &name);
 
 } //end namespace fs

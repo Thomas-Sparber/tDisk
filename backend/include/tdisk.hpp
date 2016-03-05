@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk Driver
+  * @author Thomas Sparber (2015)
+  *
+ **/
+
 #ifndef TDISK_HPP
 #define TDISK_HPP
 
@@ -20,10 +27,25 @@ namespace c
 	}
 } //end namespace c
 
+/**
+  * Is thrown whenever a tDisk related error happened
+ **/
 struct tDiskException
 {
-	template <class ...T> tDiskException(T ...t) : message(utils::concat(t...)) {}
+
+	/**
+	  * Constructs a tDiskException using any number of arguments
+	 **/
+	template <class ...T>
+	tDiskException(T ...t) :
+		message(utils::concat(t...))
+	{}
+	
+	/**
+	  * The reason for the error
+	 **/
 	std::string message;
+	
 }; //end class tDiskException
 
 using c::f_device_performance;
@@ -31,10 +53,20 @@ using c::f_internal_device_info;
 using c::f_sector_index;
 using c::f_sector_info;
 
+/**
+  * Represents the C++ interface to manage tDisks.
+  * It basically just calls the corresponding C functions which
+  * "talk" to the kernel module
+ **/
 class tDisk
 {
 
 public:
+
+	/**
+	  * Gets all currently loaded tDisks
+	  * @param out The container where the disks should be stored
+	 **/
 	template <template<class ...T> class cont>
 	static void getTDisks(cont<std::string> &out)
 	{
@@ -54,6 +86,11 @@ public:
 		if(devices == -2)throw tDiskException("More than 100 tDisks present");
 	}
 
+	/**
+	  * Gets the minornumber of the tDisk with the given path
+	  * @param name The path of the tDisk to get the minornumber 
+	  * @returns The minro number of the tDisk
+	 **/
 	static int getMinorNumber(const std::string &name)
 	{
 		if(name.length() < 7 || name.substr(0, 7) != "/dev/td")
@@ -68,6 +105,11 @@ public:
 		return number;
 	}
 
+	/**
+	  * Returns the tDisk for the gven name or minronumber
+	  * @param str Can be the path or minornumber
+	  * @returns The matching tDisk
+	 **/
 	static tDisk get(const std::string &str)
 	{
 		char *test;
@@ -77,6 +119,12 @@ public:
 		else return tDisk(str);
 	}
 
+	/**
+	  * Creates a new tDIsk with the given minornumber and blocksize
+	  * @param i_minornumber The minornumber for the new tDisk
+	  * @param blocksize The blocksize for the new tDisk
+	  * @returns The newly created tDisk
+	 **/
 	static tDisk create(int i_minornumber, unsigned int blocksize)
 	{
 		char temp[256];
@@ -93,6 +141,12 @@ public:
 		return tDisk(i_minornumber, temp);
 	}
 
+	/**
+	  * Creates a new tDisk with the given blocksize. The next available
+	  * minornumber is taken
+	  * @param blocksize The blocksize for the new tDisk
+	  * @returns The new tDisk
+	 **/
 	static tDisk create(unsigned int blocksize)
 	{
 		char temp[256];
@@ -106,6 +160,10 @@ public:
 		return tDisk(ret, temp);
 	}
 
+	/**
+	  * Removes the tDisk with the given minornumber from the system
+	  * @param i_minornumber The minornumber of thetDisk to be removed
+	 **/
 	static void remove(int i_minornumber)
 	{
 		int ret = c::tdisk_remove(i_minornumber);
@@ -117,6 +175,10 @@ public:
 		}
 	}
 
+	/**
+	  * Removes the tDisk with the given path from the system
+	  * @param name The path of the tDisk to be removed
+	 **/
 	static void remove(const std::string &name)
 	{
 		int number = tDisk::getMinorNumber(name);
@@ -129,12 +191,22 @@ public:
 		}
 	}
 
+	/**
+	  * Removes the given tDisk from the system
+	  * @param disk The disk to be removed 
+	 **/
 	static void remove(const tDisk &disk)
 	{
 		remove(disk.minornumber);
 	}
 
 private:
+
+	/**
+	  * Handles the error of the C-functions and throws the
+	  * corresponding tDiskException
+	  * @param ret The return code of the C function
+	 **/
 	static void handleError(int ret)
 	{
 		if(ret == 0)return;
@@ -147,41 +219,68 @@ private:
 	}
 
 public:
+
+	/**
+	  * Default constructor
+	 **/
 	tDisk() :
 		minornumber(),
 		name()
 	{}
 
+	/**
+	  * Constructs a tDisk using the given minornumber
+	 **/
 	tDisk(int i_minornumber) :
 		minornumber(i_minornumber),
 		name(utils::concat("/dev/td", minornumber))
 	{}
 
+	/**
+	  * Constructs a tDisk using the given path
+	 **/
 	tDisk(const std::string &str_name) :
 		minornumber(getMinorNumber(str_name)),
 		name(str_name)
 	{}
 
+	/**
+	  * Constructs a tDisk using the given path and minornumber
+	 **/
 	tDisk(int i_minornumber, const std::string &str_name) :
 		minornumber(i_minornumber),
 		name(str_name)
 	{}
 
+	/**
+	  * Returns the name/path of the tDisk
+	 **/
 	std::string getName() const
 	{
 		return name;
 	}
 
+	/**
+	  * Returns the minornumber of the tDisk
+	 **/
 	int getMinornumber() const
 	{
 		return minornumber;
 	}
 
+	/**
+	  * Removes the tDisk from the system
+	 **/
 	void remove()
 	{
 		tDisk::remove(*this);
 	}
 
+	/**
+	  * Adds the given internal disk to the tDisk
+	  * @param path The disk to be added. If the file doesn't exist it
+	  * is treated as a plugin name
+	 **/
 	void addDisk(const std::string &path)
 	{
 		int ret = c::tdisk_add_disk(name.c_str(), path.c_str());
@@ -193,6 +292,9 @@ public:
 		}
 	}
 
+	/**
+	  * Returns the current amount of max sectors
+	 **/
 	unsigned long long getMaxSectors() const
 	{
 		uint64_t maxSectors;
@@ -207,6 +309,10 @@ public:
 		return maxSectors;
 	}
 
+	/**
+	  * Returns information about the sector with the given logical
+	  * sector
+	 **/
 	f_sector_index getSectorIndex(unsigned long long logicalSector)
 	{
 		f_sector_index index;
@@ -221,6 +327,9 @@ public:
 		return std::move(index);
 	}
 
+	/**
+	  * Return information about all logical sectors
+	 **/
 	std::vector<f_sector_info> getAllSectorIndices() const
 	{
 		unsigned long long max_sectors = getMaxSectors();
@@ -237,6 +346,9 @@ public:
 		return std::move(indices);
 	}
 
+	/**
+	  * Clears the access count of all sectors
+	 **/
 	void clearAccessCount()
 	{
 		int ret = c::tdisk_clear_access_count(name.c_str());
@@ -248,6 +360,9 @@ public:
 		}
 	}
 
+	/**
+	  * Returns the amount of current internal devices
+	 **/
 	unsigned int getInternalDevicesCount() const
 	{
 		unsigned int devices;
@@ -262,6 +377,10 @@ public:
 		return devices;
 	}
 
+	/**
+	  * Returns information about the internal device with the given
+	  * device id
+	 **/
 	f_internal_device_info getDeviceInfo(unsigned int device) const
 	{
 		f_internal_device_info info;
@@ -277,11 +396,22 @@ public:
 	}
 
 private:
+
+	/**
+	  * The minor number of the tDisk
+	 **/
 	int minornumber;
+	
+	/**
+	  * The path of the tDisk
+	 **/
 	std::string name;
 
 }; //end class tDisk
 
+/**
+  * Stringifies the given f_sector_index using the given format
+ **/
 template <> inline std::string createResultString(const f_sector_index &index, unsigned int hierarchy, const utils::ci_string &outputFormat)
 {
 	if(outputFormat == "json")
@@ -302,6 +432,9 @@ template <> inline std::string createResultString(const f_sector_index &index, u
 		throw FormatException("Invalid output-format ", outputFormat);
 }
 
+/**
+  * Stringifies the given f_sector_info using the given format
+ **/
 template <> inline std::string createResultString(const f_sector_info &info, unsigned int hierarchy, const utils::ci_string &outputFormat)
 {
 	if(outputFormat == "json")
@@ -322,6 +455,9 @@ template <> inline std::string createResultString(const f_sector_info &info, uns
 		throw FormatException("Invalid output-format ", outputFormat);
 }
 
+/**
+  * Stringifies the given f_device_performance using the given format
+ **/
 template <> inline std::string createResultString(const f_device_performance &perf, unsigned int hierarchy, const utils::ci_string &outputFormat)
 {
 	double avg_read_dec		= (double)perf.mod_avg_read / (1 << c::get_measure_records_shift());
@@ -354,6 +490,9 @@ template <> inline std::string createResultString(const f_device_performance &pe
 		throw FormatException("Invalid output-format ", outputFormat);
 }
 
+/**
+  * Stringifies the given f_internal_device_info using the given format
+ **/
 template <> inline std::string createResultString(const f_internal_device_info &info, unsigned int hierarchy, const utils::ci_string &outputFormat)
 {
 	if(outputFormat == "json")

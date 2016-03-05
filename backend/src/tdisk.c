@@ -132,10 +132,10 @@ int tdisk_add(char *out_name, unsigned int blocksize)
 	int controller;
 	int device;
 
-	if(!check_td_control())return -EDRVNTLD;
+	if(!check_td_control())return -ENODEV;
 
 	controller = open(CONTROL_FILE, O_RDWR);
-	if(controller < 0)return -ENOPERM;
+	if(controller < 0)return -EACCES;
 
 	device = ioctl(controller, TDISK_CTL_GET_FREE, blocksize);
 
@@ -152,10 +152,10 @@ int tdisk_add_specific(char *out_name, int minor, unsigned int blocksize)
 	int controller;
 	int device;
 
-	if(!check_td_control())return -EDRVNTLD;
+	if(!check_td_control())return -ENODEV;
 
 	controller = open(CONTROL_FILE, O_RDWR);
-	if(controller < 0)return -ENOPERM;
+	if(controller < 0)return -EACCES;
 
 	struct tdisk_add_parameters params = {
 		.minornumber = minor,
@@ -177,10 +177,10 @@ int tdisk_remove(int device)
 	int controller;
 	int ret;
 
-	if(!check_td_control())return -EDRVNTLD;
+	if(!check_td_control())return -ENODEV;
 
 	controller = open(CONTROL_FILE, O_RDWR);
-	if(controller < 0)return -ENOPERM;
+	if(controller < 0)return -EACCES;
 
 	ret = ioctl(controller, TDISK_CTL_REMOVE, device);
 
@@ -196,7 +196,7 @@ int tdisk_add_disk(const char *device, const char *new_disk)
 	int file;
 	struct internal_device_add_parameters parameters;
 
-	if(!check_td_control())return -EDRVNTLD;
+	if(!check_td_control())return -ENODEV;
 
 	file = open(new_disk, O_RDWR/* | O_SYNC | O_DIRECT*/);
 	if(file > 0)
@@ -214,7 +214,7 @@ int tdisk_add_disk(const char *device, const char *new_disk)
 	if(dev < 0)
 	{
 		close(file);
-		return -ENOPERM;
+		return -EACCES;
 	}
 
 	ret = ioctl(dev, TDISK_ADD_DISK, &parameters);
@@ -230,10 +230,10 @@ int tdisk_get_max_sectors(const char *device, uint64_t *out)
 	int dev;
 	int ret;
 
-	if(!check_td_control())return -EDRVNTLD;
+	if(!check_td_control())return -ENODEV;
 
 	dev = open(device, O_RDWR);
-	if(dev < 0)return -ENOPERM;
+	if(dev < 0)return -EACCES;
 
 	struct tdisk_info info;
 	ret = ioctl(dev, TDISK_GET_STATUS, &info);
@@ -250,10 +250,10 @@ int tdisk_get_sector_index(const char *device, uint64_t logical_sector, struct f
 	int ret;
 	struct sector_index temp;
 
-	if(!check_td_control())return -EDRVNTLD;
+	if(!check_td_control())return -ENODEV;
 
 	dev = open(device, O_RDWR);
-	if(dev < 0)return -ENOPERM;
+	if(dev < 0)return -EACCES;
 
 	temp.sector = logical_sector;
 	ret = ioctl(dev, TDISK_GET_SECTOR_INDEX, &temp);
@@ -275,14 +275,14 @@ int tdisk_get_all_sector_indices(const char *device, struct f_sector_info *out, 
 	if(!check_td_control())
 	{
 		free(temp);
-		return -EDRVNTLD;
+		return -ENODEV;
 	}
 
 	dev = open(device, O_RDWR);
 	if(dev < 0)
 	{
 		free(temp);
-		return -ENOPERM;
+		return -EACCES;
 	}
 
 	ret = ioctl(dev, TDISK_GET_ALL_SECTOR_INDICES, temp);
@@ -302,10 +302,10 @@ int tdisk_clear_access_count(const char *device)
 	int dev;
 	int ret;
 
-	if(!check_td_control())return -EDRVNTLD;
+	if(!check_td_control())return -ENODEV;
 
 	dev = open(device, O_RDWR);
-	if(dev < 0)return -ENOPERM;
+	if(dev < 0)return -EACCES;
 
 	ret = ioctl(dev, TDISK_CLEAR_ACCESS_COUNT);
 
@@ -319,10 +319,10 @@ int tdisk_get_internal_devices_count(const char *device, unsigned int *out)
 	int dev;
 	int ret;
 
-	if(!check_td_control())return -EDRVNTLD;
+	if(!check_td_control())return -ENODEV;
 
 	dev = open(device, O_RDWR);
-	if(dev < 0)return -ENOPERM;
+	if(dev < 0)return -EACCES;
 
 	struct tdisk_info info;
 	ret = ioctl(dev, TDISK_GET_STATUS, &info);
@@ -339,10 +339,10 @@ int tdisk_get_device_info(const char *device, unsigned int disk, struct f_intern
 	int ret;
 	struct internal_device_info temp;
 
-	if(!check_td_control())return -EDRVNTLD;
+	if(!check_td_control())return -ENODEV;
 
 	dev = open(device, O_RDWR);
-	if(dev < 0)return -ENOPERM;
+	if(dev < 0)return -EACCES;
 
 	temp.disk = (tdisk_index)disk;
 	ret = ioctl(dev, TDISK_GET_DEVICE_INFO, &temp);

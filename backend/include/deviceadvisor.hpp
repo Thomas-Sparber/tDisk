@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk Driver
+  * @author Thomas Sparber (2015)
+  *
+ **/
+
 #ifndef DEVICEADVISOR_HPP
 #define DEVICEADVISOR_HPP
 
@@ -15,10 +22,17 @@ namespace td
 namespace advisor
 {
 
-std::vector<tdisk_advice> getTDiskAdvices(const std::vector<std::string> &files);
+	/**
+	  * Creates all possible disk combination using the given
+	  * devices and sorts them accoring to their rank
+	 **/
+	std::vector<tdisk_advice> getTDiskAdvices(const std::vector<std::string> &files);
 
 } //end namespace advisor
 
+/**
+  * Stringifies a td::advisor::tdisk_advice using the given format
+ **/
 template <> inline std::string createResultString(const advisor::tdisk_advice &disk, unsigned int hierarchy, const utils::ci_string &outputFormat)
 {
 	if(outputFormat == "json")

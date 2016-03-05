@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk Driver
+  * @author Thomas Sparber (2015)
+  *
+ **/
+
 #ifndef CONFIGFILE_HPP
 #define CONFIGFILE_HPP
 
@@ -11,39 +18,83 @@
 namespace td
 {
 
-struct tdisk_global_option
-{
-	tdisk_global_option() :
-		name(),
-		value()
-	{}
-
-	utils::ci_string name;
-	utils::ci_string value;
-}; //end struct tdisk_global_option
-
-struct tdisk_config
-{
-	tdisk_config() :
-		minornumber(),
-		blocksize(),
-		devices()
-	{}
-
-	int minornumber;
-	long blocksize;
-	std::vector<std::string> devices;
-}; //end struct tdisk_config
-
 class configuration
 {
 
 public:
+
+	/**
+	  * This struct represents one loadable config-file
+	  * global option
+	 **/
+	struct tdisk_global_option
+	{
+
+		/**
+		  * Default constructor
+		 **/
+		tdisk_global_option() :
+			name(),
+			value()
+		{}
+
+		/**
+		  * The global option's nmae
+		 **/
+		utils::ci_string name;
+
+		/**
+		  * The global option's value
+		 **/
+		utils::ci_string value;
+
+	}; //end struct tdisk_global_option
+
+	/**
+	  * This struct represents the configuration of
+	  * one tDisk.
+	 **/
+	struct tdisk_config
+	{
+
+		/**
+		  * Default constructor
+		 **/
+		tdisk_config() :
+			minornumber(),
+			blocksize(),
+			devices()
+		{}
+
+		/**
+		  * The tDisk's minornumber
+		 **/
+		int minornumber;
+
+		/**
+		  * The tDisk's blocksize
+		 **/
+		long blocksize;
+
+		/**
+		  * The internal devices of the tDisk
+		 **/
+		std::vector<std::string> devices;
+
+	}; //end struct tdisk_config
+
+	/**
+	  * Default constructor
+	 **/
 	configuration() :
 		global_options(),
 		tdisks()
 	{}
 
+	/**
+	  * Creates a new configuration by loading it
+	  * it from the given file
+	 **/
 	configuration(const std::string &file, const Options &options) :
 		global_options(),
 		tdisks()
@@ -51,26 +102,61 @@ public:
 		load(file, options);
 	}
 
+	/**
+	  * Loads the configuration from the given file
+	 **/
 	void load(const std::string &file, const Options &options);
 
+	/**
+	  * Saves the configuration to the given file
+	 **/
 	void save(const std::string &file) const;
 
+	/**
+	  * Merges the config entries from the given
+	  * config object into the current one
+	 **/
 	void merge(const configuration &config);
+
+	/**
+	  * Adds a config device to the current config object
+	 **/
 	void addDevice(const tdisk_config &device);
+
+	/**
+	  * Adds a global option to the current config object
+	 **/
 	void addOption(const tdisk_global_option &option);
 
-private:
+	/**
+	  * Processes the given configuration string which
+	  * is usually read from a file
+	 **/
 	void process(const std::string &str, const Options &options);
 
-public:
+	/**
+	  * The list of current global config options
+	 **/
 	std::vector<tdisk_global_option> global_options;
+
+	/**
+	  * The list of current config devices
+	 **/
 	std::vector<tdisk_config> tdisks;
+
 }; //end struct configuration
 
+/**
+  * Creates the formatted result string for a td::configuration object
+ **/
 template <> std::string createResultString(const configuration &config, unsigned int hierarchy, const utils::ci_string &outputFormat);
 
+/**
+  * Creates the formatted result string for an
+  * array of td::configuration::tdisk_global_option objects
+ **/
 template <template <class ...> class container>
-inline std::string createResultString_array(const container<tdisk_global_option> &v, unsigned int hierarchy, const utils::ci_string &outputFormat)
+inline std::string createResultString_array(const container<configuration::tdisk_global_option> &v, unsigned int hierarchy, const utils::ci_string &outputFormat)
 {
 	std::vector<std::string> temp(v.size());
 	if(outputFormat == "json")
@@ -94,9 +180,17 @@ inline std::string createResultString_array(const container<tdisk_global_option>
 	return utils::concat(temp);
 }
 
-template <> std::string createResultString(const tdisk_global_option &option, unsigned int hierarchy, const utils::ci_string &outputFormat);
+/**
+  * Creates the formatted result string for a 
+  * td::configuration::tdisk_global_option object
+ **/
+template <> std::string createResultString(const configuration::tdisk_global_option &option, unsigned int hierarchy, const utils::ci_string &outputFormat);
 
-template <> std::string createResultString(const tdisk_config &config, unsigned int hierarchy, const utils::ci_string &outputFormat);
+/**
+  * Creates the formatted result string for a 
+  * td::configuration::tdisk_config object
+ **/
+template <> std::string createResultString(const configuration::tdisk_config &config, unsigned int hierarchy, const utils::ci_string &outputFormat);
 
 } //end namespace td
 

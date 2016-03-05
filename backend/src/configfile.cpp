@@ -22,21 +22,21 @@ using td::utils::concat;
 
 using namespace td;
 
-const char* loadTDisk(const char *it, const char *end, td::tdisk_config &out);
-const char* loadOption(const ci_string &name, const char *it, const char *end, td::tdisk_global_option &out, const td::Options &options);
+const char* loadTDisk(const char *it, const char *end, configuration::tdisk_config &out);
+const char* loadOption(const ci_string &name, const char *it, const char *end, configuration::tdisk_global_option &out, const td::Options &options);
 
 void td::configuration::merge(const configuration &config)
 {
-	for(const tdisk_config &device : config.tdisks)
+	for(const configuration::tdisk_config &device : config.tdisks)
 		addDevice(device);
 
-	for(const tdisk_global_option &option : config.global_options)
+	for(const configuration::tdisk_global_option &option : config.global_options)
 		addOption(option);
 }
 
-void td::configuration::addDevice(const tdisk_config &device)
+void td::configuration::addDevice(const configuration::tdisk_config &device)
 {
-	for(const tdisk_config &orig_config : tdisks)
+	for(const configuration::tdisk_config &orig_config : tdisks)
 	{
 		if(device.minornumber == orig_config.minornumber)
 			throw BackendException("Minornumber ", orig_config.minornumber, " is used twice");
@@ -54,11 +54,11 @@ void td::configuration::addDevice(const tdisk_config &device)
 	tdisks.push_back(device);
 }
 
-void td::configuration::addOption(const tdisk_global_option &option)
+void td::configuration::addOption(const configuration::tdisk_global_option &option)
 {
 	bool found = false;
 
-	for(tdisk_global_option &orig_option : global_options)
+	for(configuration::tdisk_global_option &orig_option : global_options)
 	{
 		if(orig_option.name == option.name)
 		{
@@ -92,10 +92,10 @@ void configuration::save(const string &file) const
 
 	out<<"# Auto generated config file by tDisk backend"<<endl<<endl;
 
-	for(const tdisk_global_option &option : global_options)
+	for(const configuration::tdisk_global_option &option : global_options)
 		out<<createResultString(option, 0, "json")<<endl;
 
-	for(const tdisk_config &tdisk : tdisks)
+	for(const configuration::tdisk_config &tdisk : tdisks)
 		out<<"tDisk: "<<createResultString(tdisk, 0, "json")<<endl;
 }
 
@@ -136,13 +136,13 @@ void configuration::process(const string &str, const td::Options &options)
 
 		if(name == "tdisk")
 		{
-			td::tdisk_config tdc;
+			configuration::tdisk_config tdc;
 			it = loadTDisk(it, end, tdc);
 			addDevice(std::move(tdc));
 		}
 		else
 		{
-			td::tdisk_global_option tgo;
+			configuration::tdisk_global_option tgo;
 			it = loadOption(name, it, end, tgo, options);
 			addOption(std::move(tgo));
 		}
@@ -240,7 +240,7 @@ const char* getStringArrayValue(const char *it, const char *end, vector<string> 
 	return end+1;
 }
 
-const char* loadTDisk(const char *it, const char *end, td::tdisk_config &out)
+const char* loadTDisk(const char *it, const char *end, configuration::tdisk_config &out)
 {
 	//Set to an invalid value
 	out.minornumber = -1;
@@ -283,7 +283,7 @@ const char* loadTDisk(const char *it, const char *end, td::tdisk_config &out)
 	return end+1;
 }
 
-const char* loadOption(const ci_string &name, const char *it, const char *end, td::tdisk_global_option &out, const td::Options &options)
+const char* loadOption(const ci_string &name, const char *it, const char *end, configuration::tdisk_global_option &out, const td::Options &options)
 {
 	if(!options.optionExists(name))throw BackendException("Option ", name, " does not exist!");
 
@@ -312,7 +312,7 @@ template <> std::string td::createResultString(const configuration &config, unsi
 		throw FormatException("Invalid output-format ", outputFormat);
 }
 
-template <> std::string td::createResultString(const tdisk_global_option &option, unsigned int /*hierarchy*/, const ci_string &outputFormat)
+template <> std::string td::createResultString(const configuration::tdisk_global_option &option, unsigned int /*hierarchy*/, const ci_string &outputFormat)
 {
 	if(outputFormat == "json")
 		return concat("\"", option.name, "\": \"", option.value, "\"");
@@ -322,7 +322,7 @@ template <> std::string td::createResultString(const tdisk_global_option &option
 		throw FormatException("Invalid output-format ", outputFormat);
 }
 
-template <> std::string td::createResultString(const tdisk_config &config, unsigned int hierarchy, const ci_string &outputFormat)
+template <> std::string td::createResultString(const configuration::tdisk_config &config, unsigned int hierarchy, const ci_string &outputFormat)
 {
 	if(outputFormat == "json")
 		return concat(

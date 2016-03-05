@@ -2,6 +2,8 @@
   *
   * tDisk Driver
   * @author Thomas Sparber (2015)
+  * 
+  * This file is used to directly communicate with the kernel module.
   *
  **/
 
@@ -10,9 +12,9 @@
 
 #include <stdint.h>
 
-#define EDRVNTLD 1234
-#define ENOPERM 1235
-
+/**
+  * Defines the mex length of the name of an internal device
+ **/
 #define F_TDISK_MAX_INTERNAL_DEVICE_NAME 256
 
 /**
@@ -21,8 +23,13 @@
  **/
 enum f_internal_device_type
 {
+
+	/** The internal device is a file. Can also be a blockdevice **/
 	f_internal_device_type_file,
+	
+	/** The internal device is a plugin. **/
 	f_internal_device_type_plugin
+	
 }; //end enum internal_device_type
 
 /**
@@ -105,26 +112,98 @@ struct f_sector_info
 }; //end struct f_sector_info
 
 
-
+/**
+  * Returns the current amount of registered tDisks
+ **/
 int tdisk_get_devices_count();
+
+/**
+  * Gets the names of the current tDisks
+  * @param devices The outpug buffer where the names should be stored
+  * @param size The size of each member in the output buffer
+  * @param length The length of the output buffer
+  * @returns The amount of devices or a negative number when an error
+  * happened
+ **/
 int tdisk_get_devices(char **devices, int size, int length);
 
+/**
+  * Adds a new device with the next free minor number to the system.
+  * @param out_name The name of the new device will be stored here
+  * @param blocksize The blocksize of the new device
+  * @returns The minor number of the new device or a negative error code
+ **/
 int tdisk_add(char *out_name, unsigned int blocksize);
+
+/**
+  * Adds a new device with the given minor number to the system.
+  * @param out_name The name of the new device will be stored here
+  * @param minor The minor number of the new device
+  * @param blocksize The blocksize of the new device
+  * @returns The minor number of the new device or a negative error code
+ **/
 int tdisk_add_specific(char *out_name, int minor, unsigned int blocksize);
+
+/**
+  * Removes the device with the given minor number from the system.
+ **/
 int tdisk_remove(int device);
 
+/**
+  * Adds a new internal device to the tDisk
+  * @param device The tDisk where to add the new internal device
+  * @param new_device The new internal device to be added to the tDisk.
+  * If it is a file path it is added as file. If not it is added as a
+  * plugin.
+ **/
 int tdisk_add_disk(const char *device, const char *new_disk);
 
+/**
+  * Gets the current maximum amount of sectors for the given tDisk
+ **/
 int tdisk_get_max_sectors(const char *device, uint64_t *out);
+
+/**
+  * Gets information about the given sector index
+ **/
 int tdisk_get_sector_index(const char *device, uint64_t logical_sector, struct f_sector_index *out);
+
+/**
+  * Returns infomration about all sector indices
+  * @param out An array of f_sector_info to store the infomration
+  * @param out The size of the array
+ **/
 int tdisk_get_all_sector_indices(const char *device, struct f_sector_info *out, uint64_t size);
+
+/**
+  * Resets the access count of all sectors
+ **/
 int tdisk_clear_access_count(const char *device);
 
+/**
+  * Gets the amount of internal devices for the given tDisk
+ **/
 int tdisk_get_internal_devices_count(const char *device, unsigned int *out);
+
+/**
+  * Gets device information of the device with the given id
+ **/
 int tdisk_get_device_info(const char *device, unsigned int disk, struct f_internal_device_info *out);
 
+/**
+  * Gets the measure shift.
+  * (1 << measure_shift) = number ov averaged performance measures
+ **/
 unsigned int get_measure_records_shift();
+
+/**
+  * Gets the number by which the blocksize must be dividable
+ **/
 unsigned int get_tdisk_blocksize_mod();
+
+/**
+  * Gets the number of max supported internal disks
+ **/
 unsigned int get_tdisk_max_physical_disks();
 
 #endif //TDISK_H

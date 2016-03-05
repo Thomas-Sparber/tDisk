@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk Driver
+  * @author Thomas Sparber (2015)
+  *
+ **/
+
 #ifndef RESULTFORMATTER_HPP
 #define RESULTFORMATTER_HPP
 
@@ -12,28 +19,73 @@
 namespace td
 {
 
+	/**
+	  * Creates a Json result string for an object member
+	 **/
 	#define CREATE_RESULT_STRING_MEMBER_JSON(object, member, hierarchy, outputFormat) "\"", #member, "\": ", createResultString(object.member, hierarchy, outputFormat)
+
+	/**
+	  * Creates a text result string for an object member
+	 **/
 	#define CREATE_RESULT_STRING_MEMBER_TEXT(object, member, hierarchy, outputFormat) #member, " = ", createResultString(object.member, hierarchy, outputFormat)
 
+	/**
+	  * Creates a Json result string for a non object member
+	 **/
 	#define CREATE_RESULT_STRING_NONMEMBER_JSON(var, hierarchy, outputFormat) "\"", #var, "\": ", createResultString(var, hierarchy, outputFormat)
+	
+	/**
+	  * Creates a text result string for a non object member
+	 **/
 	#define CREATE_RESULT_STRING_NONMEMBER_TEXT(var, hierarchy, outputFormat) #var, " = ", createResultString(var, hierarchy, outputFormat)
 
+	/**
+	  * A FormanException is thrown whenever an error occurred while
+	  * formatting an object
+	 **/
 	struct FormatException
 	{
+		
+		/**
+		  * Constructs a FormatException using any number of arguments
+		  * and concats them
+		 **/
 		template <class ...T>
 		FormatException(T ...t) :
 			what(td::utils::concat(t...))
 		{}
 
-		std::string what;
+		/**
+		  * The description text of the FormatException
+		 **/
+		 std::string what;
+		 
 	}; //end class FormatException
 
+	/**
+	  * Stringifies the given object using the given format and data
+	  * hierarchy
+	  * @param t The object to be converted to a string
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the object to string.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <class T>
 	inline std::string createResultString(const T &t, unsigned int hierarchy, const utils::ci_string &outputFormat)
 	{
 		throw FormatException("Can't create result string of type ", typeid(t).name());
 	}
 
+	/**
+	  * Stringifies the given object using the given format and data
+	  * hierarchy. The given object is treaed as string.
+	  * @param t The object to be converted to a string
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the object to string.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <class T>
 	inline std::string createResultString_string(const T &s, const utils::ci_string &outputFormat)
 	{
@@ -45,6 +97,15 @@ namespace td
 			throw FormatException("Invalid output-format ", outputFormat);
 	}
 
+	/**
+	  * Stringifies the given object using the given format and data
+	  * hierarchy. The given object is treated as number
+	  * @param t The object to be converted to a string
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the object to string.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <class T>
 	inline std::string createResultString_number(const T &i, const utils::ci_string &outputFormat)
 	{
@@ -56,6 +117,15 @@ namespace td
 			throw FormatException("Invalid output-format ", outputFormat);
 	}
 
+	/**
+	  * Stringifies the given array object using the given format and
+	  * data hierarchy
+	  * @param t The object to be converted to a string
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the object to string.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <class T, template <class ...> class container>
 	inline std::string createResultString_array(const container<T> &v, unsigned int hierarchy, const utils::ci_string &outputFormat)
 	{
@@ -81,6 +151,15 @@ namespace td
 		return utils::concat(temp);
 	}
 
+	/**
+	  * Stringifies the given map using the given format and data
+	  * hierarchy
+	  * @param t The object to be converted to a string
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the object to string.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <class S, class T>
 	inline std::string createResultString_map(const std::map<S,T> &m, unsigned int hierarchy, const utils::ci_string &outputFormat)
 	{
@@ -109,16 +188,43 @@ namespace td
 		return utils::concat(temp);
 	}
 
+	/**
+	  * Stringifies the given string using the given format and data
+	  * hierarchy
+	  * @param t The string to be converted
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the string.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <> inline std::string createResultString(const std::string &s, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
 		return createResultString_string(s, outputFormat);
 	}
 
+	/**
+	  * Stringifies the given string using the given format and data
+	  * hierarchy
+	  * @param t The string to be converted
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the string.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <> inline std::string createResultString(const utils::ci_string &s, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
 		return createResultString_string(s, outputFormat);
 	}
 
+	/**
+	  * Stringifies the given char using the given format and data
+	  * hierarchy
+	  * @param t The char to be converted
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the char.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <> inline std::string createResultString(const char &s, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
 		return createResultString_string(s, outputFormat);
@@ -129,61 +235,169 @@ namespace td
 	//	return createResultString_string(std::string(s), outputFormat);
 	//}
 
+	/**
+	  * Stringifies the given uint8_t using the given format and data
+	  * hierarchy
+	  * @param t The uint8_t to be converted
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the uint8_t.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <> inline std::string createResultString(const uint8_t &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
 		return createResultString_number((unsigned int)i, outputFormat);
 	}
 
+	/**
+	  * Stringifies the given uint16_t using the given format and data
+	  * hierarchy
+	  * @param t The uint16_t to be converted
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the uint16_t.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <> inline std::string createResultString(const uint16_t &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
 		return createResultString_number(i, outputFormat);
 	}
 
+	/**
+	  * Stringifies the given int using the given format and data
+	  * hierarchy
+	  * @param t The int to be converted
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the int.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <> inline std::string createResultString(const int &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
 		return createResultString_number(i, outputFormat);
 	}
 
+	/**
+	  * Stringifies the given unsigned int using the given format and data
+	  * hierarchy
+	  * @param t The unsigned int to be converted
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the unsigned int.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <> inline std::string createResultString(const unsigned int &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
 		return createResultString_number(i, outputFormat);
 	}
 
+	/**
+	  * Stringifies the given long using the given format and data
+	  * hierarchy
+	  * @param t The long to be converted
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the long.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <> inline std::string createResultString(const long &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
 		return createResultString_number(i, outputFormat);
 	}
 
+	/**
+	  * Stringifies the given unsigned long using the given format and data
+	  * hierarchy
+	  * @param t The unsigned long to be converted
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the unsigned long.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <> inline std::string createResultString(const unsigned long &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
 		return createResultString_number(i, outputFormat);
 	}
 
+	/**
+	  * Stringifies the given long long using the given format and data
+	  * hierarchy
+	  * @param t The long long to be converted
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the long long.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <> inline std::string createResultString(const long long &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
 		return createResultString_number(i, outputFormat);
 	}
 
+	/**
+	  * Stringifies the given unsigned long long using the given format and data
+	  * hierarchy
+	  * @param t The unsigned long long to be converted
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the unsigned long long.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <> inline std::string createResultString(const unsigned long long &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
 		return createResultString_number(i, outputFormat);
 	}
 
+	/**
+	  * Stringifies the given float using the given format and data
+	  * hierarchy
+	  * @param t The float to be converted
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the float.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <> inline std::string createResultString(const float &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
 		return createResultString_number(i, outputFormat);
 	}
 
+	/**
+	  * Stringifies the given double using the given format and data
+	  * hierarchy
+	  * @param t The double to be converted
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the double.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <> inline std::string createResultString(const double &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
 		return createResultString_number(i, outputFormat);
 	}
 
+	/**
+	  * Stringifies the given long double using the given format and data
+	  * hierarchy
+	  * @param t The long double to be converted
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the long double.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <> inline std::string createResultString(const long double &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
 		return createResultString_number(i, outputFormat);
 	}
 
+	/**
+	  * Stringifies the given vector using the given format and data
+	  * hierarchy
+	  * @param t The vector to be converted
+	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param outputFormat The format to convert the vector.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <class T> inline std::string createResultString(const std::vector<T> &v, unsigned int hierarchy, const utils::ci_string &outputFormat)
 	{
 		return createResultString_array(v, hierarchy, outputFormat);

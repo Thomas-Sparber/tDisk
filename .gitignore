@@ -15,6 +15,7 @@ other_disk
 backend/tdisk
 backend/tdisk.exe
 web_interface/tdisk
+web_interface/database.db
 documentation/kernel_module/html
 documentation/kernel_module/doxygen_sqlite3.db
 documentation/backend/html

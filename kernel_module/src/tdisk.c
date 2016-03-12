@@ -251,15 +251,22 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 	return 0;
 }
 
-int td_sort_devices_callback(const void *a, const void *b)
+inline static unsigned long long td_get_device_performance(const struct td_internal_device *d)
+{
+	return (d->performance.avg_read_time_cycles + d->performance.avg_write_time_cycles) >> 1;
+}
+
+static int td_sort_devices_callback(const void *a, const void *b)
 {
 	const struct sorted_internal_device *d_a = a;
 	const struct sorted_internal_device *d_b = b;
 
-	long performance_a = (d_a->dev->performance.avg_read_time_cycles + d_a->dev->performance.avg_write_time_cycles) >> 1;
-	long performance_b = (d_b->dev->performance.avg_read_time_cycles + d_b->dev->performance.avg_write_time_cycles) >> 1;
+	unsigned long long performance_a = td_get_device_performance(d_a->dev);//(d_a->dev->performance.avg_read_time_cycles + d_a->dev->performance.avg_write_time_cycles) >> 1;
+	unsigned long long performance_b = td_get_device_performance(d_b->dev);//(d_b->dev->performance.avg_read_time_cycles + d_b->dev->performance.avg_write_time_cycles) >> 1;
 
-	return performance_a - performance_b;
+	if(performance_a == performance_b)return 0;
+	else if(performance_a > performance_b)return 1;
+	else return -1;
 }
 
 static void td_insert_sorted_internal_devices(struct tdisk *td, struct sorted_internal_device *sorted_devices)
@@ -394,7 +401,7 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	u8 *buffer_b = kmalloc(td->blocksize, GFP_KERNEL);
 	if(!buffer_a || !buffer_b)return;
 
-	//printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u)\n", logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count);
+	printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u)\n", logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count);
 
 	//Reading blocks from both disks
 	read_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);
@@ -430,16 +437,22 @@ static bool td_move_one_sector(struct tdisk *td)
 		if(!device_is_ready(&td->internal_devices[sorted_disk-1]))
 		{
 			//Not all disks are loaded yet
+			printk(KERN_DEBUG "tDisk: Not all disks are ready. Not moving sectors\n");
 			return false;
 		}
 	}
 
 	sorted_devices = vmalloc(sizeof(struct sorted_internal_device) * td->internal_devices_count);
-	if(!sorted_devices)return false;
+	if(!sorted_devices)
+	{
+		printk(KERN_WARNING "tDisk: Error allocating sorted_devices memory\n");
+		return false;
+	}
 
 	sorted_sectors = vmalloc(sizeof(struct sorted_sector_index) * td->max_sectors);
 	if(!sorted_sectors)
 	{
+		printk(KERN_WARNING "tDisk: Error allocating sorted_sectors memory\n");
 		vfree(sorted_devices);
 		return false;
 	}
@@ -451,15 +464,16 @@ static bool td_move_one_sector(struct tdisk *td)
 	td_assign_sectors(td, sorted_devices, sorted_sectors);
 
 	//Moving the sector with highest access count.
-	/*for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
+	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
 	{
-		printk(KERN_DEBUG "tDisk: Internal disk %u (speed: %u rank): Capacity: %llu, Correctly stored: %llu, %u percent\n",
+		printk(KERN_DEBUG "tDisk: Internal disk %u (speed: %u rank --> %llu): Capacity: %llu, Correctly stored: %llu, %u percent\n",
 						sorted_devices[sorted_disk-1].dev-td->internal_devices+1,
 						sorted_disk,
+						td_get_device_performance(sorted_devices[sorted_disk-1].dev),
 						sorted_devices[sorted_disk-1].dev->size_blocks,
 						sorted_devices[sorted_disk-1].amount_blocks,
 						(size_t)sorted_devices[sorted_disk-1].amount_blocks*100 / (size_t)sorted_devices[sorted_disk-1].dev->size_blocks);
-	}*/
+	}
 
 	//Moving the sector with highest access count.
 	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
@@ -499,7 +513,7 @@ static bool td_move_one_sector(struct tdisk *td)
 				//swap those sectors we gain the highest possible performance.
 
 				td_swap_sectors(td, highest-sorted_sectors, highest->physical_sector, to_swap-sorted_sectors, to_swap->physical_sector);
-				td->access_count_resort = 1;
+				//td->access_count_resort = 1;	TODO
 				swapped = true;
 				break;
 			}

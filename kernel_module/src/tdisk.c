@@ -850,6 +850,14 @@ int td_get_max_sectors_header_increase(struct tdisk *td, sector_t max_sectors)
 	return (new_header_size - td->header_size);
 }
 
+void td_reset_sectors(struct tdisk *td)
+{
+	if(td->indices != NULL)vfree(td->indices);
+	if(td->sorted_sectors != NULL)vfree(td->sorted_sectors);
+	td->max_sectors = 0;
+	td->header_size = 0;
+}
+
 /**
   * This function is used to resize the sector indices.
   * It also sets all the required parameters in the tDisk.
@@ -1076,7 +1084,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	if(additional_sectors < 0)
 	{
 		error = additional_sectors;
-		goto out_putf;
+		goto out_reset_sectors;
 	}
 
 	//Set disk references in tDisk
@@ -1099,10 +1107,6 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		//Writing header to disk
 		header.current_max_sectors = td->max_sectors;
 		td_write_header(&new_device, &header);
-		//new_device->performance = perf;
-
-		//Save indices from previously added disks
-		td_write_all_indices(td, &new_device);
 
 		//Save sector indices
 		sector = 0;
@@ -1165,6 +1169,14 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			if(td->indices[sector].disk == 0)break;
 		}
 		td->size_blocks = sector;
+		if(td->size_blocks == 0)
+		{
+			error = -EINVAL;
+			td->internal_devices_count = 0;
+			printk(KERN_WARNING "tDisk: blocksize is 0. This probably means that the system crashed.\n");
+			printk(KERN_WARNING "tDisk: Sorry but the disk is broken. Maybe it can be reconstructed if you use another disk from this tDisk\n");
+			goto out_reset_sectors;
+		}
 		break;
 	default:
 		printk(KERN_ERR "tDisk: Invalid index_operation_to_do: %d\n", index_operation_to_do);
@@ -1230,7 +1242,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		if(error)
 		{
 			printk(KERN_WARNING "tDisk: Error setting up worker thread\n");
-			goto out_putf;
+			goto out_reset_sectors;
 		}
 	}
 
@@ -1253,6 +1265,8 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	if(first_device)bdgrab(bdev);
 	return 0;
 
+ out_reset_sectors:
+	td_reset_sectors(td);
  out_putf:
 	if(file)fput(file);
  out:
@@ -1582,7 +1596,7 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 			//struct hlist_node *item_safe;
 			//struct sorted_sector_index *item;
 
-			//printk(KERN_DEBUG "tDisk: nothing to do anymore. Sorting sectors\n");
+			printk(KERN_DEBUG "tDisk: nothing to do anymore. Sorting sectors\n");
 			//hlist_for_each_entry_safe(item, item_safe, &td->sorted_sectors_head, list)
 			//{
 			//	td_reorganize_sorted_index(td, item-td->sorted_sectors);
@@ -1594,7 +1608,7 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 		}
 		else
 		{
-			//printk(KERN_DEBUG "tDisk: nothing to do anymore. Moving sectors\n");
+			printk(KERN_DEBUG "tDisk: nothing to do anymore. Moving sectors\n");
 
 			td->access_count_resort = 0;
 			td_move_one_sector(td);

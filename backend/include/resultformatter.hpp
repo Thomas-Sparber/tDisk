@@ -66,7 +66,7 @@ namespace td
 	  * Stringifies the given object using the given format and data
 	  * hierarchy
 	  * @param t The object to be converted to a string
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param hierarchy The current data hierarchy (how many \\t's)
 	  * @param outputFormat The format to convert the object to string.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -80,8 +80,7 @@ namespace td
 	/**
 	  * Stringifies the given object using the given format and data
 	  * hierarchy. The given object is treaed as string.
-	  * @param t The object to be converted to a string
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param s The object to be converted to a string
 	  * @param outputFormat The format to convert the object to string.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -100,8 +99,7 @@ namespace td
 	/**
 	  * Stringifies the given object using the given format and data
 	  * hierarchy. The given object is treated as number
-	  * @param t The object to be converted to a string
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param i The object to be converted to a string
 	  * @param outputFormat The format to convert the object to string.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -120,8 +118,8 @@ namespace td
 	/**
 	  * Stringifies the given array object using the given format and
 	  * data hierarchy
-	  * @param t The object to be converted to a string
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param v The object to be converted to a string
+	  * @param hierarchy The current data hierarchy (how many \\t's)
 	  * @param outputFormat The format to convert the object to string.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -154,8 +152,8 @@ namespace td
 	/**
 	  * Stringifies the given map using the given format and data
 	  * hierarchy
-	  * @param t The object to be converted to a string
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param m The object to be converted to a string
+	  * @param hierarchy The current data hierarchy (how many \\t's)
 	  * @param outputFormat The format to convert the object to string.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -191,8 +189,8 @@ namespace td
 	/**
 	  * Stringifies the given string using the given format and data
 	  * hierarchy
-	  * @param t The string to be converted
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param s The string to be converted
+	  * @param int
 	  * @param outputFormat The format to convert the string.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -205,8 +203,8 @@ namespace td
 	/**
 	  * Stringifies the given string using the given format and data
 	  * hierarchy
-	  * @param t The string to be converted
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param s The string to be converted
+	  * @param int
 	  * @param outputFormat The format to convert the string.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -219,8 +217,8 @@ namespace td
 	/**
 	  * Stringifies the given char using the given format and data
 	  * hierarchy
-	  * @param t The char to be converted
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param s The char to be converted
+	  * @param int
 	  * @param outputFormat The format to convert the char.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -238,8 +236,8 @@ namespace td
 	/**
 	  * Stringifies the given uint8_t using the given format and data
 	  * hierarchy
-	  * @param t The uint8_t to be converted
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param i The uint8_t to be converted
+	  * @param int
 	  * @param outputFormat The format to convert the uint8_t.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -252,8 +250,8 @@ namespace td
 	/**
 	  * Stringifies the given uint16_t using the given format and data
 	  * hierarchy
-	  * @param t The uint16_t to be converted
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param i The uint16_t to be converted
+	  * @param int
 	  * @param outputFormat The format to convert the uint16_t.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -266,8 +264,8 @@ namespace td
 	/**
 	  * Stringifies the given int using the given format and data
 	  * hierarchy
-	  * @param t The int to be converted
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param i The int to be converted
+	  * @param int
 	  * @param outputFormat The format to convert the int.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -280,8 +278,8 @@ namespace td
 	/**
 	  * Stringifies the given unsigned int using the given format and data
 	  * hierarchy
-	  * @param t The unsigned int to be converted
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param i The unsigned int to be converted
+	  * @param int
 	  * @param outputFormat The format to convert the unsigned int.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -294,8 +292,8 @@ namespace td
 	/**
 	  * Stringifies the given long using the given format and data
 	  * hierarchy
-	  * @param t The long to be converted
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param i The long to be converted
+	  * @param int
 	  * @param outputFormat The format to convert the long.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -308,8 +306,8 @@ namespace td
 	/**
 	  * Stringifies the given unsigned long using the given format and data
 	  * hierarchy
-	  * @param t The unsigned long to be converted
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param i The unsigned long to be converted
+	  * @param int
 	  * @param outputFormat The format to convert the unsigned long.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -322,8 +320,8 @@ namespace td
 	/**
 	  * Stringifies the given long long using the given format and data
 	  * hierarchy
-	  * @param t The long long to be converted
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param i The long long to be converted
+	  * @param int
 	  * @param outputFormat The format to convert the long long.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -336,8 +334,8 @@ namespace td
 	/**
 	  * Stringifies the given unsigned long long using the given format and data
 	  * hierarchy
-	  * @param t The unsigned long long to be converted
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param i The unsigned long long to be converted
+	  * @param int
 	  * @param outputFormat The format to convert the unsigned long long.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -350,8 +348,8 @@ namespace td
 	/**
 	  * Stringifies the given float using the given format and data
 	  * hierarchy
-	  * @param t The float to be converted
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param i The float to be converted
+	  * @param int
 	  * @param outputFormat The format to convert the float.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -364,8 +362,8 @@ namespace td
 	/**
 	  * Stringifies the given double using the given format and data
 	  * hierarchy
-	  * @param t The double to be converted
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param i The double to be converted
+	  * @param int
 	  * @param outputFormat The format to convert the double.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -378,8 +376,8 @@ namespace td
 	/**
 	  * Stringifies the given long double using the given format and data
 	  * hierarchy
-	  * @param t The long double to be converted
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param i The long double to be converted
+	  * @param int
 	  * @param outputFormat The format to convert the long double.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
@@ -392,8 +390,8 @@ namespace td
 	/**
 	  * Stringifies the given vector using the given format and data
 	  * hierarchy
-	  * @param t The vector to be converted
-	  * @param hierarchy The current data hierarchy (how many \t's)
+	  * @param v The vector to be converted
+	  * @param hierarchy The current data hierarchy (how many \\t's)
 	  * @param outputFormat The format to convert the vector.
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format

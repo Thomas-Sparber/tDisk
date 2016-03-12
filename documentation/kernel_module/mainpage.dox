@@ -1,0 +1,60 @@
+/**
+  * \mainpage
+  *
+  * Basic kernel module overview
+  * ============================
+  *
+  * --> User program
+  *     --> Kernel
+  *         --> Kernel module
+  *              - Finding disk
+  *              - Finding physical sector
+  * User program <--
+  *
+  *
+  * Kernel module taks and features
+  * ===============================
+  *
+  * tDisk control
+  * -------------
+  * 
+  * Adding a new tDisk
+  * ------------------
+  *
+  * Adding an internal device
+  * -------------------------
+  *
+  *  - Test device properties (read only etc.)
+  *  - Read header
+  *  - If device is new
+  *     - Calculate new space needed for additional indices (see below)
+  *     - Write other disk's indices
+  *     - Allocate and write new indices
+  *  - If known device
+  *     - Read (and compare) sector indices
+  *  - Set new tDisk capacity
+  * 
+  * **Resizing indices**
+  *
+  * 
+  * Sector movement
+  * ---------------
+  * 
+  * **Performance measurement**
+  * 
+  * **Sectors sorting**
+  * 
+  *
+  * Custom timeout worker
+  * ---------------------
+  * 
+  * Kernel data types
+  * -----------------
+  * 
+  * Plugin integration
+  * ------------------
+  *
+  * Header
+  * ------
+  *
+ **/

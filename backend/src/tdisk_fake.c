@@ -1,11 +1,11 @@
-#ifndef __linux__
-
 /**
   *
   * tDisk Driver
   * @author Thomas Sparber (2015)
   *
  **/
+
+#ifndef __linux__
 
 #include <stdio.h>
 #include <stdint.h>

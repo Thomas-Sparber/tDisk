@@ -1,0 +1,109 @@
+/**
+  * \mainpage
+  *
+  * This documentation page contains documentation about the following
+  * components:
+  * - tDisk backend
+  *  - tDisk kernel plugins
+  *  - tDisk tests
+  * 
+  * tDisk backend
+  * =============
+  * 
+  * Structure:
+  *  - Direct kernel communication to kernel
+  *     - Using ioctl (written in C)
+  *  - Main backend part (written in C++)
+  *     - Managing tDisk
+  *     - Reading config files
+  *     - Device advice
+  *  - C-interfaces for backend
+  * 
+  * 
+  * tDisk kernel plugins
+  * ====================
+  * 
+  * The tDisk kernel module is able to talk to user space plugins and
+  * treat them like a physical disk (you can read more about this in the
+  * kernel module documentation).
+  * The plugin base is responsible to communicate with the kernel module
+  * and provide those services to the actual plugins.
+  * 
+  * 
+  * Plugins base
+  * ------------
+  * 
+  * Provides kernel communication functions
+  *  - Registering in kernel module
+  *  - Unregistering from kernel module
+  *  - Polling listening and receive kernel messages
+  *  - Parsing messages and passing them to the actual plugin. The
+  *    following
+  *    messages need to be performed by the actual plugin
+  *     - *get size*: Should return the size of the plugin
+  *     - *read*: Should read the requested data and store it in the
+  *       target buffer
+  *     - *write*: Should write the requested data from the buffer
+  *  
+  * **Communication**
+  
+  * The communication to the kernel module is done using netlink sockets
+  * and libnl. For the communicatin to the kernel, a new generic netlink
+  * family is created.
+  * 
+  * **Additional features**
+  
+  *  - *WriteBuffer*: Merges write operations to minimize actual write
+  *    requests
+  *  - *HistoryBuffer*: Saves previously used data and minimizes read
+  *    requests
+  *  - Both features above can be enabled, disabled and customized
+  * 
+  * 
+  * Dropbox plugin
+  * --------------
+  * 
+  * The dropbox plugin allows to use an existing dropboxaccount as
+  * storage backend for a tDisk.
+  * 
+  * The file structure of a tDisk in the dropbox looks like the
+  * following:
+  *  - Dropbox root directory
+  *     - tDisk folder (user defined name)
+  *        - 1.td
+  *        - 2.td
+  *        - ...
+  * 
+  * Each file has the same size (= dropbox specific blocksize)
+  * 
+  * 
+  * tDisk tests
+  * ===========
+  * 
+  * The following tests are currently available:
+  *  - IO verify
+  *  - IO verfy files
+  *  - Random IOs
+  * 
+  * 
+  * IO verify
+  * ---------
+  * 
+  * Uses random data, writes it to a disk, waits some time and reads the
+  * same data from the disk and verifies it
+  * 
+  * 
+  * IO verify files
+  * ---------------
+  * 
+  * More or less tha same as IO verify but doesn't write directly to the
+  * disk but uses a folder to create files which contain the random data
+  * 
+  * 
+  * Random IOs
+  * ----------
+  * 
+  * Generates random read/write IOs on a device and measures the
+  * performance
+  *
+ **/

@@ -205,7 +205,7 @@ static int td_flush_devices(struct tdisk *td)
   *  - COMPARE: Compares the given physical sector index with the actual one.
   *    This is useful to compare individual disks for consistency.
  **/
-int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t logical_sector, struct sector_index *physical_sector)
+int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t logical_sector, struct sector_index *physical_sector, bool do_disk_operation)
 {
 	struct sector_index *actual;
 	loff_t position = td_dev->index_offset_byte + logical_sector * sizeof(struct sector_index);
@@ -239,14 +239,12 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 		actual->sector = physical_sector->sector;
 
 		//Disk operations
-		for(j = 0; j < td_dev->internal_devices_count; ++j)
+		if(do_disk_operation)
 		{
-			//struct file *file = td_dev->internal_devices[j].file;
-
-			//if(file)
-			//{
-			write_data(&td_dev->internal_devices[j], actual, position, length);
-			//}
+			for(j = 0; j < td_dev->internal_devices_count; ++j)
+			{
+				write_data(&td_dev->internal_devices[j], actual, position, length);
+			}
 		}
 	}
 
@@ -410,8 +408,8 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	swap(a->sector, b->sector);
 
 	//Updating indices
-	td_perform_index_operation(td, WRITE, logical_a, a);
-	td_perform_index_operation(td, WRITE, logical_b, b);
+	td_perform_index_operation(td, WRITE, logical_a, a, true);
+	td_perform_index_operation(td, WRITE, logical_b, b, true);
 
 	kfree(buffer_a);
 	kfree(buffer_b);
@@ -736,7 +734,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		sector_t actual_pos_byte;
 
 		//Fetch physical index
-		td_perform_index_operation(td, READ, sector, &physical_sector);
+		td_perform_index_operation(td, READ, sector, &physical_sector, true);
 
 		//Calculate actual position in the physical disk
 		actual_pos_byte = physical_sector.sector*td->blocksize + offset;
@@ -1103,7 +1101,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			size_counter += td->blocksize;
 			physical_sector->disk = header.disk_index + 1;	//+1 because 0 means unused
 			physical_sector->sector = td->header_size + sector++;
-			internal_ret = td_perform_index_operation(td, WRITE, logical_sector, physical_sector);
+			internal_ret = td_perform_index_operation(td, WRITE, logical_sector, physical_sector, false);
 			if(internal_ret == 1)
 			{
 				//This should be impossible since we increase the index everytime it is necessary
@@ -1112,6 +1110,16 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			}
 		}
 		vfree(physical_sector);
+
+		//Write indices
+		td_write_all_indices(td, &new_device);
+		{
+			int disk;
+			for(disk = 1; disk <= td->internal_devices_count; ++disk)
+				if(device_is_ready(&td->internal_devices[disk-1]))
+					td_write_all_indices(td, &td->internal_devices[disk-1]);
+		}
+
 		break;
 	case COMPARE:
 		//Reading all indices into temporary memory
@@ -1121,7 +1129,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		//Now comparing all sector indices
 		for(sector = 0; sector < td->max_sectors; ++sector)
 		{
-			int internal_ret = td_perform_index_operation(td, COMPARE, sector, &physical_sector[sector]);
+			int internal_ret = td_perform_index_operation(td, COMPARE, sector, &physical_sector[sector], false);
 			if(internal_ret == -1)
 			{
 				printk_ratelimited(KERN_WARNING "tDisk: Disk index doesn't match. Probably wrong or corrupt disk attached. Pay attention before you write to disk!\n");
@@ -1550,7 +1558,7 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 
 		return next_primary_work;
 	}
-	/*else
+	else
 	{
 		//No work to do. This means we have reached the timeout
 		//and have now the opportunity to organize the sectors.
@@ -1579,8 +1587,8 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 		}
 
 		if(td->access_count_resort)return secondary_work_to_do;
-		else */return secondary_work_finished;
-	//} TODO
+		else return secondary_work_finished;
+	}
 }
 
 /**

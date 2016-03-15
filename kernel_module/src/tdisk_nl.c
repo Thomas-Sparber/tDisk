@@ -297,7 +297,7 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 
 	if(length > PAGE_SIZE)printk(KERN_WARNING "tDisk: Warning when sending nl msg: length (%d) is larger than PAGE_SIZE(%lu)\n", length, PAGE_SIZE);
 
-	//0 means unregistered
+	//0 means plugin is not registered
 	err = -ENODEV;
 	if(port == 0)goto error;
 
@@ -333,18 +333,34 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 	req->buffer_length = length;
 
 	err = nla_put_u32(msg, NLTD_REQ_NUMBER, req->seq_nr);
-	if(err)goto nlmsg_failure;
+	if(err)
+	{
+		printk(KERN_WARNING "tDisk: Error adding parameter seq_nr to message\n");
+		goto nlmsg_failure;
+	}
 
 	err = nla_put_u64(msg, NLTD_REQ_OFFSET, offset);
-	if(err)goto nlmsg_failure;
+	if(err)
+	{
+		printk(KERN_WARNING "tDisk: Error adding parameter offset to message\n");
+		goto nlmsg_failure;
+	}
 
 	err = nla_put_s32(msg, NLTD_REQ_LENGTH, length);
-	if(err)goto nlmsg_failure;
+	if(err)
+	{
+		printk(KERN_WARNING "tDisk: Error adding parameter length to message\n");
+		goto nlmsg_failure;
+	}
 
 	if(operation != READ)
 	{
 		err = nla_put(msg, NLTD_REQ_BUFFER, length, buffer);
-		if(err)goto nlmsg_failure;
+		if(err)
+		{
+			printk(KERN_WARNING "tDisk: Error adding parameter buffer to message\n");
+			goto nlmsg_failure;
+		}
 	}
 	genlmsg_end(msg, hdr);
 
@@ -356,7 +372,12 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 	genlmsg_cancel(msg, hdr);
 	kfree_skb(msg);
  error:
-	printk(KERN_WARNING "tDisk: Error sending netlink message: %d\n", err);
+	printk(KERN_WARNING "tDisk: Error sending netlink message: %d. Operation: %s, Offset: %llu, Length: %d\n",
+			err,
+			(operation == READ ? "READ" : (operation == WRITE ? "WRITE" : (operation == SIZE ? "SIZE" : "UNKNOWN"))),
+			offset,
+			length);
+
 	if(callback)callback(userobject, err);
 	return err;
 }
@@ -457,6 +478,7 @@ void clear_timed_out_requests(unsigned long data)
 	struct pending_request *request;
 	LIST_HEAD(removed);
 
+if(irqs_disabled())printk(KERN_ERR "tDisk: Interrupt disabled!!\n");
 	spin_lock_irq(&request_lock);
 	list_for_each_entry_safe(request, n, &pending_requests, list)
 	{
@@ -505,7 +527,7 @@ int nltd_register()
 	if(ret)return ret;
 
 	timeout_timer.expires = get_jiffies_64() + HZ;
-	add_timer(&timeout_timer);
+	//add_timer(&timeout_timer);
 
 	return ret;
 }

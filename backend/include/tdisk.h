@@ -152,7 +152,7 @@ int tdisk_remove(int device);
 /**
   * Adds a new internal device to the tDisk
   * @param device The tDisk where to add the new internal device
-  * @param new_device The new internal device to be added to the tDisk.
+  * @param new_disk The new internal device to be added to the tDisk.
   * If it is a file path it is added as file. If not it is added as a
   * plugin.
  **/
@@ -170,8 +170,9 @@ int tdisk_get_sector_index(const char *device, uint64_t logical_sector, struct f
 
 /**
   * Returns infomration about all sector indices
+  * @param device The tDiskto get all sector incides from
   * @param out An array of f_sector_info to store the infomration
-  * @param out The size of the array
+  * @param size The size of the array
  **/
 int tdisk_get_all_sector_indices(const char *device, struct f_sector_info *out, uint64_t size);
 

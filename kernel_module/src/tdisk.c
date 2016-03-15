@@ -205,7 +205,7 @@ static int td_flush_devices(struct tdisk *td)
   *  - COMPARE: Compares the given physical sector index with the actual one.
   *    This is useful to compare individual disks for consistency.
  **/
-int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t logical_sector, struct sector_index *physical_sector)
+int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t logical_sector, struct sector_index *physical_sector, bool do_disk_operation)
 {
 	struct sector_index *actual;
 	loff_t position = td_dev->index_offset_byte + logical_sector * sizeof(struct sector_index);
@@ -239,29 +239,34 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 		actual->sector = physical_sector->sector;
 
 		//Disk operations
-		for(j = 0; j < td_dev->internal_devices_count; ++j)
+		if(do_disk_operation)
 		{
-			//struct file *file = td_dev->internal_devices[j].file;
-
-			//if(file)
-			//{
-			write_data(&td_dev->internal_devices[j], actual, position, length);
-			//}
+			for(j = 0; j < td_dev->internal_devices_count; ++j)
+			{
+				write_data(&td_dev->internal_devices[j], actual, position, length);
+			}
 		}
 	}
 
 	return 0;
 }
 
-int td_sort_devices_callback(const void *a, const void *b)
+inline static unsigned long long td_get_device_performance(const struct td_internal_device *d)
+{
+	return (d->performance.avg_read_time_cycles + d->performance.avg_write_time_cycles) >> 1;
+}
+
+static int td_sort_devices_callback(const void *a, const void *b)
 {
 	const struct sorted_internal_device *d_a = a;
 	const struct sorted_internal_device *d_b = b;
 
-	long performance_a = (d_a->dev->performance.avg_read_time_cycles + d_a->dev->performance.avg_write_time_cycles) >> 1;
-	long performance_b = (d_b->dev->performance.avg_read_time_cycles + d_b->dev->performance.avg_write_time_cycles) >> 1;
+	unsigned long long performance_a = td_get_device_performance(d_a->dev);//(d_a->dev->performance.avg_read_time_cycles + d_a->dev->performance.avg_write_time_cycles) >> 1;
+	unsigned long long performance_b = td_get_device_performance(d_b->dev);//(d_b->dev->performance.avg_read_time_cycles + d_b->dev->performance.avg_write_time_cycles) >> 1;
 
-	return performance_a - performance_b;
+	if(performance_a == performance_b)return 0;
+	else if(performance_a > performance_b)return 1;
+	else return -1;
 }
 
 static void td_insert_sorted_internal_devices(struct tdisk *td, struct sorted_internal_device *sorted_devices)
@@ -396,7 +401,7 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	u8 *buffer_b = kmalloc(td->blocksize, GFP_KERNEL);
 	if(!buffer_a || !buffer_b)return;
 
-	//printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u)\n", logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count);
+	printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u)\n", logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count);
 
 	//Reading blocks from both disks
 	read_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);
@@ -410,8 +415,8 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	swap(a->sector, b->sector);
 
 	//Updating indices
-	td_perform_index_operation(td, WRITE, logical_a, a);
-	td_perform_index_operation(td, WRITE, logical_b, b);
+	td_perform_index_operation(td, WRITE, logical_a, a, true);
+	td_perform_index_operation(td, WRITE, logical_b, b, true);
 
 	kfree(buffer_a);
 	kfree(buffer_b);
@@ -432,16 +437,22 @@ static bool td_move_one_sector(struct tdisk *td)
 		if(!device_is_ready(&td->internal_devices[sorted_disk-1]))
 		{
 			//Not all disks are loaded yet
+			printk(KERN_DEBUG "tDisk: Not all disks are ready. Not moving sectors\n");
 			return false;
 		}
 	}
 
 	sorted_devices = vmalloc(sizeof(struct sorted_internal_device) * td->internal_devices_count);
-	if(!sorted_devices)return false;
+	if(!sorted_devices)
+	{
+		printk(KERN_WARNING "tDisk: Error allocating sorted_devices memory\n");
+		return false;
+	}
 
 	sorted_sectors = vmalloc(sizeof(struct sorted_sector_index) * td->max_sectors);
 	if(!sorted_sectors)
 	{
+		printk(KERN_WARNING "tDisk: Error allocating sorted_sectors memory\n");
 		vfree(sorted_devices);
 		return false;
 	}
@@ -453,15 +464,16 @@ static bool td_move_one_sector(struct tdisk *td)
 	td_assign_sectors(td, sorted_devices, sorted_sectors);
 
 	//Moving the sector with highest access count.
-	/*for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
+	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
 	{
-		printk(KERN_DEBUG "tDisk: Internal disk %u (speed: %u rank): Capacity: %llu, Correctly stored: %llu, %u percent\n",
+		printk(KERN_DEBUG "tDisk: Internal disk %u (speed: %u rank --> %llu): Capacity: %llu, Correctly stored: %llu, %u percent\n",
 						sorted_devices[sorted_disk-1].dev-td->internal_devices+1,
 						sorted_disk,
+						td_get_device_performance(sorted_devices[sorted_disk-1].dev),
 						sorted_devices[sorted_disk-1].dev->size_blocks,
 						sorted_devices[sorted_disk-1].amount_blocks,
 						(size_t)sorted_devices[sorted_disk-1].amount_blocks*100 / (size_t)sorted_devices[sorted_disk-1].dev->size_blocks);
-	}*/
+	}
 
 	//Moving the sector with highest access count.
 	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
@@ -501,7 +513,7 @@ static bool td_move_one_sector(struct tdisk *td)
 				//swap those sectors we gain the highest possible performance.
 
 				td_swap_sectors(td, highest-sorted_sectors, highest->physical_sector, to_swap-sorted_sectors, to_swap->physical_sector);
-				td->access_count_resort = 1;
+				//td->access_count_resort = 1;	TODO
 				swapped = true;
 				break;
 			}
@@ -736,7 +748,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		sector_t actual_pos_byte;
 
 		//Fetch physical index
-		td_perform_index_operation(td, READ, sector, &physical_sector);
+		td_perform_index_operation(td, READ, sector, &physical_sector, true);
 
 		//Calculate actual position in the physical disk
 		actual_pos_byte = physical_sector.sector*td->blocksize + offset;
@@ -836,6 +848,14 @@ int td_get_max_sectors_header_increase(struct tdisk *td, sector_t max_sectors)
 	size_t new_header_size = header_size_byte/td->blocksize + ((header_size_byte%td->blocksize == 0) ? 0 : 1);
 
 	return (new_header_size - td->header_size);
+}
+
+void td_reset_sectors(struct tdisk *td)
+{
+	if(td->indices != NULL)vfree(td->indices);
+	if(td->sorted_sectors != NULL)vfree(td->sorted_sectors);
+	td->max_sectors = 0;
+	td->header_size = 0;
 }
 
 /**
@@ -1064,7 +1084,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	if(additional_sectors < 0)
 	{
 		error = additional_sectors;
-		goto out_putf;
+		goto out_reset_sectors;
 	}
 
 	//Set disk references in tDisk
@@ -1087,10 +1107,6 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		//Writing header to disk
 		header.current_max_sectors = td->max_sectors;
 		td_write_header(&new_device, &header);
-		//new_device->performance = perf;
-
-		//Save indices from previously added disks
-		td_write_all_indices(td, &new_device);
 
 		//Save sector indices
 		sector = 0;
@@ -1103,7 +1119,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			size_counter += td->blocksize;
 			physical_sector->disk = header.disk_index + 1;	//+1 because 0 means unused
 			physical_sector->sector = td->header_size + sector++;
-			internal_ret = td_perform_index_operation(td, WRITE, logical_sector, physical_sector);
+			internal_ret = td_perform_index_operation(td, WRITE, logical_sector, physical_sector, false);
 			if(internal_ret == 1)
 			{
 				//This should be impossible since we increase the index everytime it is necessary
@@ -1112,6 +1128,16 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			}
 		}
 		vfree(physical_sector);
+
+		//Write indices
+		td_write_all_indices(td, &new_device);
+		{
+			int disk;
+			for(disk = 1; disk <= td->internal_devices_count; ++disk)
+				if(device_is_ready(&td->internal_devices[disk-1]))
+					td_write_all_indices(td, &td->internal_devices[disk-1]);
+		}
+
 		break;
 	case COMPARE:
 		//Reading all indices into temporary memory
@@ -1121,7 +1147,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		//Now comparing all sector indices
 		for(sector = 0; sector < td->max_sectors; ++sector)
 		{
-			int internal_ret = td_perform_index_operation(td, COMPARE, sector, &physical_sector[sector]);
+			int internal_ret = td_perform_index_operation(td, COMPARE, sector, &physical_sector[sector], false);
 			if(internal_ret == -1)
 			{
 				printk_ratelimited(KERN_WARNING "tDisk: Disk index doesn't match. Probably wrong or corrupt disk attached. Pay attention before you write to disk!\n");
@@ -1143,6 +1169,14 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			if(td->indices[sector].disk == 0)break;
 		}
 		td->size_blocks = sector;
+		if(td->size_blocks == 0)
+		{
+			error = -EINVAL;
+			td->internal_devices_count = 0;
+			printk(KERN_WARNING "tDisk: blocksize is 0. This probably means that the system crashed.\n");
+			printk(KERN_WARNING "tDisk: Sorry but the disk is broken. Maybe it can be reconstructed if you use another disk from this tDisk\n");
+			goto out_reset_sectors;
+		}
 		break;
 	default:
 		printk(KERN_ERR "tDisk: Invalid index_operation_to_do: %d\n", index_operation_to_do);
@@ -1208,7 +1242,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		if(error)
 		{
 			printk(KERN_WARNING "tDisk: Error setting up worker thread\n");
-			goto out_putf;
+			goto out_reset_sectors;
 		}
 	}
 
@@ -1231,6 +1265,8 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	if(first_device)bdgrab(bdev);
 	return 0;
 
+ out_reset_sectors:
+	td_reset_sectors(td);
  out_putf:
 	if(file)fput(file);
  out:
@@ -1550,7 +1586,7 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 
 		return next_primary_work;
 	}
-	/*else
+	else
 	{
 		//No work to do. This means we have reached the timeout
 		//and have now the opportunity to organize the sectors.
@@ -1560,7 +1596,7 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 			//struct hlist_node *item_safe;
 			//struct sorted_sector_index *item;
 
-			//printk(KERN_DEBUG "tDisk: nothing to do anymore. Sorting sectors\n");
+			printk(KERN_DEBUG "tDisk: nothing to do anymore. Sorting sectors\n");
 			//hlist_for_each_entry_safe(item, item_safe, &td->sorted_sectors_head, list)
 			//{
 			//	td_reorganize_sorted_index(td, item-td->sorted_sectors);
@@ -1572,15 +1608,15 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 		}
 		else
 		{
-			//printk(KERN_DEBUG "tDisk: nothing to do anymore. Moving sectors\n");
+			printk(KERN_DEBUG "tDisk: nothing to do anymore. Moving sectors\n");
 
 			td->access_count_resort = 0;
 			td_move_one_sector(td);
 		}
 
 		if(td->access_count_resort)return secondary_work_to_do;
-		else */return secondary_work_finished;
-	//} TODO
+		else return secondary_work_finished;
+	}
 }
 
 /**

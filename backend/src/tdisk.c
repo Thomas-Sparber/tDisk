@@ -25,6 +25,10 @@
 
 #include <tdisk/interface.h>
 
+#if TDISK_MAX_INTERNAL_DEVICE_NAME != F_TDISK_MAX_INTERNAL_DEVICE_NAME
+	#warning Interface changed: TDISK_MAX_INTERNAL_DEVICE_NAME != F_TDISK_MAX_INTERNAL_DEVICE_NAME
+#endif
+
 #define CONTROL_FILE "/dev/td-control"
 
 inline static void set_sector_index(struct f_sector_index *target, const struct sector_index *source)
@@ -57,6 +61,8 @@ inline static void set_device_performance(struct f_device_performance *target, c
 inline static void set_internal_device_info(struct f_internal_device_info *target, const struct internal_device_info *source)
 {
 	target->disk = source->disk;
+	strncpy(target->name, source->name, TDISK_MAX_INTERNAL_DEVICE_NAME);
+	target->type = source->type;
 	set_device_performance(&target->performance, &source->performance);
 }
 

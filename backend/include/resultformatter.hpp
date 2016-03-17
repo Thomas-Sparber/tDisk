@@ -228,10 +228,24 @@ namespace td
 		return createResultString_string(s, outputFormat);
 	}
 
-	//template <> inline std::string createResultString((const char*) &s, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
-	//{
-	//	return createResultString_string(std::string(s), outputFormat);
-	//}
+	template <> inline std::string createResultString(const char* const &s, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	{
+		return createResultString_string(std::string(s), outputFormat);
+	}
+
+	/**
+	  * Stringifies the given char array using the given format and data
+	  * hierarchy
+	  * @param s The char array to be converted
+	  * @param int
+	  * @param outputFormat The format to convert the char array.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
+	template <std::size_t i> inline std::string createResultString(const char (&s)[i], unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	{
+		return createResultString_string(std::string(s), outputFormat);
+	}
 
 	/**
 	  * Stringifies the given uint8_t using the given format and data

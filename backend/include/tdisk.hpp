@@ -50,6 +50,7 @@ struct tDiskException
 
 using c::f_device_performance;
 using c::f_internal_device_info;
+using c::f_internal_device_type;
 using c::f_sector_index;
 using c::f_sector_info;
 
@@ -493,18 +494,38 @@ template <> inline std::string createResultString(const f_device_performance &pe
 /**
   * Stringifies the given f_internal_device_info using the given format
  **/
+template <> inline std::string createResultString(const enum f_internal_device_type &type, unsigned int hierarchy, const utils::ci_string &outputFormat)
+{
+	switch(type)
+	{
+	case c::f_internal_device_type_file:
+		return createResultString("file", hierarchy, outputFormat);
+	case c::f_internal_device_type_plugin:
+		return createResultString("plugin", hierarchy, outputFormat);
+	}
+
+	throw FormatException("Undefined enum value ", type, " for f_internal_device_type");
+}
+
+/**
+  * Stringifies the given f_internal_device_info using the given format
+ **/
 template <> inline std::string createResultString(const f_internal_device_info &info, unsigned int hierarchy, const utils::ci_string &outputFormat)
 {
 	if(outputFormat == "json")
 		return utils::concat(
 			"{\n",
 				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(info, disk, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(info, name, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(info, type, hierarchy+1, outputFormat), ",\n",
 				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(info, performance, hierarchy+1, outputFormat), "\n",
 			std::vector<char>(hierarchy, '\t'), "}"
 		);
 	else if(outputFormat == "text")
 		return utils::concat(
 				CREATE_RESULT_STRING_MEMBER_TEXT(info, disk, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_MEMBER_TEXT(info, name, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_MEMBER_TEXT(info, type, hierarchy+1, outputFormat), "\n",
 				createResultString(info.performance, hierarchy+1, outputFormat), "\n"
 		);
 	else

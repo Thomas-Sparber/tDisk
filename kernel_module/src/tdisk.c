@@ -529,7 +529,7 @@ static bool td_move_one_sector(struct tdisk *td)
 				//swap those sectors we gain the highest possible performance.
 
 				td_swap_sectors(td, highest-sorted_sectors, highest->physical_sector, to_swap-sorted_sectors, to_swap->physical_sector);
-				//td->access_count_resort = 1;	TODO
+				td->access_count_resort = 1;
 				swapped = true;
 				break;
 			}
@@ -1600,6 +1600,10 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 		blk_mq_complete_request(cmd->rq, ret ? -EIO : 0);
 #endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
 
+		//Setting this flag is required to force resoring the indices
+		//if the worker was disturbed during sector movement
+		td->access_count_resort = 0;
+
 		return next_primary_work;
 	}
 	else
@@ -1624,7 +1628,7 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 		}
 		else
 		{
-			printk(KERN_DEBUG "tDisk: nothing to do anymore. Moving sectors\n");
+			//printk(KERN_DEBUG "tDisk: nothing to do anymore. Moving sectors\n");
 
 			td->access_count_resort = 0;
 			td_move_one_sector(td);

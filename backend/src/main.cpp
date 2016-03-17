@@ -25,26 +25,54 @@ using utils::ci_string;
 
 struct Command
 {
-	Command(const ci_string &str_name, function<string(const vector<string>&,Options&)> fn_func) : name(str_name), func(fn_func) {}
+	Command(const ci_string &str_name, function<string(const vector<string>&,Options&)> fn_func, const string &str_description) :
+		name(str_name),
+		func(fn_func),
+		description(str_description)
+	{}
 	ci_string name;
 	function<string(const vector<string>&,Options&)> func;
+	string description;
 }; //end struct Command
 
 std::string handleCommand(int argc, char **args);
 void printHelp(const string &progName);
 
 vector<Command> commands {
-	Command("add", add_tDisk),
-	Command("remove", remove_tDisk),
-	Command("add_disk", add_disk),
-	Command("get_max_sectors", get_max_sectors),
-	Command("get_sector_index", get_sector_index),
-	Command("get_all_sector_indices", get_all_sector_indices),
-	Command("clear_access_count", clear_access_count),
-	Command("get_internal_devices_count", get_internal_devices_count),
-	Command("get_device_info", get_device_info),
-	Command("load_config_file", load_config_file),
-	Command("get_device_advice", get_device_advice)
+	Command("add", add_tDisk,
+		"Adds a new tDisk to the system. It needs the blocksize (e.g. 16386) as argument. The next free minornumber is taken."
+		"It is also possible possible to specify the minornumber: [minornumber] [blocksize]"),
+	
+	Command("remove", remove_tDisk,
+		"Removes the given tDisk from the system. It needs the minornumber or path as argument"),
+	
+	Command("add_disk", add_disk,
+		"Adds a new internal device to the tDisk. If it is a file path it is added as file. If not it is added as a plugin."
+		"It needs the tDisk minornumber/path and filename/pluginname as argument"),
+	
+	Command("get_max_sectors", get_max_sectors,
+		"Gets the current maximum amount of sectors for the given tDisk. It needs the tDisk minornumber/path as argument"),
+	
+	Command("get_sector_index", get_sector_index,
+		"Gets information about the given sector index. It needs the tDisk minornumber/path and logical sector (0-max_sectors) as argument"),
+	
+	Command("get_all_sector_indices", get_all_sector_indices,
+		"Returns infomration about all sector indices. It needs the tDisk minornumber/path as argument"),
+	
+	Command("clear_access_count", clear_access_count,
+		"Resets the access count of all sectors. It needs the tDisk minornumber/path as argument"),
+	
+	Command("get_internal_devices_count", get_internal_devices_count,
+		"Gets the amount of internal devices for the given tDisk. It needs the tDisk minornumber/path as argument"),
+	
+	Command("get_device_info", get_device_info,
+		"Gets device information of the device with the given id. It needs the tDisk minornumber/path and device id as argument"),
+	
+	Command("load_config_file", load_config_file,
+		"Loads the given config file. It needs the path to the config file as argument"),
+	
+	Command("get_device_advice", get_device_advice,
+		"Returns a device on how to configure a given list of devices optimally. It needs all desired devices as agrument")
 };
 
 int main(int argc, char *args[])
@@ -108,7 +136,22 @@ string handleCommand(int argc, char **args)
 
 void printHelp(const string &progName)
 {
-	cout<<"Usage:"<<endl;
+	cout<<"Usage: "<<progName<<" ([options]) [command] [command-arguments...]"<<endl;
 	cout<<endl;
-	cout<<progName<<" [command] [command-options]"<<endl;
+	cout<<"The following options are available:"<<endl;
+	const td::Options allOptions = getDefaultOptions();
+	for(const Option &o : allOptions.getAllOptions())
+	{
+		cout<<"\t - "<<o.getName()<<endl;
+		cout<<"\t   "<<o.getDescription()<<endl;
+	}
+	cout<<endl;
+
+	cout<<"The following commands are available:"<<endl;
+	for(const Command &c : commands)
+	{
+		cout<<"\t - "<<c.name<<endl;
+		cout<<"\t   "<<c.description<<endl;
+	}
+	cout<<endl;
 }

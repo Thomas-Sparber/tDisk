@@ -105,6 +105,14 @@ public:
 		getOption(name).setValue(value);
 	}
 
+	/**
+	  * Gets all options
+	 **/
+	const std::vector<Option>& getAllOptions() const
+	{
+		return options;
+	}
+
 private:
 
 	/**

@@ -241,6 +241,7 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 		//Disk operations
 		if(do_disk_operation)
 		{
+			//printk(KERN_DEBUG "tDisk: Writing new sector index of %llu\n", logical_sector);
 			for(j = 0; j < td_dev->internal_devices_count; ++j)
 			{
 				write_data(&td_dev->internal_devices[j], actual, position, length);
@@ -395,6 +396,7 @@ static void td_assign_sectors(struct tdisk *td, struct sorted_internal_device *s
 
 static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_index *a, sector_t logical_b, struct sector_index *b)
 {
+	int ret;
 	loff_t pos_a = a->sector * td->blocksize;
 	loff_t pos_b = b->sector * td->blocksize;
 	u8 *buffer_a = kmalloc(td->blocksize, GFP_KERNEL);
@@ -404,12 +406,18 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u)\n", logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count);
 
 	//Reading blocks from both disks
-	read_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);
-	read_data(&td->internal_devices[b->disk-1], buffer_b, pos_b, td->blocksize);
+	ret = read_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);
+	if(ret != 0)goto out_err;
+
+	ret = read_data(&td->internal_devices[b->disk-1], buffer_b, pos_b, td->blocksize);
+	if(ret != 0)goto out_err;
 
 	//Saving swapped data to both disks
-	write_data(&td->internal_devices[a->disk-1], buffer_b, pos_a, td->blocksize);
-	write_data(&td->internal_devices[b->disk-1], buffer_a, pos_b, td->blocksize);
+	ret = write_data(&td->internal_devices[a->disk-1], buffer_b, pos_a, td->blocksize);
+	if(ret != 0)goto out_err;
+
+	ret = write_data(&td->internal_devices[b->disk-1], buffer_a, pos_b, td->blocksize);
+	if(ret != 0)goto out_restore_a;
 
 	swap(a->disk, b->disk);
 	swap(a->sector, b->sector);
@@ -418,6 +426,14 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	td_perform_index_operation(td, WRITE, logical_a, a, true);
 	td_perform_index_operation(td, WRITE, logical_b, b, true);
 
+	goto out;
+
+ out_restore_a:
+	ret = write_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);
+	if(ret != 0)printk(KERN_WARNING "tDisk: Error restoring logical_a. Data corrupted\n");
+ out_err:
+	printk(KERN_WARNING "tDisk: Error swapping sectors %llu and %llu\n", logical_a, logical_b);
+ out:
 	kfree(buffer_a);
 	kfree(buffer_b);
 }
@@ -464,7 +480,7 @@ static bool td_move_one_sector(struct tdisk *td)
 	td_assign_sectors(td, sorted_devices, sorted_sectors);
 
 	//Moving the sector with highest access count.
-	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
+	/*for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
 	{
 		printk(KERN_DEBUG "tDisk: Internal disk %u (speed: %u rank --> %llu): Capacity: %llu, Correctly stored: %llu, %u percent\n",
 						sorted_devices[sorted_disk-1].dev-td->internal_devices+1,
@@ -473,7 +489,7 @@ static bool td_move_one_sector(struct tdisk *td)
 						sorted_devices[sorted_disk-1].dev->size_blocks,
 						sorted_devices[sorted_disk-1].amount_blocks,
 						(size_t)sorted_devices[sorted_disk-1].amount_blocks*100 / (size_t)sorted_devices[sorted_disk-1].dev->size_blocks);
-	}
+	}*/
 
 	//Moving the sector with highest access count.
 	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)

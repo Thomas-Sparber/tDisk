@@ -205,7 +205,7 @@ static int td_flush_devices(struct tdisk *td)
   *  - COMPARE: Compares the given physical sector index with the actual one.
   *    This is useful to compare individual disks for consistency.
  **/
-int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t logical_sector, struct sector_index *physical_sector, bool do_disk_operation)
+int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t logical_sector, struct sector_index *physical_sector, bool do_disk_operation, bool update_access_count)
 {
 	struct sector_index *actual;
 	loff_t position = td_dev->index_offset_byte + logical_sector * sizeof(struct sector_index);
@@ -215,11 +215,9 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 	actual = &td_dev->indices[logical_sector];
 
 	//Increment access count and sort
-	actual->access_count++;
+	if(update_access_count)actual->access_count++;
 	MY_BUG_ON(direction == WRITE && physical_sector->disk == 0, PRINT_INT(physical_sector->disk), PRINT_ULL(logical_sector));
-	//MY_BUG_ON(direction == WRITE && physical_sector->disk > td_dev->internal_devices_count, PRINT_INT(physical_sector->disk), PRINT_ULL(logical_sector));
 	MY_BUG_ON(direction == READ && actual->disk == 0, PRINT_INT(actual->disk), PRINT_ULL(logical_sector));
-	//MY_BUG_ON(direction == READ && actual->disk > td_dev->internal_devices_count, PRINT_INT(physical_sector->disk), PRINT_ULL(logical_sector));
 	//td_reorganize_sorted_index(td_dev, logical_sector);
 
 	//index operation
@@ -423,8 +421,8 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	swap(a->sector, b->sector);
 
 	//Updating indices
-	td_perform_index_operation(td, WRITE, logical_a, a, true);
-	td_perform_index_operation(td, WRITE, logical_b, b, true);
+	td_perform_index_operation(td, WRITE, logical_a, a, true, false);
+	td_perform_index_operation(td, WRITE, logical_b, b, true, false);
 
 	goto out;
 
@@ -764,7 +762,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		sector_t actual_pos_byte;
 
 		//Fetch physical index
-		td_perform_index_operation(td, READ, sector, &physical_sector, true);
+		td_perform_index_operation(td, READ, sector, &physical_sector, true, true);
 
 		//Calculate actual position in the physical disk
 		actual_pos_byte = physical_sector.sector*td->blocksize + offset;
@@ -1135,7 +1133,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			size_counter += td->blocksize;
 			physical_sector->disk = header.disk_index + 1;	//+1 because 0 means unused
 			physical_sector->sector = td->header_size + sector++;
-			internal_ret = td_perform_index_operation(td, WRITE, logical_sector, physical_sector, false);
+			internal_ret = td_perform_index_operation(td, WRITE, logical_sector, physical_sector, false, false);
 			if(internal_ret == 1)
 			{
 				//This should be impossible since we increase the index everytime it is necessary
@@ -1163,7 +1161,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		//Now comparing all sector indices
 		for(sector = 0; sector < td->max_sectors; ++sector)
 		{
-			int internal_ret = td_perform_index_operation(td, COMPARE, sector, &physical_sector[sector], false);
+			int internal_ret = td_perform_index_operation(td, COMPARE, sector, &physical_sector[sector], false, false);
 			if(internal_ret == -1)
 			{
 				printk_ratelimited(KERN_WARNING "tDisk: Disk index doesn't match. Probably wrong or corrupt disk attached. Pay attention before you write to disk!\n");

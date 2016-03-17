@@ -40,39 +40,50 @@ void printHelp(const string &progName);
 
 vector<Command> commands {
 	Command("add", add_tDisk,
-		"Adds a new tDisk to the system. It needs the blocksize (e.g. 16386) as argument. The next free minornumber is taken."
-		"It is also possible possible to specify the minornumber: [minornumber] [blocksize]"),
+		"Adds a new tDisk to the system. It needs the blocksize (e.g. 16386)\n"
+		"as argument. The next free minornumber is taken. It is also possible\n"
+		"possible to specify the minornumber: [minornumber] [blocksize]"),
 	
 	Command("remove", remove_tDisk,
-		"Removes the given tDisk from the system. It needs the minornumber or path as argument"),
+		"Removes the given tDisk from the system. It needs the minornumber or\n"
+		"path as argument"),
 	
 	Command("add_disk", add_disk,
-		"Adds a new internal device to the tDisk. If it is a file path it is added as file. If not it is added as a plugin."
-		"It needs the tDisk minornumber/path and filename/pluginname as argument"),
+		"Adds a new internal device to the tDisk. If it is a file path it is\n"
+		"added as file. If not it is added as a plugin. It needs the tDisk\n"
+		"minornumber/path and filename/pluginname as argument"),
 	
 	Command("get_max_sectors", get_max_sectors,
-		"Gets the current maximum amount of sectors for the given tDisk. It needs the tDisk minornumber/path as argument"),
+		"Gets the current maximum amount of sectors for the given tDisk. It\n"
+		"needs the tDisk minornumber/path as argument"),
 	
 	Command("get_sector_index", get_sector_index,
-		"Gets information about the given sector index. It needs the tDisk minornumber/path and logical sector (0-max_sectors) as argument"),
+		"Gets information about the given sector index. It needs the tDisk\n"
+		"minornumber/path and logical sector (0-max_sectors) as argument"),
 	
 	Command("get_all_sector_indices", get_all_sector_indices,
-		"Returns infomration about all sector indices. It needs the tDisk minornumber/path as argument"),
+		"Returns infomration about all sector indices. It needs the tDisk\n"
+		"minornumber/path as argument"),
 	
 	Command("clear_access_count", clear_access_count,
-		"Resets the access count of all sectors. It needs the tDisk minornumber/path as argument"),
+		"Resets the access count of all sectors. It needs the tDisk\n"
+		"minornumber/path as argument"),
 	
 	Command("get_internal_devices_count", get_internal_devices_count,
-		"Gets the amount of internal devices for the given tDisk. It needs the tDisk minornumber/path as argument"),
+		"Gets the amount of internal devices for the given tDisk. It needs\n"
+		"the tDisk minornumber/path as argument"),
 	
 	Command("get_device_info", get_device_info,
-		"Gets device information of the device with the given id. It needs the tDisk minornumber/path and device id as argument"),
+		"Gets device information of the device with the given id. It needs\n"
+		"the tDisk minornumber/path and device id as argument"),
 	
 	Command("load_config_file", load_config_file,
-		"Loads the given config file. It needs the path to the config file as argument"),
+		"Loads the given config file. It needs the path to the config file as\n"
+		"argument"),
 	
 	Command("get_device_advice", get_device_advice,
-		"Returns a device on how to configure a given list of devices optimally. It needs all desired devices as agrument")
+		"Returns a device on how to configure a given list of devices\n"
+		"optimally. It needs all desired devices as agrument")
 };
 
 int main(int argc, char *args[])
@@ -150,8 +161,16 @@ void printHelp(const string &progName)
 	cout<<"The following commands are available:"<<endl;
 	for(const Command &c : commands)
 	{
+		std::size_t pos = 0;
+		string description = c.description;
+		while((pos=description.find("\n", pos)) != string::npos)
+		{
+			description = description.replace(pos, 1, "\n\t   ");
+			pos++;
+		}
+		
 		cout<<"\t - "<<c.name<<endl;
-		cout<<"\t   "<<c.description<<endl;
+		cout<<"\t   "<<description<<endl;
 	}
 	cout<<endl;
 }

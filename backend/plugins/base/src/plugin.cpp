@@ -111,12 +111,12 @@ int worker_function(nl_msg *msg, void *arg)
 
 } //end namespace td
 
-Plugin::Plugin(const string &str_name, unsigned long long maxWriteBytesJoin, unsigned int maxHistoryBuffer, bool b_registerInKernel) :
+Plugin::Plugin(const string &str_name, unsigned long long maxWriteBytesJoin, unsigned int writeQueues, unsigned int maxHistoryBuffer, bool b_registerInKernel) :
 	name(str_name),
 	socket(nullptr),
 	familyId(),
 	running(false),
-	writeBuffer(maxWriteBytesJoin),
+	writeBuffers(writeQueues, maxWriteBytesJoin),
 	history(maxHistoryBuffer)
 {
 	if(b_registerInKernel)
@@ -179,7 +179,11 @@ void Plugin::listen()
 
 	while(running)
 	{
-		if(writeBuffer.age() > 5)writeBufferedData();
+		for(WriteBuffer &writeBuffer : writeBuffers)
+		{
+			if(writeBuffer.age() > 5)
+				writeBufferedData(writeBuffer);
+		}
 
 		if(!poll(1000))continue;
 
@@ -187,7 +191,8 @@ void Plugin::listen()
 		if(ret != 0)cout<<"Code: "<<ret<<": "<<nl_geterror(ret)<<endl;
 	}
 
-	writeBufferedData();
+	for(WriteBuffer &writeBuffer : writeBuffers)
+		writeBufferedData(writeBuffer);
 }
 
 bool Plugin::poll(unsigned int time)
@@ -204,7 +209,7 @@ int Plugin::receive()
 	return nl_recvmsgs_default(socket);
 }
 
-bool Plugin::writeBufferedData()
+bool Plugin::writeBufferedData(WriteBuffer &writeBuffer)
 {
 	unsigned long long oldPos;
 	vector<char> oldData = writeBuffer.getAndPop(oldPos);
@@ -214,14 +219,29 @@ bool Plugin::writeBufferedData()
 
 bool Plugin::messageReceived(uint32_t sequenceNumber, PluginOperation operation, unsigned long long offset, vector<char> &data, int length)
 {
-	bool success;
+	bool success = false;
 	if(operation == PluginOperation::read)
 	{
 		if(data.size() != unsigned(length))data = vector<char>(length);
 
-		if(history.get(offset, &data[0], length) || writeBuffer.read(offset, &data[0], length))
-			success = true;
-		else
+		//Check read history
+		if(history.get(offset, &data[0], length))success = true;
+
+		if(!success)
+		{
+			//Check write buffers
+			for(WriteBuffer &writeBuffer : writeBuffers)
+			{
+				if(writeBuffer.read(offset, &data[0], length))
+				{
+					success = true;
+					break;
+				}
+			}
+		}
+
+		//Finally, call actual read function
+		if(!success)
 		{
 			success = read(offset, &data[0], length);
 			if(success)history.set(offset, &data[0], length);
@@ -236,14 +256,29 @@ bool Plugin::messageReceived(uint32_t sequenceNumber, PluginOperation operation,
 		}
 		else
 		{
-			if(!writeBuffer.canBeCombined(offset, &data[0], length))
+			//Find suitable write buffer
+			WriteBuffer *suitableWriteBuffer = nullptr;
+			for(WriteBuffer &writeBuffer : writeBuffers)
 			{
-				writeBufferedData();	//TODO check return value
+				if(writeBuffer.canBeCombined(offset, &data[0], length))
+				{
+					suitableWriteBuffer = &writeBuffer;
+					break;
+				}
 			}
 
-			if(writeBuffer.append(offset, &data[0], length))
+			//Empty first WriteBuffer if nothing suitable was found
+			if(!suitableWriteBuffer)
 			{
-				success = writeBufferedData();
+				suitableWriteBuffer = &writeBuffers[0];
+				writeBufferedData(*suitableWriteBuffer);	//TODO check return value
+			}
+
+			//Save data in WriteBuffer
+			if(suitableWriteBuffer->append(offset, &data[0], length))
+			{
+				//Save data to actual plugin
+				success = writeBufferedData(*suitableWriteBuffer);
 			}
 			else success = true;
 

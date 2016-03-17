@@ -34,7 +34,7 @@ DropboxTDisk::DropboxTDisk(const string &str_tDiskPath, unsigned int ui_blocksiz
 }
 
 DropboxTDisk::DropboxTDisk(const string &str_accessToken, const string &str_tDiskPath, unsigned int ui_blocksize, unsigned long long llu_size, unsigned int maxHistoryBuffer) :
-	Plugin("", ui_blocksize),
+	Plugin("", ui_blocksize, 5),
 	Dropbox(str_accessToken),
 	user(),
 	tDiskPath(str_tDiskPath),
@@ -67,6 +67,8 @@ bool DropboxTDisk::internalRead(unsigned long long offset, char *data, std::size
 
 			if(!dropboxHistory.get(offset, data, currentLength))
 			{
+				cout<<"Read request: "<<offset<<" - "<<offset+length<<endl;
+
 				//string result;
 				const string fileName = getFileName(tDiskPath, unsigned(file));
 				//if(fileOffset == 0 && currentLength == blocksize)
@@ -96,8 +98,6 @@ bool DropboxTDisk::internalRead(unsigned long long offset, char *data, std::size
 
 bool DropboxTDisk::read(unsigned long long offset, char *data, std::size_t length) const
 {
-	cout<<"Read request: "<<offset<<" - "<<offset+length<<endl;
-
 	return internalRead(offset, data, length, true);
 }
 

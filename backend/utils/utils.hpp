@@ -56,7 +56,7 @@ namespace td
 		inline void generateRandomData(std::vector<char> &data)
 		{
 			for(char &c : data)
-				c = (char) (random() % 256);
+				c = (char) (rand() % 256);
 		}
 
 		/**

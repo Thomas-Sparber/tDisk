@@ -113,6 +113,23 @@ int tdisk_get_device_info(const char *device, unsigned int disk, struct f_intern
 	UNUSED(device);
 
 	out->disk = disk;
+	
+	switch(disk)
+	{
+	case 1:
+		out->type = f_internal_device_type_file;
+		snprintf(out->name, F_TDISK_MAX_INTERNAL_DEVICE_NAME, "disk1");
+		break;
+	case 2:
+		out->type = f_internal_device_type_file;
+		snprintf(out->name, F_TDISK_MAX_INTERNAL_DEVICE_NAME, "disk2");
+		break;
+	case 3:
+		out->type = f_internal_device_type_plugin;
+		snprintf(out->name, F_TDISK_MAX_INTERNAL_DEVICE_NAME, "dropbox_user@domain.com_disk1");
+		break;
+	}
+	
 	out->performance.avg_read_time_cycles = (uint64_t) (rand() % 1000000);
 	out->performance.stdev_read_time_cycles = (uint64_t) (rand() % 1000000);
 	out->performance.avg_write_time_cycles = (uint64_t) (rand() % 1000000);

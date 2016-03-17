@@ -3,7 +3,7 @@
 
 #include "../include/tdisk/interface.h"
 
-#define NLTD_TIMEOUT_MSECS 10000
+#define NLTD_TIMEOUT_SECS 20
 
 typedef void (*plugin_callback)(void*,int);
 

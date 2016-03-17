@@ -31,6 +31,7 @@ struct pending_request
 	int type;
 	u32 seq_nr;
 	u64 started;
+	u32 timeout_counter;
 	plugin_callback callback;
 	void *userobject;
 
@@ -148,6 +149,7 @@ static struct pending_request* create_request(void)
 	spin_lock_irq(&request_lock);
 	//if(list_empty(&pending_requests) == 0)request_counter = 0;	//Reset counter to prevent overflow -- not needed? Overflow doesnt cause errors...
 	req->started = get_jiffies_64();
+	req->timeout_counter = 0;
 	req->seq_nr = request_counter++;
 	list_add_tail(&req->list, &pending_requests);
 	spin_unlock_irq(&request_lock);
@@ -254,7 +256,7 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 	{
 		const char *plugin_name = get_plugin_name(info->snd_portid);
 
-		printk(KERN_WARNING "tDisk: Plugin %s (%u) finished a request I didn't know of\n", (plugin_name ? plugin_name : "Unknown"), info->snd_portid);
+		printk(KERN_WARNING "tDisk: Plugin %s (%u) finished a request I didn't know of: %u\n", (plugin_name ? plugin_name : "Unknown"), info->snd_portid, request_number);
 		return -EINVAL;
 	}
 
@@ -494,11 +496,10 @@ void clear_timed_out_requests(unsigned long data)
 	struct pending_request *request;
 	LIST_HEAD(removed);
 
-	//if(irqs_disabled())printk(KERN_ERR "tDisk: Interrupt disabled!!\n");
 	spin_lock_irq(&request_lock);
 	list_for_each_entry_safe(request, n, &pending_requests, list)
 	{
-		if(get_jiffies_64()-request->started > msecs_to_jiffies(NLTD_TIMEOUT_MSECS))
+		if(request->timeout_counter++ >= NLTD_TIMEOUT_SECS)
 		{
 			list_del_init(&request->list);
 			list_add(&request->list, &removed);
@@ -508,7 +509,8 @@ void clear_timed_out_requests(unsigned long data)
 
 	list_for_each_entry_safe(request, n, &removed, list)
 	{
-		printk(KERN_DEBUG "tDisk: Timing out request %u: time: %llu jiffies (%u/sec)\n", request->seq_nr, get_jiffies_64()-request->started, HZ);
+		unsigned int time = jiffies_to_msecs(request->started);
+		printk(KERN_DEBUG "tDisk: Timing out request %u: start-time: %us %ums\n", request->seq_nr, time/1000, (time%1000));
 		if(request->callback)request->callback(request->userobject, -ETIMEDOUT);
 		kfree(request);
 		amount++;

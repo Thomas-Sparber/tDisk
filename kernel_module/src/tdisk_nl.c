@@ -280,6 +280,7 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 	if(req->callback)
 		req->callback(req->userobject, length);
 
+	kfree(req);
 	return 0;
 }
 
@@ -288,12 +289,14 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 	int err;
 	void *hdr;
 	struct sk_buff *msg;
-	struct pending_request *req;
+	struct pending_request *req = NULL;
 	u32 port = get_plugin_port(plugin);
-	unsigned int msg_size = 4 /*u32 -> req_nr*/ +
-							8 /*u64 -> offset*/ +
-							4 /*s32 -> length*/ +
+	unsigned int msg_size = sizeof(__u32) /*u32 -> req_nr*/ +
+							sizeof(__u64) /*u64 -> offset*/ +
+							sizeof(__s32) /*s32 -> length*/ +
 							length /* buffer */;
+
+	if(msg_size < PAGE_SIZE)msg_size = PAGE_SIZE;
 
 	if(length > PAGE_SIZE)printk(KERN_WARNING "tDisk: Warning when sending nl msg: length (%d) is larger than PAGE_SIZE(%lu)\n", length, PAGE_SIZE);
 
@@ -379,32 +382,43 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 			length);
 
 	if(callback)callback(userobject, err);
+
+	if(req != NULL)
+	{
+		pop_request(req->seq_nr);
+		kfree(req);
+	}
+
 	return err;
 }
 
 void nltd_read_async(const char *plugin, loff_t offset, char *buffer, int length, plugin_callback callback, void *userobject)
 {
-	int ret;
+	//int ret;
 
-	ret = nltd_send_async(plugin, offset, buffer, length, READ, callback, userobject);
+	//ret = 
+	nltd_send_async(plugin, offset, buffer, length, READ, callback, userobject);
 
 	//Call callback in case of initial error
-	if(ret && callback)callback(userobject, -EIO);
+	//if(ret && callback)callback(userobject, -EIO);
 }
 
 void nltd_write_async(const char *plugin, loff_t offset, char *buffer, int length, plugin_callback callback, void *userobject)
 {
-	int ret;
+	//int ret;
 
-	ret = nltd_send_async(plugin, offset, buffer, length, WRITE, callback, userobject);
+	//ret = 
+	nltd_send_async(plugin, offset, buffer, length, WRITE, callback, userobject);
 
 	//Call callback in case of initial error
-	if(ret && callback)callback(userobject, -EIO);
+	//if(ret && callback)callback(userobject, -EIO);
 }
 
 int nltd_read_sync(const char *plugin, loff_t offset, char *buffer, int length)
 {
 	int pos;
+
+	//if(length > PAGE_SIZE)printk(KERN_DEBUG "tDisk: Sending splitted netlink message: read");
 
 	for(pos = 0; pos < length; pos += PAGE_SIZE)
 	{
@@ -427,6 +441,8 @@ int nltd_read_sync(const char *plugin, loff_t offset, char *buffer, int length)
 int nltd_write_sync(const char *plugin, loff_t offset, char *buffer, int length)
 {
 	int pos;
+
+	//if(length > PAGE_SIZE)printk(KERN_DEBUG "tDisk: Sending splitted netlink message: write");
 
 	for(pos = 0; pos < length; pos += PAGE_SIZE)
 	{
@@ -478,7 +494,7 @@ void clear_timed_out_requests(unsigned long data)
 	struct pending_request *request;
 	LIST_HEAD(removed);
 
-if(irqs_disabled())printk(KERN_ERR "tDisk: Interrupt disabled!!\n");
+	//if(irqs_disabled())printk(KERN_ERR "tDisk: Interrupt disabled!!\n");
 	spin_lock_irq(&request_lock);
 	list_for_each_entry_safe(request, n, &pending_requests, list)
 	{
@@ -527,7 +543,7 @@ int nltd_register()
 	if(ret)return ret;
 
 	timeout_timer.expires = get_jiffies_64() + HZ;
-	//add_timer(&timeout_timer);
+	add_timer(&timeout_timer);
 
 	return ret;
 }

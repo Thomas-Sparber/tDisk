@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <sys/time.h>
  
 #include <tdisk.h>
 
@@ -73,7 +74,9 @@ int tdisk_get_sector_index(const char *device, uint64_t logical_sector, struct f
 	UNUSED(device);
 	UNUSED(logical_sector);
 
-	out->disk = (unsigned int) (rand() % 3);
+	srand((unsigned)time(NULL));
+
+	out->disk = (unsigned int) (rand() % 3) + 1;
 	out->sector = (uint64_t) (rand() % 1024);
 	out->access_count = (uint16_t) (rand() % 32768);
 	return 0;
@@ -81,13 +84,18 @@ int tdisk_get_sector_index(const char *device, uint64_t logical_sector, struct f
 
 int tdisk_get_all_sector_indices(const char *device, struct f_sector_info *out, uint64_t size)
 {
+	UNUSED(device);
+
 	uint64_t i;
 
+	srand((unsigned)time(NULL));
 	for(i = 0; i < size; ++i)
 	{
-		out->logical_sector = i;
-		out->access_sorted_index = size-i-1;
-		tdisk_get_sector_index(device, i, &out[i].physical_sector);
+		out[i].logical_sector = i;
+		out[i].access_sorted_index = size-i-1;
+		out[i].physical_sector.disk = (unsigned int) (rand() % 3) + 1;
+		out[i].physical_sector.sector = (uint64_t) (rand() % 1024);
+		out[i].physical_sector.access_count = (uint16_t) (rand() % 32768);
 	}
 
 	return 0;
@@ -111,6 +119,8 @@ int tdisk_get_internal_devices_count(const char *device, unsigned int *out)
 int tdisk_get_device_info(const char *device, unsigned int disk, struct f_internal_device_info *out)
 {
 	UNUSED(device);
+
+	srand((unsigned)time(NULL));
 
 	out->disk = disk;
 	

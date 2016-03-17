@@ -210,7 +210,7 @@ private:
 	 **/
 	static void handleError(int ret)
 	{
-		if(ret == 0)return;
+		if(ret >= 0)return;
 
 		switch(ret)
 		{

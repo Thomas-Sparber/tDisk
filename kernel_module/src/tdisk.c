@@ -43,13 +43,27 @@ MODULE_ALIAS_BLOCKDEV_MAJOR(TD_MAJOR);
 
 DEFINE_IDR(td_index_idr);
 
+/**
+  * This struct represents an internal device but sorted
+  * accorting to its performance
+ **/
 struct sorted_internal_device
 {
+	/** The actual device **/
 	struct td_internal_device *dev;
+
+	/** This variable is just internally to count the blocks **/
 	sector_t available_blocks;
 
+	/**
+	  * The blocks which should be - according to performance
+	  * and block access count - stored on the device
+	 **/
 	struct hlist_head preferred_blocks;
+
+	/** Also used internally to count the currently correct blocks **/
 	sector_t amount_blocks;
+
 }; //end struct sorted_internal_device
 
 /*
@@ -64,6 +78,10 @@ static int td_flush(struct tdisk *td)
 	return 0;
 }
 
+/**
+  * Generic function that writes data to a device.
+  * The device can be a file or a plugin.
+ **/
 static int write_data(struct td_internal_device *device, void *data, loff_t position, unsigned int length)
 {
 	switch(device->type)
@@ -80,6 +98,10 @@ static int write_data(struct td_internal_device *device, void *data, loff_t posi
 	}
 }
 
+/**
+  * Generic function that reads data from a device.
+  * The device can be a file or a plugin.
+ **/
 static int read_data(struct td_internal_device *device, void *data, loff_t position, unsigned int length)
 {
 	switch(device->type)
@@ -96,6 +118,10 @@ static int read_data(struct td_internal_device *device, void *data, loff_t posit
 	}
 }
 
+/**
+  * Generic function that writes a bio_vec to a device.
+  * The device can be a file or a plugin.
+ **/
 static int write_bio_vec(struct td_internal_device *device, struct bio_vec *bvec, loff_t *position)
 {
 	switch(device->type)
@@ -112,6 +138,10 @@ static int write_bio_vec(struct td_internal_device *device, struct bio_vec *bvec
 	}
 }
 
+/**
+  * Generic function that reads a bio_vec from a device.
+  * The device can be a file or a plugin.
+ **/
 static int read_bio_vec(struct td_internal_device *device, struct bio_vec *bvec, loff_t *position)
 {
 	switch(device->type)
@@ -128,6 +158,10 @@ static int read_bio_vec(struct td_internal_device *device, struct bio_vec *bvec,
 	}
 }
 
+/**
+  * Generic function that flushes a device.
+  * The device can be a file or a plugin.
+ **/
 static int flush_device(struct td_internal_device *device)
 {
 	switch(device->type)
@@ -144,6 +178,10 @@ static int flush_device(struct td_internal_device *device)
 	}
 }
 
+/**
+  * Generic function that allocs space on a device.
+  * The device can be a file or a plugin.
+ **/
 static int device_alloc(struct td_internal_device *device, loff_t position, unsigned int length)
 {
 	switch(device->type)
@@ -160,6 +198,10 @@ static int device_alloc(struct td_internal_device *device, loff_t position, unsi
 	}
 }
 
+/**
+  * Generic function that checks if a device is ready or not.
+  * The device can be a file or a plugin.
+ **/
 static bool device_is_ready(struct td_internal_device *device)
 {
 	switch(device->type)
@@ -184,14 +226,10 @@ static int td_flush_devices(struct tdisk *td)
 	int ret = 0;
 	for(i = 0; i < td->internal_devices_count; ++i)
 	{
-		//struct file *file = td->internal_devices[i].file;
-		//if(file)
-		//{
-		int internal_ret = flush_device(&td->internal_devices[i]);//file_flush(file);
+		int internal_ret = flush_device(&td->internal_devices[i]);
 
 		if(unlikely(internal_ret && internal_ret != -EINVAL))
 			ret = -EIO;
-		//}
 	}
 
 	return ret;
@@ -204,6 +242,13 @@ static int td_flush_devices(struct tdisk *td)
   *    sector. The data are also stored to each physical disk
   *  - COMPARE: Compares the given physical sector index with the actual one.
   *    This is useful to compare individual disks for consistency.
+  * The flag do_disk_operation can be used to define whether the data
+  * should be written or not. Usually it is a good idea to write the data
+  * immediately to disk to prevent data loss, but in case there are multiple
+  * index operations to write it is better to write them all at once.
+  * The flag update_access_count can be used to define whether the access
+  * count of the specific sector should be updated. This is useful e.g. when
+  * sectors are moved - this shouldn't influence the access count variable.
  **/
 int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t logical_sector, struct sector_index *physical_sector, bool do_disk_operation, bool update_access_count)
 {
@@ -214,11 +259,10 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 	if(position + length > td_dev->header_size * td_dev->blocksize)return 1;
 	actual = &td_dev->indices[logical_sector];
 
-	//Increment access count and sort
+	//Increment access count
 	if(update_access_count)actual->access_count++;
 	MY_BUG_ON(direction == WRITE && physical_sector->disk == 0, PRINT_INT(physical_sector->disk), PRINT_ULL(logical_sector));
 	MY_BUG_ON(direction == READ && actual->disk == 0, PRINT_INT(actual->disk), PRINT_ULL(logical_sector));
-	//td_reorganize_sorted_index(td_dev, logical_sector);
 
 	//index operation
 	if(direction == READ)
@@ -239,7 +283,6 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 		//Disk operations
 		if(do_disk_operation)
 		{
-			//printk(KERN_DEBUG "tDisk: Writing new sector index of %llu\n", logical_sector);
 			for(j = 0; j < td_dev->internal_devices_count; ++j)
 			{
 				write_data(&td_dev->internal_devices[j], actual, position, length);
@@ -250,24 +293,36 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 	return 0;
 }
 
+/**
+  * This is the heuristic function that calculates the
+  * speed of a device
+ **/
 inline static unsigned long long td_get_device_performance(const struct td_internal_device *d)
 {
 	return (d->performance.avg_read_time_cycles + d->performance.avg_write_time_cycles) >> 1;
 }
 
+/**
+  * This is the callback which is used to sort the
+  * devices according to its performance
+ **/
 static int td_sort_devices_callback(const void *a, const void *b)
 {
 	const struct sorted_internal_device *d_a = a;
 	const struct sorted_internal_device *d_b = b;
 
-	unsigned long long performance_a = td_get_device_performance(d_a->dev);//(d_a->dev->performance.avg_read_time_cycles + d_a->dev->performance.avg_write_time_cycles) >> 1;
-	unsigned long long performance_b = td_get_device_performance(d_b->dev);//(d_b->dev->performance.avg_read_time_cycles + d_b->dev->performance.avg_write_time_cycles) >> 1;
+	unsigned long long performance_a = td_get_device_performance(d_a->dev);
+	unsigned long long performance_b = td_get_device_performance(d_b->dev);
 
 	if(performance_a == performance_b)return 0;
 	else if(performance_a > performance_b)return 1;
 	else return -1;
 }
 
+/**
+  * Inserts the internal devices in the given array
+  * in an ordered manner
+ **/
 static void td_insert_sorted_internal_devices(struct tdisk *td, struct sorted_internal_device *sorted_devices)
 {
 	unsigned int i;
@@ -280,9 +335,14 @@ static void td_insert_sorted_internal_devices(struct tdisk *td, struct sorted_in
 		sorted_devices[i].amount_blocks = 0;
 	}
 
+	//Sort array
 	sort(sorted_devices, td->internal_devices_count, sizeof(struct sorted_internal_device), &td_sort_devices_callback, NULL);
 }
 
+/**
+  * Finds the corresponding sorted device of the given
+  * td_internal_device
+ **/
 static struct sorted_internal_device* td_find_sorted_device(struct sorted_internal_device *sorted_devices, struct td_internal_device *desired_device, unsigned int devices)
 {
 	unsigned int i;
@@ -297,7 +357,15 @@ static struct sorted_internal_device* td_find_sorted_device(struct sorted_intern
 	return NULL;
 }
 
-static struct sorted_sector_index* td_find_sector_index(struct hlist_head *head, tdisk_index disk)
+/**
+  * This function returns the sector_index in the given
+  * disk with the lowest access count.
+  * This is used when swapping a (high access) sector from a slower
+  * disk with a (lowest possible) sector from a faster disk.
+  * A sector with a lower access count has a lower probability
+  * of being moved to a faster disk in the near future.
+ **/
+static struct sorted_sector_index* td_find_sector_index(struct sorted_internal_device *device, tdisk_index disk)
 {
 	struct sorted_sector_index *item;
 	struct sorted_sector_index *lowest = NULL;
@@ -330,6 +398,7 @@ static struct sorted_sector_index* td_find_sector_index(struct hlist_head *head,
 static struct sorted_sector_index* td_find_sector_index_acc(struct sorted_internal_device *device, tdisk_index disk, __u16 access_count)
 {
 	struct sorted_sector_index *item;
+	struct sorted_sector_index *highest = NULL;
 
 	//TODO Actually these sectors should be sorted
 	//so no need to access all of them
@@ -337,11 +406,12 @@ static struct sorted_sector_index* td_find_sector_index_acc(struct sorted_intern
 	{
 		if(item->physical_sector->disk == disk && item->physical_sector->access_count >= access_count)
 		{
-			return item;
+			if(highest == NULL || item->physical_sector->access_count > highest->physical_sector->access_count)
+				highest = item;
 		}
 	}
 
-	return NULL;
+	return highest;
 }
 
 /**
@@ -365,6 +435,9 @@ static void td_assign_sectors(struct tdisk *td, struct sorted_internal_device *s
 		//Not processing unused sectors
 		if(sector->physical_sector->disk == 0)continue;
 
+		//Here the counter available_blocks of the sorted_internal_device
+		//it used to assign the sectors. If there are no more free sectors
+		//the next sorted device is used
 		while(sorted_devices[sorted_disk-1].available_blocks-- == 0)
 			sorted_disk++;
 
@@ -390,6 +463,7 @@ static void td_assign_sectors(struct tdisk *td, struct sorted_internal_device *s
 		//simply be swapped.
 		hlist_for_each_entry_safe(sector, item_safe, &sorted_devices[sorted_disk-1].preferred_blocks, device_assigned)
 		{
+			//Actual internal device calculated using memory offset
 			tdisk_index current_disk = sorted_devices[sorted_disk-1].dev-td->internal_devices+1;
 
 			BUG_ON(sector->physical_sector->disk == 0 || sector->physical_sector->disk > td->internal_devices_count);
@@ -420,6 +494,7 @@ static void td_assign_sectors(struct tdisk *td, struct sorted_internal_device *s
 
 				if(to_swap)
 				{
+					//Simply swap those sectors
 					BUG_ON(to_swap->physical_sector->disk != current_disk);
 
 					hlist_del_init(&sector->device_assigned);
@@ -437,6 +512,12 @@ static void td_assign_sectors(struct tdisk *td, struct sorted_internal_device *s
 	}
 }
 
+/**
+  * This function physically swaps the two given sectors.
+  * This means it reads the data of both sectors, stores
+  * sector a in sector b and vice versa and updates the
+  * indices
+ **/
 static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_index *a, sector_t logical_b, struct sector_index *b)
 {
 	int ret;
@@ -446,7 +527,8 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	u8 *buffer_b = kmalloc(td->blocksize, GFP_KERNEL);
 	if(!buffer_a || !buffer_b)return;
 
-	printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u)\n", logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count);
+	printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u)\n",
+			logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count);
 
 	//Reading blocks from both disks
 	ret = read_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);
@@ -471,6 +553,7 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 
 	goto out;
 
+	//error handling
  out_restore_a:
 	ret = write_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);
 	if(ret != 0)printk(KERN_WARNING "tDisk: Error restoring logical_a. Data corrupted\n");
@@ -481,6 +564,13 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	kfree(buffer_b);
 }
 
+/**
+  * This function moves the sector with the
+  * highest access count to the disk with the
+  * best performance.
+  * The function returns true and sets td->access_count_resort
+  * when a sector could be moved.
+ **/
 static bool td_move_one_sector(struct tdisk *td)
 {
 	bool swapped = false;
@@ -500,6 +590,7 @@ static bool td_move_one_sector(struct tdisk *td)
 		}
 	}
 
+	//Create sorted devices
 	sorted_devices = vmalloc(sizeof(struct sorted_internal_device) * td->internal_devices_count);
 	if(!sorted_devices)
 	{
@@ -524,7 +615,8 @@ static bool td_move_one_sector(struct tdisk *td)
 						(size_t)sorted_devices[sorted_disk-1].amount_blocks*100 / (size_t)sorted_devices[sorted_disk-1].dev->size_blocks);
 	}*/
 
-	//Moving the sector with highest access count.
+	//Moving the sector with highest access count to
+	//the disk with the best performance
 	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
 	{
 		struct sorted_sector_index *highest = NULL;
@@ -550,6 +642,8 @@ static bool td_move_one_sector(struct tdisk *td)
 			}
 		}
 
+		//Above there is a continue flag so there must
+		//be a wrong sector. Otherwise it is a bug
 		BUG_ON(!highest);
 
 		//Now looking at the disk where the current highest
@@ -597,7 +691,7 @@ int td_sector_index_callback_total(struct hlist_node *a, struct hlist_node *b)
   * logical sector. This is useful for continuously soriting
   * the indices since in only touches one sector index
  **/
-void td_reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
+/*void td_reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
 {
 	struct sorted_sector_index *index;
 	struct sorted_sector_index *next = NULL;
@@ -622,7 +716,7 @@ void td_reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
 		hlist_del_init(&index->list);
 		hlist_insert_sorted(&index->list, &td->sorted_sectors_head, &td_sector_index_callback);
 	}
-}
+}*/
 
 /**
   * This function sorts all the sector indices
@@ -891,6 +985,11 @@ static void td_reread_partitions(struct tdisk *td, struct block_device *bdev)
 #endif
 }
 
+/**
+  * Returns how much MORE sectors would be needed
+  * to store the sector indices if the tDisk would
+  * be resized to the given size
+ **/
 int td_get_max_sectors_header_increase(struct tdisk *td, sector_t max_sectors)
 {
 	size_t header_size_byte = td->index_offset_byte + max_sectors * sizeof(struct sector_index);
@@ -899,6 +998,11 @@ int td_get_max_sectors_header_increase(struct tdisk *td, sector_t max_sectors)
 	return (new_header_size - td->header_size);
 }
 
+/**
+  * This function resets the already resized sector
+  * indices and sorted sectors if an error occurred
+  * while adding a new internal device
+ **/
 void td_reset_sectors(struct tdisk *td)
 {
 	if(td->indices != NULL)vfree(td->indices);
@@ -976,6 +1080,10 @@ int td_set_max_sectors(struct tdisk *td, sector_t max_sectors)
 	return ret;
 }
 
+/**
+  * This function checks if the given file can be
+  * added as internal device to the tDisk
+ **/
 static int td_add_check_file(struct tdisk *td, fmode_t mode, struct block_device *bdev, struct file *file)
 {
 	struct inode *inode;
@@ -991,12 +1099,14 @@ static int td_add_check_file(struct tdisk *td, fmode_t mode, struct block_device
 	mapping = file->f_mapping;
 	inode = mapping->host;
 
+	//Check file type
 	if(!S_ISREG(inode->i_mode) && !S_ISBLK(inode->i_mode))
 	{
 		printk(KERN_WARNING "tDisk: Given file is not a regular file and not a blockdevice\n");
 		return -EINVAL;
 	}
 
+	//Check rw permissions
 	if(!(file->f_mode & FMODE_WRITE) || !(mode & FMODE_WRITE) || !file->f_op->write_iter)
 	{
 		if(td->internal_devices_count && !(td->flags & TD_FLAGS_READ_ONLY))
@@ -1012,7 +1122,7 @@ static int td_add_check_file(struct tdisk *td, fmode_t mode, struct block_device
 }
 
 /**
-  * Adds the given file descriptor to the tDisk.
+  * Adds the given internal device to the tDisk.
   * This function reads the disk header, performs the correct
   * index operation (WRITE, READ, COMPARE), adds it to the tDisk
   * and informs user space about any changes (size, partitions...)
@@ -1022,8 +1132,6 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	struct file	*file = NULL;
 	struct address_space *mapping;
 	struct tdisk_header header;
-	//struct device_performance perf;
-	//int flags = 0;
 	int error;
 	loff_t size;
 	loff_t size_counter = 0;
@@ -1092,6 +1200,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	}
 	else new_max_sectors = td->max_sectors;
 
+	//Set max_sectors if it's a known device
 	if(index_operation_to_do == READ && header.current_max_sectors > new_max_sectors)new_max_sectors = header.current_max_sectors;
 
 	error = -EINVAL;
@@ -1129,6 +1238,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		}
 	}
 
+	//Resize sector indices an sorted sectors
 	additional_sectors = td_set_max_sectors(td, new_max_sectors);
 	if(additional_sectors < 0)
 	{
@@ -1148,8 +1258,8 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	//set_device_ro(bdev, (td->flags & TD_FLAGS_READ_ONLY) != 0); //TODO move to function where tdisk is created
 
 	td->block_device = bdev;
-	//td->flags = flags;
 
+	//Perform index operations
 	switch(index_operation_to_do)
 	{
 	case WRITE:
@@ -1298,9 +1408,6 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	td->internal_devices[header.disk_index] = new_device;
 	printk(KERN_DEBUG "tDisk: new physical disk %u: size: %llu bytes. Logical size(%llu)\n", header.disk_index+1, size, td->size_blocks*td->blocksize);
 
-	//if(!(td->flags & TD_FLAGS_READ_ONLY) && file->f_op->fsync)
-	//	blk_queue_flush(td->queue, REQ_FLUSH);
-
 	//let user-space know about this change
 	set_capacity(td->kernel_disk, (td->size_blocks*td->blocksize) >> 9);
 	bd_set_size(bdev, td->size_blocks*td->blocksize);
@@ -1309,8 +1416,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	td->state = state_bound;
 	td_reread_partitions(td, bdev);
 
-	//Grab the block_device to prevent its destruction after we
-	//put /dev/tdX inode. Later in td_clear() we bdput(bdev).
+	//Grab the block_device to prevent its destruction
 	if(first_device)bdgrab(bdev);
 	return 0;
 
@@ -1323,7 +1429,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 }
 
 /**
-  * This function transfers devicestatus information
+  * This function transfers device status information
   * to user space
  **/
 static int td_get_status(struct tdisk *td, struct tdisk_info __user *arg)
@@ -1743,10 +1849,6 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	}
 	td->queue->queuedata = td;
 
-	/**
-	  * It doesn't make sense to enable merge because the I/O
-	  * submitted to backing file is handled page by page.
-	 **/
 	queue_flag_set_unlocked(QUEUE_FLAG_NOMERGES, td->queue);
 
 	disk = td->kernel_disk = alloc_disk(1);
@@ -1754,7 +1856,6 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 
 	td->blocksize = blocksize;
 	td->index_offset_byte = header_size_byte;
-	//td->header_size = header_size_byte/blocksize + ((header_size_byte%blocksize == 0) ? 0 : 1);
 	err = td_set_max_sectors(td, 0);
 	if(err < 0)goto out_free_queue;
 
@@ -1768,7 +1869,7 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	disk->fops		= &td_fops;
 	disk->private_data	= td;
 	disk->queue		= td->queue;
-	//set_blocksize(td->block_device, blocksize);	TODO
+	//set_blocksize(td->block_device, blocksize);	TODO?
 	sprintf(disk->disk_name, "td%d", i);
 	add_disk(disk);
 	*t = td;
@@ -1809,6 +1910,7 @@ int tdisk_remove(struct tdisk *td)
 	if(td->internal_devices_count)
 		td_stop_worker_thread(td);
 
+	//Write header and indices to all files
 	for(i = 0; i < td->internal_devices_count; ++i)
 	{
 		struct file *file = td->internal_devices[i].file;

@@ -43,6 +43,10 @@
   * **Performance measurement**
   * 
   * **Sectors sorting**
+  *
+  * The sector with the highest access count from the (possibly) slowest
+  * disk is swapped with the sector with the lowest access count from the
+  * (possibly) fastest disk
   * 
   *
   * Custom timeout worker

@@ -43,7 +43,8 @@ struct tdisk_header
 struct sorted_sector_index
 {
 	struct sector_index *physical_sector;
-	struct hlist_node list;
+	struct hlist_node total_sorted;
+	struct hlist_node device_assigned;
 }; //end struct mapped sector index
 
 /**

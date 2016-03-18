@@ -302,7 +302,9 @@ static struct sorted_sector_index* td_find_sector_index(struct hlist_head *head,
 	struct sorted_sector_index *item;
 	struct sorted_sector_index *lowest = NULL;
 
-	hlist_for_each_entry(item, head, list)
+	//TODO Actually these sectors should be sorted
+	//so no need to access all of them
+	hlist_for_each_entry(item, &device->preferred_blocks, device_assigned)
 	{
 		if(item->physical_sector->disk == disk)
 		{
@@ -314,11 +316,24 @@ static struct sorted_sector_index* td_find_sector_index(struct hlist_head *head,
 	return lowest;
 }
 
-static struct sorted_sector_index* td_find_sector_index_acc(struct hlist_head *head, tdisk_index disk, __u16 access_count)
+/**
+  * This is an optimizing function for assigning sectors
+  * properly to their devices. Obviously it is possible that
+  * two or more sectors have the same access count (or
+  * acceptable variation). So it is also possible that sector
+  * a and sector b have the same access count but are stored on
+  * the wrong disks (according to the sorting algorithm). So if
+  * they have the same access count they can simply be ignored.
+  * This function returns the sector with the possibly highest
+  * access count for the given disk
+ **/
+static struct sorted_sector_index* td_find_sector_index_acc(struct sorted_internal_device *device, tdisk_index disk, __u16 access_count)
 {
 	struct sorted_sector_index *item;
 
-	hlist_for_each_entry(item, head, list)
+	//TODO Actually these sectors should be sorted
+	//so no need to access all of them
+	hlist_for_each_entry(item, &device->preferred_blocks, device_assigned)
 	{
 		if(item->physical_sector->disk == disk && item->physical_sector->access_count >= access_count)
 		{
@@ -329,24 +344,38 @@ static struct sorted_sector_index* td_find_sector_index_acc(struct hlist_head *h
 	return NULL;
 }
 
-static void td_assign_sectors(struct tdisk *td, struct sorted_internal_device *sorted_devices, struct sorted_sector_index *sorted_sectors)
+/**
+  * This function assigns the sorted sectors to the sorted devices
+  * and tries to optimize it using the function td_find_sector_index_acc
+  * The result of this function is the base of the sectors to be swapped
+ **/
+static void td_assign_sectors(struct tdisk *td, struct sorted_internal_device *sorted_devices)
 {
 	unsigned int sorted_disk = 1;
-	struct sorted_sector_index *item;
+	struct sorted_sector_index *sector;
 	struct hlist_node *item_safe;
 
-	hlist_for_each_entry(item, &td->sorted_sectors_head, list)
+	//Iterating over all sorted sectors in the tDisk (!!!)
+	//And assigning the 1:1 copy of the sectors to the
+	//corresponding internal device
+	//The sectors are processed according to access count
+	//and assigned to devices according to performance
+	hlist_for_each_entry(sector, &td->sorted_sectors_head, total_sorted)
 	{
-		unsigned int index = item - td->sorted_sectors;
-		if(item->physical_sector->disk == 0)continue;
+		//Not processing unused sectors
+		if(sector->physical_sector->disk == 0)continue;
 
 		while(sorted_devices[sorted_disk-1].available_blocks-- == 0)
 			sorted_disk++;
 
-		INIT_HLIST_NODE(&sorted_sectors[index].list);
-		hlist_add_head(&sorted_sectors[index].list, &sorted_devices[sorted_disk-1].preferred_blocks);
+		//Adding sector to device's preferred blocks
+		INIT_HLIST_NODE(&sector->device_assigned);
+		hlist_add_head(&sector->device_assigned, &sorted_devices[sorted_disk-1].preferred_blocks);
 
-		if(sorted_sectors[index].physical_sector->disk == sorted_devices[sorted_disk-1].dev-td->internal_devices+1)
+		//Here, the amount of correctly assigned blocks is counted.
+		//The memory offset is used to convert from sorted device
+		//to actual device
+		if(sector->physical_sector->disk == sorted_devices[sorted_disk-1].dev-td->internal_devices+1)
 			sorted_devices[sorted_disk-1].amount_blocks++;
 	}
 
@@ -359,30 +388,46 @@ static void td_assign_sectors(struct tdisk *td, struct sorted_internal_device *s
 		//with the same access count it is just a
 		//matter of the sorting algorithm and can
 		//simply be swapped.
-		hlist_for_each_entry_safe(item, item_safe, &sorted_devices[sorted_disk-1].preferred_blocks, list)
+		hlist_for_each_entry_safe(sector, item_safe, &sorted_devices[sorted_disk-1].preferred_blocks, device_assigned)
 		{
 			tdisk_index current_disk = sorted_devices[sorted_disk-1].dev-td->internal_devices+1;
 
-			BUG_ON(item->physical_sector->disk == 0 || item->physical_sector->disk > td->internal_devices_count);
+			BUG_ON(sector->physical_sector->disk == 0 || sector->physical_sector->disk > td->internal_devices_count);
 
-			if(item->physical_sector->disk != current_disk)
+			if(sector->physical_sector->disk != current_disk)
 			{
-				struct sorted_internal_device *corresponding = td_find_sorted_device(sorted_devices+sorted_disk-1, &td->internal_devices[item->physical_sector->disk-1], td->internal_devices_count-sorted_disk+1);
+				//The sector to swap is only searched in the SLOWER
+				//devices BUT with an equal or HIGHER access count.
+
+				//The device offset which is used to only search in slower
+				//devices than the current
+				unsigned int dev_off = sorted_disk-1;
+
+				unsigned int dev_length = td->internal_devices_count-dev_off;
+
+				//This is the internal device where the current sector
+				//Should be stored according to its access count.
+				//Since we are just looking just for devices which
+				//Are slower than the current it can also be null
+				struct sorted_internal_device *corresponding = td_find_sorted_device(sorted_devices+dev_off, &td->internal_devices[sector->physical_sector->disk-1], dev_length);
 				struct sorted_sector_index *to_swap;
 
 				if(!corresponding)continue;
 
-				to_swap = td_find_sector_index_acc(&corresponding->preferred_blocks, current_disk, item->physical_sector->access_count);
+				//Finds a sector with an equal or higher access count
+				//for the current disk inside the "corresponding"
+				to_swap = td_find_sector_index_acc(corresponding, current_disk, sector->physical_sector->access_count);
 
 				if(to_swap)
 				{
 					BUG_ON(to_swap->physical_sector->disk != current_disk);
 
-					hlist_del_init(&item->list);
-					hlist_del_init(&to_swap->list);
+					hlist_del_init(&sector->device_assigned);
+					hlist_del_init(&to_swap->device_assigned);
 
-					hlist_add_head(&item->list, &corresponding->preferred_blocks);
-					hlist_add_head(&to_swap->list, &sorted_devices[sorted_disk-1].preferred_blocks);
+					//TODO insert sorted
+					hlist_add_head(&sector->device_assigned, &corresponding->preferred_blocks);
+					hlist_add_head(&to_swap->device_assigned, &sorted_devices[sorted_disk-1].preferred_blocks);
 
 					corresponding->amount_blocks++;
 					sorted_devices[sorted_disk-1].amount_blocks++;
@@ -439,11 +484,10 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 static bool td_move_one_sector(struct tdisk *td)
 {
 	bool swapped = false;
-	unsigned int sorted_disk = 1;
-	unsigned int inv_disk = 1;
+	unsigned int sorted_disk;
 	struct sorted_sector_index *item;
 	struct sorted_internal_device *sorted_devices;
-	struct sorted_sector_index *sorted_sectors;
+	struct sorted_sector_index *to_swap;
 
 	//Check if actually all devices are loaded
 	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
@@ -463,19 +507,10 @@ static bool td_move_one_sector(struct tdisk *td)
 		return false;
 	}
 
-	sorted_sectors = vmalloc(sizeof(struct sorted_sector_index) * td->max_sectors);
-	if(!sorted_sectors)
-	{
-		printk(KERN_WARNING "tDisk: Error allocating sorted_sectors memory\n");
-		vfree(sorted_devices);
-		return false;
-	}
-
 	td_insert_sorted_internal_devices(td, sorted_devices);
-	memcpy(sorted_sectors, td->sorted_sectors, sizeof(struct sorted_sector_index) * td->max_sectors);
 
 	//Assigning the sorted sectors to the sorted devices...
-	td_assign_sectors(td, sorted_devices, sorted_sectors);
+	td_assign_sectors(td, sorted_devices);
 
 	//Moving the sector with highest access count.
 	/*for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
@@ -501,43 +536,43 @@ static bool td_move_one_sector(struct tdisk *td)
 			continue;
 		}
 
-		hlist_for_each_entry(item, &sorted_devices[sorted_disk-1].preferred_blocks, list)
+		//If we reach this point there is at least one
+		//sector stored on a wrong disk which should be
+		//stored on this disk.
+		//So searching the sector with the highest access
+		//count which gains the best performance.
+		hlist_for_each_entry(item, &sorted_devices[sorted_disk-1].preferred_blocks, device_assigned)
 		{
 			if(item->physical_sector->disk != current_disk)
 			{
 				if(highest == NULL || item->physical_sector->access_count > highest->physical_sector->access_count)
-				{
 					highest = item;
-				}
 			}
 		}
 
 		BUG_ON(!highest);
 
-		//Now starting at the slowest disk and looking
-		//for a block that belongs to the current disk
-		for(inv_disk = td->internal_devices_count; inv_disk != sorted_disk; --inv_disk)
+		//Now looking at the disk where the current highest
+		//sector is stored for a block that belongs to
+		//the current disk
+		to_swap = td_find_sector_index(&sorted_devices[highest->physical_sector->disk-1], current_disk);
+
+		if(to_swap != NULL)
 		{
-			struct sorted_sector_index *to_swap = td_find_sector_index(&sorted_devices[inv_disk-1].preferred_blocks, current_disk);
+			//OK, now we found a sector of the possibly fastest disk
+			//which is stored on the possibly slowest disk. When we
+			//swap those sectors we gain the highest possible performance.
 
-			if(to_swap != NULL)
-			{
-				//OK, now we found a sector of the possibly fastest disk
-				//which is stored on the possibly slowest disk. When we
-				//swap those sectors we gain the highest possible performance.
-
-				td_swap_sectors(td, highest-sorted_sectors, highest->physical_sector, to_swap-sorted_sectors, to_swap->physical_sector);
-				td->access_count_resort = 1;
-				swapped = true;
-				break;
-			}
+			td_swap_sectors(td, highest-td->sorted_sectors, highest->physical_sector, to_swap-td->sorted_sectors, to_swap->physical_sector);
+			td->access_count_resort = 1;
+			swapped = true;
+			break;
 		}
 
 		if(swapped)break;
 	}
 
 	vfree(sorted_devices);
-	vfree(sorted_sectors);
 	return swapped;
 }
 
@@ -545,10 +580,10 @@ static bool td_move_one_sector(struct tdisk *td)
   * This callback is used by the insertsort to determine the
   * order of a sector index
  **/
-int td_sector_index_callback(struct hlist_node *a, struct hlist_node *b)
+int td_sector_index_callback_total(struct hlist_node *a, struct hlist_node *b)
 {
-	struct sorted_sector_index *i_a = hlist_entry(a, struct sorted_sector_index, list);
-	struct sorted_sector_index *i_b = hlist_entry(b, struct sorted_sector_index, list);
+	struct sorted_sector_index *i_a = hlist_entry(a, struct sorted_sector_index, total_sorted);
+	struct sorted_sector_index *i_b = hlist_entry(b, struct sorted_sector_index, total_sorted);
 
 	if(i_a->physical_sector->disk == 0 && i_b->physical_sector->disk == 0)return 0;
 	if(i_a->physical_sector->disk == 0)return 1;
@@ -596,7 +631,7 @@ void td_reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
 void td_reorganize_all_indices(struct tdisk *td)
 {
 	//Sort entire arry
-	hlist_insertsort(&td->sorted_sectors_head, &td_sector_index_callback);
+	hlist_insertsort(&td->sorted_sectors_head, &td_sector_index_callback_total);
 }
 
 /**
@@ -924,11 +959,11 @@ int td_set_max_sectors(struct tdisk *td, sector_t max_sectors)
 	INIT_HLIST_HEAD(&td->sorted_sectors_head);
 	for(j = 0; j < td->max_sectors; ++j)
 	{
-		INIT_HLIST_NODE(&td->sorted_sectors[j].list);
+		INIT_HLIST_NODE(&td->sorted_sectors[j].total_sorted);
 		td->sorted_sectors[j].physical_sector = &td->indices[j];
 
-		if(j == 0)hlist_add_head(&td->sorted_sectors[j].list, &td->sorted_sectors_head);
-		else hlist_add_behind(&td->sorted_sectors[j].list, &td->sorted_sectors[j-1].list);
+		if(j == 0)hlist_add_head(&td->sorted_sectors[j].total_sorted, &td->sorted_sectors_head);
+		else hlist_add_behind(&td->sorted_sectors[j].total_sorted, &td->sorted_sectors[j-1].total_sorted);
 	}
 	//TODO unlock index spinlock
 
@@ -1364,7 +1399,7 @@ static int td_get_all_sector_indices(struct tdisk *td, struct sector_info __user
 	struct sector_info info;
 	sector_t sorted_index = 0;
 
-	hlist_for_each_entry(pos, &td->sorted_sectors_head, list)
+	hlist_for_each_entry(pos, &td->sorted_sectors_head, total_sorted)
 	{
 		info.physical_sector = (*pos->physical_sector);
 		info.access_sorted_index = sorted_index;

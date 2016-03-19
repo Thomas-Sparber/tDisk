@@ -528,25 +528,25 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	if(!buffer_a || !buffer_b)return;
 
 	//Reading blocks from both disks
-	ret = read_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);
+	ret = read_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);		//a read op1
 	if(ret != 0)goto out_err;
 
-	ret = read_data(&td->internal_devices[b->disk-1], buffer_b, pos_b, td->blocksize);
+	ret = read_data(&td->internal_devices[b->disk-1], buffer_b, pos_b, td->blocksize);		//b read op1
 	if(ret != 0)goto out_err;
 
 	//Saving swapped data to both disks
-	ret = write_data(&td->internal_devices[a->disk-1], buffer_b, pos_a, td->blocksize);
+	ret = write_data(&td->internal_devices[a->disk-1], buffer_b, pos_a, td->blocksize);		//a write op1
 	if(ret != 0)goto out_err;
 
-	ret = write_data(&td->internal_devices[b->disk-1], buffer_a, pos_b, td->blocksize);
+	ret = write_data(&td->internal_devices[b->disk-1], buffer_a, pos_b, td->blocksize);		//b write op1
 	if(ret != 0)goto out_restore_a;
 
 	swap(a->disk, b->disk);
 	swap(a->sector, b->sector);
 
 	//Updating indices
-	td_perform_index_operation(td, WRITE, logical_a, a, true, false);
-	td_perform_index_operation(td, WRITE, logical_b, b, true, false);
+	td_perform_index_operation(td, WRITE, logical_a, a, true, false);						//a&b write op2
+	td_perform_index_operation(td, WRITE, logical_b, b, true, false);						//a&b write op3
 
 	goto out;
 

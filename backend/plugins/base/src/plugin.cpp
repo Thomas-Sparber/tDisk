@@ -179,13 +179,20 @@ void Plugin::listen()
 
 	while(running)
 	{
-		for(WriteBuffer &writeBuffer : writeBuffers)
+		if(!poll(1000))
 		{
-			if(writeBuffer.age() > 5)
-				writeBufferedData(writeBuffer);
-		}
+			//Flushing buffers when there is nothing to do
+			for(WriteBuffer &writeBuffer : writeBuffers)
+			{
+				if(writeBuffer.age() > 5 && !writeBuffer.empty())
+				{
+					//cout<<"Empting write buffer because timed out"<<endl;
+					writeBufferedData(writeBuffer);
+				}
+			}
 
-		if(!poll(1000))continue;
+			continue;
+		}
 
 		int ret = receive();
 		if(ret != 0)cout<<"Code: "<<ret<<": "<<nl_geterror(ret)<<endl;
@@ -267,10 +274,22 @@ bool Plugin::messageReceived(uint32_t sequenceNumber, PluginOperation operation,
 				}
 			}
 
-			//Empty first WriteBuffer if nothing suitable was found
+			//Empty oldest WriteBuffer if nothing suitable was found
 			if(!suitableWriteBuffer)
 			{
-				suitableWriteBuffer = &writeBuffers[0];
+				//cout<<"Need to empty write buffer. Not matching data"<<endl;
+
+				//Use oldest WriteBuffer
+				for(WriteBuffer &writeBuffer : writeBuffers)
+				{
+					if(!suitableWriteBuffer ||
+						writeBuffer.age() > suitableWriteBuffer->age() ||
+						(writeBuffer.age() == suitableWriteBuffer->age() && writeBuffer.size() > suitableWriteBuffer->size()))
+					{
+						suitableWriteBuffer = &writeBuffer;
+					}
+				}
+
 				writeBufferedData(*suitableWriteBuffer);	//TODO check return value
 			}
 

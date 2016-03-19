@@ -22,6 +22,16 @@ public:
 		lastAccessTime()
 	{}
 
+	bool empty() const
+	{
+		if(buffer.empty())return true;
+
+		for(const WriteBufferElement &e : buffer)
+			if(!e.data.empty())return false;
+
+		return true;
+	}
+
 	unsigned long long size() const
 	{
 		unsigned long long s = 0;
@@ -35,15 +45,21 @@ public:
 		return (std::time(nullptr) - lastAccessTime);
 	}
 
-	bool canBeCombined(unsigned long long offset, const char */*data*/, std::size_t /*length*/)
+	bool canBeCombined(unsigned long long offset, const char */*data*/, std::size_t length)
 	{
 		if(buffer.empty())return true;
-		return ((buffer.back().pos + buffer.back().data.size()) == offset);
+		if(offset + length == buffer.front().pos)return true;
+		if((buffer.back().pos + buffer.back().data.size()) == offset)return true;
+		return false;
 	}
 
 	bool append(unsigned long long offset, const char *data, std::size_t length)
 	{
-		buffer.emplace_back(offset, data, length);
+		if(offset + length == buffer.front().pos)
+			buffer.emplace_front(offset, data, length);
+		else
+			buffer.emplace_back(offset, data, length);
+
 		lastAccessTime = std::time(nullptr);
 		return size() >= maxBytes;
 	}

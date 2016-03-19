@@ -527,9 +527,6 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	u8 *buffer_b = kmalloc(td->blocksize, GFP_KERNEL);
 	if(!buffer_a || !buffer_b)return;
 
-	printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u)\n",
-			logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count);
-
 	//Reading blocks from both disks
 	ret = read_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);
 	if(ret != 0)goto out_err;
@@ -578,6 +575,7 @@ static bool td_move_one_sector(struct tdisk *td)
 	struct sorted_sector_index *item;
 	struct sorted_internal_device *sorted_devices;
 	struct sorted_sector_index *to_swap;
+	sector_t correctly_stored;
 
 	//Check if actually all devices are loaded
 	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
@@ -603,24 +601,27 @@ static bool td_move_one_sector(struct tdisk *td)
 	//Assigning the sorted sectors to the sorted devices...
 	td_assign_sectors(td, sorted_devices);
 
-	//Moving the sector with highest access count.
-	/*for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
+	correctly_stored = 0;
+	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
 	{
-		printk(KERN_DEBUG "tDisk: Internal disk %u (speed: %u rank --> %llu): Capacity: %llu, Correctly stored: %llu, %u percent\n",
+		correctly_stored += sorted_devices[sorted_disk-1].amount_blocks;
+		/*printk(KERN_DEBUG "tDisk: Internal disk %u (speed: %u rank --> %llu): Capacity: %llu, Correctly stored: %llu, %u percent\n",
 						sorted_devices[sorted_disk-1].dev-td->internal_devices+1,
 						sorted_disk,
 						td_get_device_performance(sorted_devices[sorted_disk-1].dev),
 						sorted_devices[sorted_disk-1].dev->size_blocks,
 						sorted_devices[sorted_disk-1].amount_blocks,
-						(size_t)sorted_devices[sorted_disk-1].amount_blocks*100 / (size_t)sorted_devices[sorted_disk-1].dev->size_blocks);
-	}*/
+						(size_t)sorted_devices[sorted_disk-1].amount_blocks*100 / (size_t)sorted_devices[sorted_disk-1].dev->size_blocks);*/
+	}
 
 	//Moving the sector with highest access count to
 	//the disk with the best performance
 	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
 	{
 		struct sorted_sector_index *highest = NULL;
-		tdisk_index current_disk = sorted_devices[sorted_disk-1].dev-td->internal_devices+1;
+		tdisk_index current_disk_index = sorted_devices[sorted_disk-1].dev-td->internal_devices+1;
+		struct sorted_internal_device *other_disk;
+		tdisk_index other_disk_index;
 
 		if(sorted_devices[sorted_disk-1].amount_blocks == sorted_devices[sorted_disk-1].dev->size_blocks)
 		{
@@ -635,12 +636,16 @@ static bool td_move_one_sector(struct tdisk *td)
 		//count which gains the best performance.
 		hlist_for_each_entry(item, &sorted_devices[sorted_disk-1].preferred_blocks, device_assigned)
 		{
-			if(item->physical_sector->disk != current_disk)
+			if(item->physical_sector->disk != current_disk_index)
 			{
 				if(highest == NULL || item->physical_sector->access_count > highest->physical_sector->access_count)
 					highest = item;
 			}
 		}
+
+		other_disk = td_find_sorted_device(sorted_devices, &td->internal_devices[highest->physical_sector->disk-1], td->internal_devices_count);
+		BUG_ON(!other_disk);
+		other_disk_index = other_disk - sorted_devices;
 
 		//Above there is a continue flag so there must
 		//be a wrong sector. Otherwise it is a bug
@@ -649,7 +654,7 @@ static bool td_move_one_sector(struct tdisk *td)
 		//Now looking at the disk where the current highest
 		//sector is stored for a block that belongs to
 		//the current disk
-		to_swap = td_find_sector_index(&sorted_devices[highest->physical_sector->disk-1], current_disk);
+		to_swap = td_find_sector_index(&sorted_devices[highest->physical_sector->disk-1], current_disk_index);
 
 		if(to_swap != NULL)
 		{
@@ -657,7 +662,15 @@ static bool td_move_one_sector(struct tdisk *td)
 			//which is stored on the possibly slowest disk. When we
 			//swap those sectors we gain the highest possible performance.
 
-			td_swap_sectors(td, highest-td->sorted_sectors, highest->physical_sector, to_swap-td->sorted_sectors, to_swap->physical_sector);
+			sector_t logical_a = highest-td->sorted_sectors;
+			sector_t logical_b = to_swap-td->sorted_sectors;
+			struct sector_index *a = highest->physical_sector;
+			struct sector_index *b = to_swap->physical_sector;
+
+			printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u): %llu/%llu\n",
+					logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count, correctly_stored, td->size_blocks);
+
+			td_swap_sectors(td, logical_a, a, logical_b, b);
 			td->access_count_resort = 1;
 			swapped = true;
 			break;

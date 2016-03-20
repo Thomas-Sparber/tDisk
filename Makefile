@@ -19,6 +19,23 @@ doc:
 	@doxygen documentation/kernel_module/doxygen.conf
 	@doxygen documentation/backend/doxygen.conf
 
+count_lines:
+	@git ls-files | \
+		grep -v ".*zip$$" | \
+		grep -v ".*docx$$" | \
+		grep -v ".*pdf$$" | \
+		grep -v ".*docx\"$$" | \
+		grep -v ".*pdf\"$$" | \
+		grep -v ".*xlsx$$" | \
+		grep -v ".*odp$$" | \
+		grep -v ".*svg$$" | \
+		grep -v ".*doxygen.conf$$" | \
+		grep -v ".*/typings/.*" | \
+		grep -v ".*/browser.min.js$$" | \
+		grep -v ".*/jquery-2.2.1.min.js$$" | \
+		grep -v ".*/react-0.14.6.js$$" | \
+		grep -v ".*/react-dom-0.14.6.js$$" | xargs -d '\n' wc -l
+
 clean:
 	@make -C kernel_module clean
 	@make -C backend clean

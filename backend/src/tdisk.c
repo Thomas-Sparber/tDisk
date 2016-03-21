@@ -250,6 +250,25 @@ int tdisk_get_max_sectors(const char *device, uint64_t *out)
 	return ret;
 }
 
+int tdisk_get_size_bytes(const char *device, uint64_t *out)
+{
+	int dev;
+	int ret;
+
+	if(!check_td_control())return -ENODEV;
+
+	dev = open(device, O_RDWR);
+	if(dev < 0)return -EACCES;
+
+	struct tdisk_info info;
+	ret = ioctl(dev, TDISK_GET_STATUS, &info);
+	(*out) = info.size_blocks * info.blocksize;
+
+	close(dev);
+
+	return ret;
+}
+
 int tdisk_get_sector_index(const char *device, uint64_t logical_sector, struct f_sector_index *out)
 {
 	int dev;

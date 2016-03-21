@@ -144,6 +144,8 @@ struct sector_info
  **/
 struct tdisk_info {
 	__u64			max_sectors;		/* ioctl r/o */
+	__u64			size_blocks;		/* ioctl r/o */
+	__u32			blocksize;			/* ioctl r/o */
 	__u32			number;				/* ioctl r/o */
 	__u32			flags;				/* ioctl r/o */
 	tdisk_index		internaldevices;	/* ioctl r/o */

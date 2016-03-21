@@ -1470,6 +1470,8 @@ static int td_get_status(struct tdisk *td, struct tdisk_info __user *arg)
 	memset(&info, 0, sizeof(info));
 	//info.block_device = huge_encode_dev(td->block_device);
 	info.max_sectors = td->max_sectors;
+	info.size_blocks = td->size_blocks;
+	info.blocksize = td->blocksize;
 	info.number = td->number;
 	info.flags = td->flags;
 	info.internaldevices = td->internal_devices_count;

@@ -8,14 +8,15 @@
 #ifndef TDISK_H
 #define TDISK_H
 
+#include <linux/atomic.h>
 #include <linux/bio.h>
 #include <linux/blkdev.h>
 #include <linux/blk-mq.h>
-#include <linux/spinlock.h>
-#include <linux/mutex.h>
-#include <linux/types.h>
-#include <linux/atomic.h>
 #include <linux/kthread.h>
+#include <linux/list.h>
+#include <linux/mutex.h>
+#include <linux/spinlock.h>
+#include <linux/types.h>
 
 #include "../include/tdisk/interface.h"
 #include "worker_timeout.h"
@@ -43,8 +44,8 @@ struct tdisk_header
 struct sorted_sector_index
 {
 	struct sector_index *physical_sector;
-	struct hlist_node total_sorted;
-	struct hlist_node device_assigned;
+	struct list_head total_sorted;
+	struct list_head device_assigned;
 }; //end struct mapped sector index
 
 /**
@@ -106,7 +107,7 @@ struct tdisk {
 	unsigned int header_size;		//Size in sectors of the index where the header and sectors are stored. Located at the beginning of the disk
 	struct sector_index *indices;	//The indices need to be stored in memory
 
-	struct hlist_head sorted_sectors_head;
+	struct list_head sorted_sectors_head;
 	struct sorted_sector_index *sorted_sectors;	//The sectors sorted according to their access count;
 
 	int access_count_resort;		//Keeps track if the access_count was updated during a file request and needs to be resorted

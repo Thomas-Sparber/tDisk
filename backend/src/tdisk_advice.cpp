@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk backend
+  * @author Thomas Sparber (2015-2016)
+  *
+ **/
+
 #include <algorithm>
 
 #include <tdisk_advice.hpp>

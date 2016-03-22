@@ -1,14 +1,13 @@
-//This file contains basic communication functions to the linux kernel
-//and is only available in linux
-#ifdef __linux__
-
 /**
   *
-  * tDisk Driver
-  * @author Thomas Sparber (2015)
+  * tDisk backend
+  * @author Thomas Sparber (2015-2016)
   *
+  * This file contains basic communication functions to the linux kernel
+  * and is only available in linux
  **/
 
+#ifdef __linux__
 #define _GNU_SOURCE
 
 #include <tdisk.h>

@@ -1,7 +1,10 @@
 /**
   *
-  * tDisk Driver
-  * @author Thomas Sparber (2015)
+  * tDisk backend
+  * @author Thomas Sparber (2015-2016)
+  *
+  * This class contains functions to fake th
+  * existence of a tDisk driver, e.g. on Windows
   *
  **/
 

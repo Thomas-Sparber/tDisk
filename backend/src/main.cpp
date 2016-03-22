@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk backend
+  * @author Thomas Sparber (2015-2016)
+  *
+ **/
+
 #include <functional>
 #include <iostream>
 #include <string>
@@ -23,6 +30,11 @@ using namespace td;
 
 using utils::ci_string;
 
+/**
+  * This struct defines one backend command.
+  * it has a name, a corresponding functio
+  * and a description
+ **/
 struct Command
 {
 	Command(const ci_string &str_name, function<string(const vector<string>&,Options&)> fn_func, const string &str_description) :

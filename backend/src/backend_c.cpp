@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk backend
+  * @author Thomas Sparber (2015-2016)
+  *
+ **/
+
 #include <string>
 #include <vector>
 #include <string.h>
@@ -14,6 +21,11 @@ extern "C" {
 using std::string;
 using std::vector;
 
+/**
+  * This macro can be used to create a function
+  * implementation of a C backend function which
+  * simply calls the C++ equivalent
+ **/
 #define C_FUNCTION_IMPLEMENTATION(name) \
 int name(int argc, char *args[], struct Options *options, char *out, int out_length) \
 { \

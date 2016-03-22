@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk backend
+  * @author Thomas Sparber (2015-2016)
+  *
+ **/
+
 #ifndef CI_STRING_HPP
 #define CI_STRING_HPP
 

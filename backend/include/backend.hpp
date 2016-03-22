@@ -1,7 +1,7 @@
 /**
   *
-  * tDisk Driver
-  * @author Thomas Sparber (2015)
+  * tDisk backend
+  * @author Thomas Sparber (2015-2016)
   *
   * This file contains the interface definitions for the
   * tDisk backend. It is possible to perform all major tDisk

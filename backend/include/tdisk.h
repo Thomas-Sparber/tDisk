@@ -1,7 +1,7 @@
 /**
   *
-  * tDisk Driver
-  * @author Thomas Sparber (2015)
+  * tDisk backend
+  * @author Thomas Sparber (2015-2016)
   * 
   * This file is used to directly communicate with the kernel module.
   *

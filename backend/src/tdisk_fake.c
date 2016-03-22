@@ -69,6 +69,14 @@ int tdisk_get_max_sectors(const char *device, uint64_t *out)
 	return 0;
 }
 
+int tdisk_get_size_bytes(const char *device, uint64_t *out)
+{
+	UNUSED(device);
+
+	(*out) = 1490944ULL;
+	return 0;
+}
+
 int tdisk_get_sector_index(const char *device, uint64_t logical_sector, struct f_sector_index *out)
 {
 	UNUSED(device);

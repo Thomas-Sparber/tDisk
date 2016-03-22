@@ -15,6 +15,11 @@
 struct Options;
 
 /**
+  * C version of get_tDisks. Look at the C++ version for more details.
+ **/
+int get_tDisks(int argc, char *args[], struct Options *options, char *out, int out_length);
+
+/**
   * C version of add_tDisk. Look at the C++ version for more details.
  **/
 int add_tDisk(int argc, char *args[], struct Options *options, char *out, int out_length);
@@ -33,6 +38,11 @@ int add_disk(int argc, char *args[], struct Options *options, char *out, int out
   * C version of get_max_sectors. Look at the C++ version for more details.
  **/
 int get_max_sectors(int argc, char *args[], struct Options *options, char *out, int out_length);
+
+/**
+  * C version of get_size_bytes. Look at the C++ version for more details.
+ **/
+int get_size_bytes(int argc, char *args[], struct Options *options, char *out, int out_length);
 
 /**
   * C version of get_sector_index. Look at the C++ version for more details.

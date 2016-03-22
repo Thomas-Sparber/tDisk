@@ -31,6 +31,12 @@ namespace td
 	/************************ Backend functions ***********************/
 
 	/**
+	  * Gets all currently loaded tDisks of the system
+	  * @param options: The command options (e.g. output-format)
+	 **/
+	std::string get_tDisks(const std::vector<std::string> &args, Options &options);
+
+	/**
 	  * Adds a new tDisk to the system.
 	  * @param args:
 	  *  - (Optional: The tDisk minor number, e.g. 0)
@@ -65,6 +71,15 @@ namespace td
 	  * @param options: The command options (e.g. output-format)
 	 **/
 	std::string get_max_sectors(const std::vector<std::string> &args, Options &options);
+
+	/**
+	  * Gets the current size in bytes (defined
+	  * by size_blocks and blocksize) for the given tDisk
+	  * @param args:
+	  * - tDisk minor number (e.g. 0) or path (e.g. /dev/td0)
+	  * @param options: The command options (e.g. output-format)
+	 **/
+	std::string get_size_bytes(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Gets the sector information for the given logical

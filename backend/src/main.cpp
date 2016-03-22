@@ -39,6 +39,9 @@ std::string handleCommand(int argc, char **args);
 void printHelp(const string &progName);
 
 vector<Command> commands {
+	Command("get_tdisks", get_tDisks,
+		"Prints a list of all available tDisks"),
+
 	Command("add", add_tDisk,
 		"Adds a new tDisk to the system. It needs the blocksize (e.g. 16386)\n"
 		"as argument. The next free minornumber is taken. It is also possible\n"
@@ -56,6 +59,10 @@ vector<Command> commands {
 	Command("get_max_sectors", get_max_sectors,
 		"Gets the current maximum amount of sectors for the given tDisk. It\n"
 		"needs the tDisk minornumber/path as argument"),
+	
+	Command("get_size_bytes", get_size_bytes,
+		"Gets the size in bytes for the given tDisk. It needs the tDisk\n"
+		"minornumber/path as argument"),
 	
 	Command("get_sector_index", get_sector_index,
 		"Gets information about the given sector index. It needs the tDisk\n"

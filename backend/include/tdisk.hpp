@@ -88,6 +88,40 @@ public:
 	}
 
 	/**
+	  * Gets all currently loaded tDisks
+	  * @param out The container where the disks should be stored
+	 **/
+	template <template<class ...T> class cont>
+	static void getTDisks(cont<tDisk> &out)
+	{
+		std::string error;
+		std::vector<char*> buffer(100);
+		for(char* &c : buffer)c = new char[256];
+
+		int devices = c::tdisk_get_devices(&buffer[0], 256, 100);
+		if(devices >= 0)
+		{
+			for(int i = 0; i < devices && i < (int)buffer.size(); ++i)
+			{
+				try {
+					tDisk loaded(utils::concat("/dev/", &buffer[i][0]));
+					loaded.loadSize();
+					out.push_back(std::move(loaded));
+				} catch (const tDiskException &e) {
+					error = utils::concat("Unable to load disk ", &buffer[i][0], ": ", e.message);
+					break;
+				}
+			}
+		}
+
+		for(char* &c : buffer)delete [] c;
+
+		if(error != "")throw tDiskException("Unable to load all tDisks: ", error);
+		if(devices == -1)throw tDiskException("Unable to read /dev folder");
+		if(devices == -2)throw tDiskException("More than 100 tDisks present");
+	}
+
+	/**
 	  * Gets the minornumber of the tDisk with the given path
 	  * @param name The path of the tDisk to get the minornumber 
 	  * @returns The minro number of the tDisk
@@ -226,7 +260,8 @@ public:
 	 **/
 	tDisk() :
 		minornumber(),
-		name()
+		name(),
+		size()
 	{}
 
 	/**
@@ -234,7 +269,8 @@ public:
 	 **/
 	tDisk(int i_minornumber) :
 		minornumber(i_minornumber),
-		name(utils::concat("/dev/td", minornumber))
+		name(utils::concat("/dev/td", minornumber)),
+		size()
 	{}
 
 	/**
@@ -242,7 +278,8 @@ public:
 	 **/
 	tDisk(const std::string &str_name) :
 		minornumber(getMinorNumber(str_name)),
-		name(str_name)
+		name(str_name),
+		size()
 	{}
 
 	/**
@@ -250,7 +287,8 @@ public:
 	 **/
 	tDisk(int i_minornumber, const std::string &str_name) :
 		minornumber(i_minornumber),
-		name(str_name)
+		name(str_name),
+		size()
 	{}
 
 	/**
@@ -275,6 +313,14 @@ public:
 	void remove()
 	{
 		tDisk::remove(*this);
+	}
+
+	/**
+	  * Loads the size of the tDisk
+	 **/
+	void loadSize()
+	{
+		this->size = getSize();
 	}
 
 	/**
@@ -308,6 +354,23 @@ public:
 		}
 
 		return maxSectors;
+	}
+
+	/**
+	  * Returns the current size in bytes
+	 **/
+	unsigned long long getSize() const
+	{
+		uint64_t sizeBytes;
+		int ret = c::tdisk_get_size_bytes(name.c_str(), &sizeBytes);
+
+		try {
+			handleError(ret);
+		} catch (const tDiskException &e) {
+			throw tDiskException("Can't get max sectors for tDisk ", name, ": ", e.message);
+		}
+
+		return sizeBytes;
 	}
 
 	/**
@@ -396,6 +459,8 @@ public:
 		return info;
 	}
 
+	friend std::string createResultString<tDisk>(const tDisk &disk, unsigned int hierarchy, const utils::ci_string &outputFormat);
+
 private:
 
 	/**
@@ -407,6 +472,11 @@ private:
 	  * The path of the tDisk
 	 **/
 	std::string name;
+
+	/**
+	  * The size in bytes of the tDisk
+	 **/
+	uint64_t size;
 
 }; //end class tDisk
 
@@ -527,6 +597,29 @@ template <> inline std::string createResultString(const f_internal_device_info &
 				CREATE_RESULT_STRING_MEMBER_TEXT(info, name, hierarchy+1, outputFormat), "\n",
 				CREATE_RESULT_STRING_MEMBER_TEXT(info, type, hierarchy+1, outputFormat), "\n",
 				createResultString(info.performance, hierarchy+1, outputFormat), "\n"
+		);
+	else
+		throw FormatException("Invalid output-format ", outputFormat);
+}
+
+/**
+  * Stringifies the given tDisk using the given format
+ **/
+template <> inline std::string createResultString(const tDisk &disk, unsigned int hierarchy, const utils::ci_string &outputFormat)
+{
+	if(outputFormat == "json")
+		return utils::concat(
+			"{\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(disk, minornumber, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(disk, name, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(disk, size, hierarchy+1, outputFormat), "\n",
+			std::vector<char>(hierarchy, '\t'), "}"
+		);
+	else if(outputFormat == "text")
+		return utils::concat(
+				CREATE_RESULT_STRING_MEMBER_TEXT(disk, minornumber, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_MEMBER_TEXT(disk, name, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_MEMBER_TEXT(disk, size, hierarchy+1, outputFormat), "\n"
 		);
 	else
 		throw FormatException("Invalid output-format ", outputFormat);

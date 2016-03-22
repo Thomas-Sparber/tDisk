@@ -34,9 +34,11 @@ int name(int argc, char *args[], struct Options *options, char *out, int out_len
 	} \
 }
 
+C_FUNCTION_IMPLEMENTATION(get_tDisks)
 C_FUNCTION_IMPLEMENTATION(add_tDisk)
 C_FUNCTION_IMPLEMENTATION(remove_tDisk)
 C_FUNCTION_IMPLEMENTATION(get_max_sectors)
+C_FUNCTION_IMPLEMENTATION(get_size_bytes)
 C_FUNCTION_IMPLEMENTATION(get_sector_index)
 C_FUNCTION_IMPLEMENTATION(get_all_sector_indices)
 C_FUNCTION_IMPLEMENTATION(clear_access_count)

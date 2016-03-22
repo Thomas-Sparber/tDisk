@@ -20,6 +20,13 @@ td::Options td::getDefaultOptions()
 	});
 }
 
+string td::get_tDisks(const vector<string> &/*args*/, Options &options)
+{
+	vector<tDisk> tdisks;
+	tDisk::getTDisks(tdisks);
+	return createResultString(tdisks, 0, options.getOptionValue("output-format"));
+}
+
 string td::add_tDisk(const vector<string> &args, Options &options)
 {
 	if(args.empty())throw BackendException("\"add\" needs the desired blocksize (e.g. 16384)");
@@ -76,6 +83,15 @@ string td::get_max_sectors(const vector<string> &args, Options &options)
 	tDisk d = tDisk::get(args[0]);
 	unsigned long long maxSectors = d.getMaxSectors();
 	return createResultString(maxSectors, 0, options.getOptionValue("output-format"));
+}
+
+string td::get_size_bytes(const vector<string> &args, Options &options)
+{
+	if(args.empty())throw BackendException("\"get_max_sectors\" needs the td device");
+
+	tDisk d = tDisk::get(args[0]);
+	unsigned long long size = d.getSize();
+	return createResultString(size, 0, options.getOptionValue("output-format"));
 }
 
 string td::get_sector_index(const vector<string> &args, Options &options)

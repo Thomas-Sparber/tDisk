@@ -393,26 +393,35 @@ static struct sorted_sector_index* td_find_sector_index(struct sorted_internal_d
   * a and sector b have the same access count but are stored on
   * the wrong disks (according to the sorting algorithm). So if
   * they have the same access count they can simply be ignored.
-  * This function returns the sector with the possibly highest
-  * access count for the given disk
  **/
-static struct sorted_sector_index* td_find_sector_index_acc(struct sorted_internal_device *device, tdisk_index disk, __u16 access_count)
+static struct sorted_sector_index* td_find_sector_index_acc(struct sorted_internal_device *device, tdisk_index disk, __u16 access_count, bool is_faster)
 {
 	struct sorted_sector_index *item;
-	struct sorted_sector_index *highest = NULL;
+	struct sorted_sector_index *ret = NULL;
 
 	//TODO Actually these sectors should be sorted
 	//so no need to access all of them
 	list_for_each_entry(item, &device->preferred_blocks, device_assigned)
 	{
-		if(item->physical_sector->disk == disk && item->physical_sector->access_count >= access_count)
+		if(is_faster)
 		{
-			if(highest == NULL || item->physical_sector->access_count > highest->physical_sector->access_count)
-				highest = item;
+			if(item->physical_sector->disk == disk && item->physical_sector->access_count <= access_count)
+			{
+				if(ret == NULL || item->physical_sector->access_count > ret->physical_sector->access_count)
+					ret = item;
+			}
+		}
+		else
+		{
+			if(item->physical_sector->disk == disk && item->physical_sector->access_count >= access_count)
+			{
+				if(ret == NULL || item->physical_sector->access_count < ret->physical_sector->access_count)
+					ret = item;
+			}
 		}
 	}
 
-	return highest;
+	return ret;
 }
 
 /**
@@ -432,8 +441,7 @@ static void td_assign_sectors(struct tdisk *td, struct sorted_internal_device *s
 	sorted_disk = 1;
 
 	//Iterating over all sorted sectors in the tDisk (!!!)
-	//And assigning the 1:1 copy of the sectors to the
-	//corresponding internal device
+	//and assigning them to the corresponding internal device
 	//The sectors are processed according to access count
 	//and assigned to devices according to performance
 	list_for_each_entry(sector, &td->sorted_sectors_head, total_sorted)
@@ -481,25 +489,29 @@ static void td_assign_sectors(struct tdisk *td, struct sorted_internal_device *s
 
 				//The device offset which is used to only search in slower
 				//devices than the current
-				unsigned int dev_off = sorted_disk-1;
+				//unsigned int dev_off = sorted_disk-1+1;
 
-				unsigned int dev_length = td->internal_devices_count-dev_off;
+				//unsigned int dev_length = td->internal_devices_count-dev_off;
 
 				//This is the internal device where the current sector
 				//Should be stored according to its access count.
 				//Since we are just looking just for devices which
 				//Are slower than the current it can also be null
-				struct sorted_internal_device *corresponding = td_find_sorted_device(sorted_devices+dev_off, &td->internal_devices[sector->physical_sector->disk-1], dev_length);
+				struct sorted_internal_device *corresponding = td_find_sorted_device(sorted_devices, &td->internal_devices[sector->physical_sector->disk-1], td->internal_devices_count);
 				struct sorted_sector_index *to_swap;
+
+				bool isFaster = corresponding < &sorted_devices[sorted_disk-1];
 
 				if(!corresponding)continue;
 
 				//Finds a sector with an equal or higher access count
 				//for the current disk inside the "corresponding"
-				to_swap = td_find_sector_index_acc(corresponding, current_disk, sector->physical_sector->access_count);
+				to_swap = td_find_sector_index_acc(corresponding, current_disk, sector->physical_sector->access_count, isFaster);
 
-				if(to_swap)
+				if(to_swap != NULL)
 				{
+					//printk(KERN_DEBUG "tDisk: %u: pre-swapping %u (%u - %u) with %u (%u - %u)\n", current_disk, sector-td->sorted_sectors, sector->physical_sector->disk, sector->physical_sector->access_count, to_swap-td->sorted_sectors, to_swap->physical_sector->disk, to_swap->physical_sector->access_count);
+
 					//Simply swap those sectors
 					BUG_ON(to_swap->physical_sector->disk != current_disk);
 
@@ -513,6 +525,7 @@ static void td_assign_sectors(struct tdisk *td, struct sorted_internal_device *s
 					corresponding->amount_blocks++;
 					sorted_devices[sorted_disk-1].amount_blocks++;
 				}
+				else printk(KERN_DEBUG "tDisk: %u: Didn't find a sector to swap %u (%u - %u) \n", current_disk, sector-td->sorted_sectors, sector->physical_sector->disk, sector->physical_sector->access_count);
 			}
 		}
 	}
@@ -627,7 +640,7 @@ static bool td_move_one_sector(struct tdisk *td)
 		struct sorted_sector_index *highest = NULL;
 		tdisk_index current_disk_index = sorted_devices[sorted_disk-1].dev-td->internal_devices+1;
 		struct sorted_internal_device *other_disk;
-		tdisk_index other_disk_index;
+		tdisk_index other_disk_sorted_index;
 
 		if(sorted_devices[sorted_disk-1].amount_blocks == sorted_devices[sorted_disk-1].dev->size_blocks)
 		{
@@ -651,7 +664,7 @@ static bool td_move_one_sector(struct tdisk *td)
 
 		other_disk = td_find_sorted_device(sorted_devices, &td->internal_devices[highest->physical_sector->disk-1], td->internal_devices_count);
 		BUG_ON(!other_disk);
-		other_disk_index = other_disk - sorted_devices;
+		other_disk_sorted_index = other_disk - sorted_devices;
 
 		//Above there is a continue flag so there must
 		//be a wrong sector. Otherwise it is a bug
@@ -660,7 +673,7 @@ static bool td_move_one_sector(struct tdisk *td)
 		//Now looking at the disk where the current highest
 		//sector is stored for a block that belongs to
 		//the current disk
-		to_swap = td_find_sector_index(&sorted_devices[highest->physical_sector->disk-1], current_disk_index);
+		to_swap = td_find_sector_index(&sorted_devices[other_disk_sorted_index], current_disk_index);
 
 		if(to_swap != NULL)
 		{
@@ -673,6 +686,8 @@ static bool td_move_one_sector(struct tdisk *td)
 			struct sector_index *a = highest->physical_sector;
 			struct sector_index *b = to_swap->physical_sector;
 
+			//BUG_ON(highest->physical_sector->disk != current_disk_index);
+			
 			printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u): %llu/%llu\n",
 					logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count, correctly_stored, td->size_blocks);
 
@@ -1461,6 +1476,8 @@ static int td_get_status(struct tdisk *td, struct tdisk_info __user *arg)
 	memset(&info, 0, sizeof(info));
 	//info.block_device = huge_encode_dev(td->block_device);
 	info.max_sectors = td->max_sectors;
+	info.size_blocks = td->size_blocks;
+	info.blocksize = td->blocksize;
 	info.number = td->number;
 	info.flags = td->flags;
 	info.internaldevices = td->internal_devices_count;

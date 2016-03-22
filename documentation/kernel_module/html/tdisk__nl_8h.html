@@ -99,30 +99,40 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
 <tr class="memitem:ad822b332ea0361f233bb76854ec78d64"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__nl_8h.html#ad822b332ea0361f233bb76854ec78d64">NLTD_TIMEOUT_SECS</a>&#160;&#160;&#160;30</td></tr>
+<tr class="memdesc:ad822b332ea0361f233bb76854ec78d64"><td class="mdescLeft">&#160;</td><td class="mdescRight">tDisk Driver  <a href="#ad822b332ea0361f233bb76854ec78d64">More...</a><br /></td></tr>
 <tr class="separator:ad822b332ea0361f233bb76854ec78d64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:ab51d7918b2debe24c8282715a28d4d89"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__nl_8h.html#ab51d7918b2debe24c8282715a28d4d89">plugin_callback</a>) (void *, int)</td></tr>
+<tr class="memdesc:ab51d7918b2debe24c8282715a28d4d89"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback type which is used for asynchronous plugin requests.  <a href="#ab51d7918b2debe24c8282715a28d4d89">More...</a><br /></td></tr>
 <tr class="separator:ab51d7918b2debe24c8282715a28d4d89"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:af3bf37b339c4ff55b984397eb00da3dc"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__nl_8h.html#af3bf37b339c4ff55b984397eb00da3dc">nltd_register</a> (void)</td></tr>
+<tr class="memdesc:af3bf37b339c4ff55b984397eb00da3dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers the netlink family and starts the timeout thread.  <a href="#af3bf37b339c4ff55b984397eb00da3dc">More...</a><br /></td></tr>
 <tr class="separator:af3bf37b339c4ff55b984397eb00da3dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab5d9ccb60598f00e8c69b6d645dfb925"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__nl_8h.html#ab5d9ccb60598f00e8c69b6d645dfb925">nltd_unregister</a> (void)</td></tr>
+<tr class="memdesc:ab5d9ccb60598f00e8c69b6d645dfb925"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finishes all pending requests, stops the timeout thread and unregisters the netlink family.  <a href="#ab5d9ccb60598f00e8c69b6d645dfb925">More...</a><br /></td></tr>
 <tr class="separator:ab5d9ccb60598f00e8c69b6d645dfb925"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2624c1037dcc5b67b9b3cb777a63cdc1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__nl_8h.html#a2624c1037dcc5b67b9b3cb777a63cdc1">nltd_is_registered</a> (const char *plugin)</td></tr>
+<tr class="memdesc:a2624c1037dcc5b67b9b3cb777a63cdc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks whether the plugin with the given name is registered.  <a href="#a2624c1037dcc5b67b9b3cb777a63cdc1">More...</a><br /></td></tr>
 <tr class="separator:a2624c1037dcc5b67b9b3cb777a63cdc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:add3b4a7edd09e6c265abc89a0a394faf"><td class="memItemLeft" align="right" valign="top">loff_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__nl_8h.html#add3b4a7edd09e6c265abc89a0a394faf">nltd_get_size</a> (const char *plugin)</td></tr>
+<tr class="memdesc:add3b4a7edd09e6c265abc89a0a394faf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the size of the plugin disk.  <a href="#add3b4a7edd09e6c265abc89a0a394faf">More...</a><br /></td></tr>
 <tr class="separator:add3b4a7edd09e6c265abc89a0a394faf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a05fea70ee46ca848b5959ff4318397eb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__nl_8h.html#a05fea70ee46ca848b5959ff4318397eb">nltd_read_async</a> (const char *plugin, loff_t offset, char *buffer, int length, <a class="el" href="tdisk__nl_8h.html#ab51d7918b2debe24c8282715a28d4d89">plugin_callback</a> callback, void *userobject)</td></tr>
+<tr class="memdesc:a05fea70ee46ca848b5959ff4318397eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Asynchronously read data from the plugin.  <a href="#a05fea70ee46ca848b5959ff4318397eb">More...</a><br /></td></tr>
 <tr class="separator:a05fea70ee46ca848b5959ff4318397eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa32f037f70581adb90891c78430d35ba"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__nl_8h.html#aa32f037f70581adb90891c78430d35ba">nltd_write_async</a> (const char *plugin, loff_t offset, char *buffer, int length, <a class="el" href="tdisk__nl_8h.html#ab51d7918b2debe24c8282715a28d4d89">plugin_callback</a> callback, void *userobject)</td></tr>
+<tr class="memdesc:aa32f037f70581adb90891c78430d35ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Asynchronously write data to the plugin.  <a href="#aa32f037f70581adb90891c78430d35ba">More...</a><br /></td></tr>
 <tr class="separator:aa32f037f70581adb90891c78430d35ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a006cd38bd17e4daabf94afd646eeaf98"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__nl_8h.html#a006cd38bd17e4daabf94afd646eeaf98">nltd_read_sync</a> (const char *plugin, loff_t offset, char *buffer, int length)</td></tr>
+<tr class="memdesc:a006cd38bd17e4daabf94afd646eeaf98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Synchronously read data from the plugin.  <a href="#a006cd38bd17e4daabf94afd646eeaf98">More...</a><br /></td></tr>
 <tr class="separator:a006cd38bd17e4daabf94afd646eeaf98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5bbcdcfe28b105621bb3637169212757"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__nl_8h.html#a5bbcdcfe28b105621bb3637169212757">nltd_write_sync</a> (const char *plugin, loff_t offset, char *buffer, int length)</td></tr>
+<tr class="memdesc:a5bbcdcfe28b105621bb3637169212757"><td class="mdescLeft">&#160;</td><td class="mdescRight">Synchronously write data to the plugin.  <a href="#a5bbcdcfe28b105621bb3637169212757">More...</a><br /></td></tr>
 <tr class="separator:a5bbcdcfe28b105621bb3637169212757"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
@@ -136,6 +146,9 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>tDisk Driver </p>
+<dl class="section author"><dt>Author</dt><dd>Thomas Sparber (2015-2016) Defines the timeout of a plugin request. After this time period the request is finished with an error </dd></dl>
+
 </div>
 </div>
 <h2 class="groupheader">Typedef Documentation</h2>
@@ -148,6 +161,8 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>The callback type which is used for asynchronous plugin requests. </p>
 
 </div>
 </div>
@@ -166,6 +181,9 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Returns the size of the plugin disk. </p>
+<p>This function actually sends a SIZE request to the plugin synchronously. </p>
+
 </div>
 </div>
 <a class="anchor" id="a2624c1037dcc5b67b9b3cb777a63cdc1"></a>
@@ -181,6 +199,8 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Checks whether the plugin with the given name is registered. </p>
 
 </div>
 </div>
@@ -232,6 +252,8 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Asynchronously read data from the plugin. </p>
+
 </div>
 </div>
 <a class="anchor" id="a006cd38bd17e4daabf94afd646eeaf98"></a>
@@ -270,6 +292,9 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Synchronously read data from the plugin. </p>
+<p>The struct <a class="el" href="tdisk__nl_8c.html#structsync__request" title="This struct is used for synchronized plugin operations. ">sync_request</a> is used to wait for completion of the request </p>
+
 </div>
 </div>
 <a class="anchor" id="af3bf37b339c4ff55b984397eb00da3dc"></a>
@@ -286,6 +311,8 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Registers the netlink family and starts the timeout thread. </p>
+
 </div>
 </div>
 <a class="anchor" id="ab5d9ccb60598f00e8c69b6d645dfb925"></a>
@@ -301,6 +328,8 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Finishes all pending requests, stops the timeout thread and unregisters the netlink family. </p>
 
 </div>
 </div>
@@ -352,6 +381,8 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Asynchronously write data to the plugin. </p>
+
 </div>
 </div>
 <a class="anchor" id="a5bbcdcfe28b105621bb3637169212757"></a>
@@ -390,12 +421,15 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Synchronously write data to the plugin. </p>
+<p>The struct <a class="el" href="tdisk__nl_8c.html#structsync__request" title="This struct is used for synchronized plugin operations. ">sync_request</a> is used to wait for completion of the request </p>
+
 </div>
 </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 22 2016 09:23:20 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 22 2016 17:34:54 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

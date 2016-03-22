@@ -1,9 +1,9 @@
 var searchData=
 [
-  ['measure_5frecords_5fshift',['MEASURE_RECORDS_SHIFT',['../interface_8h.html#a4e73efcdf86ccce6dfd20dd25eb008ac',1,'interface.h']]],
-  ['my_5fbug_5fon',['MY_BUG_ON',['../helpers_8h.html#a15ce0681c969e7a3db9fe11c4d5dc01c',1,'helpers.h']]],
-  ['my_5fbug_5fon0',['MY_BUG_ON0',['../helpers_8h.html#ab6efe89197926814595aed46731aee9a',1,'helpers.h']]],
-  ['my_5fbug_5fon2',['MY_BUG_ON2',['../helpers_8h.html#ac8d05697f9df5f71e103fdc150e4aee2',1,'helpers.h']]],
-  ['my_5fbug_5fon4',['MY_BUG_ON4',['../helpers_8h.html#a27b478630fc22751d055250584d7defe',1,'helpers.h']]],
-  ['my_5fbug_5fon6',['MY_BUG_ON6',['../helpers_8h.html#a9856ded228ae764eee4cc373c1730452',1,'helpers.h']]]
+  ['nltd_5fheader_5fsize',['NLTD_HEADER_SIZE',['../interface_8h.html#a77fb48ae82bdba9ff81b8299dbd73f3e',1,'interface.h']]],
+  ['nltd_5fmax',['NLTD_MAX',['../interface_8h.html#a977a0c10884ca8cfa43af8d69546a778',1,'interface.h']]],
+  ['nltd_5fmax_5fname',['NLTD_MAX_NAME',['../interface_8h.html#a5cca5ac13e56137a7e8ec71ed08e8f10',1,'interface.h']]],
+  ['nltd_5fname',['NLTD_NAME',['../interface_8h.html#ab7c66e2a8db634e90c2466af6b576b88',1,'interface.h']]],
+  ['nltd_5ftimeout_5fsecs',['NLTD_TIMEOUT_SECS',['../tdisk__nl_8h.html#ad822b332ea0361f233bb76854ec78d64',1,'tdisk_nl.h']]],
+  ['nltd_5fversion',['NLTD_VERSION',['../interface_8h.html#a278a6e95724da968482b21f9b036a675',1,'interface.h']]]
 ];

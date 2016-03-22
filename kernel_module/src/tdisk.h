@@ -1,7 +1,7 @@
 /**
   *
   * tDisk Driver
-  * @author Thomas Sparber (2015)
+  * @author Thomas Sparber (2015-2016)
   *
  **/
 
@@ -39,7 +39,13 @@ struct tdisk_header
 
 /**
   * A sorted_sector_index represents a physical sector
-  * sorted according to the access_count
+  * sorted according to the access_count.
+  * This struct is used for two purposes:
+  *  - total_sorted: represents the physical sector
+  *    sorted by all all physical sectors of th tDisk
+  *  - device_assigned: is used to assign the
+  *    sorted sectors to the sorted devices. This way
+  *    one object can be used for both purposes
  **/
 struct sorted_sector_index
 {
@@ -88,7 +94,7 @@ struct tdisk {
 	unsigned int		blocksize;
 	sector_t			size_blocks;
 
-	//The actual disks
+	//The internal devices
 	tdisk_index internal_devices_count;
 	struct td_internal_device internal_devices[TDISK_MAX_PHYSICAL_DISKS];
 
@@ -123,8 +129,20 @@ struct td_command {
 	struct list_head list;
 };
 
-int tdisk_add(struct tdisk **l, int i, unsigned int blocksize);
-int tdisk_lookup(struct tdisk **l, int i);
-int tdisk_remove(struct tdisk *lo);
+/**
+  * Adds a tDisk with the given minronumber and
+  * blocksize to the system.
+ **/
+int tdisk_add(struct tdisk **td, int i, unsigned int blocksize);
+
+/**
+  * Finds the tDisk with the given minornumber
+ **/
+int tdisk_lookup(struct tdisk **td, int i);
+
+/**
+  * Removes the given tDisk from the system
+ **/
+int tdisk_remove(struct tdisk *td);
 
 #endif //TDISK_H

@@ -1,7 +1,7 @@
 /**
   *
   * tDisk Driver
-  * @author Thomas Sparber (2015)
+  * @author Thomas Sparber (2015-2016)
   *
  **/
 

@@ -10,7 +10,6 @@ var searchData=
   ['device_5fperformance',['device_performance',['../interface_8h.html#structdevice__performance',1,'']]],
   ['disk',['disk',['../interface_8h.html#ae95850c862a17b682ba82045f518e7ba',1,'internal_device_info::disk()'],['../interface_8h.html#a5a58c40278c381d46d45129f11e2d447',1,'sector_index::disk()']]],
   ['disk_5findex',['disk_index',['../tdisk_8h.html#aaa328b00c2df0188623f70448c209c94',1,'tdisk_header']]],
-  ['do_5floop_5fswitch',['do_loop_switch',['../future__functions_8h.html#a63f14678c7486e747d5fb2831d350875',1,'future_functions.h']]],
   ['done',['done',['../tdisk__nl_8c.html#a92a13e636acb01b39c57d34b36cd530b',1,'sync_request::done()'],['../worker__timeout_8c.html#abd654a7e2d21a19e059ca775444e526c',1,'kthread_flush_work::done()']]],
   ['driver_5fmajor_5fversion',['DRIVER_MAJOR_VERSION',['../interface_8h.html#ad8b564add4ed906d28e266f9486fd43b',1,'interface.h']]],
   ['driver_5fminor_5fversion',['DRIVER_MINOR_VERSION',['../interface_8h.html#ae2e8c786ddce3df9c7e15062ecc34210',1,'interface.h']]],

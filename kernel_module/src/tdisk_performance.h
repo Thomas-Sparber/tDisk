@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk Driver
+  * @author Thomas Sparber (2015-2016)
+  *
+ **/
+
 #ifndef TDISK_PERFORMANCE_H
 #define TDISK_PERFORMANCE_H
 

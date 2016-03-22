@@ -1,7 +1,7 @@
 /**
   *
   * tDisk Driver
-  * @author Thomas Sparber (2015)
+  * @author Thomas Sparber (2015-2016)
   *
  **/
 
@@ -146,7 +146,6 @@ inline static int file_read_bio_vec(struct file *file, struct bio_vec *bvec, lof
 
 	time = get_cycles();
 	ret = vfs_iter_read(file, &i, pos);
-	//printk_ratelimited(KERN_DEBUG "tDisk: read start: %llu, end: %llu\n", time, get_cycles());
 	update_performance(READ, get_cycles()-time, perf);
 
 	return ret;

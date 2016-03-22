@@ -39,12 +39,12 @@ var searchData=
   ['td_5fswap_5fsectors',['td_swap_sectors',['../tdisk_8c.html#a4434ada390e9a24588faa68fef9041af',1,'tdisk.c']]],
   ['td_5fwrite_5fall_5findices',['td_write_all_indices',['../tdisk_8c.html#a3d3def15917c648547ea4e4ab3394317',1,'tdisk.c']]],
   ['td_5fwrite_5fheader',['td_write_header',['../tdisk_8c.html#a3bf9aa5806e550a172fad50351f00d43',1,'tdisk.c']]],
-  ['tdisk_5fadd',['tdisk_add',['../tdisk_8c.html#ac5a1a034d21544116d4c09c993462376',1,'tdisk_add(struct tdisk **t, int i, unsigned int blocksize):&#160;tdisk.c'],['../tdisk_8h.html#ae6563b5024620cd3911a58575bdd2dba',1,'tdisk_add(struct tdisk **l, int i, unsigned int blocksize):&#160;tdisk.c']]],
+  ['tdisk_5fadd',['tdisk_add',['../tdisk_8c.html#ac5a1a034d21544116d4c09c993462376',1,'tdisk_add(struct tdisk **t, int i, unsigned int blocksize):&#160;tdisk.c'],['../tdisk_8h.html#a1948aee6b84a82a54fabc7d83af6d278',1,'tdisk_add(struct tdisk **td, int i, unsigned int blocksize):&#160;tdisk.c']]],
   ['tdisk_5fcontrol_5fioctl',['tdisk_control_ioctl',['../tdisk__control_8c.html#a22bf4ed010596733550f05638629fa43',1,'tdisk_control.c']]],
   ['tdisk_5fexit',['tdisk_exit',['../tdisk_8c.html#af7e8ffe75328d489db81c216caa8fc21',1,'tdisk.c']]],
   ['tdisk_5fexit_5fcallback',['tdisk_exit_callback',['../tdisk_8c.html#a3fa9045f35e110b774aefdeae02490cb',1,'tdisk.c']]],
   ['tdisk_5ffind_5ffree_5fdevice_5fcallback',['tdisk_find_free_device_callback',['../tdisk_8c.html#a318b6ad0da3f9469036fa9d493cf556e',1,'tdisk.c']]],
   ['tdisk_5finit',['tdisk_init',['../tdisk_8c.html#a11577c3ce164dc2e8c8b34ee0948a0fd',1,'tdisk.c']]],
-  ['tdisk_5flookup',['tdisk_lookup',['../tdisk_8c.html#a78c187c25686e89762a64ab261230582',1,'tdisk_lookup(struct tdisk **t, int i):&#160;tdisk.c'],['../tdisk_8h.html#af7ab79b5777dfaea70d75f24e47c45f5',1,'tdisk_lookup(struct tdisk **l, int i):&#160;tdisk.c']]],
-  ['tdisk_5fremove',['tdisk_remove',['../tdisk_8c.html#acd5e2f82be480bdbf9f7495bc9263ca9',1,'tdisk_remove(struct tdisk *td):&#160;tdisk.c'],['../tdisk_8h.html#a41445d556554ec87c06d8e22e9968fb0',1,'tdisk_remove(struct tdisk *lo):&#160;tdisk.c']]]
+  ['tdisk_5flookup',['tdisk_lookup',['../tdisk_8c.html#a78c187c25686e89762a64ab261230582',1,'tdisk_lookup(struct tdisk **t, int i):&#160;tdisk.c'],['../tdisk_8h.html#a6bd8ab6cde7f6e1aca72164f5adefa12',1,'tdisk_lookup(struct tdisk **td, int i):&#160;tdisk.c']]],
+  ['tdisk_5fremove',['tdisk_remove',['../tdisk_8c.html#acd5e2f82be480bdbf9f7495bc9263ca9',1,'tdisk_remove(struct tdisk *td):&#160;tdisk.c'],['../tdisk_8h.html#acd5e2f82be480bdbf9f7495bc9263ca9',1,'tdisk_remove(struct tdisk *td):&#160;tdisk.c']]]
 ];

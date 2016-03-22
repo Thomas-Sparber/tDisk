@@ -1,3 +1,10 @@
+/**
+  *
+  * tDisk Driver
+  * @author Thomas Sparber (2015-2016)
+  *
+ **/
+
 #include <linux/completion.h>
 #include <linux/genetlink.h>
 #include <linux/list.h>
@@ -10,10 +17,22 @@
 
 #include "tdisk_nl.h"
 
-spinlock_t plugin_lock;
-
+/**
+  * Defines the operation SIZE which can be used to
+  * get the size of a plugin disk. This is a similar operation
+  * as READ or WRITE.
+ **/
 #define SIZE 65438
 
+/**
+  * Controls access to the registered plugins
+ **/
+spinlock_t plugin_lock;
+
+/**
+  * Defines a registered plugin which just has a name
+  * and a netlink port
+ **/
 struct tdisk_plugin
 {
 	char name[NLTD_MAX_NAME];
@@ -21,28 +40,68 @@ struct tdisk_plugin
 	struct list_head list;
 }; //end struct tdisk_plugin
 
+/**
+  * The list which holds all registered plugins
+ **/
 LIST_HEAD(registered_plugins);
 
+/**
+  * Is used to synchronize access to the pending
+  * requests struct
+ **/
 spinlock_t request_lock;
+
+/**
+  * Internally, each netlink message gets a request
+  * counter which is used to identify the message
+  * when the answer is received. This variable
+  * is incremented each time a message is sent.
+ **/
 u32 request_counter;
 
+/**
+  * This struct holds all information which is needed
+  * to continue the work for a request whenever an
+  * answer is received for it.
+ **/
 struct pending_request
 {
+	/** The type of the message such as READ, WRITE or SIZE **/
 	int type;
+
+	/** The sequence number which is used to identify it **/
 	u32 seq_nr;
+
+	/** Stores the time in jiffies when the message was sent **/
 	u64 started;
+
+	/** This counter is used to time the message out if it takes too long **/
 	u32 timeout_counter;
+
+	/** This callback is called when an answer is received **/
 	plugin_callback callback;
+
+	/** The private data for the callback **/
 	void *userobject;
 
+	/** The buffer for the message which is e.g. needed for read operations **/
 	char *buffer;
+
+	/** The length of the buffer **/
 	int buffer_length;
 
 	struct list_head list;
 }; //end struct pending_request
 
+/**
+  * Contains all requests which are wainting for an
+  * answer from the plugin
+ **/
 LIST_HEAD(pending_requests);
 
+/**
+  * The generic netlink family which is used for communication
+ **/
 static struct genl_family genl_tdisk_family = {
 	.id = GENL_ID_GENERATE,
 	.name = NLTD_NAME,
@@ -51,13 +110,22 @@ static struct genl_family genl_tdisk_family = {
 	.maxattr = NLTD_MAX,
 };
 
-
+/**
+  * This struct is used for synchronized plugin operations.
+  * As all calls are done asynchronously, this struct is
+  * needed to wait for the specific event.
+ **/
 struct sync_request
 {
 	int ret;
 	struct completion done;
 }; //end struct sync_request
 
+/**
+  * This internal callback is used for synchonous plugin
+  * operations. This callback simply wakes up the waiting
+  * process and sets the result code.
+ **/
 void sync_request_callback(void *data, int ret)
 {
 	struct sync_request *sync = data;
@@ -65,10 +133,12 @@ void sync_request_callback(void *data, int ret)
 	complete(&sync->done);
 }
 
-//static struct genl_multicast_group genl_tdisk_multicast = {
-//	.name		= NLTD_NAME "Multicast",
-//};
-
+/**
+  * This function is called for each NLTD_CMD_REGISTER
+  * request to register a plugin in the kernel module.
+  * The plugin is stored in the global plugins list
+  * using its name and port
+ **/
 static int genl_register(struct sk_buff *skb, struct genl_info *info)
 {
 	bool found = false;
@@ -79,6 +149,7 @@ static int genl_register(struct sk_buff *skb, struct genl_info *info)
 	name = nla_data(info->attrs[NLTD_PLUGIN_NAME]);
 	name_length = strlen(name);
 
+	//Check if plugin is already registers
 	spin_lock_irq(&plugin_lock);
 	list_for_each_entry(plugin, &registered_plugins, list)
 	{
@@ -93,6 +164,7 @@ static int genl_register(struct sk_buff *skb, struct genl_info *info)
 
 	if(!found)
 	{
+		//Add plugin in global list
 		plugin = kmalloc(sizeof(struct tdisk_plugin), GFP_KERNEL);
 		memcpy(plugin->name, name, NLTD_MAX_NAME);
 		plugin->port = info->snd_portid;
@@ -102,10 +174,13 @@ static int genl_register(struct sk_buff *skb, struct genl_info *info)
 	spin_unlock_irq(&plugin_lock);
 
 	printk(KERN_INFO "tDisk: Plugin %s registered\n", name);
-	//nltd_write_async(name, 0, name, NLTD_MAX_NAME, NULL, NULL);
 	return 0;
 }
 
+/**
+  * This function is called for each NLTD_CMD_UNREGISTER
+  * request to unregister a plugin in the kernel module.
+ **/
 static int genl_unregister(struct sk_buff *skb, struct genl_info *info)
 {
 	bool found = false;
@@ -118,11 +193,13 @@ static int genl_unregister(struct sk_buff *skb, struct genl_info *info)
 	name = nla_data(info->attrs[NLTD_PLUGIN_NAME]);
 	name_length = strlen(name);
 
+	//Search plugin
 	spin_lock_irq(&plugin_lock);
 	list_for_each_entry_safe(plugin, n, &registered_plugins, list)
 	{
 		if(name_length == strlen(name) && strncmp(name, plugin->name, name_length) == 0)
 		{
+			//Delete plugin from global list
 			list_del(&plugin->list);
 			kfree(plugin);
 			printk(KERN_INFO "tDisk: Plugin %s unregistered\n", name);
@@ -141,6 +218,12 @@ static int genl_unregister(struct sk_buff *skb, struct genl_info *info)
 	return 0;
 }
 
+/**
+  * This function should be called to create a
+  * new message. It creates a message while
+  * protecting against race conditions.
+  * Here also the sequence number is set.
+ **/
 static struct pending_request* create_request(void)
 {
 	struct pending_request *req = kzalloc(sizeof(struct pending_request), GFP_KERNEL);
@@ -151,23 +234,30 @@ static struct pending_request* create_request(void)
 	req->started = get_jiffies_64();
 	req->timeout_counter = 0;
 	req->seq_nr = request_counter++;
-	list_add_tail(&req->list, &pending_requests);
+	list_add_tail(&req->list, &pending_requests);	//Add to global requests list
 	spin_unlock_irq(&request_lock);
 
 	return req;
 }
 
+/**
+  * Removes the request with the given request number
+  * from the global list and returns the original
+  * structure. It is protected against race conditions.
+ **/
 static struct pending_request* pop_request(u32 request_number)
 {
 	struct pending_request *n;
 	struct pending_request *request;
 	struct pending_request *req = NULL;
 
+	//Lock and search
 	spin_lock_irq(&request_lock);
 	list_for_each_entry_safe(request, n, &pending_requests, list)
 	{
 		if(request->seq_nr == request_number)
 		{
+			//Request found - deleting and stopping
 			req = request;
 			list_del_init(&request->list);
 			break;
@@ -178,6 +268,9 @@ static struct pending_request* pop_request(u32 request_number)
 	return req;
 }
 
+/**
+  * Gets the port of the plugin with the given name.
+ **/
 static u32 get_plugin_port(const char *name)
 {
 	u32 port = 0;
@@ -203,6 +296,11 @@ int nltd_is_registered(const char *plugin)
 	return (get_plugin_port(plugin) != 0);
 }
 
+/**
+  * Gets the name of the plugin with the given port.
+  * The string pointed to by the return value
+  * should not be freed.
+ **/
 static const char* get_plugin_name(u32 port)
 {
 	char *name = NULL;
@@ -222,12 +320,19 @@ static const char* get_plugin_name(u32 port)
 	return name;
 }
 
+/**
+  * This function is called for every finished command
+  * This function checks for consistency of the answer,
+  * retrieves the corresponsing message, calls the callback
+  * and cleans everything up.
+ **/
 static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 {
 	int length;
 	u32 request_number;
 	struct pending_request *req;
 
+	//A message must have a request number and a length
 	if(!info->attrs[NLTD_REQ_NUMBER])
 	{
 		const char *plugin_name = get_plugin_name(info->snd_portid);
@@ -235,7 +340,6 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 		printk(KERN_WARNING "tDisk: Probably broken plugin: %s (%u) - didn't send a request number\n", (plugin_name ? plugin_name : "Unknown"), info->snd_portid);
 		return -EINVAL;
 	}
-
 	if(!info->attrs[NLTD_REQ_LENGTH])
 	{
 		const char *plugin_name = get_plugin_name(info->snd_portid);
@@ -286,6 +390,12 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 	return 0;
 }
 
+/**
+  * This function sends a message asynchronously.
+  * It allocates a message object, sets all the
+  * values and sends the message to the plugin with
+  + the given name.
+ **/
 int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length, int operation, plugin_callback callback, void *userobject)
 {
 	int err;
@@ -306,11 +416,12 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 	err = -ENODEV;
 	if(port == 0)goto error;
 
-	//TODO set good size
+	//Allocate message
 	err = -ENOMEM;
-	msg = genlmsg_new(msg_size, 0);	//GFP_KERNEL
+	msg = genlmsg_new(msg_size, 0);
 	if(!msg)goto error;
 
+	//Set plugin operation
 	err = -ENOBUFS;
 	if(operation == READ)
 		hdr = genlmsg_put(msg, port, 0, &genl_tdisk_family, 0, NLTD_CMD_READ);
@@ -327,6 +438,9 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 	}
 	if(!hdr)goto nlmsg_failure;
 
+	//Create request in request list and set values
+	//This is needed to identify the answer of the
+	//message later on
 	err = -ENOMEM;
 	req = create_request();
 	if(!req)goto nlmsg_failure;
@@ -367,8 +481,9 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 			goto nlmsg_failure;
 		}
 	}
-	genlmsg_end(msg, hdr);
 
+	//Send message
+	genlmsg_end(msg, hdr);
 	err = genlmsg_unicast(&init_net, msg, port);
 	if(err)goto nlmsg_failure;
 	return 0;
@@ -383,10 +498,14 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 			offset,
 			length);
 
+	//In an error case the callback needs to be called
+	//anyways to prevent waiting for the timeout
 	if(callback)callback(userobject, err);
 
 	if(req != NULL)
 	{
+		//Obviously the request also needs to be removed
+		//from the global requests list.
 		pop_request(req->seq_nr);
 		kfree(req);
 	}
@@ -396,31 +515,17 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 
 void nltd_read_async(const char *plugin, loff_t offset, char *buffer, int length, plugin_callback callback, void *userobject)
 {
-	//int ret;
-
-	//ret = 
 	nltd_send_async(plugin, offset, buffer, length, READ, callback, userobject);
-
-	//Call callback in case of initial error
-	//if(ret && callback)callback(userobject, -EIO);
 }
 
 void nltd_write_async(const char *plugin, loff_t offset, char *buffer, int length, plugin_callback callback, void *userobject)
 {
-	//int ret;
-
-	//ret = 
 	nltd_send_async(plugin, offset, buffer, length, WRITE, callback, userobject);
-
-	//Call callback in case of initial error
-	//if(ret && callback)callback(userobject, -EIO);
 }
 
 int nltd_read_sync(const char *plugin, loff_t offset, char *buffer, int length)
 {
 	int pos;
-
-	//if(length > PAGE_SIZE)printk(KERN_DEBUG "tDisk: Sending splitted netlink message: read");
 
 	for(pos = 0; pos < length; pos += PAGE_SIZE)
 	{
@@ -443,8 +548,6 @@ int nltd_read_sync(const char *plugin, loff_t offset, char *buffer, int length)
 int nltd_write_sync(const char *plugin, loff_t offset, char *buffer, int length)
 {
 	int pos;
-
-	//if(length > PAGE_SIZE)printk(KERN_DEBUG "tDisk: Sending splitted netlink message: write");
 
 	for(pos = 0; pos < length; pos += PAGE_SIZE)
 	{
@@ -483,8 +586,19 @@ loff_t nltd_get_size(const char *plugin)
 	return size;
 }
 
+/**
+  * This function is called in a regular interval
+  * to stop all requests which are waiting for longer
+  * than NLTD_TIMEOUT_SECS seconds for an answer
+  * This assures that every request is completed - 
+  * with or without error
+ **/
 void clear_timed_out_requests(unsigned long data);
 
+/**
+  * This timer is set every second to check for
+  * requests which are running too long
+ **/
 struct timer_list timeout_timer = {
 	.function = &clear_timed_out_requests
 };
@@ -494,8 +608,13 @@ void clear_timed_out_requests(unsigned long data)
 	int amount = 0;
 	struct pending_request *n;
 	struct pending_request *request;
+
+	//This is used as temporary storage. All requests
+	//to time out are transferred to this list to prevent
+	//holding the spinlock too long
 	LIST_HEAD(removed);
 
+	//go through each request
 	spin_lock_irq(&request_lock);
 	list_for_each_entry_safe(request, n, &pending_requests, list)
 	{
@@ -507,6 +626,7 @@ void clear_timed_out_requests(unsigned long data)
 	}
 	spin_unlock_irq(&request_lock);
 
+	//Time out all requests
 	list_for_each_entry_safe(request, n, &removed, list)
 	{
 		unsigned int time = jiffies_to_msecs(request->started);
@@ -518,10 +638,15 @@ void clear_timed_out_requests(unsigned long data)
 
 	if(amount)printk(KERN_WARNING "tDisk: Cleared %d timed out requests\n", amount);
 
+	//Re-set timer
 	timeout_timer.expires = get_jiffies_64() + HZ;
 	add_timer(&timeout_timer);
 }
 
+/**
+  * Defines all message types which are handled in
+  * the kernel module.
+ **/
 static struct genl_ops genl_tdisk_ops[] = {
 	{
 		.cmd = NLTD_CMD_REGISTER,

@@ -1,7 +1,7 @@
 /**
   *
   * tDisk Driver
-  * @author Thomas Sparber (2015)
+  * @author Thomas Sparber (2015-2016)
   *
  **/
 
@@ -85,17 +85,11 @@ static struct miscdevice tdisk_misc = {
 MODULE_ALIAS_MISCDEV(MISC_DYNAMIC_MINOR);
 MODULE_ALIAS("devname:td-control");
 
-/**
-  * Registers the td-control device
- **/
 int register_tdisk_control(void)
 {
 	return misc_register(&tdisk_misc);
 }
 
-/**
-  * Unregisters the td-control device
- **/
 void unregister_tdisk_control(void)
 {
 	misc_deregister(&tdisk_misc);

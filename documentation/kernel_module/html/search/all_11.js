@@ -19,7 +19,6 @@ var searchData=
   ['state_5funbound',['state_unbound',['../tdisk_8h.html#adf764cbdea00d65edcd07bb9953ad2b7adb788a447245c3561ad8f2b0f7f0ccef',1,'tdisk.h']]],
   ['stdev_5fread_5ftime_5fcycles',['stdev_read_time_cycles',['../interface_8h.html#aa5beb0c3a8421142496a5893e3670900',1,'device_performance']]],
   ['stdev_5fwrite_5ftime_5fcycles',['stdev_write_time_cycles',['../interface_8h.html#a0d850521d615d218f78f51b015edb859',1,'device_performance']]],
-  ['switch_5frequest',['switch_request',['../future__functions_8h.html#structswitch__request',1,'']]],
   ['sync_5frequest',['sync_request',['../tdisk__nl_8c.html#structsync__request',1,'']]],
   ['sync_5frequest_5fcallback',['sync_request_callback',['../tdisk__nl_8c.html#a1174dd900aebf5748d5832204c0db753',1,'tdisk_nl.c']]]
 ];

@@ -368,7 +368,7 @@ The blocks which should be - according to performance and block access count - s
 </div><div class="memdoc">
 
 <p>tDisk Driver </p>
-<dl class="section author"><dt>Author</dt><dd>Thomas Sparber (2015) </dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Thomas Sparber (2015-2016) </dd></dl>
 
 </div>
 </div>
@@ -2150,6 +2150,7 @@ The blocks which should be - according to performance and block access count - s
 </div><div class="memdoc">
 
 <p>This function creates a new tDisk with the given minor number, and blocksize. </p>
+<p>Adds a tDisk with the given minronumber and blocksize to the system. </p>
 
 </div>
 </div>
@@ -2316,6 +2317,7 @@ The blocks which should be - according to performance and block access count - s
 </div><div class="memdoc">
 
 <p>This function returns the tDisk for the given minor number. </p>
+<p>Finds the tDisk with the given minornumber.</p>
 <p>If the given minor number is &lt; 0, the minor number of an unbound tDisk is returned or -ENODEV if there is no unbound tDisk </p>
 
 </div>
@@ -2335,6 +2337,7 @@ The blocks which should be - according to performance and block access count - s
 </div><div class="memdoc">
 
 <p>This function is called to remove a tDisk. </p>
+<p>Removes the given tDisk from the system.</p>
 <p>this frees all the resources </p>
 
 </div>
@@ -2504,7 +2507,7 @@ The blocks which should be - according to performance and block access count - s
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 22 2016 09:23:20 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 22 2016 17:34:54 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

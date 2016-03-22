@@ -32,9 +32,18 @@ namespace td
 
 	/**
 	  * Gets all currently loaded tDisks of the system
+	  * @param args: not needed
 	  * @param options: The command options (e.g. output-format)
 	 **/
 	std::string get_tDisks(const std::vector<std::string> &args, Options &options);
+
+	/**
+	  * Gets information about the given tDisk
+	  * @param args:
+	  *  - tDisk minor number (e.g. 0) or path (e.g. /dev/td0)
+	  * @param options: The command options (e.g. output-format)
+	 **/
+	std::string get_tDisk(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Adds a new tDisk to the system.

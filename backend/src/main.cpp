@@ -41,6 +41,10 @@ void printHelp(const string &progName);
 vector<Command> commands {
 	Command("get_tdisks", get_tDisks,
 		"Prints a list of all available tDisks"),
+		
+	Command("get_tdisk", get_tDisk,
+		"Prints details about the given tDisk. It needs the minornumber or\n"
+		"path as argument"),
 
 	Command("add", add_tDisk,
 		"Adds a new tDisk to the system. It needs the blocksize (e.g. 16386)\n"

@@ -27,6 +27,15 @@ string td::get_tDisks(const vector<string> &/*args*/, Options &options)
 	return createResultString(tdisks, 0, options.getOptionValue("output-format"));
 }
 
+string td::get_tDisk(const vector<string> &args, Options &options)
+{
+	if(args.empty())throw BackendException("\"get_tDisk\" needs the device to get information for");
+	
+	tDisk d = tDisk::get(args[0]);
+	d.loadSize();
+	return createResultString(d, 0, options.getOptionValue("output-format"));
+}
+
 string td::add_tDisk(const vector<string> &args, Options &options)
 {
 	if(args.empty())throw BackendException("\"add\" needs the desired blocksize (e.g. 16384)");

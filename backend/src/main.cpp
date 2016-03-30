@@ -168,7 +168,7 @@ string handleCommand(int argc, char **args, const string &defaultConfigFile)
 
 	Option configonly(
 		"config-only",
-		"A flag whether the operations should be writte to config file only. "
+		"A flag whether the operations should be writte to config file only.\n"
 		"If this flag is set to yes, nothing is done on the actual system",
 		{ "yes", "no" }
 	);
@@ -177,7 +177,7 @@ string handleCommand(int argc, char **args, const string &defaultConfigFile)
 
 	Option temporary(
 		"temporary",
-		"A flag whether the operations should only be done temporary. This "
+		"A flag whether the operations should only be done temporary. This\n"
 		"means the actions are performed, but not stored to any config file.",
 		{ "yes", "no" }
 	);
@@ -228,8 +228,16 @@ void printHelp(const string &progName)
 	const td::Options allOptions = getDefaultOptions();
 	for(const Option &o : allOptions.getAllOptions())
 	{
+		std::size_t pos = 0;
+		string description = o.getDescription();
+		while((pos=description.find("\n", pos)) != string::npos)
+		{
+			description = description.replace(pos, 1, "\n\t   ");
+			pos++;
+		}
+
 		cout<<"\t --"<<o.getName()<<endl;
-		cout<<"\t   "<<o.getDescription()<<endl;
+		cout<<"\t   "<<description<<endl;
 	}
 	cout<<endl;
 

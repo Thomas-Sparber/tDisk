@@ -288,8 +288,17 @@ public:
 	tDisk(int i_minornumber, const std::string &str_name) :
 		minornumber(i_minornumber),
 		name(str_name),
-		size()
+		size(),
+		online()
 	{}
+
+	/**
+	  * Checks if the current tDisk equals the given tDisk
+	 **/
+	bool operator== (const tDisk &other) const
+	{
+		return (minornumber == other.minornumber);
+	}
 
 	/**
 	  * Returns the name/path of the tDisk

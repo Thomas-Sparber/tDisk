@@ -67,6 +67,12 @@ public:
 		{}
 
 		/**
+		  * Return whether the configuration for the
+		  * configured device is valid
+		 **/
+		bool isValid() const;
+
+		/**
 		  * The tDisk's minornumber
 		 **/
 		int minornumber;

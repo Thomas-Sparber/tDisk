@@ -32,6 +32,15 @@ using namespace td;
 const char* loadTDisk(const char *it, const char *end, configuration::tdisk_config &out);
 const char* loadOption(const ci_string &name, const char *it, const char *end, configuration::tdisk_global_option &out, const td::Options &options);
 
+bool td::configuration::tdisk_config::isValid() const
+{
+	return
+		minornumber != 0 &&
+		blocksize != 0 &&
+		blocksize % td::c::get_tdisk_blocksize_mod() == 0 &&
+		!devices.empty();
+}
+
 void td::configuration::merge(const configuration &config)
 {
 	for(const configuration::tdisk_config &device : config.tdisks)
@@ -280,10 +289,12 @@ const char* loadTDisk(const char *it, const char *end, configuration::tdisk_conf
 	//for(const string device: out.devices)
 	//	cout<<"   - "<<device<<endl;
 
+	if(out.minornumber == -1)
+		throw BackendException("No minornumber specified");
 	if(out.blocksize == 0 || out.blocksize % td::c::get_tdisk_blocksize_mod())
 		throw BackendException("blocksize must be a multiple of ", td::c::get_tdisk_blocksize_mod());
-	if(out.devices.empty())
-		throw BackendException("Please specify at least one device");
+	//if(out.devices.empty())
+	//	throw BackendException("Please specify at least one device");
 	if(out.devices.size() > td::c::get_tdisk_max_physical_disks())
 		throw BackendException("Exceeded maximum number (", td::c::get_tdisk_max_physical_disks(),") of internal devices: ", out.devices.size());
 

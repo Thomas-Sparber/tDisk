@@ -89,6 +89,11 @@ public:
 	 **/
 	long getLongValue() const;
 
+	/**
+	  * Returns the value of the option as a long
+	 **/
+	bool getBoolValue() const;
+
 public:
 
 	/**

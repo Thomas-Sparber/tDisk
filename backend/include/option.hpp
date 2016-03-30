@@ -55,7 +55,7 @@ public:
 	template <class T>
 	void setValue(const T &t)
 	{
-		setValue(utils::concat(t));
+		setValue(utils::ci_string(utils::concat(t).c_str()));
 	}
 
 	/**

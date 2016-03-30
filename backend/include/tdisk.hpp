@@ -261,7 +261,8 @@ public:
 	tDisk() :
 		minornumber(),
 		name(),
-		size()
+		size(),
+		online()
 	{}
 
 	/**
@@ -270,7 +271,8 @@ public:
 	tDisk(int i_minornumber) :
 		minornumber(i_minornumber),
 		name(utils::concat("/dev/td", minornumber)),
-		size()
+		size(),
+		online()
 	{}
 
 	/**
@@ -279,7 +281,8 @@ public:
 	tDisk(const std::string &str_name) :
 		minornumber(getMinorNumber(str_name)),
 		name(str_name),
-		size()
+		size(),
+		online()
 	{}
 
 	/**
@@ -317,11 +320,51 @@ public:
 	}
 
 	/**
+	  * Returns whether the tDisk is online or not
+	 **/
+	bool isOnline() const
+	{
+		return online;
+	}
+
+	/**
+	  * Sets the online status of the tDisk
+	 **/
+	void setOnline(bool b_online)
+	{
+		this->online = b_online;
+	}
+
+	/**
+	  * Checks whether the tDisk is online and
+	  * returns the status
+	 **/
+	bool checkOnline() const
+	{
+		const std::string deviceName = utils::concat("td", minornumber);
+		std::vector<std::string> disks;
+		tDisk::getTDisks(disks);
+
+		online = false;
+		for(const std::string &disk : disks)
+		{
+			if(disk == deviceName)
+			{
+				online = true;
+				break;
+			}
+		}
+
+		return online;
+	}
+
+	/**
 	  * Removes the tDisk from the system
 	 **/
 	void remove()
 	{
 		tDisk::remove(*this);
+		online = false;
 	}
 
 	/**
@@ -330,6 +373,7 @@ public:
 	void loadSize()
 	{
 		this->size = getSize();
+		online = true;
 	}
 
 	/**
@@ -346,6 +390,8 @@ public:
 		} catch (const tDiskException &e) {
 			throw tDiskException("Can't add disk \"", path ,"\" to tDisk ", name, ": ", e.message);
 		}
+
+		online = true;
 	}
 
 	/**
@@ -362,6 +408,7 @@ public:
 			throw tDiskException("Can't get max sectors for tDisk ", name, ": ", e.message);
 		}
 
+		online = true;
 		return maxSectors;
 	}
 
@@ -379,6 +426,7 @@ public:
 			throw tDiskException("Can't get max sectors for tDisk ", name, ": ", e.message);
 		}
 
+		online = true;
 		return sizeBytes;
 	}
 
@@ -386,7 +434,7 @@ public:
 	  * Returns information about the sector with the given logical
 	  * sector
 	 **/
-	f_sector_index getSectorIndex(unsigned long long logicalSector)
+	f_sector_index getSectorIndex(unsigned long long logicalSector) const
 	{
 		f_sector_index index;
 		int ret = c::tdisk_get_sector_index(name.c_str(), logicalSector, &index);
@@ -397,6 +445,7 @@ public:
 			throw tDiskException("Can't get sector index ", logicalSector, " for tDisk ", name, ": ", e.message);
 		}
 
+		online = true;
 		return std::move(index);
 	}
 
@@ -416,6 +465,7 @@ public:
 			throw tDiskException("Can't all sector indices for tDisk ", name, ": ", e.message);
 		}
 
+		online = true;
 		return std::move(indices);
 	}
 
@@ -431,6 +481,8 @@ public:
 		} catch (const tDiskException &e) {
 			throw tDiskException("Can't clear access count for tDisk ", name, ": ", e.message);
 		}
+
+		online = true;
 	}
 
 	/**
@@ -447,6 +499,7 @@ public:
 			throw tDiskException("Can't get internal devices count for tDisk ", name, ": ", e.message);
 		}
 
+		online = true;
 		return devices;
 	}
 
@@ -465,6 +518,7 @@ public:
 			throw tDiskException("Can't get device info for device ", (int)device, " for tDisk ", name, ": ", e.message);
 		}
 
+		online = true;
 		return info;
 	}
 
@@ -486,6 +540,12 @@ private:
 	  * The size in bytes of the tDisk
 	 **/
 	uint64_t size;
+
+	/**
+	  * A flag whether the tDisk is currently
+	  * online
+	 **/
+	mutable bool online;
 
 }; //end class tDisk
 
@@ -621,14 +681,16 @@ template <> inline std::string createResultString(const tDisk &disk, unsigned in
 			"{\n",
 				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(disk, minornumber, hierarchy+1, outputFormat), ",\n",
 				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(disk, name, hierarchy+1, outputFormat), ",\n",
-				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(disk, size, hierarchy+1, outputFormat), "\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(disk, size, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(disk, online, hierarchy+1, outputFormat), "\n",
 			std::vector<char>(hierarchy, '\t'), "}"
 		);
 	else if(outputFormat == "text")
 		return utils::concat(
 				CREATE_RESULT_STRING_MEMBER_TEXT(disk, minornumber, hierarchy+1, outputFormat), "\n",
 				CREATE_RESULT_STRING_MEMBER_TEXT(disk, name, hierarchy+1, outputFormat), "\n",
-				CREATE_RESULT_STRING_MEMBER_TEXT(disk, size, hierarchy+1, outputFormat), "\n"
+				CREATE_RESULT_STRING_MEMBER_TEXT(disk, size, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_MEMBER_TEXT(disk, online, hierarchy+1, outputFormat), "\n"
 		);
 	else
 		throw FormatException("Invalid output-format ", outputFormat);

@@ -166,7 +166,7 @@ string td::get_device_info(const vector<string> &args, Options &options)
 
 string td::load_config_file(const vector<string> &args, Options &options)
 {
-	if(args.empty())throw BackendException("\"load_config_file\" needs at least one donfig file to load\n");
+	if(args.empty())throw BackendException("\"load_config_file\" needs at least one config file to load\n");
 
 	configuration cfg;
 	for(std::size_t i = 0; i < args.size(); ++i)
@@ -178,17 +178,20 @@ string td::load_config_file(const vector<string> &args, Options &options)
 	for(const configuration::tdisk_global_option &option : cfg.global_options)
 		options.setOptionValue(option.name, option.value);
 
+	configuration loadedCfg;
 	for(const configuration::tdisk_config &config : cfg.tdisks)
 	{
-		tDisk disk;
-		if(config.minornumber < 0)disk = tDisk::create(config.blocksize);
-		else disk = tDisk::create(config.minornumber, config.blocksize);
+		if(!config.isValid())continue;
+
+		tDisk disk = tDisk::create(config.minornumber, config.blocksize);
 
 		for(const string device : config.devices)
 			disk.addDisk(device);
+
+		loadedCfg.addDevice(config);
 	}
 
-	return createResultString(cfg, 0, options.getOptionValue("output-format"));
+	return createResultString(loadedCfg, 0, options.getOptionValue("output-format"));
 }
 
 string td::get_device_advice(const vector<string> &args, Options &options)

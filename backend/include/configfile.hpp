@@ -67,6 +67,14 @@ public:
 		{}
 
 		/**
+		  * Compares if two disk configurations are equal
+		 **/
+		bool operator== (const tdisk_config &other) const
+		{
+			return (minornumber == other.minornumber);
+		}
+
+		/**
 		  * Return whether the configuration for the
 		  * configured device is valid
 		 **/
@@ -107,6 +115,16 @@ public:
 	{
 		load(file, options);
 	}
+
+	/**
+	  * Returns the tDisk config with the given minornumber
+	 **/
+	tdisk_config& getTDisk(int minornumber);
+
+	/**
+	  * Returns the tDisk config with the given minornumber
+	 **/
+	const tdisk_config& getTDisk(int minornumber) const;
 
 	/**
 	  * Loads the configuration from the given file

@@ -5,6 +5,7 @@
   *
  **/
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -39,6 +40,25 @@ bool td::configuration::tdisk_config::isValid() const
 		blocksize != 0 &&
 		blocksize % td::c::get_tdisk_blocksize_mod() == 0 &&
 		!devices.empty();
+}
+
+
+td::configuration::tdisk_config& td::configuration::getTDisk(int minornumber)
+{
+	tdisk_config temp;
+	temp.minornumber = minornumber;
+	auto found = find(tdisks.begin(), tdisks.end(), temp);
+	if(found == tdisks.end())throw BackendException("No tDisk found in config file with minornumber ",minornumber);
+	return *found;
+}
+
+const td::configuration::tdisk_config& td::configuration::getTDisk(int minornumber) const
+{
+	tdisk_config temp;
+	temp.minornumber = minornumber;
+	auto found = find(tdisks.begin(), tdisks.end(), temp);
+	if(found == tdisks.end())throw BackendException("No tDisk found in config file with minornumber ",minornumber);
+	return *found;
 }
 
 void td::configuration::merge(const configuration &config)
@@ -298,7 +318,7 @@ const char* loadTDisk(const char *it, const char *end, configuration::tdisk_conf
 	if(out.devices.size() > td::c::get_tdisk_max_physical_disks())
 		throw BackendException("Exceeded maximum number (", td::c::get_tdisk_max_physical_disks(),") of internal devices: ", out.devices.size());
 
-	return end+1;
+	return end;
 }
 
 const char* loadOption(const ci_string &name, const char *it, const char *end, configuration::tdisk_global_option &out, const td::Options &options)

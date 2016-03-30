@@ -148,6 +148,9 @@ namespace td
 	{
 		std::vector<std::string> temp(v.size());
 		if(outputFormat == "json")
+		{
+			if(v.empty())temp = { "[]" };
+
 			for(size_t i = 0; i < v.size(); ++i)
 			{
 				temp[i] = utils::concat(
@@ -155,6 +158,7 @@ namespace td
 					std::vector<char>(hierarchy+1, '\t'), createResultString(v[i], hierarchy + 1, outputFormat),
 					(i < v.size()-1) ? ",\n" : utils::concat("\n", std::vector<char>(hierarchy, '\t'), "]"));
 			}
+		}
 		else if(outputFormat == "text")
 			for(size_t i = 0; i < v.size(); ++i)
 			{

@@ -290,7 +290,7 @@ namespace td
 	 **/
 	template <std::size_t i> inline std::string createResultString(const char (&s)[i], unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_string(std::string(s, i), outputFormat);
+		return createResultString_string(std::string(s), outputFormat);
 	}
 
 	/**

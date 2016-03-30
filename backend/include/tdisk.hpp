@@ -259,7 +259,7 @@ public:
 	  * Default constructor
 	 **/
 	tDisk() :
-		minornumber(),
+		minornumber(-1),
 		name(),
 		size(),
 		online()
@@ -301,6 +301,11 @@ public:
 	bool operator== (const tDisk &other) const
 	{
 		return (minornumber == other.minornumber);
+	}
+
+	bool isValid() const
+	{
+		return (minornumber != -1);
 	}
 
 	/**
@@ -423,7 +428,7 @@ public:
 		try {
 			handleError(ret);
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't get max sectors for tDisk ", name, ": ", e.message);
+			throw tDiskException("Can't get size for tDisk ", name, ": ", e.message);
 		}
 
 		online = true;

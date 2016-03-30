@@ -8,8 +8,16 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include <algorithm>
+#include <fstream>
 #include <sstream>
 #include <vector>
+
+#ifdef WINDOWS
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif //WINDOWS
 
 namespace td
 {
@@ -64,6 +72,99 @@ namespace td
 		{
 			for(char &c : data)
 				c = (char) (rand() % 256);
+		}
+
+		/**
+		  * Concats a path using the path separator / or \
+		 **/
+		inline std::string concatPath()
+		{
+			return "";
+		}
+
+		/**
+		  * Concats a path using the path separator / or \
+		 **/
+		inline std::string concatPath(const std::string &a, const std::string &b)
+		{
+			if(a.empty() || b.empty() ||
+				a.back() == '/' || a.back() == '\\' ||
+				b.front() == '/' || b.front() == '\\')return concat(a, b);
+
+			std::size_t slashes = std::count(a.cbegin(), a.cend(), '/') + std::count(b.cbegin(), b.cend(), '/');
+			std::size_t backslashes = std::count(a.cbegin(), a.cend(), '\\') + std::count(b.cbegin(), b.cend(), '\\');
+
+			char pathSeparator = (slashes >= backslashes) ? '/' : '\\';
+
+			return concat(a, pathSeparator, b);
+		}
+
+		/**
+		  * Concats a path using the path separator / or \
+		 **/
+		template<class ...T>
+		inline std::string concatPath(const std::string &a, const std::string &b, T ...t)
+		{
+			return concatPath(concatPath(a, b), t...);
+		}
+
+		/**
+		  * Returns the directory name of the given file/folder.
+		  * If the file/folder is a relative path, the current
+		  * working directory is returned. If the file/folder is
+		  * a relative path using the format "./..." or "../..."
+		  * the relative path to the executable is taken.
+		 **/
+		inline std::string dirnameOf(const std::string& fname, const char *executable)
+		{
+			std::size_t pos = fname.find_last_of("\\/");
+			const std::string dir = (std::string::npos == pos) ? "" : fname.substr(0, pos);
+
+			if(dir.substr(0,2) == "..")
+			{
+				if(executable)
+					return dirnameOf(dirnameOf(executable, nullptr), nullptr);
+				else
+					return concatPath(dirnameOf(dirnameOf("", nullptr), nullptr), dir.substr(2));
+			}
+			else if(dir.substr(0,1) == ".")
+			{
+				if(executable)
+					return dirnameOf(executable, nullptr);
+				else
+					return concatPath(dirnameOf("", nullptr), dir.substr(1));
+			}
+
+			if(dir.empty())
+			{
+				char currentPath[1024];
+#ifdef WINDOWS
+				_getcwd(currentPath, sizeof(currentPath));
+#else
+				getcwd(currentPath, sizeof(currentPath));
+#endif //WINDOWS
+				return currentPath;
+			}
+
+			return dir;
+		}
+
+		/**
+		  * Returns the filename/dirname of the given path
+		 **/
+		inline std::string filenameOf(const std::string& fname)
+		{
+			std::size_t pos = fname.find_last_of("\\/");
+			return (std::string::npos == pos) ? fname : fname.substr(pos+1);
+		}
+
+		/**
+		  * Checks whether the given file exists
+		 **/
+		inline bool fileExists(const std::string& name)
+		{
+			std::ifstream f(name.c_str());
+			return f.good();
 		}
 
 		/**

@@ -15,6 +15,7 @@
 #include <tdisk.hpp>
 #include <backend.hpp>
 #include <backendexception.hpp>
+#include <utils.hpp>
 
 using std::cerr;
 using std::cout;
@@ -47,7 +48,7 @@ struct Command
 	string description;
 }; //end struct Command
 
-std::string handleCommand(int argc, char **args);
+std::string handleCommand(int argc, char **args, const string &defaultConfigFile);
 void printHelp(const string &progName);
 
 vector<Command> commands {
@@ -109,13 +110,36 @@ vector<Command> commands {
 		"optimally. It needs all desired devices as agrument")
 };
 
+vector<string> configfiles = {
+	"/etc/tdisk/tdisk.config",
+	"./tdisk.config",
+	"tdisk.config",
+	"./example.config",
+	"example.config"
+};
+
 int main(int argc, char *args[])
 {
 	string result;
 	string error;
 
+	string configFile;
+
+	for(string &f : configfiles)
+	{
+		const string &path = utils::dirnameOf(f, args[0]);
+		const string &file = utils::filenameOf(f);
+
+		f = utils::concatPath(path, file);
+		if(utils::fileExists(f))
+		{
+			configFile = f;
+			break;
+		}
+	}
+
 	try {
-		result = handleCommand(argc, args);
+		result = handleCommand(argc, args, configFile);
 	} catch(const BackendException &e) {
 		error = e.what;
 	} catch(const tDiskException &e) {
@@ -130,10 +154,35 @@ int main(int argc, char *args[])
 	return 0;
 }
 
-string handleCommand(int argc, char **args)
+string handleCommand(int argc, char **args, const string &defaultConfigFile)
 {
 	string programName = args[0];
 	td::Options options = getDefaultOptions();
+
+	Option configfile(
+		"configfile",
+		"The file where all configuration data should be read/written."
+	);
+	configfile.setValue(defaultConfigFile);
+	options.addOption(configfile);
+
+	Option configonly(
+		"config-only",
+		"A flag whether the operations should be writte to config file only.\n"
+		"If this flag is set to yes, nothing is done on the actual system",
+		{ "yes", "no" }
+	);
+	configonly.setValue("no");
+	options.addOption(configonly);
+
+	Option temporary(
+		"temporary",
+		"A flag whether the operations should only be done temporary. This\n"
+		"means the actions are performed, but not stored to any config file.",
+		{ "yes", "no" }
+	);
+	temporary.setValue("no");
+	options.addOption(temporary);
 
 	ci_string option;
 	while(argc > 1 && (option = args[1]).substr(0, 2) == "--")
@@ -146,6 +195,9 @@ string handleCommand(int argc, char **args)
 
 		options.setOptionValue(name, value);
 	}
+
+	if(options.getOptionBoolValue("config-only") && options.getOptionBoolValue("temporary"))
+		throw new BackendException("config-only and temporary cannot be set at the same time.");
 
 	if(argc <= 1)
 	{
@@ -176,8 +228,16 @@ void printHelp(const string &progName)
 	const td::Options allOptions = getDefaultOptions();
 	for(const Option &o : allOptions.getAllOptions())
 	{
-		cout<<"\t - "<<o.getName()<<endl;
-		cout<<"\t   "<<o.getDescription()<<endl;
+		std::size_t pos = 0;
+		string description = o.getDescription();
+		while((pos=description.find("\n", pos)) != string::npos)
+		{
+			description = description.replace(pos, 1, "\n\t   ");
+			pos++;
+		}
+
+		cout<<"\t --"<<o.getName()<<endl;
+		cout<<"\t   "<<description<<endl;
 	}
 	cout<<endl;
 

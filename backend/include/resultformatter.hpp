@@ -86,6 +86,25 @@ namespace td
 	  * @returns The object converted to string using the given format
 	 **/
 	template <class T>
+	inline std::string createResultString_bool(const T &s, const utils::ci_string &outputFormat)
+	{
+		if(outputFormat == "json")
+			return (s) ? "true" : "false";
+		else if(outputFormat == "text")
+			return (s) ? "yes" : "no";
+		else
+			throw FormatException("Invalid output-format ", outputFormat);
+	}
+
+	/**
+	  * Stringifies the given object using the given format and data
+	  * hierarchy. The given object is treaed as string.
+	  * @param s The object to be converted to a string
+	  * @param outputFormat The format to convert the object to string.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
+	template <class T>
 	inline std::string createResultString_string(const T &s, const utils::ci_string &outputFormat)
 	{
 		if(outputFormat == "json")
@@ -129,6 +148,9 @@ namespace td
 	{
 		std::vector<std::string> temp(v.size());
 		if(outputFormat == "json")
+		{
+			if(v.empty())temp = { "[]" };
+
 			for(size_t i = 0; i < v.size(); ++i)
 			{
 				temp[i] = utils::concat(
@@ -136,6 +158,7 @@ namespace td
 					std::vector<char>(hierarchy+1, '\t'), createResultString(v[i], hierarchy + 1, outputFormat),
 					(i < v.size()-1) ? ",\n" : utils::concat("\n", std::vector<char>(hierarchy, '\t'), "]"));
 			}
+		}
 		else if(outputFormat == "text")
 			for(size_t i = 0; i < v.size(); ++i)
 			{
@@ -187,6 +210,20 @@ namespace td
 	}
 
 	/**
+	  * Stringifies the given bool using the given format and data
+	  * hierarchy
+	  * @param b The bool to be converted
+	  * @param int
+	  * @param outputFormat The format to convert the bool.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
+	template <> inline std::string createResultString(const bool &b, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	{
+		return createResultString_bool(b, outputFormat);
+	}
+
+	/**
 	  * Stringifies the given string using the given format and data
 	  * hierarchy
 	  * @param s The string to be converted
@@ -228,6 +265,15 @@ namespace td
 		return createResultString_string(s, outputFormat);
 	}
 
+	/**
+	  * Stringifies the given char array using the given format and data
+	  * hierarchy
+	  * @param s The char array to be converted
+	  * @param int
+	  * @param outputFormat The format to convert the char array.
+	  * Currently, json and text are supported
+	  * @returns The object converted to string using the given format
+	 **/
 	template <> inline std::string createResultString(const char* const &s, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
 		return createResultString_string(std::string(s), outputFormat);

@@ -55,7 +55,7 @@ public:
 	template <class T>
 	void setValue(const T &t)
 	{
-		setValue(utils::concat(t));
+		setValue(utils::ci_string(utils::concat(t).c_str()));
 	}
 
 	/**
@@ -88,6 +88,11 @@ public:
 	  * Returns the value of the option as a long
 	 **/
 	long getLongValue() const;
+
+	/**
+	  * Returns the value of the option as a long
+	 **/
+	bool getBoolValue() const;
 
 public:
 

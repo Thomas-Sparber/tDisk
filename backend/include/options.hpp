@@ -96,6 +96,46 @@ public:
 	}
 
 	/**
+	  * Returns the current string value of the option with the given name
+	  * @param name The name of the option
+	  * @returns The current stringvalue of the option
+	 **/
+	std::string getStringOptionValue(const utils::ci_string &name) const
+	{
+		return getOption(name).getStringValue().c_str();
+	}
+
+	/**
+	  * Returns the current bool value of the option with the given name
+	  * @param name The name of the option
+	  * @returns The current bool value of the option
+	 **/
+	bool getOptionBoolValue(const utils::ci_string &name) const
+	{
+		return getOption(name).getBoolValue();
+	}
+
+	/**
+	  * Returns the current long value of the option with the given name
+	  * @param name The name of the option
+	  * @returns The current long value of the option
+	 **/
+	bool getOptionLongValue(const utils::ci_string &name) const
+	{
+		return getOption(name).getLongValue();
+	}
+
+	/**
+	  * Returns the current char value of the option with the given name
+	  * @param name The name of the option
+	  * @returns The current char value of the option
+	 **/
+	char getOptionCharValue(const utils::ci_string &name) const
+	{
+		return getOption(name).getCharValue();
+	}
+
+	/**
 	  * Sets the value of the option with the given name
 	  * @param name The name of the option
 	  * @param value The value to set

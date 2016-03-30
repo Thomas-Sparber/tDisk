@@ -14,7 +14,7 @@ using utils::ci_string;
 
 const Option Option::output_format(
 	"output-format",
-	"Defnes the output format. This can either be \"text\" or \"json\"",
+	"Defines the output format. This can either be \"text\" or \"json\"",
 	{ "text", "json" }
 );
 
@@ -37,6 +37,20 @@ long Option::getLongValue() const
 	long v = strtol(value.c_str(), &test, 10);
 	if(test != value.c_str()+value.length())throw BackendException("Invalid number ", value);
 	return v;
+}
+
+bool Option::getBoolValue() const
+{
+	if(value == "yes")return true;
+	if(value == "no")return false;
+	if(value == "true")return true;
+	if(value == "false")return false;
+
+	try {
+		return (getLongValue() != 0);
+	} catch(const BackendException &e) {
+		throw BackendException("Invalid bool ",value);
+	}
 }
 
 void Option::setValue(const ci_string &str_value)

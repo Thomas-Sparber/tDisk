@@ -5,6 +5,7 @@
   *
  **/
 
+#include <algorithm>
 #include <typeinfo>
 
 #include <configfile.hpp>
@@ -15,6 +16,7 @@
 #include <tdisk.hpp>
 #include <utils.hpp>
 
+using std::find;
 using std::string;
 using std::vector;
 
@@ -30,9 +32,30 @@ td::Options td::getDefaultOptions()
 string td::get_tDisks(const vector<string> &/*args*/, Options &options)
 {
 	vector<tDisk> tdisks;
-	tDisk::getTDisks(tdisks);
+
+	if(!options.getOptionBoolValue("config-only"))
+	{
+		tDisk::getTDisks(tdisks);
+	}
+
+	if(!options.getOptionBoolValue("temporary"))
+	{
+		configuration config(options.getStringOptionValue("configfile"), options);
+		for(const configuration::tdisk_config &disk : config.tdisks)
+		{
+			tDisk d(disk.minornumber);
+			auto res = find(tdisks.begin(), tdisks.end(), d);
+			if(res == tdisks.end())tdisks.push_back(std::move(d));
+		}
+	}
+
 	return createResultString(tdisks, 0, options.getOptionValue("output-format"));
 }
+
+//TODO
+// --> flag is online
+// --> command: is_online
+// --> write to config file
 
 string td::get_tDisk(const vector<string> &args, Options &options)
 {

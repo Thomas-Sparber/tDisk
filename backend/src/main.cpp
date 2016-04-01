@@ -62,6 +62,11 @@ vector<Command> commands {
 	Command("get_devices", get_devices,
 		"Prints all available devices which could be used for a tDisk."),
 
+	Command("create", create_tDisk,
+		"Creates a new tDisk. It needs the blocksize (e.g. 16386) and all\n"
+		"the desired devices (in this order) as arguments. It is also possible\n"
+		"possible to specify the minornumber: [minornumber] [blocksize] ..."),
+
 	Command("add", add_tDisk,
 		"Adds a new tDisk to the system. It needs the blocksize (e.g. 16386)\n"
 		"as argument. The next free minornumber is taken. It is also possible\n"

@@ -20,6 +20,7 @@
 
 using std::find;
 using std::string;
+using std::swap;
 using std::vector;
 
 using td::utils::concat;
@@ -105,6 +106,64 @@ string td::get_devices(const vector<string> &/*args*/, Options &options)
 	return createResultString(internal_devices, 0, options.getOptionValue("output-format"));
 }
 
+string td::create_tDisk(const vector<string> &args, Options &options)
+{
+	if(args.size() < 2)throw BackendException("\"create\" needs the desired blocksize (e.g. 16384) and at least one device");
+
+	size_t devicesIndex = 1;
+	int number = -1;
+	char *test;
+	tDisk disk;
+	int blocksize = strtol(args[0].c_str(), &test, 10);
+	if(test != args[0].c_str() + args[0].length())throw BackendException("Invalid blocksize ", args[0]);
+
+	number = strtol(args[1].c_str(), &test, 10);
+	if(test == args[1].c_str() + args[1].length())
+	{
+		//If minornumber and blocksize are given, they are given in the reverse order
+		swap(number, blocksize);
+		devicesIndex++;
+
+		if(args.size() == devicesIndex)throw BackendException("\"create\" needs the minornumber, desired blocksize (e.g. 16384) and at least one device");
+	}
+
+	if(!options.getOptionBoolValue("temporary"))
+	{
+		configuration config(options.getStringOptionValue("configfile"), options);
+
+		if(number == -1)
+		{
+			for(const configuration::tdisk_config &d : config.tdisks)
+				if(d.minornumber+1 >= number)number = d.minornumber + 1;
+
+			disk = tDisk(number);
+		}
+
+		configuration::tdisk_config newDevice;
+		newDevice.minornumber = number;
+		newDevice.blocksize = blocksize;
+		for(size_t i = devicesIndex; i < args.size(); ++i)newDevice.devices.push_back(args[i]);
+		config.addDevice(std::move(newDevice));
+
+		config.save(options.getStringOptionValue("configfile"));
+	}
+
+	if(!options.getOptionBoolValue("config-only"))
+	{
+		try {
+			if(number >= 0)disk = tDisk::create(number, blocksize);
+			else disk = tDisk::create(blocksize);
+
+			number = disk.getMinornumber();
+			for(size_t i = devicesIndex; i < args.size(); ++i)disk.addDisk(args[i]);
+		} catch(const tDiskException &e) {
+			//This is ok since only the driver is not loaded
+		}
+	}
+
+	return createResultString(utils::concat("tDisk with minornumber ",number," created successfully"), 0, options.getOptionValue("output-format"));
+}
+
 string td::add_tDisk(const vector<string> &args, Options &options)
 {
 	if(args.empty())throw BackendException("\"add\" needs the desired blocksize (e.g. 16384)");
@@ -127,18 +186,6 @@ string td::add_tDisk(const vector<string> &args, Options &options)
 		if(test != args[0].c_str() + args[0].length())throw BackendException("Invalid blocksize ", args[0]);
 	}
 
-	if(!options.getOptionBoolValue("config-only"))
-	{
-		try {
-			if(number >= 0)disk = tDisk::create(number, blocksize);
-			else disk = tDisk::create(blocksize);
-
-			number = disk.getMinornumber();
-		} catch(const tDiskException &e) {
-			//This is ok since only the driver is not loaded
-		}
-	}
-
 	if(!options.getOptionBoolValue("temporary"))
 	{
 		configuration config(options.getStringOptionValue("configfile"), options);
@@ -157,6 +204,18 @@ string td::add_tDisk(const vector<string> &args, Options &options)
 		config.addDevice(std::move(newDevice));
 
 		config.save(options.getStringOptionValue("configfile"));
+	}
+
+	if(!options.getOptionBoolValue("config-only"))
+	{
+		try {
+			if(number >= 0)disk = tDisk::create(number, blocksize);
+			else disk = tDisk::create(blocksize);
+
+			number = disk.getMinornumber();
+		} catch(const tDiskException &e) {
+			//This is ok since only the driver is not loaded
+		}
 	}
 
 	return createResultString(concat("Device ", disk.getName(), " opened"), 0, options.getOptionValue("output-format"));

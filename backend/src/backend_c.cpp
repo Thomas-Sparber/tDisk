@@ -49,6 +49,7 @@ int name(int argc, char *args[], struct Options *options, char *out, int out_len
 C_FUNCTION_IMPLEMENTATION(get_tDisks)
 C_FUNCTION_IMPLEMENTATION(get_tDisk)
 C_FUNCTION_IMPLEMENTATION(get_devices)
+C_FUNCTION_IMPLEMENTATION(create_tDisk)
 C_FUNCTION_IMPLEMENTATION(add_tDisk)
 C_FUNCTION_IMPLEMENTATION(remove_tDisk)
 C_FUNCTION_IMPLEMENTATION(get_max_sectors)

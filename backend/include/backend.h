@@ -30,6 +30,11 @@ int get_tDisk(int argc, char *args[], struct Options *options, char *out, int ou
 int get_devices(int argc, char *args[], struct Options *options, char *out, int out_length);
 
 /**
+  * C version of create_tDisk. Look at the C++ version for more details.
+ **/
+int create_tDisk(int argc, char *args[], struct Options *options, char *out, int out_length);
+
+/**
   * C version of add_tDisk. Look at the C++ version for more details.
  **/
 int add_tDisk(int argc, char *args[], struct Options *options, char *out, int out_length);

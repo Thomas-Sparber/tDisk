@@ -53,6 +53,19 @@ namespace td
 	std::string get_devices(const std::vector<std::string> &args, Options &options);
 
 	/**
+	  * Creates a new tDisk
+	  * @param args:
+	  *  - (Optional: The tDisk minor number, e.g. 0)
+	  *  - The blocksize of the tDisk, e.g. 16384
+	  *  - Internal device 1
+	  *  - Internal device 2
+	  *  - ...
+	  *  - Internal device n
+	  * @param options: The command options (e.g. output-format)
+	 **/
+	std::string create_tDisk(const std::vector<std::string> &args, Options &options);
+
+	/**
 	  * Adds a new tDisk to the system.
 	  * @param args:
 	  *  - (Optional: The tDisk minor number, e.g. 0)

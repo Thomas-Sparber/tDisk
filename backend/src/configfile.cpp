@@ -36,7 +36,7 @@ const char* loadOption(const ci_string &name, const char *it, const char *end, c
 bool td::configuration::tdisk_config::isValid() const
 {
 	return
-		minornumber != 0 &&
+		minornumber != -1 &&
 		blocksize != 0 &&
 		blocksize % td::c::get_tdisk_blocksize_mod() == 0 &&
 		!devices.empty();

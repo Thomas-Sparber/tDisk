@@ -61,7 +61,7 @@ public:
 		  * Default constructor
 		 **/
 		tdisk_config() :
-			minornumber(),
+			minornumber(-1),
 			blocksize(),
 			devices()
 		{}

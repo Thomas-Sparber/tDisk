@@ -131,6 +131,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a6925b4aea69dccd91345107c9fbb3ce4"><td class="memItemLeft" align="right" valign="top">utils::ci_string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Options.html#a6925b4aea69dccd91345107c9fbb3ce4">getOptionValue</a> (const utils::ci_string &amp;name) const </td></tr>
 <tr class="memdesc:a6925b4aea69dccd91345107c9fbb3ce4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the current value of the option with the given name.  <a href="#a6925b4aea69dccd91345107c9fbb3ce4">More...</a><br /></td></tr>
 <tr class="separator:a6925b4aea69dccd91345107c9fbb3ce4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3caf57cf4772e2f953519a4dbfb0b36"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Options.html#af3caf57cf4772e2f953519a4dbfb0b36">getStringOptionValue</a> (const utils::ci_string &amp;name) const </td></tr>
+<tr class="memdesc:af3caf57cf4772e2f953519a4dbfb0b36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the current string value of the option with the given name.  <a href="#af3caf57cf4772e2f953519a4dbfb0b36">More...</a><br /></td></tr>
+<tr class="separator:af3caf57cf4772e2f953519a4dbfb0b36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd14d97551d7e3e57d1a631795129f41"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Options.html#abd14d97551d7e3e57d1a631795129f41">getOptionBoolValue</a> (const utils::ci_string &amp;name) const </td></tr>
+<tr class="memdesc:abd14d97551d7e3e57d1a631795129f41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the current bool value of the option with the given name.  <a href="#abd14d97551d7e3e57d1a631795129f41">More...</a><br /></td></tr>
+<tr class="separator:abd14d97551d7e3e57d1a631795129f41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a384f480271b0b5b14f14c56aa099b797"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Options.html#a384f480271b0b5b14f14c56aa099b797">getOptionLongValue</a> (const utils::ci_string &amp;name) const </td></tr>
+<tr class="memdesc:a384f480271b0b5b14f14c56aa099b797"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the current long value of the option with the given name.  <a href="#a384f480271b0b5b14f14c56aa099b797">More...</a><br /></td></tr>
+<tr class="separator:a384f480271b0b5b14f14c56aa099b797"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9471851fc51ca71eff40d041d06bf9c"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Options.html#ad9471851fc51ca71eff40d041d06bf9c">getOptionCharValue</a> (const utils::ci_string &amp;name) const </td></tr>
+<tr class="memdesc:ad9471851fc51ca71eff40d041d06bf9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the current char value of the option with the given name.  <a href="#ad9471851fc51ca71eff40d041d06bf9c">More...</a><br /></td></tr>
+<tr class="separator:ad9471851fc51ca71eff40d041d06bf9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a49a67814db43382dac1c5524d429020b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Options.html#a49a67814db43382dac1c5524d429020b">setOptionValue</a> (const utils::ci_string &amp;name, const utils::ci_string &amp;value)</td></tr>
 <tr class="memdesc:a49a67814db43382dac1c5524d429020b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the value of the option with the given name.  <a href="#a49a67814db43382dac1c5524d429020b">More...</a><br /></td></tr>
 <tr class="separator:a49a67814db43382dac1c5524d429020b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -360,6 +372,105 @@ template&lt;class... O&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="abd14d97551d7e3e57d1a631795129f41"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool td::Options::getOptionBoolValue </td>
+          <td>(</td>
+          <td class="paramtype">const utils::ci_string &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the current bool value of the option with the given name. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>The name of the option </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The current bool value of the option </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ad9471851fc51ca71eff40d041d06bf9c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">char td::Options::getOptionCharValue </td>
+          <td>(</td>
+          <td class="paramtype">const utils::ci_string &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the current char value of the option with the given name. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>The name of the option </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The current char value of the option </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a384f480271b0b5b14f14c56aa099b797"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool td::Options::getOptionLongValue </td>
+          <td>(</td>
+          <td class="paramtype">const utils::ci_string &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the current long value of the option with the given name. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>The name of the option </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The current long value of the option </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="a6925b4aea69dccd91345107c9fbb3ce4"></a>
 <div class="memitem">
 <div class="memproto">
@@ -390,6 +501,39 @@ template&lt;class... O&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The current value of the option </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af3caf57cf4772e2f953519a4dbfb0b36"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string td::Options::getStringOptionValue </td>
+          <td>(</td>
+          <td class="paramtype">const utils::ci_string &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the current string value of the option with the given name. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>The name of the option </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The current stringvalue of the option </dd></dl>
 
 </div>
 </div>
@@ -491,7 +635,7 @@ template&lt;class... O&gt; </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 22 2016 17:49:02 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 1 2016 15:59:26 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

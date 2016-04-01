@@ -6,7 +6,7 @@ var searchData=
   ['sector_5findex',['sector_index',['../interface_8h.html#structsector__index',1,'']]],
   ['sector_5finfo',['sector_info',['../interface_8h.html#structsector__info',1,'']]],
   ['seq_5fnr',['seq_nr',['../tdisk__nl_8c.html#ae968468257412ec22aebdd3ece1d86d1',1,'pending_request']]],
-  ['size',['SIZE',['../tdisk__nl_8c.html#a70ed59adcb4159ac551058053e649640',1,'tdisk_nl.c']]],
+  ['size',['size',['../interface_8h.html#aa8ed9b213276e273ccc049339d8b7be4',1,'internal_device_info::size()'],['../tdisk__nl_8c.html#a70ed59adcb4159ac551058053e649640',1,'SIZE():&#160;tdisk_nl.c']]],
   ['size_5fblocks',['size_blocks',['../interface_8h.html#a8432eba1790f4e07fc75433ccbb8229f',1,'tdisk_info::size_blocks()'],['../tdisk_8h.html#ab68302835fe933d37f54549a7b5b4175',1,'td_internal_device::size_blocks()'],['../tdisk_8h.html#aad9141cfda875098a0475bb688f7d6d5',1,'tdisk::size_blocks()']]],
   ['sorted_5finternal_5fdevice',['sorted_internal_device',['../tdisk_8c.html#structsorted__internal__device',1,'']]],
   ['sorted_5fsector_5findex',['sorted_sector_index',['../tdisk_8h.html#structsorted__sector__index',1,'']]],

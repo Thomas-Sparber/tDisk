@@ -116,6 +116,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a097aa7c6d3dea5ec65fc0bbdf3d107bd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1configuration.html#a097aa7c6d3dea5ec65fc0bbdf3d107bd">configuration</a> (const std::string &amp;file, const <a class="el" href="classtd_1_1Options.html">Options</a> &amp;options)</td></tr>
 <tr class="memdesc:a097aa7c6d3dea5ec65fc0bbdf3d107bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a new configuration by loading it it from the given file.  <a href="#a097aa7c6d3dea5ec65fc0bbdf3d107bd">More...</a><br /></td></tr>
 <tr class="separator:a097aa7c6d3dea5ec65fc0bbdf3d107bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae9230888a705c1d61c35f425f1df795e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtd_1_1configuration_1_1tdisk__config.html">tdisk_config</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1configuration.html#ae9230888a705c1d61c35f425f1df795e">getTDisk</a> (int minornumber)</td></tr>
+<tr class="memdesc:ae9230888a705c1d61c35f425f1df795e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> config with the given minornumber.  <a href="#ae9230888a705c1d61c35f425f1df795e">More...</a><br /></td></tr>
+<tr class="separator:ae9230888a705c1d61c35f425f1df795e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae76d772e4dcc9c7e8cf9c2dec38c678d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structtd_1_1configuration_1_1tdisk__config.html">tdisk_config</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1configuration.html#ae76d772e4dcc9c7e8cf9c2dec38c678d">getTDisk</a> (int minornumber) const </td></tr>
+<tr class="memdesc:ae76d772e4dcc9c7e8cf9c2dec38c678d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> config with the given minornumber.  <a href="#ae76d772e4dcc9c7e8cf9c2dec38c678d">More...</a><br /></td></tr>
+<tr class="separator:ae76d772e4dcc9c7e8cf9c2dec38c678d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9844f2c1215f3fd6f9189cc7b15f3d2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1configuration.html#ab9844f2c1215f3fd6f9189cc7b15f3d2">load</a> (const std::string &amp;file, const <a class="el" href="classtd_1_1Options.html">Options</a> &amp;options)</td></tr>
 <tr class="memdesc:ab9844f2c1215f3fd6f9189cc7b15f3d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the configuration from the given file.  <a href="#ab9844f2c1215f3fd6f9189cc7b15f3d2">More...</a><br /></td></tr>
 <tr class="separator:ab9844f2c1215f3fd6f9189cc7b15f3d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -240,6 +246,42 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Adds a global option to the current config object. </p>
+
+</div>
+</div>
+<a class="anchor" id="ae9230888a705c1d61c35f425f1df795e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structtd_1_1configuration_1_1tdisk__config.html">td::configuration::tdisk_config</a> &amp; td::configuration::getTDisk </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>minornumber</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> config with the given minornumber. </p>
+
+</div>
+</div>
+<a class="anchor" id="ae76d772e4dcc9c7e8cf9c2dec38c678d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structtd_1_1configuration_1_1tdisk__config.html">td::configuration::tdisk_config</a> &amp; td::configuration::getTDisk </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>minornumber</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> config with the given minornumber. </p>
 
 </div>
 </div>
@@ -371,7 +413,7 @@ Public Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 22 2016 17:49:02 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 1 2016 15:59:25 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

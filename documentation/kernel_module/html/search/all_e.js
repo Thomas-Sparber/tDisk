@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['path',['path',['../interface_8h.html#a16b7a23d47b8491f8495e683e8d4dd98',1,'internal_device_add_parameters::path()'],['../interface_8h.html#aeab7660a847b5e956b027ce16485a6f8',1,'internal_device_info::path()'],['../tdisk_8h.html#ab974062db822ff61baacfdea79c6bde4',1,'td_internal_device::path()']]],
   ['pending_5frequest',['pending_request',['../tdisk__nl_8c.html#structpending__request',1,'']]],
   ['perf',['perf',['../structaio__data.html#a91a54f50827261902aa1d1b2005d0833',1,'aio_data']]],
   ['performance',['performance',['../interface_8h.html#a20dff2df5079435d1e96e592c03cc82f',1,'internal_device_info::performance()'],['../tdisk_8h.html#a843d055dd5c489a622246bee634a102a',1,'tdisk_header::performance()'],['../tdisk_8h.html#a2fcaa833e437173838c61308ee16e70e',1,'td_internal_device::performance()']]],

@@ -22,13 +22,15 @@ CPP_SOURCES= \
 OBJECTS=$(SOURCES:src/%.c=bin/%.o) $(CPP_SOURCES:src/%.cpp=bin/%.o)
 DEPS=$(OBJECTS:bin/%.o=bin/%.d)
 
-all: bin tdisk
+TARGETS=bin tdisk
 
 ifeq ($(OS),Windows_NT)
 else
 	LDFLAGS+= -lparted
-	all+= make_plugins make_tests
+	TARGETS+= make_plugins make_tests
 endif
+
+all: $(TARGETS)
 
 -include $(DEPS)
 

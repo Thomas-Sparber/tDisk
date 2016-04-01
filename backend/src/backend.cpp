@@ -273,9 +273,15 @@ string td::add_disk(const vector<string> &args, Options &options)
 	{
 		configuration config(options.getStringOptionValue("configfile"), options);
 
-		for(std::size_t i = 1; i < args.size(); ++i)
+		configuration::tdisk_config temp;
+		temp.minornumber = d.getMinornumber();
+		auto found = find(config.tdisks.begin(), config.tdisks.end(), temp);
+		if(found != config.tdisks.end())
 		{
+			for(std::size_t i = 1; i < args.size(); ++i)
+				found->devices.push_back(args[i]);
 
+			config.save(options.getStringOptionValue("configfile"));
 		}
 	}
 

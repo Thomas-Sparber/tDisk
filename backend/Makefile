@@ -2,7 +2,7 @@ CC=gcc
 CXX=g++
 CFLAGS=-c -g -Wall -Wextra -I../kernel_module/include -I./include -I./utils -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wunsafe-loop-optimizations -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast
 CPPFLAGS=-std=c++11 -Weffc++
-LDFLAGS=-L. -ltd-backend -lparted
+LDFLAGS=-L. -ltd-backend
 SOURCES= \
 	src/tdisk.c \
 	src/tdisk_fake.c \
@@ -22,7 +22,13 @@ CPP_SOURCES= \
 OBJECTS=$(SOURCES:src/%.c=bin/%.o) $(CPP_SOURCES:src/%.cpp=bin/%.o)
 DEPS=$(OBJECTS:bin/%.o=bin/%.d)
 
-all: bin tdisk make_plugins make_tests
+all: bin tdisk
+
+ifeq ($(OS),Windows_NT)
+else
+	LDFLAGS+= -lparted
+	all+= make_plugins make_tests
+endif
 
 -include $(DEPS)
 

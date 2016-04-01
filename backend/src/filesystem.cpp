@@ -162,4 +162,38 @@ fs::Device fs::getDevice(const string &name)
 	return std::move(device);
 }
 
+void fs::getDevices(std::vector<Device> &out)
+{
+	Device device;
+	device.name = "USB Stick";
+	device.path = "/dev/sda";
+	device.size = rand() % 1000000;
+	out.push_back(std::move(device));
+
+	device.name = "USB Stick Partition 1";
+	device.path = "/dev/sda1";
+	device.size = rand() % 1000000;
+	out.push_back(std::move(device));
+
+	device.name = "SATA Festplatte";
+	device.path = "/dev/sdb";
+	device.size = rand() % 10000000;
+	out.push_back(std::move(device));
+
+	device.name = "SATA Festplatte Partition 1";
+	device.path = "/dev/sdb1";
+	device.size = rand() % 10000000;
+	out.push_back(std::move(device));
+
+	device.name = "SATA Festplatte Partition 2";
+	device.path = "/dev/sdb2";
+	device.size = rand() % 10000000;
+	out.push_back(std::move(device));
+
+	device.name = "SATA Festplatte Partition 3";
+	device.path = "/dev/sdb3";
+	device.size = rand() % 10000000;
+	out.push_back(std::move(device));
+}
+
 #endif //__linux__

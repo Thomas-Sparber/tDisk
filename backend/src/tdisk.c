@@ -61,7 +61,9 @@ inline static void set_internal_device_info(struct f_internal_device_info *targe
 {
 	target->disk = source->disk;
 	strncpy(target->name, source->name, TDISK_MAX_INTERNAL_DEVICE_NAME);
+	strncpy(target->path, source->path, TDISK_MAX_INTERNAL_DEVICE_NAME);
 	target->type = source->type;
+	target->size = source->size;
 	set_device_performance(&target->performance, &source->performance);
 }
 
@@ -213,7 +215,8 @@ int tdisk_add_disk(const char *device, const char *new_disk)
 	{
 		parameters.type = internal_device_type_plugin;
 	}
-	strncpy(parameters.name, new_disk, TDISK_MAX_INTERNAL_DEVICE_NAME);
+	strncpy(parameters.name, new_disk, TDISK_MAX_INTERNAL_DEVICE_NAME);	//TODO??
+	strncpy(parameters.path, new_disk, TDISK_MAX_INTERNAL_DEVICE_NAME);
 
 	dev = open(device, O_RDWR);
 	if(dev < 0)

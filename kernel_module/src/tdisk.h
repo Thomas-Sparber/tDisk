@@ -62,6 +62,7 @@ struct td_internal_device
 {
 	enum internal_device_type type;
 	char name[TDISK_MAX_INTERNAL_DEVICE_NAME];
+	char path[TDISK_MAX_INTERNAL_DEVICE_NAME];
 	struct file *file;
 	gfp_t old_gfp_mask;
 

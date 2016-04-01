@@ -46,6 +46,13 @@ namespace td
 	std::string get_tDisk(const std::vector<std::string> &args, Options &options);
 
 	/**
+	  * Gets all available devices which could be used for a tDisk
+	  * @param args: not needed
+	  * @param options: The command options (e.g. output-format)
+	 **/
+	std::string get_devices(const std::vector<std::string> &args, Options &options);
+
+	/**
 	  * Adds a new tDisk to the system.
 	  * @param args:
 	  *  - (Optional: The tDisk minor number, e.g. 0)

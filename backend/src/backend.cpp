@@ -6,9 +6,11 @@
  **/
 
 #include <algorithm>
+#include <iostream>
 #include <typeinfo>
 
 #include <configfile.hpp>
+#include <device.hpp>
 #include <deviceadvisor.hpp>
 #include <backend.hpp>
 #include <backendexception.hpp>
@@ -81,6 +83,26 @@ string td::get_tDisk(const vector<string> &args, Options &options)
 	if(!d.isValid())throw BackendException("tDisk ",args[0]," does not exist");
 
 	return createResultString(d, 0, options.getOptionValue("output-format"));
+}
+
+string td::get_devices(const vector<string> &/*args*/, Options &options)
+{
+	vector<fs::Device> devices;
+	fs::getDevices(devices);
+
+	vector<c::f_internal_device_info> internal_devices;
+	internal_devices.reserve(devices.size());
+	for(const fs::Device &device : devices)
+	{
+		c::f_internal_device_info d = {};
+		d.type = c::f_internal_device_type_file;
+		strncpy(d.name, device.name.c_str(), F_TDISK_MAX_INTERNAL_DEVICE_NAME);
+		strncpy(d.path, device.path.c_str(), F_TDISK_MAX_INTERNAL_DEVICE_NAME);
+		d.size = device.size;
+		internal_devices.push_back(d);
+	}
+
+	return createResultString(internal_devices, 0, options.getOptionValue("output-format"));
 }
 
 string td::add_tDisk(const vector<string> &args, Options &options)
@@ -290,7 +312,11 @@ string td::load_config_file(const vector<string> &args, Options &options)
 	configuration loadedCfg;
 	for(const configuration::tdisk_config &config : cfg.tdisks)
 	{
-		if(!config.isValid())continue;
+		if(!config.isValid())
+		{
+			//std::cout<<"Config for "<<config.minornumber<<" is not valid. skipping "<<std::endl;
+			continue;
+		}
 
 		tDisk disk = tDisk::create(config.minornumber, config.blocksize);
 

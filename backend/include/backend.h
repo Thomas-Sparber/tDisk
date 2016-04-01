@@ -25,6 +25,11 @@ int get_tDisks(int argc, char *args[], struct Options *options, char *out, int o
 int get_tDisk(int argc, char *args[], struct Options *options, char *out, int out_length);
 
 /**
+  * C version of get_devices. Look at the C++ version for more details.
+ **/
+int get_devices(int argc, char *args[], struct Options *options, char *out, int out_length);
+
+/**
   * C version of add_tDisk. Look at the C++ version for more details.
  **/
 int add_tDisk(int argc, char *args[], struct Options *options, char *out, int out_length);

@@ -80,6 +80,8 @@ struct f_internal_device_info
 	unsigned int disk;
 	enum f_internal_device_type type;
 	char name[F_TDISK_MAX_INTERNAL_DEVICE_NAME];
+	char path[F_TDISK_MAX_INTERNAL_DEVICE_NAME];
+	uint64_t size;
 	struct f_device_performance performance;
 }; //end struct f_internal_device_info
 

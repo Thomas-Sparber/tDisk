@@ -1193,6 +1193,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	memset(&new_device, 0, sizeof(struct td_internal_device));
 	new_device.type = parameters.type;
 	memcpy(new_device.name, parameters.name, TDISK_MAX_INTERNAL_DEVICE_NAME);
+	memcpy(new_device.path, parameters.path, TDISK_MAX_INTERNAL_DEVICE_NAME);
 
 	switch(parameters.type)
 	{
@@ -1504,7 +1505,9 @@ static int td_get_device_info(struct tdisk *td, struct internal_device_info __us
 
 	info.type = td->internal_devices[info.disk-1].type;
 	memcpy(info.name, td->internal_devices[info.disk-1].name, TDISK_MAX_INTERNAL_DEVICE_NAME);
+	memcpy(info.path, td->internal_devices[info.disk-1].path, TDISK_MAX_INTERNAL_DEVICE_NAME);
 	info.performance = td->internal_devices[info.disk-1].performance;
+	info.size = td->internal_devices[info.disk-1].size_blocks * td->blocksize;
 
 	if(copy_to_user(arg, &info, sizeof(info)) != 0)
 		return -EFAULT;

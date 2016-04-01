@@ -163,7 +163,7 @@ vector<advisor::tdisk_advice> advisor::getTDiskAdvices(const vector<string> &fil
 				if(devices[new_index].type == fs::device_type::raid5)continue;
 				if(devices[new_index].type == fs::device_type::raid1)continue;
 
-				if(devices[index].containsDevice(devices[new_index].name))continue;
+				if(devices[index].containsDevice(devices[new_index].path))continue;
 
 				device_combination new_c(c);
 				new_c.available.remove(index);

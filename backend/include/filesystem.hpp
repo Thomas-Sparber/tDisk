@@ -25,6 +25,11 @@ namespace fs
 	 **/
 	Device getDevice(const std::string &name);
 
+	/**
+	  * Gets all available blockdevices including its partitions
+	 **/
+	void getDevices(std::vector<Device> &out);
+
 } //end namespace fs
 
 } //end namespace td

@@ -69,6 +69,11 @@ struct Device
 	std::string name;
 
 	/**
+	  * The name of the device
+	 **/
+	std::string path;
+
+	/**
 	  * The device type e.g. File, Blockdevice, raid...
 	 **/
 	device_type type;

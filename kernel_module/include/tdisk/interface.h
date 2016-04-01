@@ -72,6 +72,7 @@ struct internal_device_add_parameters
 {
 	enum internal_device_type type;
 	char name[TDISK_MAX_INTERNAL_DEVICE_NAME];
+	char path[TDISK_MAX_INTERNAL_DEVICE_NAME];
 	unsigned int fd;
 }; //end struct internal_device_add_parameters
 
@@ -109,6 +110,8 @@ struct internal_device_info
 	tdisk_index disk;
 	enum internal_device_type type;
 	char name[TDISK_MAX_INTERNAL_DEVICE_NAME];
+	char path[TDISK_MAX_INTERNAL_DEVICE_NAME];
+	__u64 size;
 	struct device_performance performance;
 }; //end struct internal_device_info
 

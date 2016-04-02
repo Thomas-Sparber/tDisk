@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 
+#include <backendresult.hpp>
 #include <ci_string.hpp>
 #include <options.hpp>
 #include <utils.hpp>

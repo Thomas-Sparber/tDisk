@@ -36,7 +36,7 @@ namespace td
 	  * @param args: not needed
 	  * @param options: The command options (e.g. output-format)
 	 **/
-	std::string get_tDisks(const std::vector<std::string> &args, Options &options);
+	BackendResult get_tDisks(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Gets information about the given tDisk
@@ -44,14 +44,14 @@ namespace td
 	  *  - tDisk minor number (e.g. 0) or path (e.g. /dev/td0)
 	  * @param options: The command options (e.g. output-format)
 	 **/
-	std::string get_tDisk(const std::vector<std::string> &args, Options &options);
+	BackendResult get_tDisk(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Gets all available devices which could be used for a tDisk
 	  * @param args: not needed
 	  * @param options: The command options (e.g. output-format)
 	 **/
-	std::string get_devices(const std::vector<std::string> &args, Options &options);
+	BackendResult get_devices(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Creates a new tDisk
@@ -64,7 +64,7 @@ namespace td
 	  *  - Internal device n
 	  * @param options: The command options (e.g. output-format)
 	 **/
-	std::string create_tDisk(const std::vector<std::string> &args, Options &options);
+	BackendResult create_tDisk(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Adds a new tDisk to the system.
@@ -73,7 +73,7 @@ namespace td
 	  *  - The blocksize of the tDisk, e.g. 16384
 	  * @param options: The command options (e.g. output-format)
 	 **/
-	std::string add_tDisk(const std::vector<std::string> &args, Options &options);
+	BackendResult add_tDisk(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Removes a tDisk from the system.
@@ -81,7 +81,7 @@ namespace td
 	  *  - tDisk minor number (e.g. 0) or path (e.g. /dev/td0)
 	  * @param options: The command options (e.g. output-format)
 	 **/
-	std::string remove_tDisk(const std::vector<std::string> &args, Options &options);
+	BackendResult remove_tDisk(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Adds one or more nacking files to a tDisk.
@@ -91,7 +91,7 @@ namespace td
 	  *  - ...
 	  * @param options: The command options (e.g. output-format)
 	 **/
-	std::string add_disk(const std::vector<std::string> &args, Options &options);
+	BackendResult add_disk(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Gets the current maximum amount of sectors (defined
@@ -100,7 +100,7 @@ namespace td
 	  * - tDisk minor number (e.g. 0) or path (e.g. /dev/td0)
 	  * @param options: The command options (e.g. output-format)
 	 **/
-	std::string get_max_sectors(const std::vector<std::string> &args, Options &options);
+	BackendResult get_max_sectors(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Gets the current size in bytes (defined
@@ -109,7 +109,7 @@ namespace td
 	  * - tDisk minor number (e.g. 0) or path (e.g. /dev/td0)
 	  * @param options: The command options (e.g. output-format)
 	 **/
-	std::string get_size_bytes(const std::vector<std::string> &args, Options &options);
+	BackendResult get_size_bytes(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Gets the sector information for the given logical
@@ -120,7 +120,7 @@ namespace td
 	  * @param options: The command options (e.g. output-format)
 	  * @return A stringified version of td::c::f_sector_index
 	 **/
-	std::string get_sector_index(const std::vector<std::string> &args, Options &options);
+	BackendResult get_sector_index(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Gets the sector information of all sectors of the
@@ -130,7 +130,7 @@ namespace td
 	  * @param options: The command options (e.g. output-format)
 	  * @return A stringified version of an array of td::c::f_sector_index
 	 **/
-	std::string get_all_sector_indices(const std::vector<std::string> &args, Options &options);
+	BackendResult get_all_sector_indices(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Sets the access count for all sectors of the given
@@ -139,7 +139,7 @@ namespace td
 	  *  - tDisk minor number (e.g. 0) or path (e.g. /dev/td0)
 	  * @param options: The command options (e.g. output-format)
 	 **/
-	std::string clear_access_count(const std::vector<std::string> &args, Options &options);
+	BackendResult clear_access_count(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Gets the current number of internal devices of the
@@ -148,7 +148,7 @@ namespace td
 	  *  - tDisk minor number (e.g. 0) or path (e.g. /dev/td0)
 	  * @param options: The command options (e.g. output-format)
 	 **/
-	std::string get_internal_devices_count(const std::vector<std::string> &args, Options &options);
+	BackendResult get_internal_devices_count(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Returns information about the internal device with
@@ -158,7 +158,7 @@ namespace td
 	  *  - Device number (e.g. 1)
 	  * @param options: The command options (e.g. output-format)
 	 **/
-	std::string get_device_info(const std::vector<std::string> &args, Options &options);
+	BackendResult get_device_info(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Loads the given config file @see ConfigFile
@@ -170,7 +170,7 @@ namespace td
 	  * Ideally, this result should be the same as the
 	  * comfig file.
 	 **/
-	std::string load_config_file(const std::vector<std::string> &args, Options &options);
+	BackendResult load_config_file(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Returns a device on how to configure a given list of
@@ -181,7 +181,7 @@ namespace td
 	  * @param options: The command options (e.g. output-format)
 	  * @return A stringified version of an array of td::advisor::tdisk_advice
 	 **/
-	std::string get_device_advice(const std::vector<std::string> &args, Options &options);
+	BackendResult get_device_advice(const std::vector<std::string> &args, Options &options);
 
 } //end namespace td
 

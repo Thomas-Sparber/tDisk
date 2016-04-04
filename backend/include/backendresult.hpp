@@ -16,6 +16,9 @@ namespace td
 enum class BackendResultType
 {
 
+	/** Means that the result is not specific to any component **/
+	general,
+
 	/** Means that the result is meant for the driver **/
 	driver,
 
@@ -187,6 +190,54 @@ public:
 	}
 
 	/**
+	  * Gets all result messages for the BackendResult
+	 **/
+	std::string messages() const
+	{
+		std::string ret;
+
+		for(const auto &p : individualResults)
+		{
+			if(p.second.message.empty())continue;
+			ret = utils::concat(ret, (ret.empty() ? "" : "\n"), "(",BackendResult::getTypeString(p.first),"): ",p.second.message);
+		}
+
+		return std::move(ret);
+	}
+
+	/**
+	  * Gets all warning result messages for the BackendResult
+	 **/
+	std::string warnings() const
+	{
+		std::string ret;
+
+		for(const auto &p : individualResults)
+		{
+			if(p.second.warning.empty())continue;
+			ret = utils::concat(ret, (ret.empty() ? "" : "\n"), "(",BackendResult::getTypeString(p.first),"): ",p.second.warning);
+		}
+
+		return std::move(ret);
+	}
+
+	/**
+	  * Gets all error result messages for the BackendResult
+	 **/
+	std::string errors() const
+	{
+		std::string ret;
+
+		for(const auto &p : individualResults)
+		{
+			if(p.second.error.empty())continue;
+			ret = utils::concat(ret, (ret.empty() ? "" : "\n"), "(",BackendResult::getTypeString(p.first),"): ",p.second.error);
+		}
+
+		return std::move(ret);
+	}
+
+	/**
 	  * Gets the error code for the entire result which is
 	  * the maximum code in all individual results
 	 **/
@@ -224,7 +275,7 @@ public:
 	  * Sets actual result
 	 **/
 	template <class ...T>
-	void result(T ...t, const std::string &output_format)
+	void result(T ...t, const utils::ci_string &output_format)
 	{
 		str_result = createResultString(utils::concat(t...), 0, output_format);
 	}
@@ -233,7 +284,7 @@ public:
 	  * Sets actual result
 	 **/
 	template <class T>
-	void result(const T &t, const std::string &output_format)
+	void result(const T &t, const utils::ci_string &output_format)
 	{
 		str_result = createResultString(t, 0, output_format);
 	}
@@ -244,6 +295,21 @@ public:
 	const std::string& result() const
 	{
 		return str_result;
+	}
+
+	/**
+	  * Returns the string representation of the given type
+	 **/
+	static std::string getTypeString(BackendResultType type)
+	{
+		switch(type)
+		{
+			case BackendResultType::general: return "General";
+			case BackendResultType::driver: return "Driver";
+			case BackendResultType::configfile: return "Configfile";
+		}
+
+		return utils::concat("[Invalid type: ]", (int)type);
 	}
 
 private:

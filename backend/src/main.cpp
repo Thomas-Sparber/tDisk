@@ -38,13 +38,13 @@ using utils::ci_string;
  **/
 struct Command
 {
-	Command(const ci_string &str_name, function<string(const vector<string>&,Options&)> fn_func, const string &str_description) :
+	Command(const ci_string &str_name, function<BackendResult(const vector<string>&,Options&)> fn_func, const string &str_description) :
 		name(str_name),
 		func(fn_func),
 		description(str_description)
 	{}
 	ci_string name;
-	function<string(const vector<string>&,Options&)> func;
+	function<BackendResult(const vector<string>&,Options&)> func;
 	string description;
 }; //end struct Command
 
@@ -151,7 +151,7 @@ int main(int argc, char *args[])
 	} catch(const BackendException &e) {
 		error = e.what;
 	} catch(const tDiskException &e) {
-		error = e.message;
+		error = e.what;
 	} catch(const FormatException &e) {
 		error = e.what;
 	}
@@ -220,7 +220,9 @@ string handleCommand(int argc, char **args, const string &defaultConfigFile)
 		if(command.name == cmd)
 		{
 			vector<string> v_args(args+2, args+argc);
-			return command.func(v_args, options);
+			BackendResult r = command.func(v_args, options);
+			//TODO error handling
+			return r.result();
 		}
 	}
 

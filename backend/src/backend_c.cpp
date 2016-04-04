@@ -27,23 +27,22 @@ using std::vector;
   * simply calls the C++ equivalent
  **/
 #define C_FUNCTION_IMPLEMENTATION(name) \
-int name(int argc, char *args[], struct Options *options, char *out, int out_length) \
+struct BackendResult* name(int argc, char *args[], struct Options *options) \
 { \
+	td::BackendResult *r = new td::BackendResult(); \
+	\
 	try { \
 		td::Options *o = (td::Options*)options; \
-		const string &result = td::name(vector<string>(args, args+argc), *o); \
-		strncpy(out, result.c_str(), out_length); \
-		return 0; \
+		*r = td::name(vector<string>(args, args+argc), *o); \
 	} catch (const td::BackendException &e) { \
-		strncpy(out, e.what.c_str(), out_length); \
-		return -1; \
+		r->error(td::BackendResultType::general, e.what); \
 	} catch (const td::tDiskException &e) { \
-		strncpy(out, e.message.c_str(), out_length); \
-		return -2; \
+		r->error(td::BackendResultType::general, e.what); \
 	} catch (...) { \
-		strncpy(out, "Unknown exception thrown", out_length); \
-		return -3; \
+		r->error(td::BackendResultType::general, "Unknown exception thrown"); \
 	} \
+	\
+	return (struct BackendResult*)r; \
 }
 
 C_FUNCTION_IMPLEMENTATION(get_tDisks)
@@ -77,3 +76,27 @@ void free_options(Options *o)
 	delete (td::Options*)o;
 }
 
+void BackendResult_delete(struct BackendResult *r)
+{
+	delete (td::BackendResult*)r;
+}
+
+const char* BackendResult_result(struct BackendResult *r)
+{
+	return ((td::BackendResult*)r)->result().c_str();
+}
+
+void BackendResult_messages(struct BackendResult *r, char *out, size_t length)
+{
+	strncpy(out, ((td::BackendResult*)r)->messages().c_str(), length);
+}
+
+void BackendResult_warnings(struct BackendResult *r, char *out, size_t length)
+{
+	strncpy(out, ((td::BackendResult*)r)->warnings().c_str(), length);
+}
+
+void BackendResult_errors(struct BackendResult *r, char *out, size_t length)
+{
+	strncpy(out, ((td::BackendResult*)r)->errors().c_str(), length);
+}

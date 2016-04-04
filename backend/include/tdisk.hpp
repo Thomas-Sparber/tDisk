@@ -38,13 +38,13 @@ struct tDiskException
 	 **/
 	template <class ...T>
 	tDiskException(T ...t) :
-		message(utils::concat(t...))
+		what(utils::concat(t...))
 	{}
 	
 	/**
 	  * The reason for the error
 	 **/
-	std::string message;
+	std::string what;
 	
 }; //end class tDiskException
 
@@ -108,7 +108,7 @@ public:
 					loaded.loadSize();
 					out.push_back(std::move(loaded));
 				} catch (const tDiskException &e) {
-					error = utils::concat("Unable to load disk ", &buffer[i][0], ": ", e.message);
+					error = utils::concat("Unable to load disk ", &buffer[i][0], ": ", e.what);
 					break;
 				}
 			}
@@ -167,7 +167,7 @@ public:
 		try {
 			handleError(ret);
 		} catch(const tDiskException &e) {
-			throw tDiskException("Unable to create new tDisk ", i_minornumber, ": ", e.message);
+			throw tDiskException("Unable to create new tDisk ", i_minornumber, ": ", e.what);
 		}
 
 		if(ret != i_minornumber)
@@ -189,7 +189,7 @@ public:
 		try {
 			handleError(ret);
 		} catch(const tDiskException &e) {
-			throw tDiskException("Unable to create new tDisk: ", e.message);
+			throw tDiskException("Unable to create new tDisk: ", e.what);
 		}
 
 		return tDisk(ret, temp);
@@ -206,7 +206,7 @@ public:
 		try {
 			handleError(ret);
 		} catch(const tDiskException &e) {
-			throw tDiskException("Unable to remove tDisk: ", e.message);
+			throw tDiskException("Unable to remove tDisk: ", e.what);
 		}
 	}
 
@@ -222,7 +222,7 @@ public:
 		try {
 			handleError(ret);
 		} catch(const tDiskException &e) {
-			throw tDiskException("Unable to remove tDisk: ", e.message);
+			throw tDiskException("Unable to remove tDisk: ", e.what);
 		}
 	}
 
@@ -393,7 +393,7 @@ public:
 		try {
 			handleError(ret);
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't add disk \"", path ,"\" to tDisk ", name, ": ", e.message);
+			throw tDiskException("Can't add disk \"", path ,"\" to tDisk ", name, ": ", e.what);
 		}
 
 		online = true;
@@ -410,7 +410,7 @@ public:
 		try {
 			handleError(ret);
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't get max sectors for tDisk ", name, ": ", e.message);
+			throw tDiskException("Can't get max sectors for tDisk ", name, ": ", e.what);
 		}
 
 		online = true;
@@ -428,7 +428,7 @@ public:
 		try {
 			handleError(ret);
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't get size for tDisk ", name, ": ", e.message);
+			throw tDiskException("Can't get size for tDisk ", name, ": ", e.what);
 		}
 
 		online = true;
@@ -447,7 +447,7 @@ public:
 		try {
 			handleError(ret);
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't get sector index ", logicalSector, " for tDisk ", name, ": ", e.message);
+			throw tDiskException("Can't get sector index ", logicalSector, " for tDisk ", name, ": ", e.what);
 		}
 
 		online = true;
@@ -467,7 +467,7 @@ public:
 		try {
 			handleError(ret);
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't all sector indices for tDisk ", name, ": ", e.message);
+			throw tDiskException("Can't all sector indices for tDisk ", name, ": ", e.what);
 		}
 
 		online = true;
@@ -484,7 +484,7 @@ public:
 		try {
 			handleError(ret);
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't clear access count for tDisk ", name, ": ", e.message);
+			throw tDiskException("Can't clear access count for tDisk ", name, ": ", e.what);
 		}
 
 		online = true;
@@ -501,7 +501,7 @@ public:
 		try {
 			handleError(ret);
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't get internal devices count for tDisk ", name, ": ", e.message);
+			throw tDiskException("Can't get internal devices count for tDisk ", name, ": ", e.what);
 		}
 
 		online = true;
@@ -520,7 +520,7 @@ public:
 		try {
 			handleError(ret);
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't get device info for device ", (int)device, " for tDisk ", name, ": ", e.message);
+			throw tDiskException("Can't get device info for device ", (int)device, " for tDisk ", name, ": ", e.what);
 		}
 
 		online = true;

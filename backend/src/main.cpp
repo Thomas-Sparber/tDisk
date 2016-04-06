@@ -174,7 +174,7 @@ int main(int argc, char *args[])
 			cout<<"\t"<<createResultString(type, 1, "json")<<": "<<createResultString(result.getIndividualResult(type), 1, "json")<<","<<endl;
 		}
 
-		cout<<"\t\"result\": "<<utils::replaceAll(result.result().empty() ? "{}" : result.result(), "\n", "\n\t")<<endl;
+		cout<<"\t\"result\": "<<utils::replaceAll(result.result().empty() ? "null" : result.result(), "\n", "\n\t")<<endl;
 		cout<<"}"<<endl;
 	}
 	else if(options.getOptionValue("output-format") == "text")

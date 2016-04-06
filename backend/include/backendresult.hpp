@@ -34,8 +34,6 @@ enum class BackendErrorCode
 {
 	Success,
 
-	Offline,
-
 	Warning,
 
 	Error
@@ -89,10 +87,11 @@ struct IndividualResult
 		switch(errorCode)
 		{
 			case BackendErrorCode::Success: return "Success";
-			case BackendErrorCode::Offline: return "Offline";
 			case BackendErrorCode::Warning: return "Warning";
 			case BackendErrorCode::Error: return "Error";
 		}
+
+		return utils::concat("Invalid BackendErrorCode: ", int(errorCode));
 	}
 
 	/**
@@ -277,7 +276,11 @@ public:
 	template <class ...T>
 	void result(T ...t, const utils::ci_string &output_format)
 	{
-		str_result = createResultString(utils::concat(t...), 0, output_format);
+		try {
+			str_result = createResultString(utils::concat(t...), 0, output_format);
+		} catch (const FormatException &e) {
+			error(BackendResultType::general, e.what());
+		}
 	}
 
 	/**
@@ -286,7 +289,11 @@ public:
 	template <class T>
 	void result(const T &t, const utils::ci_string &output_format)
 	{
-		str_result = createResultString(t, 0, output_format);
+		try {
+			str_result = createResultString(t, 0, output_format);
+		} catch (const FormatException &e) {
+			error(BackendResultType::general, e.what());
+		}
 	}
 
 	/**
@@ -312,6 +319,26 @@ public:
 		return utils::concat("[Invalid type: ]", (int)type);
 	}
 
+	/**
+	  * Returns all available result types which are present in the BackendResult
+	 **/
+	std::vector<BackendResultType> getResultTypes() const
+	{
+		std::vector<BackendResultType> types;
+		for(const auto &res : individualResults)
+			types.push_back(res.first);
+		return std::move(types);
+	}
+
+	/**
+	  * Returns the individual result for the given type
+	 **/
+	const IndividualResult& getIndividualResult(BackendResultType type) const
+	{
+		auto found = individualResults.find(type);
+		return found->second;
+	}
+
 private:
 
 	/**
@@ -325,6 +352,47 @@ private:
 	std::string str_result;
 
 }; //end class backendResult
+
+/**
+  * Stringifies the given BackendErrorCode using the given format
+ **/
+template <> inline std::string createResultString(const BackendErrorCode &code, unsigned int hierarchy, const utils::ci_string &outputFormat)
+{
+	return createResultString(IndividualResult::getErrorStringCode(code), hierarchy, outputFormat);
+}
+
+/**
+  * Stringifies the given BackendResultType using the given format
+ **/
+template <> inline std::string createResultString(const BackendResultType &type, unsigned int hierarchy, const utils::ci_string &outputFormat)
+{
+	return createResultString(BackendResult::getTypeString(type), hierarchy, outputFormat);
+}
+
+/**
+  * Stringifies the given IndividualResult using the given format
+ **/
+template <> inline std::string createResultString(const IndividualResult &result, unsigned int hierarchy, const utils::ci_string &outputFormat)
+{
+	if(outputFormat == "json")
+		return utils::concat(
+			"{\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(result, errorCode, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(result, message, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(result, warning, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(result, error, hierarchy+1, outputFormat), "\n",
+			std::vector<char>(hierarchy, '\t'), "}"
+		);
+	else if(outputFormat == "text")
+		return utils::concat(
+				CREATE_RESULT_STRING_MEMBER_TEXT(result, errorCode, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_MEMBER_TEXT(result, message, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_MEMBER_TEXT(result, warning, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_MEMBER_TEXT(result, error, hierarchy+1, outputFormat), "\n"
+		);
+	else
+		throw FormatException("Invalid output-format ", outputFormat);
+}
 
 } //end namespace td
 

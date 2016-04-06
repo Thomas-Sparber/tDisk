@@ -94,6 +94,14 @@ public:
 	 **/
 	bool getBoolValue() const;
 
+	/**
+	  * Returns the predefined option values
+	 **/
+	const std::vector<utils::ci_string> getPredefinedValues() const
+	{
+		return values;
+	}
+
 public:
 
 	/**

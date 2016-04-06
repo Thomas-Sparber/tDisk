@@ -168,6 +168,21 @@ namespace td
 		}
 
 		/**
+		  * Replaces all occurrences of search with replace in str
+		 **/
+		inline std::string replaceAll(std::string str, const std::string &search, const std::string &replace)
+		{
+			std::size_t pos = 0;
+			while((pos=str.find(search, pos)) != std::string::npos)
+			{
+				str = str.replace(pos, search.length(), replace);
+				pos += replace.length();
+			}
+
+			return std::move(str);
+		}
+
+		/**
 		  *	Converts the given size value from bytes to a
 		  * "better human readable" value and stores the unit in unit.
 		  * The output unit ranges from Byte to TiB.

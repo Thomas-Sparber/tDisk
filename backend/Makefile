@@ -14,6 +14,7 @@ CPP_SOURCES= \
 	src/deviceadvisor.cpp \
 	src/filesystem.cpp \
 	src/backend.cpp \
+	src/main.cpp \
 	src/option.cpp \
 	src/options.cpp \
 	src/tdisk_advice.cpp
@@ -38,9 +39,9 @@ libtd-backend.a: $(OBJECTS)
 	@echo "Linking" $@
 	@ar rcs $@ $(OBJECTS)
 
-tdisk: libtd-backend.a bin/main.o
+tdisk: libtd-backend.a
 	@echo "Linking" $@
-	@$(CXX) -o $@ bin/main.o $(LDFLAGS)
+	@$(CXX) -o $@ $(LDFLAGS)
 
 bin/%.o: src/%.c
 	@echo "Compiling" $<

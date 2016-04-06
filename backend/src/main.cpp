@@ -48,8 +48,8 @@ struct Command
 	string description;
 }; //end struct Command
 
-std::string handleCommand(int argc, char **args, const string &defaultConfigFile);
-void printHelp(const string &progName);
+BackendResult handleCommand(int argc, char **args);
+void printHelp();
 
 vector<Command> commands {
 	Command("get_tdisks", get_tDisks,
@@ -126,13 +126,76 @@ vector<string> configfiles = {
 	"example.config"
 };
 
+string programName;
+Options options;
+
 int main(int argc, char *args[])
 {
-	string result;
-	string error;
+	programName = args[0];
+	options = getDefaultOptions();
 
-	string configFile;
+	options.addOption(Option(
+		"configfile",
+		"The file where all configuration data should be read/written."
+	));
 
+	options.addOption(Option(
+		"config-only",
+		"A flag whether the operations should be writte to config file only.\n"
+		"If this flag is set to yes, nothing is done on the actual system",
+		{ "no", "yes" }
+	));
+
+	options.addOption(Option(
+		"temporary",
+		"A flag whether the operations should only be done temporary. This\n"
+		"means the actions are performed, but not stored to any config file.",
+		{ "no", "yes" }
+	));
+
+	BackendResult result = handleCommand(argc, args);
+
+	const string &errors = result.errors();
+	const string &warnings = result.warnings();
+	const string &messages = result.messages();
+
+	if(options.getOptionValue("output-format") == "json")
+	{
+		BackendErrorCode errorCode = result.errorCode();
+
+		cout<<"{"<<endl;
+		cout<<"\t"<<utils::concat(CREATE_RESULT_STRING_NONMEMBER_JSON(errorCode, 1, "json"))<<","<<endl;
+		cout<<"\t"<<utils::concat(CREATE_RESULT_STRING_NONMEMBER_JSON(errors, 1, "json"))<<","<<endl;
+		cout<<"\t"<<utils::concat(CREATE_RESULT_STRING_NONMEMBER_JSON(warnings, 1, "json"))<<","<<endl;
+		cout<<"\t"<<utils::concat(CREATE_RESULT_STRING_NONMEMBER_JSON(messages, 1, "json"))<<","<<endl;
+
+		for(BackendResultType type : result.getResultTypes())
+		{
+			cout<<"\t"<<createResultString(type, 1, "json")<<": "<<createResultString(result.getIndividualResult(type), 1, "json")<<","<<endl;
+		}
+
+		cout<<"\t\"result\": "<<utils::replaceAll(result.result().empty() ? "{}" : result.result(), "\n", "\n\t")<<endl;
+		cout<<"}"<<endl;
+	}
+	else if(options.getOptionValue("output-format") == "text")
+	{
+		if(!result.result().empty())cout<<result.result()<<endl;
+
+		if(!errors.empty())cerr<<"Errors:"<<endl<<errors<<endl;
+		if(!warnings.empty())cerr<<"Warnings:"<<endl<<warnings<<endl;
+		if(!messages.empty())cerr<<"Messages:"<<endl<<messages<<endl;
+	}
+
+	switch(result.errorCode())
+	{
+		case BackendErrorCode::Success: return 0;
+		case BackendErrorCode::Error: return 1;
+		case BackendErrorCode::Warning: return 2;
+	}
+}
+
+BackendResult handleCommand(int argc, char **args)
+{
 	for(string &f : configfiles)
 	{
 		const string &path = utils::dirnameOf(f, args[0]);
@@ -141,57 +204,12 @@ int main(int argc, char *args[])
 		f = utils::concatPath(path, file);
 		if(utils::fileExists(f))
 		{
-			configFile = f;
+			options.setOptionValue("configfile", f.c_str());
 			break;
 		}
-	}
+	}	
 
-	try {
-		result = handleCommand(argc, args, configFile);
-	} catch(const BackendException &e) {
-		error = e.what();
-	} catch(const FormatException &e) {
-		error = e.what();
-	} catch(const tDiskException &e) {
-		error = e.what();
-	}
-
-	if(error != "")cerr<<error<<endl;
-	else cout<<result<<endl;
-
-	return 0;
-}
-
-string handleCommand(int argc, char **args, const string &defaultConfigFile)
-{
-	string programName = args[0];
-	td::Options options = getDefaultOptions();
-
-	Option configfile(
-		"configfile",
-		"The file where all configuration data should be read/written."
-	);
-	configfile.setValue(defaultConfigFile);
-	options.addOption(configfile);
-
-	Option configonly(
-		"config-only",
-		"A flag whether the operations should be writte to config file only.\n"
-		"If this flag is set to yes, nothing is done on the actual system",
-		{ "yes", "no" }
-	);
-	configonly.setValue("no");
-	options.addOption(configonly);
-
-	Option temporary(
-		"temporary",
-		"A flag whether the operations should only be done temporary. This\n"
-		"means the actions are performed, but not stored to any config file.",
-		{ "yes", "no" }
-	);
-	temporary.setValue("no");
-	options.addOption(temporary);
-
+	BackendResult r;
 	ci_string option;
 	while(argc > 1 && (option = args[1]).substr(0, 2) == "--")
 	{
@@ -205,12 +223,16 @@ string handleCommand(int argc, char **args, const string &defaultConfigFile)
 	}
 
 	if(options.getOptionBoolValue("config-only") && options.getOptionBoolValue("temporary"))
-		throw new BackendException("config-only and temporary cannot be set at the same time.");
+	{
+		r.error(BackendResultType::general, "config-only and temporary cannot be set at the same time.");
+		return std::move(r);
+	}
 
 	if(argc <= 1)
 	{
-		printHelp(programName);
-		throw BackendException("Please provide a command");
+		printHelp();
+		r.error(BackendResultType::general, "Please provide a command");
+		return std::move(r);
 	}
 
 	ci_string cmd = args[1];
@@ -220,33 +242,43 @@ string handleCommand(int argc, char **args, const string &defaultConfigFile)
 		if(command.name == cmd)
 		{
 			vector<string> v_args(args+2, args+argc);
-			BackendResult r = command.func(v_args, options);
-			//TODO error handling
-			return r.result();
+			r = command.func(v_args, options);
+			return std::move(r);
 		}
 	}
 
-	printHelp(programName);
-	throw BackendException("Unknown command ", cmd);
+	printHelp();
+	r.error(BackendResultType::general, utils::concat("Unknown command ", cmd));
+	return std::move(r);
 }
 
-void printHelp(const string &progName)
+void printHelp()
 {
-	cout<<"Usage: "<<progName<<" ([options]) [command] [command-arguments...]"<<endl;
+	cout<<"Usage: "<<programName<<" ([options]) [command] [command-arguments...]"<<endl;
 	cout<<endl;
 	cout<<"The following options are available:"<<endl;
-	const td::Options allOptions = getDefaultOptions();
-	for(const Option &o : allOptions.getAllOptions())
+	for(const Option &o : options.getAllOptions())
 	{
-		std::size_t pos = 0;
-		string description = o.getDescription();
-		while((pos=description.find("\n", pos)) != string::npos)
+		string description = utils::replaceAll(o.getDescription(), "\n", "\n\t   ");
+
+		cout<<"\t --"<<o.getName()<<"=";
+		if(o.hasPredefinedValues())
 		{
-			description = description.replace(pos, 1, "\n\t   ");
-			pos++;
+			cout<<"[";
+			bool first = true;
+			for(const utils::ci_string value : o.getPredefinedValues())
+			{
+				if(first)first = false;
+				else cout<<",";
+				cout<<value;
+			}
+			cout<<"]"<<endl;
+		}
+		else
+		{
+			cout<<"..."<<endl;
 		}
 
-		cout<<"\t --"<<o.getName()<<endl;
 		cout<<"\t   "<<description<<endl;
 	}
 	cout<<endl;
@@ -254,13 +286,7 @@ void printHelp(const string &progName)
 	cout<<"The following commands are available:"<<endl;
 	for(const Command &c : commands)
 	{
-		std::size_t pos = 0;
-		string description = c.description;
-		while((pos=description.find("\n", pos)) != string::npos)
-		{
-			description = description.replace(pos, 1, "\n\t   ");
-			pos++;
-		}
+		string description = utils::replaceAll(c.description, "\n", "\n\t   ");
 		
 		cout<<"\t - "<<c.name<<endl;
 		cout<<"\t   "<<description<<endl;

@@ -35,9 +35,9 @@ struct BackendResult* name(int argc, char *args[], struct Options *options) \
 		td::Options *o = (td::Options*)options; \
 		*r = td::name(vector<string>(args, args+argc), *o); \
 	} catch (const td::BackendException &e) { \
-		r->error(td::BackendResultType::general, e.what); \
+		r->error(td::BackendResultType::general, e.what()); \
 	} catch (const td::tDiskException &e) { \
-		r->error(td::BackendResultType::general, e.what); \
+		r->error(td::BackendResultType::general, e.what()); \
 	} catch (...) { \
 		r->error(td::BackendResultType::general, "Unknown exception thrown"); \
 	} \

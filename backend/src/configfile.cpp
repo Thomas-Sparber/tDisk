@@ -14,7 +14,7 @@
 
 #include <ci_string.hpp>
 #include <configfile.hpp>
-#include <backendexception.hpp>
+#include <configexception.hpp>
 #include <tdisk.hpp>
 
 using std::cout;
@@ -48,7 +48,7 @@ td::configuration::tdisk_config& td::configuration::getTDisk(int minornumber)
 	tdisk_config temp;
 	temp.minornumber = minornumber;
 	auto found = find(tdisks.begin(), tdisks.end(), temp);
-	if(found == tdisks.end())throw BackendException("No tDisk found in config file with minornumber ",minornumber);
+	if(found == tdisks.end())throw ConfigException("No tDisk found in config file with minornumber ",minornumber);
 	return *found;
 }
 
@@ -57,7 +57,7 @@ const td::configuration::tdisk_config& td::configuration::getTDisk(int minornumb
 	tdisk_config temp;
 	temp.minornumber = minornumber;
 	auto found = find(tdisks.begin(), tdisks.end(), temp);
-	if(found == tdisks.end())throw BackendException("No tDisk found in config file with minornumber ",minornumber);
+	if(found == tdisks.end())throw ConfigException("No tDisk found in config file with minornumber ",minornumber);
 	return *found;
 }
 
@@ -75,14 +75,14 @@ void td::configuration::addDevice(const configuration::tdisk_config &device)
 	for(const configuration::tdisk_config &orig_config : tdisks)
 	{
 		if(device.minornumber == orig_config.minornumber)
-			throw BackendException("Minornumber ", orig_config.minornumber, " is used twice");
+			throw ConfigException("Minornumber ", orig_config.minornumber, " is used twice");
 
 		for(const string new_device : device.devices)
 		{
 			for(const string orig_device : orig_config.devices)
 			{
 				if(new_device == orig_device)
-					throw BackendException("Two different tDisks can't share the same device");
+					throw ConfigException("Two different tDisks can't share the same device");
 			}
 		}
 	}
@@ -149,17 +149,17 @@ const char* getName(const char *it, const char *end, ci_string &out)
 			if(*it == '"' || *it == '\'')
 			{
 				it++;
-				if(*(colon-1) != '"' && *(colon-1) != '\'')throw BackendException("No trailing quote found for name");
+				if(*(colon-1) != '"' && *(colon-1) != '\'')throw ConfigException("No trailing quote found for name");
 				colon--;
 			}
 
 			out = ci_string(it, colon);
 			return it2;
 		}
-		else throw BackendException("Didn't find a colon");
+		else throw ConfigException("Didn't find a colon");
 	}
 
-	throw BackendException("No name found");
+	throw ConfigException("No name found");
 }
 
 void configuration::process(const string &str, const td::Options &options)
@@ -230,7 +230,7 @@ const char* getStringValue(const char *it, const char *end, string &out)
 	if(*it == '"' || *it == '\'')
 	{
 		it++;
-		if(*end != '"' && *end != '\'')throw BackendException("String not closed: ", *end);
+		if(*end != '"' && *end != '\'')throw ConfigException("String not closed: ", *end);
 	}
 
 	out = string(it, end);
@@ -245,7 +245,7 @@ const char* getLongValue(const char *it, const char *end, T &out)
 
 	char *test;
 	out = strtol(str.c_str(), &test, 10);
-	if(test != str.c_str()+str.length())throw BackendException("Invalid number ", str);
+	if(test != str.c_str()+str.length())throw ConfigException("Invalid number ", str);
 	return end;
 }
 
@@ -255,11 +255,11 @@ const char* getStringArrayValue(const char *it, const char *end, vector<string> 
 	{
 		if(isspace(*it))continue;
 		if(*it == '[')break;
-		throw BackendException("Expected '['");
+		throw ConfigException("Expected '['");
 	}
 
 	end = getClosingbracket(it, end, '[', ']');
-	if(!end)throw BackendException("Expected ']' at the end of declaration");
+	if(!end)throw ConfigException("Expected ']' at the end of declaration");
 
 	for(it = it+1; it < end; ++it)
 	{
@@ -285,11 +285,11 @@ const char* loadTDisk(const char *it, const char *end, configuration::tdisk_conf
 	{
 		if(isspace(*it))continue;
 		if(*it == '{')break;
-		throw BackendException("Invalid tDisk config declaration: '{' expected");
+		throw ConfigException("Invalid tDisk config declaration: '{' expected");
 	}
 
 	end = getClosingbracket(it, end, '{', '}');
-	if(!end)throw BackendException("Expected '}' at the end of tdisk declaration");
+	if(!end)throw ConfigException("Expected '}' at the end of tdisk declaration");
 
 	for(it = it+1; it < end; ++it)
 	{
@@ -299,7 +299,7 @@ const char* loadTDisk(const char *it, const char *end, configuration::tdisk_conf
 		if(name == "minornumber")it = getLongValue(it, end, out.minornumber);
 		else if(name == "blocksize")it = getLongValue(it, end, out.blocksize);
 		else if(name == "devices")it = getStringArrayValue(it, end, out.devices);
-		else throw BackendException("Invalid tDisk option ", name);
+		else throw ConfigException("Invalid tDisk option ", name);
 	}
 
 	//cout<<"New tDisk:"<<endl;
@@ -310,20 +310,20 @@ const char* loadTDisk(const char *it, const char *end, configuration::tdisk_conf
 	//	cout<<"   - "<<device<<endl;
 
 	if(out.minornumber == -1)
-		throw BackendException("No minornumber specified");
+		throw ConfigException("No minornumber specified");
 	if(out.blocksize == 0 || out.blocksize % td::c::get_tdisk_blocksize_mod())
-		throw BackendException("blocksize must be a multiple of ", td::c::get_tdisk_blocksize_mod());
+		throw ConfigException("blocksize must be a multiple of ", td::c::get_tdisk_blocksize_mod());
 	//if(out.devices.empty())
-	//	throw BackendException("Please specify at least one device");
+	//	throw ConfigException("Please specify at least one device");
 	if(out.devices.size() > td::c::get_tdisk_max_physical_disks())
-		throw BackendException("Exceeded maximum number (", td::c::get_tdisk_max_physical_disks(),") of internal devices: ", out.devices.size());
+		throw ConfigException("Exceeded maximum number (", td::c::get_tdisk_max_physical_disks(),") of internal devices: ", out.devices.size());
 
 	return end;
 }
 
 const char* loadOption(const ci_string &name, const char *it, const char *end, configuration::tdisk_global_option &out, const td::Options &options)
 {
-	if(!options.optionExists(name))throw BackendException("Option ", name, " does not exist!");
+	if(!options.optionExists(name))throw ConfigException("Option ", name, " does not exist!");
 
 	string value;
 	out.name = name;

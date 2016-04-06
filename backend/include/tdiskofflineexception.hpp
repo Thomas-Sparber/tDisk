@@ -5,8 +5,8 @@
   *
  **/
 
-#ifndef BACKENDEXCEPTION_HPP
-#define BACKENDEXCEPTION_HPP
+#ifndef TDISKOFFLINEEXCEPTION_HPP
+#define TDISKOFFLINEEXCEPTION_HPP
 
 #include <tdiskexception.hpp>
 
@@ -14,10 +14,10 @@ namespace td
 {
 
 /**
-  * A BackendException is thrown whenever an error
-  * occured in parsing or executing a backend command
+  * A tDiskOfflineException is thrown when the tDisk
+  * driver is offline
  **/
-struct BackendException : public tDiskException
+struct tDiskOfflineException : public tDiskException
 {
 
 	/**
@@ -25,12 +25,12 @@ struct BackendException : public tDiskException
 	  * amount of arguments which are put together
 	 **/
 	template <class ...T>
-	BackendException(T ...t) :
+	tDiskOfflineException(T ...t) :
 		tDiskException(t...)
 	{}
 
-}; //end class BackendException
+}; //end class tDiskOfflineException
 
 } //end namespace td
 
-#endif //BACKENDEXCEPTION_HPP
+#endif //TDISKOFFLINEEXCEPTION_HPP

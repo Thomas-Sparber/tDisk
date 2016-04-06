@@ -14,6 +14,7 @@
 #include <vector>
 
 #include <ci_string.hpp>
+#include <formatexception.hpp>
 #include <utils.hpp>
 
 namespace td
@@ -38,29 +39,6 @@ namespace td
 	  * Creates a text result string for a non object member
 	 **/
 	#define CREATE_RESULT_STRING_NONMEMBER_TEXT(var, hierarchy, outputFormat) #var, " = ", createResultString(var, hierarchy, outputFormat)
-
-	/**
-	  * A FormanException is thrown whenever an error occurred while
-	  * formatting an object
-	 **/
-	struct FormatException
-	{
-		
-		/**
-		  * Constructs a FormatException using any number of arguments
-		  * and concats them
-		 **/
-		template <class ...T>
-		FormatException(T ...t) :
-			what(td::utils::concat(t...))
-		{}
-
-		/**
-		  * The description text of the FormatException
-		 **/
-		 std::string what;
-		 
-	}; //end class FormatException
 
 	/**
 	  * Stringifies the given object using the given format and data

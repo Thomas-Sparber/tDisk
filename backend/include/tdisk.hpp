@@ -15,6 +15,8 @@
 
 #include <utils.hpp>
 #include <resultformatter.hpp>
+#include <tdiskexception.hpp>
+#include <tdiskofflineexception.hpp>
 
 namespace td
 {
@@ -26,27 +28,6 @@ namespace c
 		#include "tdisk.h"
 	}
 } //end namespace c
-
-/**
-  * Is thrown whenever a tDisk related error happened
- **/
-struct tDiskException
-{
-
-	/**
-	  * Constructs a tDiskException using any number of arguments
-	 **/
-	template <class ...T>
-	tDiskException(T ...t) :
-		what(utils::concat(t...))
-	{}
-	
-	/**
-	  * The reason for the error
-	 **/
-	std::string what;
-	
-}; //end class tDiskException
 
 using c::f_device_performance;
 using c::f_internal_device_info;
@@ -95,6 +76,7 @@ public:
 	static void getTDisks(cont<tDisk> &out)
 	{
 		std::string error;
+		std::string offline;
 		std::vector<char*> buffer(100);
 		for(char* &c : buffer)c = new char[256];
 
@@ -107,8 +89,11 @@ public:
 					tDisk loaded(utils::concat("/dev/", &buffer[i][0]));
 					loaded.loadSize();
 					out.push_back(std::move(loaded));
+				} catch (const tDiskOfflineException &e) {
+					offline = utils::concat("Unable to load disk ", &buffer[i][0], ": ", e.what());
+					break;
 				} catch (const tDiskException &e) {
-					error = utils::concat("Unable to load disk ", &buffer[i][0], ": ", e.what);
+					error = utils::concat("Unable to load disk ", &buffer[i][0], ": ", e.what());
 					break;
 				}
 			}
@@ -117,6 +102,7 @@ public:
 		for(char* &c : buffer)delete [] c;
 
 		if(error != "")throw tDiskException("Unable to load all tDisks: ", error);
+		if(offline != "")throw tDiskOfflineException("Unable to load all tDisks: ", offline);
 		if(devices == -1)throw tDiskException("Unable to read /dev folder");
 		if(devices == -2)throw tDiskException("More than 100 tDisks present");
 	}
@@ -166,8 +152,10 @@ public:
 		int ret = c::tdisk_add_specific(temp, i_minornumber, blocksize);
 		try {
 			handleError(ret);
+		} catch(const tDiskOfflineException &e) {
+			throw tDiskOfflineException("Unable to create new tDisk ", i_minornumber, ": ", e.what());
 		} catch(const tDiskException &e) {
-			throw tDiskException("Unable to create new tDisk ", i_minornumber, ": ", e.what);
+			throw tDiskException("Unable to create new tDisk ", i_minornumber, ": ", e.what());
 		}
 
 		if(ret != i_minornumber)
@@ -188,8 +176,10 @@ public:
 		int ret = c::tdisk_add(temp, blocksize);
 		try {
 			handleError(ret);
+		} catch(const tDiskOfflineException &e) {
+			throw tDiskOfflineException("Unable to create new tDisk: ", e.what());
 		} catch(const tDiskException &e) {
-			throw tDiskException("Unable to create new tDisk: ", e.what);
+			throw tDiskException("Unable to create new tDisk: ", e.what());
 		}
 
 		return tDisk(ret, temp);
@@ -205,8 +195,10 @@ public:
 
 		try {
 			handleError(ret);
+		} catch(const tDiskOfflineException &e) {
+			throw tDiskOfflineException("Unable to remove tDisk: ", e.what());
 		} catch(const tDiskException &e) {
-			throw tDiskException("Unable to remove tDisk: ", e.what);
+			throw tDiskException("Unable to remove tDisk: ", e.what());
 		}
 	}
 
@@ -221,8 +213,10 @@ public:
 
 		try {
 			handleError(ret);
+		} catch(const tDiskOfflineException &e) {
+			throw tDiskOfflineException("Unable to remove tDisk: ", e.what());
 		} catch(const tDiskException &e) {
-			throw tDiskException("Unable to remove tDisk: ", e.what);
+			throw tDiskException("Unable to remove tDisk: ", e.what());
 		}
 	}
 
@@ -246,8 +240,10 @@ private:
 	{
 		if(ret >= 0)return;
 
-		switch(ret)
+		switch(-ret)
 		{
+		case ENODEV:
+			throw tDiskOfflineException("The driver is offline");
 		default:
 			throw tDiskException(strerror(errno));
 		}
@@ -392,10 +388,11 @@ public:
 
 		try {
 			handleError(ret);
+		} catch (const tDiskOfflineException &e) {
+			throw tDiskOfflineException("Can't add disk \"", path ,"\" to tDisk ", name, ": ", e.what());
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't add disk \"", path ,"\" to tDisk ", name, ": ", e.what);
+			throw tDiskException("Can't add disk \"", path ,"\" to tDisk ", name, ": ", e.what());
 		}
-
 		online = true;
 	}
 
@@ -409,8 +406,10 @@ public:
 
 		try {
 			handleError(ret);
+		} catch (const tDiskOfflineException &e) {
+			throw tDiskOfflineException("Can't get max sectors for tDisk ", name, ": ", e.what());
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't get max sectors for tDisk ", name, ": ", e.what);
+			throw tDiskException("Can't get max sectors for tDisk ", name, ": ", e.what());
 		}
 
 		online = true;
@@ -427,8 +426,10 @@ public:
 
 		try {
 			handleError(ret);
+		} catch (const tDiskOfflineException &e) {
+			throw tDiskOfflineException("Can't get size for tDisk ", name, ": ", e.what());
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't get size for tDisk ", name, ": ", e.what);
+			throw tDiskException("Can't get size for tDisk ", name, ": ", e.what());
 		}
 
 		online = true;
@@ -446,8 +447,10 @@ public:
 
 		try {
 			handleError(ret);
+		} catch (const tDiskOfflineException &e) {
+			throw tDiskOfflineException("Can't get sector index ", logicalSector, " for tDisk ", name, ": ", e.what());
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't get sector index ", logicalSector, " for tDisk ", name, ": ", e.what);
+			throw tDiskException("Can't get sector index ", logicalSector, " for tDisk ", name, ": ", e.what());
 		}
 
 		online = true;
@@ -466,8 +469,10 @@ public:
 		
 		try {
 			handleError(ret);
+		} catch (const tDiskOfflineException &e) {
+			throw tDiskOfflineException("Can't all sector indices for tDisk ", name, ": ", e.what());
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't all sector indices for tDisk ", name, ": ", e.what);
+			throw tDiskException("Can't all sector indices for tDisk ", name, ": ", e.what());
 		}
 
 		online = true;
@@ -483,8 +488,10 @@ public:
 
 		try {
 			handleError(ret);
+		} catch (const tDiskOfflineException &e) {
+			throw tDiskOfflineException("Can't clear access count for tDisk ", name, ": ", e.what());
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't clear access count for tDisk ", name, ": ", e.what);
+			throw tDiskException("Can't clear access count for tDisk ", name, ": ", e.what());
 		}
 
 		online = true;
@@ -500,8 +507,10 @@ public:
 
 		try {
 			handleError(ret);
+		} catch (const tDiskOfflineException &e) {
+			throw tDiskOfflineException("Can't get internal devices count for tDisk ", name, ": ", e.what());
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't get internal devices count for tDisk ", name, ": ", e.what);
+			throw tDiskException("Can't get internal devices count for tDisk ", name, ": ", e.what());
 		}
 
 		online = true;
@@ -519,8 +528,10 @@ public:
 
 		try {
 			handleError(ret);
+		} catch (const tDiskOfflineException &e) {
+			throw tDiskOfflineException("Can't get device info for device ", (int)device, " for tDisk ", name, ": ", e.what());
 		} catch (const tDiskException &e) {
-			throw tDiskException("Can't get device info for device ", (int)device, " for tDisk ", name, ": ", e.what);
+			throw tDiskException("Can't get device info for device ", (int)device, " for tDisk ", name, ": ", e.what());
 		}
 
 		online = true;

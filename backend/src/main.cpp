@@ -149,11 +149,11 @@ int main(int argc, char *args[])
 	try {
 		result = handleCommand(argc, args, configFile);
 	} catch(const BackendException &e) {
-		error = e.what;
-	} catch(const tDiskException &e) {
-		error = e.what;
+		error = e.what();
 	} catch(const FormatException &e) {
-		error = e.what;
+		error = e.what();
+	} catch(const tDiskException &e) {
+		error = e.what();
 	}
 
 	if(error != "")cerr<<error<<endl;

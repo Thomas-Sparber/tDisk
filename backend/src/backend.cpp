@@ -38,19 +38,31 @@ BackendResult td::get_tDisks(const vector<string> &/*args*/, Options &options)
 	BackendResult r;
 	vector<tDisk> tdisks;
 
+	//Perform driver operation
 	if(!options.getOptionBoolValue("config-only"))
 	{
-		tDisk::getTDisks(tdisks);
+		try {
+			tDisk::getTDisks(tdisks);
+		} catch (const tDiskOfflineException &e) {
+			r.warning(BackendResultType::driver, e.what());
+		} catch (const tDiskException &e) {
+			r.error(BackendResultType::driver, e.what());
+		}
 	}
 
+	//Perform config file operation
 	if(!options.getOptionBoolValue("temporary"))
 	{
-		configuration config(options.getStringOptionValue("configfile"), options);
-		for(const configuration::tdisk_config &disk : config.tdisks)
-		{
-			tDisk d(disk.minornumber);
-			auto res = find(tdisks.begin(), tdisks.end(), d);
-			if(res == tdisks.end())tdisks.push_back(std::move(d));
+		try {
+			configuration config(options.getStringOptionValue("configfile"), options);
+			for(const configuration::tdisk_config &disk : config.tdisks)
+			{
+				tDisk d(disk.minornumber);
+				auto res = find(tdisks.begin(), tdisks.end(), d);
+				if(res == tdisks.end())tdisks.push_back(std::move(d));
+			}
+		} catch (const tDiskException &e) {
+			r.error(BackendResultType::configfile, e.what());
 		}
 	}
 
@@ -68,29 +80,39 @@ BackendResult td::get_tDisk(const vector<string> &args, Options &options)
 	}
 
 	tDisk d;
+
+	//Perform driver operation
 	if(!options.getOptionBoolValue("config-only"))
 	{
 		try {
 			d = tDisk::get(args[0]);
 			d.loadSize();
+		} catch(const tDiskOfflineException &e) {
+			r.warning(BackendResultType::driver, e.what());
 		} catch(const tDiskException &e) {
-			r.error(BackendResultType::driver, e.what);
+			r.error(BackendResultType::driver, e.what());
 		}
 	}
 
+	//Perform config file operation
 	if(!options.getOptionBoolValue("temporary"))
 	{
 		//Only look in config file
 		if(!d.isValid())
 		{
-			tDisk temp = tDisk::get(args[0]);
-			configuration config(options.getStringOptionValue("configfile"), options);
-			d = tDisk(config.getTDisk(temp.getMinornumber()).minornumber);
+			try {
+				d = tDisk::get(args[0]);
+				configuration config(options.getStringOptionValue("configfile"), options);
+				d = tDisk(config.getTDisk(d.getMinornumber()).minornumber);
+			} catch (const tDiskException &e) {
+				r.error(BackendResultType::configfile, e.what());
+			}
 		}
 	}
 
 	if(!d.isValid())
 	{
+		//tDisk wos neither found by driver nor by configfile
 		r.error(BackendResultType::general, utils::concat("tDisk ",args[0]," does not exist"));
 		return std::move(r);
 	}
@@ -103,18 +125,21 @@ BackendResult td::get_devices(const vector<string> &/*args*/, Options &options)
 {
 	BackendResult r;
 	vector<fs::Device> devices;
-	fs::getDevices(devices);
-
 	vector<c::f_internal_device_info> internal_devices;
-	internal_devices.reserve(devices.size());
-	for(const fs::Device &device : devices)
-	{
-		c::f_internal_device_info d = {};
-		d.type = c::f_internal_device_type_file;
-		strncpy(d.name, device.name.c_str(), F_TDISK_MAX_INTERNAL_DEVICE_NAME);
-		strncpy(d.path, device.path.c_str(), F_TDISK_MAX_INTERNAL_DEVICE_NAME);
-		d.size = device.size;
-		internal_devices.push_back(d);
+
+	try {
+		fs::getDevices(devices);
+		for(const fs::Device &device : devices)
+		{
+			c::f_internal_device_info d = {};
+			d.type = c::f_internal_device_type_file;
+			strncpy(d.name, device.name.c_str(), F_TDISK_MAX_INTERNAL_DEVICE_NAME);
+			strncpy(d.path, device.path.c_str(), F_TDISK_MAX_INTERNAL_DEVICE_NAME);
+			d.size = device.size;
+			internal_devices.push_back(d);
+		}
+	} catch (const tDiskException &e) {
+		r.error(BackendResultType::general, e.what());
 	}
 
 	r.result(internal_devices, options.getOptionValue("output-format"));
@@ -130,12 +155,17 @@ BackendResult td::create_tDisk(const vector<string> &args, Options &options)
 		return std::move(r);
 	}
 
+	//First, read minornumber and blocksize
 	size_t devicesIndex = 1;
 	int number = -1;
 	char *test;
 	tDisk disk;
 	int blocksize = strtol(args[0].c_str(), &test, 10);
-	if(test != args[0].c_str() + args[0].length())throw BackendException("Invalid blocksize ", args[0]);
+	if(test != args[0].c_str() + args[0].length())
+	{
+		r.error(BackendResultType::general, utils::concat("Invalid blocksize ", args[0]));
+		return std::move(r);
+	}
 
 	number = strtol(args[1].c_str(), &test, 10);
 	if(test == args[1].c_str() + args[1].length())
@@ -144,30 +174,41 @@ BackendResult td::create_tDisk(const vector<string> &args, Options &options)
 		swap(number, blocksize);
 		devicesIndex++;
 
-		if(args.size() == devicesIndex)throw BackendException("\"create\" needs the minornumber, desired blocksize (e.g. 16384) and at least one device");
+		if(args.size() == devicesIndex)
+		{
+			r.error(BackendResultType::general, utils::concat("\"create\" needs the minornumber, desired blocksize (e.g. 16384) and at least one device"));
+			return std::move(r);
+		}
 	}
 
+	//This time we first need to perform the config file operation
+	//in case the minornumber needs to be generated
 	if(!options.getOptionBoolValue("temporary"))
 	{
-		configuration config(options.getStringOptionValue("configfile"), options);
+		try {
+			configuration config(options.getStringOptionValue("configfile"), options);
 
-		if(number == -1)
-		{
-			for(const configuration::tdisk_config &d : config.tdisks)
-				if(d.minornumber+1 >= number)number = d.minornumber + 1;
+			if(number == -1)
+			{
+				for(const configuration::tdisk_config &d : config.tdisks)
+					if(d.minornumber+1 >= number)number = d.minornumber + 1;
 
-			disk = tDisk(number);
+				disk = tDisk(number);
+			}
+
+			configuration::tdisk_config newDevice;
+			newDevice.minornumber = number;
+			newDevice.blocksize = blocksize;
+			for(size_t i = devicesIndex; i < args.size(); ++i)newDevice.devices.push_back(args[i]);
+			config.addDevice(std::move(newDevice));
+
+			config.save(options.getStringOptionValue("configfile"));
+		} catch (const tDiskException &e) {
+			r.error(BackendResultType::configfile, e.what());
 		}
-
-		configuration::tdisk_config newDevice;
-		newDevice.minornumber = number;
-		newDevice.blocksize = blocksize;
-		for(size_t i = devicesIndex; i < args.size(); ++i)newDevice.devices.push_back(args[i]);
-		config.addDevice(std::move(newDevice));
-
-		config.save(options.getStringOptionValue("configfile"));
 	}
 
+	//Perform driver operation
 	if(!options.getOptionBoolValue("config-only"))
 	{
 		try {
@@ -176,8 +217,10 @@ BackendResult td::create_tDisk(const vector<string> &args, Options &options)
 
 			number = disk.getMinornumber();
 			for(size_t i = devicesIndex; i < args.size(); ++i)disk.addDisk(args[i]);
+		} catch(const tDiskOfflineException &e) {
+			r.warning(BackendResultType::driver, e.what());
 		} catch(const tDiskException &e) {
-			r.error(BackendResultType::driver, e.what);
+			r.error(BackendResultType::driver, e.what());
 		}
 	}
 
@@ -194,6 +237,7 @@ BackendResult td::add_tDisk(const vector<string> &args, Options &options)
 		return std::move(r);
 	}
 
+	//Read minornumber and blocksize first
 	char *test;
 	tDisk disk;
 	int number = -1;
@@ -201,37 +245,56 @@ BackendResult td::add_tDisk(const vector<string> &args, Options &options)
 	if(args.size() > 1)
 	{
 		number = strtol(args[0].c_str(), &test, 10);
-		if(test != args[0].c_str() + args[0].length())throw BackendException("Invalid minor number ", args[0]);
+		if(test != args[0].c_str() + args[0].length())
+		{
+			r.error(BackendResultType::general, utils::concat("Invalid minor number ", args[0]));
+			return std::move(r);
+		}
 
 		blocksize = strtol(args[1].c_str(), &test, 10);
-		if(test != args[1].c_str() + args[1].length())throw BackendException("Invalid blocksize ", args[1]);
+		if(test != args[1].c_str() + args[1].length())
+		{
+			r.error(BackendResultType::general, utils::concat("Invalid blocksize ", args[1]));
+			return std::move(r);
+		}
 	}
 	else
 	{
 		blocksize = strtol(args[0].c_str(), &test, 10);
-		if(test != args[0].c_str() + args[0].length())throw BackendException("Invalid blocksize ", args[0]);
+		if(test != args[0].c_str() + args[0].length())
+		{
+			r.error(BackendResultType::general, utils::concat("Invalid blocksize ", args[0]));
+			return std::move(r);
+		}
 	}
 
+	//Perform config file operation first in case
+	//the minornumber needs to be generated
 	if(!options.getOptionBoolValue("temporary"))
 	{
-		configuration config(options.getStringOptionValue("configfile"), options);
+		try {
+			configuration config(options.getStringOptionValue("configfile"), options);
 
-		if(number == -1)
-		{
-			for(const configuration::tdisk_config &d : config.tdisks)
-				if(d.minornumber+1 >= number)number = d.minornumber + 1;
+			if(number == -1)
+			{
+				for(const configuration::tdisk_config &d : config.tdisks)
+					if(d.minornumber+1 >= number)number = d.minornumber + 1;
 
-			disk = tDisk(number);
+				disk = tDisk(number);
+			}
+
+			configuration::tdisk_config newDevice;
+			newDevice.minornumber = number;
+			newDevice.blocksize = blocksize;
+			config.addDevice(std::move(newDevice));
+
+			config.save(options.getStringOptionValue("configfile"));
+		} catch (const tDiskException &e) {
+			r.error(BackendResultType::configfile, e.what());
 		}
-
-		configuration::tdisk_config newDevice;
-		newDevice.minornumber = number;
-		newDevice.blocksize = blocksize;
-		config.addDevice(std::move(newDevice));
-
-		config.save(options.getStringOptionValue("configfile"));
 	}
 
+	//Perform driver operation
 	if(!options.getOptionBoolValue("config-only"))
 	{
 		try {
@@ -239,8 +302,10 @@ BackendResult td::add_tDisk(const vector<string> &args, Options &options)
 			else disk = tDisk::create(blocksize);
 
 			number = disk.getMinornumber();
+		} catch(const tDiskOfflineException &e) {
+			r.warning(BackendResultType::driver, e.what());
 		} catch(const tDiskException &e) {
-			r.error(BackendResultType::driver, e.what);
+			r.error(BackendResultType::driver, e.what());
 		}
 	}
 
@@ -259,27 +324,34 @@ BackendResult td::remove_tDisk(const vector<string> &args, Options &options)
 
 	tDisk d = tDisk::get(args[0]);
 
+	//Perform driver operation
 	if(!options.getOptionBoolValue("config-only"))
 	{
 		try {
 			d.remove();
+		} catch(const tDiskOfflineException &e) {
+			r.warning(BackendResultType::driver, e.what());
 		} catch(const tDiskException &e) {
-			r.error(BackendResultType::driver, e.what);
-			return std::move(r);
+			r.error(BackendResultType::driver, e.what());
 		}
 	}
 
+	//Perform config file operation
 	if(!options.getOptionBoolValue("temporary"))
 	{
-		configuration config(options.getStringOptionValue("configfile"), options);
+		try {
+			configuration config(options.getStringOptionValue("configfile"), options);
 
-		configuration::tdisk_config temp;
-		temp.minornumber = d.getMinornumber();
-		auto found = find(config.tdisks.begin(), config.tdisks.end(), temp);
-		if(found != config.tdisks.end())
-		{
-			config.tdisks.erase(found);
-			config.save(options.getStringOptionValue("configfile"));
+			configuration::tdisk_config temp;
+			temp.minornumber = d.getMinornumber();
+			auto found = find(config.tdisks.begin(), config.tdisks.end(), temp);
+			if(found != config.tdisks.end())
+			{
+				config.tdisks.erase(found);
+				config.save(options.getStringOptionValue("configfile"));
+			}
+		} catch (const tDiskException &e) {
+			r.error(BackendResultType::configfile, e.what());
 		}
 	}
 
@@ -299,31 +371,43 @@ BackendResult td::add_disk(const vector<string> &args, Options &options)
 	vector<string> results;
 	tDisk d = tDisk::get(args[0]);
 
+	//Perform driver operation
 	if(!options.getOptionBoolValue("config-only"))
 	{
-		for(std::size_t i = 1; i < args.size(); ++i)
-		{
-			d.addDisk(args[i]);
-			r.message(BackendResultType::driver, concat("Successfully added disk ", args[i]));
+		try {
+			for(std::size_t i = 1; i < args.size(); ++i)
+			{
+				d.addDisk(args[i]);
+				r.message(BackendResultType::driver, concat("Successfully added disk ", args[i]));
+			}
+		} catch (const tDiskOfflineException &e) {
+			r.warning(BackendResultType::driver, e.what());
+		} catch (const tDiskException &e) {
+			r.error(BackendResultType::driver, e.what());
 		}
 	}
 
+	//Perform config file operation
 	if(!options.getOptionBoolValue("temporary"))
 	{
-		configuration config(options.getStringOptionValue("configfile"), options);
+		try {
+			configuration config(options.getStringOptionValue("configfile"), options);
 
-		configuration::tdisk_config temp;
-		temp.minornumber = d.getMinornumber();
-		auto found = find(config.tdisks.begin(), config.tdisks.end(), temp);
-		if(found != config.tdisks.end())
-		{
-			for(std::size_t i = 1; i < args.size(); ++i)
+			configuration::tdisk_config temp;
+			temp.minornumber = d.getMinornumber();
+			auto found = find(config.tdisks.begin(), config.tdisks.end(), temp);
+			if(found != config.tdisks.end())
 			{
-				found->devices.push_back(args[i]);
-				r.message(BackendResultType::configfile, concat("Successfully added disk ", args[i]));
-			}
+				for(std::size_t i = 1; i < args.size(); ++i)
+				{
+					found->devices.push_back(args[i]);
+					r.message(BackendResultType::configfile, concat("Successfully added disk ", args[i]));
+				}
 
-			config.save(options.getStringOptionValue("configfile"));
+				config.save(options.getStringOptionValue("configfile"));
+			}
+		} catch (const tDiskException &e) {
+			r.error(BackendResultType::configfile, e.what());
 		}
 	}
 
@@ -339,10 +423,16 @@ BackendResult td::get_max_sectors(const vector<string> &args, Options &options)
 		return std::move(r);
 	}
 
-	tDisk d = tDisk::get(args[0]);
-	unsigned long long maxSectors = d.getMaxSectors();
+	unsigned long long maxSectors = 0;
 
-	r.result(maxSectors, options.getOptionValue("output-format"));
+	try {
+		tDisk d = tDisk::get(args[0]);
+		maxSectors = d.getMaxSectors();
+		r.result(maxSectors, options.getOptionValue("output-format"));
+	} catch (const tDiskException &e) {
+		r.error(BackendResultType::driver, e.what());
+	}
+
 	return std::move(r);
 }
 
@@ -355,10 +445,16 @@ BackendResult td::get_size_bytes(const vector<string> &args, Options &options)
 		return std::move(r);
 	}
 
-	tDisk d = tDisk::get(args[0]);
-	unsigned long long size = d.getSize();
+	unsigned long long size = 0;
 
-	r.result(size, options.getOptionValue("output-format"));
+	try {
+		tDisk d = tDisk::get(args[0]);
+		size = d.getSize();
+		r.result(size, options.getOptionValue("output-format"));
+	} catch (const tDiskException &e) {
+		r.error(BackendResultType::driver, e.what());
+	}
+
 	return std::move(r);
 }
 
@@ -371,14 +467,23 @@ BackendResult td::get_sector_index(const vector<string> &args, Options &options)
 		return std::move(r);
 	}
 
+	//Read requested logical sector
 	char *test;
 	unsigned long long logicalSector = strtoull(args[1].c_str(), &test, 10);
-	if(test != args[1].c_str() + args[1].length())throw BackendException(args[1], " is not a valid number");
+	if(test != args[1].c_str() + args[1].length())
+	{
+		r.error(BackendResultType::general, utils::concat(args[1], " is not a valid number"));
+		return std::move(r);
+	}
+	
+	try {
+		tDisk d = tDisk::get(args[0]);
+		f_sector_index index = d.getSectorIndex(logicalSector);
+		r.result(index, options.getOptionValue("output-format"));
+	} catch (const tDiskException &e) {
+		r.error(BackendResultType::driver, e.what());
+	}
 
-	tDisk d = tDisk::get(args[0]);
-	f_sector_index index = d.getSectorIndex(logicalSector);
-
-	r.result(index, options.getOptionValue("output-format"));
 	return std::move(r);
 }
 
@@ -391,10 +496,17 @@ BackendResult td::get_all_sector_indices(const vector<string> &args, Options &op
 		return std::move(r);
 	}
 
-	tDisk d = tDisk::get(args[0]);
-	vector<f_sector_info> sectorIndices = d.getAllSectorIndices();
+	vector<f_sector_info> sectorIndices;
 
-	r.result(sectorIndices, options.getOptionValue("output-format"));
+	try {
+		tDisk d = tDisk::get(args[0]);
+		sectorIndices = d.getAllSectorIndices();
+
+		r.result(sectorIndices, options.getOptionValue("output-format"));
+	} catch (const tDiskException &e) {
+		r.error(BackendResultType::driver, e.what());
+	}
+	
 	return std::move(r);
 }
 
@@ -407,10 +519,15 @@ BackendResult td::clear_access_count(const vector<string> &args, Options &/*opti
 		return std::move(r);
 	}
 
-	tDisk d = tDisk::get(args[0]);
-	d.clearAccessCount();
+	try {
+		tDisk d = tDisk::get(args[0]);
+		d.clearAccessCount();
 
-	r.message(BackendResultType::general, concat("Access count for tDisk ", d.getName(), " cleared"));
+		r.message(BackendResultType::general, concat("Access count for tDisk ", d.getName(), " cleared"));
+	} catch (const tDiskException &e) {
+		r.error(BackendResultType::driver, e.what());
+	}
+	
 	return std::move(r);
 }
 
@@ -423,10 +540,15 @@ BackendResult td::get_internal_devices_count(const vector<string> &args, Options
 		return std::move(r);
 	}
 
-	tDisk d = tDisk::get(args[0]);
-	unsigned int devices = d.getInternalDevicesCount();
+	try {
+		tDisk d = tDisk::get(args[0]);
+		unsigned int devices = d.getInternalDevicesCount();
 
-	r.result(devices, options.getOptionValue("output-format"));
+		r.result(devices, options.getOptionValue("output-format"));
+	} catch (const tDiskException &e) {
+		r.error(BackendResultType::driver, e.what());
+	}
+	
 	return std::move(r);
 }
 
@@ -439,15 +561,24 @@ BackendResult td::get_device_info(const vector<string> &args, Options &options)
 		return std::move(r);
 	}
 
+	//Read requested device id first
 	char *test;
 	unsigned int device = strtol(args[1].c_str(), &test, 10);
 	if(test != args[1].c_str() + args[1].length())
-		throw BackendException("Invalid number ", args[1], " for device index");
+	{
+		r.error(BackendResultType::general, utils::concat("Invalid number ", args[1], " for device index"));
+		return std::move(r);
+	}
 
-	tDisk d = tDisk::get(args[0]);
-	f_internal_device_info info = d.getDeviceInfo(device);
+	try {
+		tDisk d = tDisk::get(args[0]);
+		f_internal_device_info info = d.getDeviceInfo(device);
 
-	r.result(info, options.getOptionValue("output-format"));
+		r.result(info, options.getOptionValue("output-format"));
+	} catch (const tDiskException &e) {
+		r.error(BackendResultType::driver, e.what());
+	}
+	
 	return std::move(r);
 }
 
@@ -460,41 +591,57 @@ BackendResult td::load_config_file(const vector<string> &args, Options &options)
 		return std::move(r);
 	}
 
-	configuration cfg;
-	for(std::size_t i = 0; i < args.size(); ++i)
-	{
-		configuration config(args[i], options);
-		cfg.merge(config);
-	}
-
-	for(const configuration::tdisk_global_option &option : cfg.global_options)
-		options.setOptionValue(option.name, option.value);
-
-	configuration loadedCfg;
-	for(const configuration::tdisk_config &config : cfg.tdisks)
-	{
-		if(!config.isValid())
+	try {
+		configuration cfg;
+		for(std::size_t i = 0; i < args.size(); ++i)
 		{
-			r.warning(BackendResultType::configfile, utils::concat("Config for ",config.minornumber," is not valid. skipping"));
-			continue;
+			configuration config(args[i], options);
+			cfg.merge(config);
 		}
 
-		tDisk disk = tDisk::create(config.minornumber, config.blocksize);
+		for(const configuration::tdisk_global_option &option : cfg.global_options)
+			options.setOptionValue(option.name, option.value);
 
-		for(const string device : config.devices)
-			disk.addDisk(device);
+		configuration loadedCfg;
+		for(const configuration::tdisk_config &config : cfg.tdisks)
+		{
+			if(!config.isValid())
+			{
+				r.warning(BackendResultType::configfile, utils::concat("Config for ",config.minornumber," is not valid. skipping"));
+				continue;
+			}
 
-		loadedCfg.addDevice(config);
+			//Load tDisk
+			try {
+				tDisk disk = tDisk::create(config.minornumber, config.blocksize);
+
+				for(const string device : config.devices)
+					disk.addDisk(device);
+
+				loadedCfg.addDevice(config);
+			} catch (const tDiskException &e) {
+				r.error(BackendResultType::driver, e.what());
+			}
+		}
+
+		r.result(loadedCfg, options.getOptionValue("output-format"));
+	} catch (const tDiskException &e) {
+		r.error(BackendResultType::configfile, e.what());
 	}
-
-	r.result(loadedCfg, options.getOptionValue("output-format"));
+	
 	return std::move(r);
 }
 
 BackendResult td::get_device_advice(const vector<string> &args, Options &options)
 {
 	BackendResult r;
-	vector<advisor::tdisk_advice> advices = advisor::getTDiskAdvices(args);
-	r.result(advices, options.getOptionValue("output-format"));
+
+	try {
+		vector<advisor::tdisk_advice> advices = advisor::getTDiskAdvices(args);
+		r.result(advices, options.getOptionValue("output-format"));
+	} catch (const tDiskException &e) {
+		r.error(BackendResultType::general, e.what());
+	}
+	
 	return std::move(r);
 }

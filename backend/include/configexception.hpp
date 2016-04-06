@@ -5,8 +5,8 @@
   *
  **/
 
-#ifndef BACKENDEXCEPTION_HPP
-#define BACKENDEXCEPTION_HPP
+#ifndef CONFIGEXCEPTION_HPP
+#define CONFIGEXCEPTION_HPP
 
 #include <tdiskexception.hpp>
 
@@ -14,10 +14,10 @@ namespace td
 {
 
 /**
-  * A BackendException is thrown whenever an error
-  * occured in parsing or executing a backend command
+  * A ConfigException is thrown whenever an error
+  * occured when dealing with config files
  **/
-struct BackendException : public tDiskException
+struct ConfigException : public tDiskException
 {
 
 	/**
@@ -25,12 +25,12 @@ struct BackendException : public tDiskException
 	  * amount of arguments which are put together
 	 **/
 	template <class ...T>
-	BackendException(T ...t) :
+	ConfigException(T ...t) :
 		tDiskException(t...)
 	{}
 
-}; //end class BackendException
+}; //end class ConfigException
 
 } //end namespace td
 
-#endif //BACKENDEXCEPTION_HPP
+#endif //CONFIGEXCEPTION_HPP

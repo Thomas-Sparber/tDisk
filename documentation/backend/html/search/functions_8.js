@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['individualresult',['IndividualResult',['../structtd_1_1IndividualResult.html#a68db0fe675f204ade6f3e85ea21fa920',1,'td::IndividualResult']]],
   ['initcurl',['initCurl',['../curldefinitions_8hpp.html#a607deb882d940de05cb5f3945f7463c9',1,'curldefinitions.hpp']]],
   ['internalread',['internalRead',['../classtd_1_1DropboxTDisk.html#a6772d669f80375e5a800e84b6bf9bfe9',1,'td::DropboxTDisk']]],
   ['internalwrite',['internalWrite',['../classtd_1_1DropboxTDisk.html#a54838a572dea7ee8ee5bbd11f6db9b8a',1,'td::DropboxTDisk']]],

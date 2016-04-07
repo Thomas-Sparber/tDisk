@@ -6,5 +6,6 @@ var searchData=
   ['socket',['socket',['../classtd_1_1Plugin.html#a861d3cf1a957f9969976fd10c023ade3',1,'td::Plugin']]],
   ['stdev_5fread_5ftime_5fcycles',['stdev_read_time_cycles',['../tdisk_8h.html#acf484c1f2c3cc14c4c2cc3ad698e0cde',1,'f_device_performance::stdev_read_time_cycles()'],['../namespacetd_1_1c.html#aeb26c722afbf15ea2362f7e94b18a0b8',1,'td::c::f_device_performance::stdev_read_time_cycles()']]],
   ['stdev_5fwrite_5ftime_5fcycles',['stdev_write_time_cycles',['../tdisk_8h.html#ad0a4185a9e86f52aafc5e06d87d5c21b',1,'f_device_performance::stdev_write_time_cycles()'],['../namespacetd_1_1c.html#ae9bde70023882a824ba495fbb89992dd',1,'td::c::f_device_performance::stdev_write_time_cycles()']]],
+  ['str_5fresult',['str_result',['../classtd_1_1BackendResult.html#a80b663bd561edd680ff1fa3f27e4e085',1,'td::BackendResult']]],
   ['subdevices',['subdevices',['../structtd_1_1fs_1_1Device.html#a77bdcb3f1628acff32750c8d4975fca9',1,'td::fs::Device']]]
 ];

@@ -112,10 +112,10 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ab5ba29b3fa85039f653fc6292c1e1700"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2main_8cpp.html#ab5ba29b3fa85039f653fc6292c1e1700">handleCommand</a> (int argc, char **args, const string &amp;defaultConfigFile)</td></tr>
-<tr class="separator:ab5ba29b3fa85039f653fc6292c1e1700"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a451f7cf7e8a883e17a551a7a98d8c652"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2main_8cpp.html#a451f7cf7e8a883e17a551a7a98d8c652">printHelp</a> (const string &amp;progName)</td></tr>
-<tr class="separator:a451f7cf7e8a883e17a551a7a98d8c652"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7b60687f9a56b930da6bde0c1d77813"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2main_8cpp.html#ae7b60687f9a56b930da6bde0c1d77813">handleCommand</a> (int argc, char **args)</td></tr>
+<tr class="separator:ae7b60687f9a56b930da6bde0c1d77813"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d20b69b0ad703df78459e1033d5c1d4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2main_8cpp.html#a0d20b69b0ad703df78459e1033d5c1d4">printHelp</a> ()</td></tr>
+<tr class="separator:a0d20b69b0ad703df78459e1033d5c1d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a700a0caa5b70a06d1064e576f9f3cf65"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2main_8cpp.html#a700a0caa5b70a06d1064e576f9f3cf65">main</a> (int argc, char *args[])</td></tr>
 <tr class="separator:a700a0caa5b70a06d1064e576f9f3cf65"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -125,14 +125,18 @@ Variables</h2></td></tr>
 <tr class="separator:ae0dc253b3cd38e2505592ce11e527232"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9dcb6298590c25aaff295c913f9fb1ba"><td class="memItemLeft" align="right" valign="top">vector&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2main_8cpp.html#a9dcb6298590c25aaff295c913f9fb1ba">configfiles</a></td></tr>
 <tr class="separator:a9dcb6298590c25aaff295c913f9fb1ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f35d80d721a8d188637199028676715"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2main_8cpp.html#a3f35d80d721a8d188637199028676715">programName</a></td></tr>
+<tr class="separator:a3f35d80d721a8d188637199028676715"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d92a8f5b7d984c1b4ed7b54f347b7a9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1Options.html">Options</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a></td></tr>
+<tr class="separator:a4d92a8f5b7d984c1b4ed7b54f347b7a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="ab5ba29b3fa85039f653fc6292c1e1700"></a>
+<a class="anchor" id="ae7b60687f9a56b930da6bde0c1d77813"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">string handleCommand </td>
+          <td class="memname"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a> handleCommand </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>argc</em>, </td>
@@ -141,13 +145,7 @@ Variables</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">char **&#160;</td>
-          <td class="paramname"><em>args</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const string &amp;&#160;</td>
-          <td class="paramname"><em>defaultConfigFile</em>&#160;</td>
+          <td class="paramname"><em>args</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -185,15 +183,14 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a451f7cf7e8a883e17a551a7a98d8c652"></a>
+<a class="anchor" id="a0d20b69b0ad703df78459e1033d5c1d4"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void printHelp </td>
           <td>(</td>
-          <td class="paramtype">const string &amp;&#160;</td>
-          <td class="paramname"><em>progName</em></td><td>)</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -226,10 +223,34 @@ Variables</h2></td></tr>
 <b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    <span class="stringliteral">&quot;/etc/tdisk/tdisk.config&quot;</span>,</div><div class="line">    <span class="stringliteral">&quot;./tdisk.config&quot;</span>,</div><div class="line">    <span class="stringliteral">&quot;tdisk.config&quot;</span>,</div><div class="line">    <span class="stringliteral">&quot;./example.config&quot;</span>,</div><div class="line">    <span class="stringliteral">&quot;example.config&quot;</span></div><div class="line">}</div></div><!-- fragment -->
 </div>
 </div>
+<a class="anchor" id="a4d92a8f5b7d984c1b4ed7b54f347b7a9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtd_1_1Options.html">Options</a> options</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a3f35d80d721a8d188637199028676715"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">string programName</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Apr 1 2016 15:59:25 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Apr 7 2016 11:41:40 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

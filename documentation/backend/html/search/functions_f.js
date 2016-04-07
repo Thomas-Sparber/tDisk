@@ -17,5 +17,6 @@ var searchData=
   ['tdisk_5fget_5fsize_5fbytes',['tdisk_get_size_bytes',['../tdisk__fake_8c.html#a8ac3b61a4850ab3ff9322fd3dbc9561d',1,'tdisk_get_size_bytes(const char *device, uint64_t *out):&#160;tdisk_fake.c'],['../tdisk_8h.html#a8ac3b61a4850ab3ff9322fd3dbc9561d',1,'tdisk_get_size_bytes(const char *device, uint64_t *out):&#160;tdisk_fake.c'],['../namespacetd_1_1c.html#ac762a785e3114abb26eb9311be35ec35',1,'td::c::tdisk_get_size_bytes()']]],
   ['tdisk_5fglobal_5foption',['tdisk_global_option',['../structtd_1_1configuration_1_1tdisk__global__option.html#af912b0ab435d58cb7342926ace3f11ec',1,'td::configuration::tdisk_global_option']]],
   ['tdisk_5fremove',['tdisk_remove',['../tdisk__fake_8c.html#acca57af6bc1ae02fd40f91bfe8c34577',1,'tdisk_remove(int device):&#160;tdisk_fake.c'],['../tdisk_8h.html#acca57af6bc1ae02fd40f91bfe8c34577',1,'tdisk_remove(int device):&#160;tdisk_fake.c'],['../namespacetd_1_1c.html#a0ca92767b7a6e9ebd626d79702cfa40d',1,'td::c::tdisk_remove()']]],
-  ['tdiskexception',['tDiskException',['../structtd_1_1tDiskException.html#af6eabd34d41efcf48340af6fa2d080b5',1,'td::tDiskException']]]
+  ['tdiskexception',['tDiskException',['../structtd_1_1tDiskException.html#af6eabd34d41efcf48340af6fa2d080b5',1,'td::tDiskException']]],
+  ['tdiskofflineexception',['tDiskOfflineException',['../structtd_1_1tDiskOfflineException.html#ae0cd40572ca2f75fc79a9a735def8edf',1,'td::tDiskOfflineException']]]
 ];

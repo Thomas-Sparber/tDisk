@@ -2,6 +2,9 @@ var searchData=
 [
   ['icon',['icon',['../structtd_1_1FileMetadata.html#a655457e1385ab79d60d8bfac26491423',1,'td::FileMetadata::icon()'],['../structtd_1_1LinkMetadata.html#ae09759e68b4846b22bcee3e19ca58d63',1,'td::LinkMetadata::icon()']]],
   ['in_5fdropbox',['in_dropbox',['../structtd_1_1LinkMetadata.html#a8c74c27623f9c7da70426aa5a0a89913',1,'td::LinkMetadata']]],
+  ['individualresult',['IndividualResult',['../structtd_1_1IndividualResult.html',1,'td']]],
+  ['individualresult',['IndividualResult',['../structtd_1_1IndividualResult.html#a68db0fe675f204ade6f3e85ea21fa920',1,'td::IndividualResult']]],
+  ['individualresults',['individualResults',['../classtd_1_1BackendResult.html#ab6d891e0c193902020808f9850feb466',1,'td::BackendResult']]],
   ['initcurl',['initCurl',['../curldefinitions_8hpp.html#a607deb882d940de05cb5f3945f7463c9',1,'curldefinitions.hpp']]],
   ['internalread',['internalRead',['../classtd_1_1DropboxTDisk.html#a6772d669f80375e5a800e84b6bf9bfe9',1,'td::DropboxTDisk']]],
   ['internalwrite',['internalWrite',['../classtd_1_1DropboxTDisk.html#a54838a572dea7ee8ee5bbd11f6db9b8a',1,'td::DropboxTDisk']]],

@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['plugin',['Plugin',['../classtd_1_1Plugin.html',1,'td']]],
-  ['pluginexception',['PluginException',['../structtd_1_1PluginException.html',1,'td']]]
+  ['option',['Option',['../classtd_1_1Option.html',1,'td']]],
+  ['options',['Options',['../classtd_1_1Options.html',1,'td']]]
 ];

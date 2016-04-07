@@ -99,7 +99,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>Is thrown whenever a <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> related error happened.  
  <a href="structtd_1_1tDiskException.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="tdisk_8hpp_source.html">tdisk.hpp</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="tdiskexception_8hpp_source.html">tdiskexception.hpp</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for td::tDiskException:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="structtd_1_1tDiskException.png" usemap="#td::tDiskException_map" alt=""/>
+  <map id="td::tDiskException_map" name="td::tDiskException_map">
+<area href="structtd_1_1BackendException.html" title="A BackendException is thrown whenever an error occured in parsing or executing a backend command..." alt="td::BackendException" shape="rect" coords="0,112,148,136"/>
+<area href="structtd_1_1ConfigException.html" title="A ConfigException is thrown whenever an error occured when dealing with config files. " alt="td::ConfigException" shape="rect" coords="158,112,306,136"/>
+<area href="structtd_1_1FormatException.html" title="A FormanException is thrown whenever an error occurred while formatting an object. " alt="td::FormatException" shape="rect" coords="316,112,464,136"/>
+<area href="structtd_1_1tDiskOfflineException.html" title="A tDiskOfflineException is thrown when the tDisk driver is offline. " alt="td::tDiskOfflineException" shape="rect" coords="474,112,622,136"/>
+</map>
+ </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -107,12 +119,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af6eabd34d41efcf48340af6fa2d080b5"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structtd_1_1tDiskException.html#af6eabd34d41efcf48340af6fa2d080b5">tDiskException</a> (T...t)</td></tr>
 <tr class="memdesc:af6eabd34d41efcf48340af6fa2d080b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a <a class="el" href="structtd_1_1tDiskException.html" title="Is thrown whenever a tDisk related error happened. ">tDiskException</a> using any number of arguments.  <a href="#af6eabd34d41efcf48340af6fa2d080b5">More...</a><br /></td></tr>
 <tr class="separator:af6eabd34d41efcf48340af6fa2d080b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a675e19acdfd924a729ab75b950d91eae"><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtd_1_1tDiskException.html#a675e19acdfd924a729ab75b950d91eae">what</a> () const   throw ()</td></tr>
+<tr class="memdesc:a675e19acdfd924a729ab75b950d91eae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the error string of the exception.  <a href="#a675e19acdfd924a729ab75b950d91eae">More...</a><br /></td></tr>
+<tr class="separator:a675e19acdfd924a729ab75b950d91eae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a81e92dc78afefc953d977496e44af1b6"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtd_1_1tDiskException.html#a81e92dc78afefc953d977496e44af1b6">message</a></td></tr>
-<tr class="memdesc:a81e92dc78afefc953d977496e44af1b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">The reason for the error.  <a href="#a81e92dc78afefc953d977496e44af1b6">More...</a><br /></td></tr>
-<tr class="separator:a81e92dc78afefc953d977496e44af1b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57190e9d56a6e523d3313a34a6e15a49"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtd_1_1tDiskException.html#a57190e9d56a6e523d3313a34a6e15a49">msg</a></td></tr>
+<tr class="memdesc:a57190e9d56a6e523d3313a34a6e15a49"><td class="mdescLeft">&#160;</td><td class="mdescRight">The reason for the error.  <a href="#a57190e9d56a6e523d3313a34a6e15a49">More...</a><br /></td></tr>
+<tr class="separator:a57190e9d56a6e523d3313a34a6e15a49"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Is thrown whenever a <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> related error happened. </p>
@@ -145,13 +160,45 @@ template&lt;class... T&gt; </div>
 
 </div>
 </div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a675e19acdfd924a729ab75b950d91eae"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const char* td::tDiskException::what </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+        <tr>
+          <td align="right">throw </td><td>(</td><td colspan="2"></td>
+        </tr>
+        <tr>
+          <td align="right"></td><td>)</td><td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the error string of the exception. </p>
+
+</div>
+</div>
 <h2 class="groupheader">Member Data Documentation</h2>
-<a class="anchor" id="a81e92dc78afefc953d977496e44af1b6"></a>
+<a class="anchor" id="a57190e9d56a6e523d3313a34a6e15a49"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::string td::tDiskException::message</td>
+          <td class="memname">std::string td::tDiskException::msg</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -161,12 +208,12 @@ template&lt;class... T&gt; </div>
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li><a class="el" href="tdisk_8hpp_source.html">tdisk.hpp</a></li>
+<li><a class="el" href="tdiskexception_8hpp_source.html">tdiskexception.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Apr 1 2016 15:59:26 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Apr 7 2016 11:41:42 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

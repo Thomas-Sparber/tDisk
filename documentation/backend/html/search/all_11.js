@@ -18,5 +18,7 @@ var searchData=
   ['stdev_5fwrite_5ftime_5fcycles',['stdev_write_time_cycles',['../tdisk_8h.html#ad0a4185a9e86f52aafc5e06d87d5c21b',1,'f_device_performance::stdev_write_time_cycles()'],['../namespacetd_1_1c.html#ae9bde70023882a824ba495fbb89992dd',1,'td::c::f_device_performance::stdev_write_time_cycles()']]],
   ['stop',['stop',['../classtd_1_1Plugin.html#aade8af0aec09b62266d8d161869cfdcb',1,'td::Plugin']]],
   ['stopallplugins',['stopAllPlugins',['../classtd_1_1Plugin.html#ac5a201a421be4d5c00becf812336076b',1,'td::Plugin']]],
-  ['subdevices',['subdevices',['../structtd_1_1fs_1_1Device.html#a77bdcb3f1628acff32750c8d4975fca9',1,'td::fs::Device']]]
+  ['str_5fresult',['str_result',['../classtd_1_1BackendResult.html#a80b663bd561edd680ff1fa3f27e4e085',1,'td::BackendResult']]],
+  ['subdevices',['subdevices',['../structtd_1_1fs_1_1Device.html#a77bdcb3f1628acff32750c8d4975fca9',1,'td::fs::Device']]],
+  ['success',['Success',['../namespacetd.html#ad4f9fce860c758179b4ac9795bc61785a505a83f220c02df2f85c3810cd9ceb38',1,'td']]]
 ];

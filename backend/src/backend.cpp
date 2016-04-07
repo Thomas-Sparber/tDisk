@@ -180,21 +180,52 @@ BackendResult td::create_tDisk(const vector<string> &args, Options &options)
 			return std::move(r);
 		}
 	}
+	else number = -1;
+	
+	if(number == -1)
+	{
+		//Looking for a suiable minornumber in the configfile
+		try {
+			configuration config(options.getStringOptionValue("configfile"), options);
+			for(const configuration::tdisk_config &d : config.tdisks)
+				if(d.minornumber+1 >= number)number = d.minornumber + 1;
+		} catch (const tDiskException &e) {
+			//I don't care about the error since I'm just trying
+			//to find a suitable minornumber
+		}
 
-	//This time we first need to perform the config file operation
-	//in case the minornumber needs to be generated
+		//Asking the driver for a suitable minornumber
+		try {
+			vector<tDisk> tdisks;
+			tDisk::getTDisks(tdisks);
+			for(const tDisk &d : tdisks)
+				if(d.getMinornumber()+1 >= number)number = d.getMinornumber() + 1;
+		} catch (const tDiskException &e) {
+			//I don't care about the error since I'm just trying
+			//to find a suitable minornumber
+		}
+	}
+
+	//Perform driver operation
+	if(!options.getOptionBoolValue("config-only"))
+	{
+		try {
+			if(number >= 0)disk = tDisk::create(number, blocksize);
+			else disk = tDisk::create(blocksize);
+
+			for(size_t i = devicesIndex; i < args.size(); ++i)disk.addDisk(args[i]);
+		} catch(const tDiskOfflineException &e) {
+			r.warning(BackendResultType::driver, e.what());
+		} catch(const tDiskException &e) {
+			r.error(BackendResultType::driver, e.what());
+		}
+	}
+
+	//Perform config file operations
 	if(!options.getOptionBoolValue("temporary"))
 	{
 		try {
 			configuration config(options.getStringOptionValue("configfile"), options);
-
-			if(number == -1)
-			{
-				for(const configuration::tdisk_config &d : config.tdisks)
-					if(d.minornumber+1 >= number)number = d.minornumber + 1;
-
-				disk = tDisk(number);
-			}
 
 			configuration::tdisk_config newDevice;
 			newDevice.minornumber = number;
@@ -208,23 +239,7 @@ BackendResult td::create_tDisk(const vector<string> &args, Options &options)
 		}
 	}
 
-	//Perform driver operation
-	if(!options.getOptionBoolValue("config-only"))
-	{
-		try {
-			if(number >= 0)disk = tDisk::create(number, blocksize);
-			else disk = tDisk::create(blocksize);
-
-			number = disk.getMinornumber();
-			for(size_t i = devicesIndex; i < args.size(); ++i)disk.addDisk(args[i]);
-		} catch(const tDiskOfflineException &e) {
-			r.warning(BackendResultType::driver, e.what());
-		} catch(const tDiskException &e) {
-			r.error(BackendResultType::driver, e.what());
-		}
-	}
-
-	r.message(BackendResultType::general, utils::concat("tDisk with minornumber ",number," created successfully"));
+	r.result(number, options.getOptionValue("output-format"));
 	return std::move(r);
 }
 
@@ -267,30 +282,28 @@ BackendResult td::add_tDisk(const vector<string> &args, Options &options)
 			return std::move(r);
 		}
 	}
-
-	//Perform config file operation first in case
-	//the minornumber needs to be generated
-	if(!options.getOptionBoolValue("temporary"))
+	
+	if(number == -1)
 	{
+		//Looking for a suiable minornumber in the configfile
 		try {
 			configuration config(options.getStringOptionValue("configfile"), options);
-
-			if(number == -1)
-			{
-				for(const configuration::tdisk_config &d : config.tdisks)
-					if(d.minornumber+1 >= number)number = d.minornumber + 1;
-
-				disk = tDisk(number);
-			}
-
-			configuration::tdisk_config newDevice;
-			newDevice.minornumber = number;
-			newDevice.blocksize = blocksize;
-			config.addDevice(std::move(newDevice));
-
-			config.save(options.getStringOptionValue("configfile"));
+			for(const configuration::tdisk_config &d : config.tdisks)
+				if(d.minornumber+1 >= number)number = d.minornumber + 1;
 		} catch (const tDiskException &e) {
-			r.error(BackendResultType::configfile, e.what());
+			//I don't care about the error since I'm just trying
+			//to find a suitable minornumber
+		}
+
+		//Asking the driver for a suitable minornumber
+		try {
+			vector<tDisk> tdisks;
+			tDisk::getTDisks(tdisks);
+			for(const tDisk &d : tdisks)
+				if(d.getMinornumber()+1 >= number)number = d.getMinornumber() + 1;
+		} catch (const tDiskException &e) {
+			//I don't care about the error since I'm just trying
+			//to find a suitable minornumber
 		}
 	}
 
@@ -300,12 +313,27 @@ BackendResult td::add_tDisk(const vector<string> &args, Options &options)
 		try {
 			if(number >= 0)disk = tDisk::create(number, blocksize);
 			else disk = tDisk::create(blocksize);
-
-			number = disk.getMinornumber();
 		} catch(const tDiskOfflineException &e) {
 			r.warning(BackendResultType::driver, e.what());
 		} catch(const tDiskException &e) {
 			r.error(BackendResultType::driver, e.what());
+		}
+	}
+
+	//Perform config file operation
+	if(!options.getOptionBoolValue("temporary"))
+	{
+		try {
+			configuration config(options.getStringOptionValue("configfile"), options);
+
+			configuration::tdisk_config newDevice;
+			newDevice.minornumber = number;
+			newDevice.blocksize = blocksize;
+			config.addDevice(std::move(newDevice));
+
+			config.save(options.getStringOptionValue("configfile"));
+		} catch (const tDiskException &e) {
+			r.error(BackendResultType::configfile, e.what());
 		}
 	}
 

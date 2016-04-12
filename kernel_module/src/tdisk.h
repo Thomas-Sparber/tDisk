@@ -72,6 +72,29 @@ struct td_internal_device
 }; //end struct td_internal_device
 
 /**
+  * This struct represents an internal device but sorted
+  * accorting to its performance
+ **/
+struct sorted_internal_device
+{
+	/** The actual device **/
+	struct td_internal_device *dev;
+
+	/** This variable is just internally to count the blocks **/
+	sector_t available_blocks;
+
+	/**
+	  * The blocks which should be - according to performance
+	  * and block access count - stored on the device
+	 **/
+	struct list_head preferred_blocks;
+
+	/** Also used internally to count the currently correct blocks **/
+	sector_t amount_blocks;
+
+}; //end struct sorted_internal_device
+
+/**
   * Possible states of a device
  **/
 enum {
@@ -98,6 +121,7 @@ struct tdisk {
 	//The internal devices
 	tdisk_index internal_devices_count;
 	struct td_internal_device internal_devices[TDISK_MAX_PHYSICAL_DISKS];
+	struct sorted_internal_device *sorted_devices;
 
 	spinlock_t				lock;
 	int						state;

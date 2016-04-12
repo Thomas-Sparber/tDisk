@@ -8,9 +8,9 @@ make_backend:
 	@make -C backend
 
 disks:
-	sudo dd if=/dev/zero of=slow_disk bs=512 count=1024
-	sudo dd if=/dev/zero of=big_disk bs=1M count=10
-	sudo dd if=/dev/zero of=other_disk bs=1M count=5
+	sudo dd if=/dev/zero of=slow_disk bs=1M count=256
+	sudo dd if=/dev/zero of=big_disk bs=1M count=1024
+	sudo dd if=/dev/zero of=other_disk bs=1M count=384
 
 web_interface/tdisk: backend/tdisk
 	@cp backend/tdisk web_interface/tdisk

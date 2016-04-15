@@ -214,6 +214,60 @@ static int td_flush_devices(struct tdisk *td)
 }
 
 /**
+  * Writes all the sector indices to the device.
+ **/
+static int td_write_all_indices(struct tdisk *td, struct td_internal_device *device)
+{
+	int ret = 0;
+
+	unsigned int skip = sizeof(struct tdisk_header);
+	void *data = td->indices;
+	loff_t length = td->header_size*td->blocksize - skip;
+	ret = write_data(device, data, skip, length);
+
+	if(ret)printk(KERN_ERR "tDisk: Error writing all disk indices: %d. Offset: %u, length: %llu\n", ret, skip, length);
+	else printk(KERN_DEBUG "tDisk: Success writing all disk indices\n");
+
+	return ret;
+}
+
+/**
+  * Divides the access count of all sectors by the lowest
+  * access count. Optionally, it's also written to disks
+ **/
+static void reset_access_count(struct tdisk *td, bool do_disk_operation)
+{
+	tdisk_index disk;
+	sector_t sector;
+	__u16 min_access_count = -1;
+
+	//Find lowest access count
+	for(sector = 0; sector < td->size_blocks; ++sector)
+	{
+		if(td->indices[sector].access_count < min_access_count)
+			min_access_count = td->indices[sector].access_count;
+	}
+
+	//Needs to be at least 2
+	if(min_access_count < 2)min_access_count = 2;
+
+	//Divide all sector access count by lowest access count
+	for(sector = 0; sector < td->size_blocks; ++sector)
+	{
+		td->indices[sector].access_count /= min_access_count;
+	}
+
+	if(do_disk_operation)
+	{
+		//Save sector indices
+		for(disk = 1; disk < td->internal_devices_count; ++disk)
+		{
+			td_write_all_indices(td, &td->internal_devices[disk-1]);
+		}
+	}
+}
+
+/**
   * Performs the given index operation. This can be:
   *  - READ: reads the physical sector index for the given logical sector
   *  - WRITE: stores the given physical sector index for the given logical
@@ -238,7 +292,19 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 	actual = &td_dev->indices[logical_sector];
 
 	//Increment access count
-	if(update_access_count)actual->access_count++;
+	if(update_access_count)
+	{
+		actual->access_count++;
+
+		//printk_ratelimited(KERN_DEBUG "tDisk: access count: %u max: %u\n", actual->access_count, (typeof(actual->access_count))-1);
+		if(actual->access_count == ((typeof(actual->access_count))-1))
+		{
+			printk(KERN_DEBUG "tDisk: Resetting tDisk access count\n");
+			reset_access_count(td_dev, do_disk_operation);
+		}
+	}
+	
+
 	MY_BUG_ON(direction == WRITE && physical_sector->disk == 0, PRINT_INT(physical_sector->disk), PRINT_ULL(logical_sector));
 	MY_BUG_ON(direction == READ && actual->disk == 0, PRINT_INT(actual->disk), PRINT_ULL(logical_sector));
 
@@ -672,11 +738,9 @@ static bool td_move_one_sector(struct tdisk *td)
 			sector_t logical_b = to_swap-td->sorted_sectors;
 			struct sector_index *a = highest->physical_sector;
 			struct sector_index *b = to_swap->physical_sector;
-
-			//BUG_ON(highest->physical_sector->disk != current_disk_index);
 			
-			printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u): %llu/%llu\n",
-					logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count, correctly_stored, td->size_blocks);
+			//printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u): %llu/%llu\n",
+			//		logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count, correctly_stored, td->size_blocks);
 
 			td_swap_sectors(td, logical_a, a, logical_b, b);
 
@@ -864,24 +928,6 @@ static int td_read_all_indices(struct tdisk *td, struct td_internal_device *devi
 
 	if(ret)printk(KERN_ERR "tDisk: Error reading all disk indices: %d\n", ret);
 	else printk(KERN_DEBUG "tDisk: Success reading all disk indices\n");
-
-	return ret;
-}
-
-/**
-  * Writes all the sector indices to the device.
- **/
-static int td_write_all_indices(struct tdisk *td, struct td_internal_device *device)
-{
-	int ret = 0;
-
-	unsigned int skip = sizeof(struct tdisk_header);
-	void *data = td->indices;
-	loff_t length = td->header_size*td->blocksize - skip;
-	ret = write_data(device, data, skip, length);
-
-	if(ret)printk(KERN_ERR "tDisk: Error writing all disk indices: %d. Offset: %u, length: %llu\n", ret, skip, length);
-	else printk(KERN_DEBUG "tDisk: Success writing all disk indices\n");
 
 	return ret;
 }

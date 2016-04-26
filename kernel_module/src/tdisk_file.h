@@ -10,7 +10,7 @@
 
 #include <linux/version.h>
 
-#include "../include/tdisk/interface.h"
+#include <tdisk/interface.h>
 #include "tdisk_performance.h"
 
 /**

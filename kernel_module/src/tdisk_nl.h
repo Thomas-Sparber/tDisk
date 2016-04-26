@@ -8,7 +8,7 @@
 #ifndef TDISK_NL
 #define TDISK_NL
 
-#include "../include/tdisk/interface.h"
+#include <tdisk/interface.h>
 
 /**
   * Defines the timeout of a plugin request.

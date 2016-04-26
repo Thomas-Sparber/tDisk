@@ -1,5 +1,6 @@
 obj-m := tdisk.o
-ccflags-y := -I$(PWD)/../include
+#EXTRA_CFLAGS=-I$(shell pwd)/include
+ccflags-y := -I$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/include
 tdisk-objs := \
 	src/tdisk.o \
 	src/tdisk_control.o \
@@ -7,7 +8,8 @@ tdisk-objs := \
 	src/worker_timeout.o
 
 module:
-	@$(MAKE) -C /lib/modules/$(shell uname -r)/build SUBDIRS=$(shell pwd) modules
+	echo $(ccflags-y)
+	@$(MAKE) -C /lib/modules/$(shell uname -r)/build SUBDIRS=$(shell pwd) $(MAKE_OPTS) modules
 
 clean:
 	@$(MAKE) -C /lib/modules/$(shell uname -r)/build SUBDIRS=$(shell pwd) clean

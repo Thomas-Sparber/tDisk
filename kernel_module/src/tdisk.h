@@ -18,7 +18,7 @@
 #include <linux/spinlock.h>
 #include <linux/types.h>
 
-#include "../include/tdisk/interface.h"
+#include <tdisk/interface.h>
 #include "worker_timeout.h"
 
 /**

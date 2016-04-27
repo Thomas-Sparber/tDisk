@@ -8,6 +8,7 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
+#pragma GCC system_header
 #include <linux/list.h>
 
 #define GET_MACRO(_0, _1, _2, _3, _4, _5, _6, NAME, ...) NAME

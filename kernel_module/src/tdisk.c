@@ -5,23 +5,7 @@
   *
  **/
 
-#include <linux/blkdev.h>
-#include <linux/blkpg.h>
-#include <linux/errno.h>
-#include <linux/falloc.h>
-#include <linux/file.h>
-#include <linux/fs.h>
-#include <linux/list_sort.h>
-#include <linux/major.h>
-#include <linux/miscdevice.h>
-#include <linux/module.h>
-#include <linux/moduleparam.h>
-#include <linux/sort.h>
-#include <linux/stat.h>
-#include <linux/uio.h>
-#include <linux/version.h>
-#include <linux/vmalloc.h>
-
+#include <tdisk/config.h>
 #include "helpers.h"
 #include "tdisk.h"
 #include "tdisk_control.h"
@@ -64,11 +48,21 @@ static int write_data(struct td_internal_device *device, void *data, loff_t posi
 {
 	switch(device->type)
 	{
+#ifdef USE_FILES
 	case internal_device_type_file:
 		if(unlikely(!device->file))return -ENODEV;
 		return file_write_data(device->file, data, position, length, &device->performance);
+#else
+#pragma message "Files are disabled"
+#endif //USE_FILES
+
+#ifdef USE_PLUGINS
 	case internal_device_type_plugin:
 		return plugin_write_data(device->name, data, position, length, &device->performance);
+#else
+#pragma message "Plugins are disabled"
+#endif //USE_PLUGINS
+
 	default:
 		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
 		MY_BUG_ON(true, PRINT_INT(device->type));
@@ -84,11 +78,21 @@ static int read_data(struct td_internal_device *device, void *data, loff_t posit
 {
 	switch(device->type)
 	{
+#ifdef USE_FILES
 	case internal_device_type_file:
 		if(unlikely(!device->file))return -ENODEV;
 		return file_read_data(device->file, data, position, length, &device->performance);
+#else
+#pragma message "Files are disabled"
+#endif //USE_FILES
+
+#ifdef USE_PLUGINS
 	case internal_device_type_plugin:
 		return plugin_read_data(device->name, data, position, length, &device->performance);
+#else
+#pragma message "Plugins are disabled"
+#endif //USE_PLUGINS
+
 	default:
 		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
 		MY_BUG_ON(true, PRINT_INT(device->type));
@@ -104,11 +108,21 @@ static int write_bio_vec(struct td_internal_device *device, struct bio_vec *bvec
 {
 	switch(device->type)
 	{
+#ifdef USE_FILES
 	case internal_device_type_file:
 		if(unlikely(!device->file))return -ENODEV;
 		return file_write_bio_vec(device->file, bvec, position, &device->performance);
+#else
+#pragma message "Files are disabled"
+#endif //USE_FILES
+
+#ifdef USE_PLUGINS
 	case internal_device_type_plugin:
 		return plugin_write_bio_vec(device->name, bvec, position, &device->performance);
+#else
+#pragma message "Plugins are disabled"
+#endif //USE_PLUGINS
+
 	default:
 		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
 		MY_BUG_ON(true, PRINT_INT(device->type));
@@ -124,11 +138,21 @@ static int read_bio_vec(struct td_internal_device *device, struct bio_vec *bvec,
 {
 	switch(device->type)
 	{
+#ifdef USE_FILES
 	case internal_device_type_file:
 		if(unlikely(!device->file))return -ENODEV;
 		return file_read_bio_vec(device->file, bvec, position, &device->performance);
+#else
+#pragma message "Files are disabled"
+#endif //USE_FILES
+
+#ifdef USE_PLUGINS
 	case internal_device_type_plugin:
 		return plugin_read_bio_vec(device->name, bvec, position, &device->performance);
+#else
+#pragma message "Plugins are disabled"
+#endif //USE_PLUGINS
+
 	default:
 		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
 		MY_BUG_ON(true, PRINT_INT(device->type));
@@ -144,11 +168,21 @@ static int flush_device(struct td_internal_device *device)
 {
 	switch(device->type)
 	{
+#ifdef USE_FILES
 	case internal_device_type_file:
 		if(unlikely(!device->file))return -ENODEV;
 		return file_flush(device->file);
+#else
+#pragma message "Files are disabled"
+#endif //USE_FILES
+
+#ifdef USE_PLUGINS
 	case internal_device_type_plugin:
 		return plugin_flush(device->name);
+#else
+#pragma message "Plugins are disabled"
+#endif //USE_PLUGINS
+
 	default:
 		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
 		MY_BUG_ON(true, PRINT_INT(device->type));
@@ -164,11 +198,21 @@ static int device_alloc(struct td_internal_device *device, loff_t position, unsi
 {
 	switch(device->type)
 	{
+#ifdef USE_FILES
 	case internal_device_type_file:
 		if(unlikely(!device->file))return -ENODEV;
 		return file_alloc(device->file, position, length);
+#else
+#pragma message "Files are disabled"
+#endif //USE_FILES
+
+#ifdef USE_PLUGINS
 	case internal_device_type_plugin:
 		return 0; //TODO
+#else
+#pragma message "Plugins are disabled"
+#endif //USE_PLUGINS
+
 	default:
 		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
 		MY_BUG_ON(true, PRINT_INT(device->type));
@@ -184,10 +228,20 @@ static bool device_is_ready(struct td_internal_device *device)
 {
 	switch(device->type)
 	{
+#ifdef USE_FILES
 	case internal_device_type_file:
 		return (device->file != NULL);
+#else
+#pragma message "Files are disabled"
+#endif //USE_FILES
+
+#ifdef USE_PLUGINS
 	case internal_device_type_plugin:
 		return plugin_is_loaded(device->name);
+#else
+#pragma message "Plugins are disabled"
+#endif //USE_PLUGINS
+
 	default:
 		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
 		MY_BUG_ON(true, PRINT_INT(device->type));
@@ -231,6 +285,8 @@ static int td_write_all_indices(struct tdisk *td, struct td_internal_device *dev
 	return ret;
 }
 
+#ifdef AUTO_RESET_ACCESS_COUNT
+
 /**
   * Divides the access count of all sectors by the lowest
   * access count. Optionally, it's also written to disks
@@ -267,6 +323,10 @@ static void reset_access_count(struct tdisk *td, bool do_disk_operation)
 	}
 }
 
+#else
+#pragma message "Reset auto access count is disabled"
+#endif //AUTO_RESET_ACCESS_COUNT
+
 /**
   * Performs the given index operation. This can be:
   *  - READ: reads the physical sector index for the given logical sector
@@ -296,12 +356,16 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 	{
 		actual->access_count++;
 
+#ifdef AUTO_RESET_ACCESS_COUNT
 		//printk_ratelimited(KERN_DEBUG "tDisk: access count: %u max: %u\n", actual->access_count, (typeof(actual->access_count))-1);
 		if(actual->access_count == ((typeof(actual->access_count))-1))
 		{
 			printk(KERN_DEBUG "tDisk: Resetting tDisk access count\n");
 			reset_access_count(td_dev, do_disk_operation);
 		}
+#else
+#pragma message "Reset auto access count is disabled"
+#endif //AUTO_RESET_ACCESS_COUNT
 	}
 	
 
@@ -336,6 +400,57 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 
 	return 0;
 }
+
+/**
+  * This function physically swaps the two given sectors.
+  * This means it reads the data of both sectors, stores
+  * sector a in sector b and vice versa and updates the
+  * indices
+ **/
+static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_index *a, sector_t logical_b, struct sector_index *b)
+{
+	int ret;
+	loff_t pos_a = a->sector * td->blocksize;
+	loff_t pos_b = b->sector * td->blocksize;
+	u8 *buffer_a = kmalloc(td->blocksize, GFP_KERNEL);
+	u8 *buffer_b = kmalloc(td->blocksize, GFP_KERNEL);
+	if(!buffer_a || !buffer_b)return;
+
+	//Reading blocks from both disks
+	ret = read_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);		//a read op1
+	if(ret != 0)goto out_err;
+
+	ret = read_data(&td->internal_devices[b->disk-1], buffer_b, pos_b, td->blocksize);		//b read op1
+	if(ret != 0)goto out_err;
+
+	//Saving swapped data to both disks
+	ret = write_data(&td->internal_devices[a->disk-1], buffer_b, pos_a, td->blocksize);		//a write op1
+	if(ret != 0)goto out_err;
+
+	ret = write_data(&td->internal_devices[b->disk-1], buffer_a, pos_b, td->blocksize);		//b write op1
+	if(ret != 0)goto out_restore_a;
+
+	swap(a->disk, b->disk);
+	swap(a->sector, b->sector);
+
+	//Updating indices
+	td_perform_index_operation(td, WRITE, logical_a, a, true, false);						//a&b write op2
+	td_perform_index_operation(td, WRITE, logical_b, b, true, false);						//a&b write op3
+
+	goto out;
+
+	//error handling
+ out_restore_a:
+	ret = write_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);
+	if(ret != 0)printk(KERN_WARNING "tDisk: Error restoring logical_a. Data corrupted\n");
+ out_err:
+	printk(KERN_WARNING "tDisk: Error swapping sectors %llu and %llu\n", logical_a, logical_b);
+ out:
+	kfree(buffer_a);
+	kfree(buffer_b);
+}
+
+#ifdef MOVE_SECTORS
 
 /**
   * This is the heuristic function that calculates the
@@ -575,55 +690,6 @@ static void td_assign_sectors(struct tdisk *td)
 }
 
 /**
-  * This function physically swaps the two given sectors.
-  * This means it reads the data of both sectors, stores
-  * sector a in sector b and vice versa and updates the
-  * indices
- **/
-static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_index *a, sector_t logical_b, struct sector_index *b)
-{
-	int ret;
-	loff_t pos_a = a->sector * td->blocksize;
-	loff_t pos_b = b->sector * td->blocksize;
-	u8 *buffer_a = kmalloc(td->blocksize, GFP_KERNEL);
-	u8 *buffer_b = kmalloc(td->blocksize, GFP_KERNEL);
-	if(!buffer_a || !buffer_b)return;
-
-	//Reading blocks from both disks
-	ret = read_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);		//a read op1
-	if(ret != 0)goto out_err;
-
-	ret = read_data(&td->internal_devices[b->disk-1], buffer_b, pos_b, td->blocksize);		//b read op1
-	if(ret != 0)goto out_err;
-
-	//Saving swapped data to both disks
-	ret = write_data(&td->internal_devices[a->disk-1], buffer_b, pos_a, td->blocksize);		//a write op1
-	if(ret != 0)goto out_err;
-
-	ret = write_data(&td->internal_devices[b->disk-1], buffer_a, pos_b, td->blocksize);		//b write op1
-	if(ret != 0)goto out_restore_a;
-
-	swap(a->disk, b->disk);
-	swap(a->sector, b->sector);
-
-	//Updating indices
-	td_perform_index_operation(td, WRITE, logical_a, a, true, false);						//a&b write op2
-	td_perform_index_operation(td, WRITE, logical_b, b, true, false);						//a&b write op3
-
-	goto out;
-
-	//error handling
- out_restore_a:
-	ret = write_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);
-	if(ret != 0)printk(KERN_WARNING "tDisk: Error restoring logical_a. Data corrupted\n");
- out_err:
-	printk(KERN_WARNING "tDisk: Error swapping sectors %llu and %llu\n", logical_a, logical_b);
- out:
-	kfree(buffer_a);
-	kfree(buffer_b);
-}
-
-/**
   * This function moves the sector with the
   * highest access count to the disk with the
   * best performance.
@@ -760,6 +826,10 @@ static bool td_move_one_sector(struct tdisk *td)
 	return swapped;
 }
 
+#else
+#pragma message "Moving sectors is disabled"
+#endif //MOVE_SECTORS
+
 /**
   * This callback is used by the list_sort to determine the
   * order of a sector index
@@ -842,7 +912,7 @@ static int td_is_compatible_header(struct tdisk *td, struct tdisk_header *header
 }
 
 /**
-  * Reads the td header from the given file
+  * Reads the td header from the given device
   * and measures the disk performance if perf != NULL
  **/
 static int td_read_header(struct tdisk *td, struct td_internal_device *device, struct tdisk_header *header, bool first_device, int *index_operation_to_do)
@@ -988,7 +1058,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		{
 			//Handle discard operations
 			len = bvec.bv_len;
-			ret = device_alloc(device, actual_pos_byte, bvec.bv_len);//file_alloc(file, actual_pos_byte, bvec.bv_len);
+			ret = device_alloc(device, actual_pos_byte, bvec.bv_len);
 			if(ret)break;
 		}
 		else if(rq->cmd_flags & REQ_WRITE)
@@ -1152,6 +1222,8 @@ int td_set_max_sectors(struct tdisk *td, sector_t max_sectors)
 	return ret;
 }
 
+#ifdef USE_FILES
+
 /**
   * This function checks if the given file can be
   * added as internal device to the tDisk
@@ -1192,6 +1264,10 @@ static int td_add_check_file(struct tdisk *td, fmode_t mode, struct block_device
 
 	return 0;
 }
+
+#else
+#pragma message "Files are disabled"
+#endif //USE_FILES
 
 /**
   * Adds the given internal device to the tDisk.
@@ -1235,6 +1311,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 
 	switch(parameters.type)
 	{
+#ifdef USE_FILES
 	case internal_device_type_file:
 		error = -EBADF;
 		file = fget(parameters.fd);
@@ -1251,10 +1328,19 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		//File size in bytes
 		size = file_get_size(file);
 		break;
+#else
+#pragma message "Files are disabled"
+#endif //USE_FILES
+
+#ifdef USE_PLUGINS
 	case internal_device_type_plugin:
 		//Plugin size in bytes
 		size = plugin_get_size(new_device.name);
 		break;
+#else
+#pragma message "Plugins are disabled"
+#endif //USE_PLUGINS
+
 	default:
 		printk(KERN_WARNING "tDisk: Invalid device type %d\n", parameters.type);
 		error = -EINVAL;
@@ -1792,8 +1878,6 @@ static int td_queue_rq(struct blk_mq_hw_ctx *hctx, const struct blk_mq_queue_dat
  **/
 static enum worker_status td_queue_work(void *private_data, struct kthread_work *work)
 {
-	struct tdisk *td = private_data;
-
 	//Since we are not using the standard kthread_work_fn
 	//It is possible that this funtion is called without work.
 	//The reason behind this is that we can reorganize the indices
@@ -1824,6 +1908,9 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 	}
 	else
 	{
+#ifdef MOVE_SECTORS
+		struct tdisk *td = private_data;
+
 		//No work to do. This means we have reached the timeout
 		//and have now the opportunity to organize the sectors.
 
@@ -1858,6 +1945,10 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 
 		if(td->access_count_resort)return secondary_work_to_do;
 		else return secondary_work_finished;
+#else
+#pragma message "Moving sectors is disabled"
+		return secondary_work_finished;
+#endif //MOVE_SECTORS
 	}
 }
 
@@ -2093,8 +2184,12 @@ static int __init tdisk_init(void)
 	err = register_tdisk_control();
 	if(err < 0)goto error;
 
+#ifdef USE_NETLINK
 	err = nltd_register();
 	if(err < 0)goto error_tdisk_control;
+#else
+#pragma message "Netlink is disabled"
+#endif //USE_NETLINK
 
 	err = -EBUSY;
 	TD_MAJOR = register_blkdev(TD_MAJOR, "td");
@@ -2104,8 +2199,12 @@ static int __init tdisk_init(void)
 	return 0;
 
  error_nltd:
+#ifdef USE_NETLINK
 	nltd_unregister();
  error_tdisk_control:
+#else
+#pragma message "Netlink is disabled"
+#endif //USE_NETLINK
 	unregister_tdisk_control();
  error:
 	return err;
@@ -2132,7 +2231,12 @@ static void __exit tdisk_exit(void)
 
 	unregister_blkdev(TD_MAJOR, "td");
 
+#ifdef USE_NETLINK
 	nltd_unregister();
+#else
+#pragma message "Netlink is disabled"
+#endif //USE_NETLINK
+
 	unregister_tdisk_control();
 }
 

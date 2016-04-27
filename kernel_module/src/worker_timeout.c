@@ -5,10 +5,7 @@
   *
  **/
 
-#include <linux/types.h>
-#include <linux/freezer.h>
-#include <linux/completion.h>
-
+#include <tdisk/config.h>
 #include "worker_timeout.h"
 
 /**

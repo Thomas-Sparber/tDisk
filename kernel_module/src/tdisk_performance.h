@@ -8,7 +8,12 @@
 #ifndef TDISK_PERFORMANCE_H
 #define TDISK_PERFORMANCE_H
 
+#include <tdisk/config.h>
+
+#pragma GCC system_header
 #include <linux/timex.h>
+
+#ifdef MEASURE_PERFORMANCE
 
 /**
   * Calculates the amount of measured records-1
@@ -89,5 +94,9 @@ inline static void update_performance(int direction, cycles_t time, struct devic
 		break;
 	}
 }
+
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
 
 #endif //TDISK_PERFORMANCE_H

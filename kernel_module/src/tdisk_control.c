@@ -5,18 +5,7 @@
   *
  **/
 
-#include <linux/module.h>
-#include <linux/moduleparam.h>
-#include <linux/fs.h>
-#include <linux/file.h>
-#include <linux/stat.h>
-#include <linux/errno.h>
-#include <linux/major.h>
-#include <linux/blkdev.h>
-#include <linux/miscdevice.h>
-#include <linux/falloc.h>
-#include <linux/uio.h>
-
+#include <tdisk/config.h>
 #include "tdisk_control.h"
 #include "tdisk.h"
 

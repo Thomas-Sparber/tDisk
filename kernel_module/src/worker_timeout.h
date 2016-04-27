@@ -8,6 +8,10 @@
 #ifndef WORKER_TIMEOUT_H
 #define WORKER_TIMEOUT_H
 
+#include <tdisk/config.h>
+
+#pragma GCC system_header
+#include <linux/freezer.h>
 #include <linux/kthread.h>
 
 /**

@@ -8,18 +8,24 @@
 #ifndef TDISK_H
 #define TDISK_H
 
+#include <tdisk/config.h>
+#include <tdisk/interface.h>
+#include "worker_timeout.h"
+
+#pragma GCC system_header
 #include <linux/atomic.h>
 #include <linux/bio.h>
 #include <linux/blkdev.h>
 #include <linux/blk-mq.h>
 #include <linux/kthread.h>
 #include <linux/list.h>
+#include <linux/list_sort.h>
+#include <linux/module.h>
 #include <linux/mutex.h>
+#include <linux/sort.h>
 #include <linux/spinlock.h>
 #include <linux/types.h>
-
-#include <tdisk/interface.h>
-#include "worker_timeout.h"
+#include <linux/vmalloc.h>
 
 /**
   * Describes the header (first bytes) of a physical

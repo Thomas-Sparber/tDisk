@@ -8,7 +8,20 @@
 #ifndef TDISK_NL
 #define TDISK_NL
 
+#include <tdisk/config.h>
 #include <tdisk/interface.h>
+
+#pragma GCC system_header
+#include <linux/completion.h>
+#include <linux/genetlink.h>
+#include <linux/skbuff.h>
+#include <linux/spinlock.h>
+#include <linux/timer.h>
+#include <net/genetlink.h>
+#include <net/net_namespace.h>
+#include <net/sock.h>
+
+#ifdef USE_NETLINK
 
 /**
   * Defines the timeout of a plugin request.
@@ -70,5 +83,9 @@ int nltd_read_sync(const char *plugin, loff_t offset, char *buffer, int length);
   * completion of the request
  **/
 int nltd_write_sync(const char *plugin, loff_t offset, char *buffer, int length);
+
+#else
+#pragma message "Netlink is disabled"
+#endif //USE_NETLINK
 
 #endif //TDISK_NL

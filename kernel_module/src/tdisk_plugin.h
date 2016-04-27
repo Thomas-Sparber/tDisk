@@ -8,8 +8,11 @@
 #ifndef TDISK_PLUGIN_H
 #define TDISK_PLUGIN_H
 
+#include <tdisk/config.h>
 #include "tdisk_nl.h"
 #include "tdisk_performance.h"
+
+#ifdef USE_PLUGINS
 
 /**
   * Checks whether a plugin with the given name is
@@ -35,11 +38,20 @@ inline static loff_t plugin_get_size(const char *plugin)
 inline static int plugin_write_data(const char *plugin, void *data, loff_t pos, unsigned int length, struct device_performance *perf)
 {
 	int ret;
-	cycles_t time;
 
-	time = get_cycles();
+#ifdef MEASURE_PERFORMANCE
+	cycles_t time = get_cycles();
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
+
 	ret = nltd_write_sync(plugin, pos, data, length);
+
+#ifdef MEASURE_PERFORMANCE
 	update_performance(WRITE, get_cycles()-time, perf);
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
 
 	return ret;
 }
@@ -51,11 +63,20 @@ inline static int plugin_write_data(const char *plugin, void *data, loff_t pos, 
 inline static int plugin_read_data(const char *plugin, void *data, loff_t pos, unsigned int length, struct device_performance *perf)
 {
 	int ret;
-	cycles_t time;
 
-	time = get_cycles();
+#ifdef MEASURE_PERFORMANCE
+	cycles_t time = get_cycles();
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
+
 	ret = nltd_read_sync(plugin, pos, data, length);
+
+#ifdef MEASURE_PERFORMANCE
 	update_performance(READ, get_cycles()-time, perf);
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
 
 	return ret;
 }
@@ -101,5 +122,9 @@ inline static int plugin_read_bio_vec(const char *plugin, struct bio_vec *bvec, 
 	}
 	return ret;
 }
+
+#else
+#pragma message "Plugins are disabled"
+#endif //USE_PLUGINS
 
 #endif //TDISK_PLUGIN_H

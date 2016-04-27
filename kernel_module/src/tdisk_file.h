@@ -8,10 +8,17 @@
 #ifndef TDISK_FILE_H
 #define TDISK_FILE_H
 
-#include <linux/version.h>
-
+#include <tdisk/config.h>
 #include <tdisk/interface.h>
 #include "tdisk_performance.h"
+
+#ifdef USE_FILES
+
+#pragma GCC system_header
+#include <linux/falloc.h>
+#include <linux/file.h>
+#include <linux/uio.h>
+#include <linux/version.h>
 
 /**
   * Returns whether the given file is a tDisk
@@ -67,15 +74,24 @@ inline static int file_write_bio_vec(struct file *file, struct bio_vec *bvec, lo
 {
 	int ret;
 	struct iov_iter i;
-	cycles_t time;
+
+#ifdef MEASURE_PERFORMANCE
+	cycles_t time = get_cycles();
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
 
 	iov_iter_bvec(&i, ITER_BVEC, bvec, 1, bvec->bv_len);
 
-	time = get_cycles();
 	file_start_write(file);
 	ret = vfs_iter_write(file, &i, pos);
 	file_end_write(file);
+
+#ifdef MEASURE_PERFORMANCE
 	update_performance(WRITE, get_cycles()-time, perf);
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
 
 	return ret;
 }
@@ -141,12 +157,22 @@ inline static int file_read_bio_vec(struct file *file, struct bio_vec *bvec, lof
 {
 	int ret;
 	struct iov_iter i;
-	cycles_t time;
+
+#ifdef MEASURE_PERFORMANCE
+	cycles_t time = get_cycles();
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
+
 	iov_iter_bvec(&i, ITER_BVEC, bvec, 1, bvec->bv_len);
 
-	time = get_cycles();
 	ret = vfs_iter_read(file, &i, pos);
+
+#ifdef MEASURE_PERFORMANCE
 	update_performance(READ, get_cycles()-time, perf);
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
 
 	return ret;
 }
@@ -323,5 +349,9 @@ inline static int file_aio_read_request(struct file *file, struct request *rq, l
 	if(ret != -EIOCBQUEUED)data->iocb.ki_complete(&data->iocb, ret, 0);
 	return 0;
 }
+
+#else
+#pragma message "Files are disabled"
+#endif //USE_FILES
 
 #endif //TDISK_FILE_H

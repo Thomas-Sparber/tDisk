@@ -8,6 +8,11 @@
 #ifndef TDISK_CONTROL_H
 #define TDISK_CONTROL_H
 
+#include <tdisk/config.h>
+
+#pragma GCC system_header
+#include <linux/miscdevice.h>
+
 /**
   * Registers the td-control device
  **/

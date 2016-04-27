@@ -5,17 +5,10 @@
   *
  **/
 
-#include <linux/completion.h>
-#include <linux/genetlink.h>
-#include <linux/list.h>
-#include <linux/skbuff.h>
-#include <linux/spinlock.h>
-#include <linux/timer.h>
-#include <net/genetlink.h>
-#include <net/net_namespace.h>
-#include <net/sock.h>
-
+#include <tdisk/config.h>
 #include "tdisk_nl.h"
+
+#ifdef USE_NETLINK
 
 /**
   * Defines the operation SIZE which can be used to
@@ -710,3 +703,7 @@ void nltd_unregister()
 
 	genl_unregister_family(&genl_tdisk_family);
 }
+
+#else
+#pragma message "Netlink is disabled"
+#endif //USE_NETLINK

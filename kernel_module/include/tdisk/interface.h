@@ -9,6 +9,7 @@
 #define TDISK_INTERFACE_H
 
 #include <linux/types.h>
+#include <tdisk/config.h>
 
 #define DRIVER_NAME "tDisk"
 #define DRIVER_MAJOR_VERSION 1
@@ -60,8 +61,8 @@ struct tdisk_add_parameters
  **/
 enum internal_device_type
 {
-	internal_device_type_file,
-	internal_device_type_plugin
+	internal_device_type_file = 0,
+	internal_device_type_plugin = 1,
 }; //end enum internal_device_type
 
 /**

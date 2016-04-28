@@ -67,9 +67,9 @@ public:
 	friend int td::worker_function(nl_msg *msg, void *arg);
 
 protected:
-	bool messageReceived(uint32_t sequenceNumber, PluginOperation operation, unsigned long long offset, std::vector<char> &data, int length);
+	bool messageReceived(uint32_t sequenceNumber, PluginOperation operation, unsigned long long offset, std::vector<char> &data, std::size_t length);
 
-	bool sendFinishedMessage(uint32_t sequenceNumber, std::vector<char> &data, int length);
+	bool sendFinishedMessage(uint32_t sequenceNumber, std::vector<char> &data, bool success);
 
 	bool writeBufferedData(WriteBuffer &writeBuffer);
 

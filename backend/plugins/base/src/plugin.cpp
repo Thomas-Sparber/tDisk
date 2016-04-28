@@ -93,12 +93,7 @@ int worker_function(nl_msg *msg, void *arg)
 		return -1;
 	}
 
-	int l = nla_get_s32(length);
-	if(l < 0)
-	{
-		cerr<<"Length can't be < 0: "<<l<<endl;
-		return -1;
-	}
+	std::size_t l = (std::size_t)nla_get_u32(length);
 
 	vector<char> b;
 	if(buffer)b = vector<char>((char*)nla_data(buffer), (char*)nla_data(buffer) + l);
@@ -224,12 +219,12 @@ bool Plugin::writeBufferedData(WriteBuffer &writeBuffer)
 	return write(oldPos, &oldData[0], oldData.size());
 }
 
-bool Plugin::messageReceived(uint32_t sequenceNumber, PluginOperation operation, unsigned long long offset, vector<char> &data, int length)
+bool Plugin::messageReceived(uint32_t sequenceNumber, PluginOperation operation, unsigned long long offset, vector<char> &data, std::size_t length)
 {
 	bool success = false;
 	if(operation == PluginOperation::read)
 	{
-		if(data.size() != unsigned(length))data = vector<char>(length);
+		if(data.size() != length)data = vector<char>(length);
 
 		//Check read history
 		if(history.get(offset, &data[0], length))success = true;
@@ -256,7 +251,7 @@ bool Plugin::messageReceived(uint32_t sequenceNumber, PluginOperation operation,
 	}
 	else if(operation == PluginOperation::write)
 	{
-		if(int(data.size()) != length)
+		if(data.size() != length)
 		{
 			cerr<<"Invalid data size given: "<<data.size()<<"/"<<length<<endl;
 			success = false;
@@ -324,14 +319,18 @@ bool Plugin::messageReceived(uint32_t sequenceNumber, PluginOperation operation,
 		success = false;
 	}*/
 
-	return sendFinishedMessage(sequenceNumber, data, success ? length : -1);
+	return sendFinishedMessage(sequenceNumber, data, success);
 }
 
-bool Plugin::sendFinishedMessage(uint32_t sequenceNumber, vector<char> &data, int length)
+bool Plugin::sendFinishedMessage(uint32_t sequenceNumber, vector<char> &data, bool success)
 {
+	int ret = success ? 0 : -1;
+	std::size_t length = data.size();
+
 	return sendNlMessage(socket, NLTD_CMD_FINISHED, 0, familyId,
 		createArg<NLTD_REQ_NUMBER>(sequenceNumber),
 		createArg<NLTD_REQ_BUFFER>(data),
-		createArg<NLTD_REQ_LENGTH>(length)
+		createArg<NLTD_REQ_LENGTH>(length),
+		createArg<NLTD_REQ_RET>(ret)
 	);
 }

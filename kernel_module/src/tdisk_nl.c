@@ -81,7 +81,7 @@ struct pending_request
 	char *buffer;
 
 	/** The length of the buffer **/
-	int buffer_length;
+	size_t buffer_length;
 
 	struct list_head list;
 }; //end struct pending_request
@@ -321,11 +321,12 @@ static const char* get_plugin_name(u32 port)
  **/
 static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 {
-	int length;
+	int ret;
+	size_t length;
 	u32 request_number;
 	struct pending_request *req;
 
-	//A message must have a request number and a length
+	//A message must have a request number, return value and a length
 	if(!info->attrs[NLTD_REQ_NUMBER])
 	{
 		const char *plugin_name = get_plugin_name(info->snd_portid);
@@ -340,12 +341,20 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 		printk(KERN_WARNING "tDisk: Probably broken plugin: %s (%u) - didn't send a length\n", (plugin_name ? plugin_name : "Unknown"), info->snd_portid);
 		return -EINVAL;
 	}
+	if(!info->attrs[NLTD_REQ_RET])
+	{
+		const char *plugin_name = get_plugin_name(info->snd_portid);
+
+		printk(KERN_WARNING "tDisk: Probably broken plugin: %s (%u) - didn't send a return value\n", (plugin_name ? plugin_name : "Unknown"), info->snd_portid);
+		return -EINVAL;
+	}
 
 	//Get fields from message
 	request_number = nla_get_u32(info->attrs[NLTD_REQ_NUMBER]);
-	length = nla_get_s32(info->attrs[NLTD_REQ_LENGTH]);
+	length = (size_t)nla_get_u32(info->attrs[NLTD_REQ_LENGTH]);
+	ret = nla_get_s32(info->attrs[NLTD_REQ_RET]);
 
-	if(length < 0)printk(KERN_DEBUG "tDisk: received error message %d\n", length);
+	if(ret < 0)printk(KERN_DEBUG "tDisk: received error message %d\n", ret);
 
 	//Get original request structure from pending request
 	req = pop_request(request_number);
@@ -366,7 +375,7 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 		{
 			const char *plugin_name = get_plugin_name(info->snd_portid);
 			printk(KERN_WARNING "tDisk: Probably broken plugin: %s (%u) - type is not WRITE but no buffer was sent.\n", (plugin_name ? plugin_name : "Unknown"), info->snd_portid);
-			length = -EINVAL;
+			ret = -EINVAL;
 		}
 		else
 		{
@@ -377,7 +386,7 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
 
 	//Finally call callback that the request finished
 	if(req->callback)
-		req->callback(req->userobject, length);
+		req->callback(req->userobject, ret);
 
 	kfree(req);
 	return 0;
@@ -389,21 +398,21 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
   * values and sends the message to the plugin with
   + the given name.
  **/
-int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length, int operation, plugin_callback callback, void *userobject)
+int nltd_send_async(const char *plugin, loff_t offset, char *buffer, size_t length, int operation, plugin_callback callback, void *userobject)
 {
 	int err;
 	void *hdr;
 	struct sk_buff *msg;
 	struct pending_request *req = NULL;
 	u32 port = get_plugin_port(plugin);
-	unsigned int msg_size = sizeof(__u32) /*u32 -> req_nr*/ +
+	size_t msg_size = sizeof(__u32) /*u32 -> req_nr*/ +
 							sizeof(__u64) /*u64 -> offset*/ +
-							sizeof(__s32) /*s32 -> length*/ +
+							sizeof(__u32) /*u32 -> length*/ +
 							length /* buffer */;
 
 	if(msg_size < PAGE_SIZE)msg_size = PAGE_SIZE;
 
-	if(length > PAGE_SIZE)printk(KERN_WARNING "tDisk: Warning when sending nl msg: length (%d) is larger than PAGE_SIZE(%lu)\n", length, PAGE_SIZE);
+	if(length > PAGE_SIZE)printk_ratelimited(KERN_WARNING "tDisk: Warning when sending nl msg: length (%d) is larger than PAGE_SIZE(%lu)\n", length, PAGE_SIZE);
 
 	//0 means plugin is not registered
 	err = -ENODEV;
@@ -451,14 +460,14 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 		goto nlmsg_failure;
 	}
 
-	err = nla_put_u64(msg, NLTD_REQ_OFFSET, offset);
+	err = nla_put_u64(msg, NLTD_REQ_OFFSET, (u64)offset);
 	if(err)
 	{
 		printk(KERN_WARNING "tDisk: Error adding parameter offset to message\n");
 		goto nlmsg_failure;
 	}
 
-	err = nla_put_s32(msg, NLTD_REQ_LENGTH, length);
+	err = nla_put_u32(msg, NLTD_REQ_LENGTH, (u32)length);
 	if(err)
 	{
 		printk(KERN_WARNING "tDisk: Error adding parameter length to message\n");
@@ -467,7 +476,7 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 
 	if(operation != READ)
 	{
-		err = nla_put(msg, NLTD_REQ_BUFFER, length, buffer);
+		err = nla_put(msg, NLTD_REQ_BUFFER, (int)length, buffer);
 		if(err)
 		{
 			printk(KERN_WARNING "tDisk: Error adding parameter buffer to message\n");
@@ -506,23 +515,23 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, int length,
 	return err;
 }
 
-void nltd_read_async(const char *plugin, loff_t offset, char *buffer, int length, plugin_callback callback, void *userobject)
+void nltd_read_async(const char *plugin, loff_t offset, char *buffer, size_t length, plugin_callback callback, void *userobject)
 {
 	nltd_send_async(plugin, offset, buffer, length, READ, callback, userobject);
 }
 
-void nltd_write_async(const char *plugin, loff_t offset, char *buffer, int length, plugin_callback callback, void *userobject)
+void nltd_write_async(const char *plugin, loff_t offset, char *buffer, size_t length, plugin_callback callback, void *userobject)
 {
 	nltd_send_async(plugin, offset, buffer, length, WRITE, callback, userobject);
 }
 
-int nltd_read_sync(const char *plugin, loff_t offset, char *buffer, int length)
+int nltd_read_sync(const char *plugin, loff_t offset, char *buffer, size_t length)
 {
-	int pos;
+	size_t pos;
 
 	for(pos = 0; pos < length; pos += PAGE_SIZE)
 	{
-		int currentLength = min(PAGE_SIZE, (unsigned long)(length-pos));
+		size_t currentLength = min(PAGE_SIZE, length-pos);
 
 		struct sync_request sync = {
 			0,
@@ -538,13 +547,13 @@ int nltd_read_sync(const char *plugin, loff_t offset, char *buffer, int length)
 	return 0;
 }
 
-int nltd_write_sync(const char *plugin, loff_t offset, char *buffer, int length)
+int nltd_write_sync(const char *plugin, loff_t offset, char *buffer, size_t length)
 {
-	int pos;
+	size_t pos;
 
 	for(pos = 0; pos < length; pos += PAGE_SIZE)
 	{
-		int currentLength = min(PAGE_SIZE, (unsigned long)(length-pos));
+		size_t currentLength = min(PAGE_SIZE, length-pos);
 
 		struct sync_request sync = {
 			0,

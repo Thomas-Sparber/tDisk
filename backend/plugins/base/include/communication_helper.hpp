@@ -35,7 +35,7 @@ inline Arg<type,T> createArg(const T &t)
 	return Arg<type, T>(t);
 }
 
-template <int type, typename = typename std::enable_if<type == c::NLTD_PLUGIN_NAME>::type>
+template <int type, typename std::enable_if<type == c::NLTD_PLUGIN_NAME, bool>::type* = nullptr>
 inline void addNlArg(nl_msg *msg, const std::string &name)
 {
 	char tempName[NLTD_MAX_NAME];
@@ -44,28 +44,35 @@ inline void addNlArg(nl_msg *msg, const std::string &name)
 	if(ret)throw PluginException("Can't add argument name to message: ", nl_geterror(ret));
 }
 
-template <int type, typename = typename std::enable_if<type == c::NLTD_REQ_NUMBER>::type>
+template <int type, typename std::enable_if<type == c::NLTD_REQ_NUMBER, bool>::type* = nullptr>
 inline void addNlArg(nl_msg *msg, const uint32_t &number)
 {
 	int ret = nla_put_u32(msg, c::NLTD_REQ_NUMBER, number);
 	if(ret)throw PluginException("Can't add argument request number to message: ", nl_geterror(ret));
 }
 
-template <int type, typename = typename std::enable_if<type == c::NLTD_REQ_OFFSET>::type>
+template <int type, typename std::enable_if<type == c::NLTD_REQ_OFFSET, bool>::type* = nullptr>
 inline void addNlArg(nl_msg *msg, const unsigned long long &offset)
 {
 	int ret = nla_put_u64(msg, c::NLTD_REQ_OFFSET, offset);
 	if(ret)throw PluginException("Can't add argument offset to message: ", nl_geterror(ret));
 }
 
-template <int type, typename = typename std::enable_if<type == c::NLTD_REQ_LENGTH>::type>
-inline void addNlArg(nl_msg *msg, const int &length)
+template <int type, typename std::enable_if<type == c::NLTD_REQ_LENGTH, bool>::type* = nullptr>
+inline void addNlArg(nl_msg *msg, const std::size_t &length)
 {
-	int ret = nla_put_s32(msg, c::NLTD_REQ_LENGTH, length);
+	int ret = nla_put_u32(msg, c::NLTD_REQ_LENGTH, length);
 	if(ret)throw PluginException("Can't add argument length to message: ", nl_geterror(ret));
 }
 
-template <int type, typename = typename std::enable_if<type == c::NLTD_REQ_BUFFER>::type>
+template <int type, typename std::enable_if<type == c::NLTD_REQ_RET, bool>::type* = nullptr>
+inline void addNlArg(nl_msg *msg, const int &r)
+{
+	int ret = nla_put_s32(msg, c::NLTD_REQ_RET, r);
+	if(ret)throw PluginException("Can't add argument length to message: ", nl_geterror(ret));
+}
+
+template <int type, typename std::enable_if<type == c::NLTD_REQ_BUFFER, bool>::type* = nullptr>
 inline void addNlArg(nl_msg *msg, const std::vector<char> &data)
 {
 	int ret = nla_put(msg, c::NLTD_REQ_BUFFER, data.size(), &data[0]);
@@ -87,19 +94,22 @@ inline void addNlArgs(nl_msg *msg, const Arg<type, T> &a, Args ...args)
 	addNlArgs(msg, args...);
 }
 
-template <int type, typename = typename std::enable_if<type == c::NLTD_PLUGIN_NAME>::type>
+template <int type, typename std::enable_if<type == c::NLTD_PLUGIN_NAME, bool>::type* = nullptr>
 inline std::size_t getNlArgumentSize(const std::string&) { return NLTD_MAX_NAME; }
 
-template <int type, typename = typename std::enable_if<type == c::NLTD_REQ_NUMBER>::type>
+template <int type, typename std::enable_if<type == c::NLTD_REQ_NUMBER, bool>::type* = nullptr>
 inline std::size_t getNlArgumentSize(const uint32_t&) { return 4; }
 
-template <int type, typename = typename std::enable_if<type == c::NLTD_REQ_OFFSET>::type>
+template <int type, typename std::enable_if<type == c::NLTD_REQ_OFFSET, bool>::type* = nullptr>
 inline std::size_t getNlArgumentSize(const unsigned long long&) { return 8; }
 
-template <int type, typename = typename std::enable_if<type == c::NLTD_REQ_LENGTH>::type>
+template <int type, typename std::enable_if<type == c::NLTD_REQ_LENGTH, bool>::type* = nullptr>
+inline std::size_t getNlArgumentSize(const std::size_t&) { return 4; }
+
+template <int type, typename std::enable_if<type == c::NLTD_REQ_RET, bool>::type* = nullptr>
 inline std::size_t getNlArgumentSize(const int&) { return 4; }
 
-template <int type, typename = typename std::enable_if<type == c::NLTD_REQ_BUFFER>::type>
+template <int type, typename std::enable_if<type == c::NLTD_REQ_BUFFER, bool>::type* = nullptr>
 inline std::size_t getNlArgumentSize(const std::vector<char> &data) { return data.size(); }
 
 inline std::size_t getNlArgumentsSize() { return 0; }

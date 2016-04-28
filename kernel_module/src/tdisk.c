@@ -15,6 +15,7 @@
 #define COMPARE 1410
 
 #define DEFAULT_WORKER_TIMEOUT (5*HZ)
+#define DEFAULT_SECONDARY_WORK_DELAY 1
 
 static int td_start_worker_thread(struct tdisk *td);
 static void td_stop_worker_thread(struct tdisk *td);
@@ -1816,6 +1817,7 @@ static int td_start_worker_thread(struct tdisk *td)
 	init_kthread_worker(&td->worker_timeout.worker);
 	td->worker_timeout.private_data = td;
 	td->worker_timeout.timeout = DEFAULT_WORKER_TIMEOUT;
+	td->worker_timeout.timeout = DEFAULT_SECONDARY_WORK_DELAY;
 	td->worker_timeout.work_func = &td_queue_work;
 	td->worker_task = kthread_run(kthread_worker_fn_timeout, &td->worker_timeout, "td%d", td->number);
 

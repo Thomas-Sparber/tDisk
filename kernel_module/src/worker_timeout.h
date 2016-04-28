@@ -59,6 +59,9 @@ enum worker_status
   * kthread_run(kthread_worker_fn_timeout, worker_timeout_data...
   * timeout is the default timeout which needs to be exceeded
   * in order to start secondary work.
+  * secondary_work_delay is the time which is waited between
+  * each secondary work. This is e.g. useful if the secondary
+  * work is heavy work and the CPU shouldn't be used too much.
   * private_data is the private data which should be handed
   * over to the worker function, worker_func is the worker
   * function which should be started for every work to be done.
@@ -69,6 +72,7 @@ struct worker_timeout_data
 {
 	struct kthread_worker worker;
 	long timeout;
+	long secondary_work_delay;
 	void *private_data;
 	enum worker_status(*work_func)(void*,struct kthread_work*);
 }; //end struct worker timeout data

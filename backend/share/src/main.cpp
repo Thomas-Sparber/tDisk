@@ -1,6 +1,6 @@
 /**
   *
-  * tDisk backend
+  * tDisk backend share
   * @author Thomas Sparber (2015-2016)
   *
  **/
@@ -53,6 +53,9 @@ void printHelp();
 vector<Command> commands {
 	Command("list_fileshares", list_fileshares,
 		"Prints a list of all available fileshares"),
+
+	Command("list_fileshare", list_fileshare,
+		"Prints information about the fileshare with the given name"),
 };
 
 vector<string> configfiles = {
@@ -109,7 +112,7 @@ int main(int argc, char *args[])
 			cout<<"\t"<<createResultString(type, 1, "json")<<": "<<createResultString(result.getIndividualResult(type), 1, "json")<<","<<endl;
 		}
 
-		cout<<"\t\"result\": "<<(result.result().empty() ? "null" : result.result())<<endl;//utils::replaceAll(result.result().empty() ? "null" : result.result(), "\n", "\n\t")<<endl;
+		cout<<"\t\"result\": "<<utils::replaceAll(result.result().empty() ? "null" : result.result(), "\n", "\n\t")<<endl;
 		cout<<"}"<<endl;
 	}
 	else if(options.getOptionValue("output-format") == "text")

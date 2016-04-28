@@ -6,6 +6,7 @@ LDFLAGS=-L../ -ltd-backend
 SOURCES=
 
 CPP_SOURCES= \
+	src/fileshare.cpp \
 	src/fileshare_commands.cpp \
 	src/main.cpp
 	

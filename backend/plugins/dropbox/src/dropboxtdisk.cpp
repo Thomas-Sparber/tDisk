@@ -58,13 +58,13 @@ bool DropboxTDisk::internalRead(unsigned long long offset, char *data, std::size
 {
 	if(dropboxHistory.get(offset, data, length))return 2;
 
-	try {
-		while(length > 0)
-		{
-			unsigned long long file = offset / blocksize;
-			std::size_t fileOffset = std::size_t(offset % blocksize);
-			std::size_t currentLength = min(length, blocksize-fileOffset);
+	while(length > 0)
+	{
+		unsigned long long file = offset / blocksize;
+		std::size_t fileOffset = std::size_t(offset % blocksize);
+		std::size_t currentLength = min(length, blocksize-fileOffset);
 
+		try {
 			if(!dropboxHistory.get(offset, data, currentLength))
 			{
 				cout<<"Read request: "<<offset<<" - "<<offset+length<<endl;
@@ -84,16 +84,26 @@ bool DropboxTDisk::internalRead(unsigned long long offset, char *data, std::size
 				if(saveHistory)dropboxHistory.set(file*blocksize, result.c_str(), blocksize);
 				memcpy(data, result.c_str()+fileOffset, min(result.length()-fileOffset, currentLength));
 			}
+		} catch(const DropboxException &e) {
+			//cerr<<"Error reading data "<<offset<<" - "<<offset+length<<": "<<e.what<<endl;
+			//return false;
 
-			length -= currentLength;
-			data += currentLength;
-			offset += currentLength;
+			if(saveHistory)
+			{
+				//Save "fake" history
+				vector<char> fakeData(blocksize, 0);
+				dropboxHistory.set(file*blocksize, &fakeData[0], blocksize);
+			}
+
+			for(std::size_t i = 0; i < currentLength; ++i)
+				data[i] = 0;
 		}
-		return true;
-	} catch(const DropboxException &e) {
-		cerr<<"Error reading data "<<offset<<" - "<<offset+length<<": "<<e.what<<endl;
-		return false;
+
+		length -= currentLength;
+		data += currentLength;
+		offset += currentLength;
 	}
+	return true;
 }
 
 bool DropboxTDisk::read(unsigned long long offset, char *data, std::size_t length) const

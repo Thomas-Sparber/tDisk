@@ -8,8 +8,10 @@
 #ifndef TDISK_INTERFACE_H
 #define TDISK_INTERFACE_H
 
-#include <linux/types.h>
 #include <tdisk/config.h>
+
+#pragma GCC system_header
+#include <linux/types.h>
 
 #define DRIVER_NAME "tDisk"
 #define DRIVER_MAJOR_VERSION 1

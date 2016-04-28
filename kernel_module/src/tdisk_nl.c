@@ -136,8 +136,9 @@ static int genl_register(struct sk_buff *skb, struct genl_info *info)
 {
 	bool found = false;
 	char *name;
-	int name_length;
+	size_t name_length;
 	struct tdisk_plugin *plugin;
+
 	if(!info->attrs[NLTD_PLUGIN_NAME])return -EINVAL;
 	name = nla_data(info->attrs[NLTD_PLUGIN_NAME]);
 	name_length = strlen(name);
@@ -178,7 +179,7 @@ static int genl_unregister(struct sk_buff *skb, struct genl_info *info)
 {
 	bool found = false;
 	const char *name;
-	int name_length;
+	size_t name_length;
 	struct tdisk_plugin *n;
 	struct tdisk_plugin *plugin;
 
@@ -631,7 +632,7 @@ void clear_timed_out_requests(unsigned long data)
 	//Time out all requests
 	list_for_each_entry_safe(request, n, &removed, list)
 	{
-		unsigned int time = jiffies_to_msecs(request->started);
+		unsigned long time = jiffies_to_msecs((unsigned long)request->started);
 		printk(KERN_DEBUG "tDisk: Timing out request %u: start-time: %us %ums\n", request->seq_nr, time/1000, (time%1000));
 		if(request->callback)request->callback(request->userobject, -ETIMEDOUT);
 		kfree(request);
@@ -641,7 +642,7 @@ void clear_timed_out_requests(unsigned long data)
 	if(amount)printk(KERN_WARNING "tDisk: Cleared %d timed out requests\n", amount);
 
 	//Re-set timer
-	timeout_timer.expires = get_jiffies_64() + HZ;
+	timeout_timer.expires = jiffies + HZ;
 	add_timer(&timeout_timer);
 }
 
@@ -671,7 +672,7 @@ int nltd_register()
 	ret = genl_register_family_with_ops(&genl_tdisk_family, genl_tdisk_ops);
 	if(ret)return ret;
 
-	timeout_timer.expires = get_jiffies_64() + HZ;
+	timeout_timer.expires = jiffies + HZ;
 	add_timer(&timeout_timer);
 
 	return ret;

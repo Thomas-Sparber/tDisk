@@ -117,4 +117,14 @@ inline static uint32_t __div64_32(uint64_t *n, uint32_t base)
 	return rem;
 }
 
+/**
+  * This function simply returns the division result
+  * of the numbers and omits the mod
+ **/
+inline static uint64_t __div64_32_nomod(uint64_t n, uint32_t base)
+{
+	__div64_32(&n, base);
+	return n;
+}
+
 #endif //HELPERS_H

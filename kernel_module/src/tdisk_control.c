@@ -39,12 +39,16 @@ static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned lo
 		ret = tdisk_add(&td, params.minornumber, params.blocksize);
 		break;
 	case TDISK_CTL_REMOVE:
-		ret = tdisk_lookup(&td, parm);
+		ret = tdisk_lookup(&td, (int)parm);
 		if(ret < 0)break;
 		ret = tdisk_remove(td);
 		break;
 	case TDISK_CTL_GET_FREE:
 		ret = tdisk_add(&td, -1, parm);
+		break;
+	default:
+		ret = -EINVAL;
+		break;
 	}
 	mutex_unlock(&td_index_mutex);
 

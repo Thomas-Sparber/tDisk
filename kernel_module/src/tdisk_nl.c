@@ -574,16 +574,22 @@ loff_t nltd_get_size(const char *plugin)
 {
 	int ret;
 	loff_t size = 0;
+	char temp[256];
 
 	struct sync_request sync = {
 		0,
 		COMPLETION_INITIALIZER_ONSTACK(sync.done),
 	};
 
-	ret = nltd_send_async(plugin, 0, (char*)&size, sizeof(loff_t), SIZE, sync_request_callback, &sync);
+	ret = nltd_send_async(plugin, 0, temp, 256, SIZE, sync_request_callback, &sync);
 	if(ret)return 0;
 
 	wait_for_completion(&sync.done);
+
+	ret = kstrtos64(temp, 0, &size);
+	if(ret)return 0;
+
+	printk(KERN_DEBUG "tDisk: Plugin %s size: %llu\n", plugin, size);
 
 	if(sync.ret < 0)return 0;
 	return size;

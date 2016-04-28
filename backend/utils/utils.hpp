@@ -168,18 +168,68 @@ namespace td
 		}
 
 		/**
-		  * Replaces all occurrences of search with replace in str
+		  * Executes the given command and returns the output
 		 **/
-		inline std::string replaceAll(std::string str, const std::string &search, const std::string &replace)
+		inline std::string exec(const std::string &cmd)
 		{
-			std::size_t pos = 0;
-			while((pos=str.find(search, pos)) != std::string::npos)
+#ifdef __linux__
+			FILE *pipe = popen(cmd.c_str(), "r");
+#else
+			FILE *pipe = _popen(cmd.c_str(), "r");
+#endif
+
+			if(!pipe)return "ERROR";
+
+			char buffer[128];
+			std::string result;
+			while(!feof(pipe))
 			{
-				str = str.replace(pos, search.length(), replace);
-				pos += replace.length();
+				if(fgets(buffer, 128, pipe))
+					result += buffer;
 			}
 
-			return std::move(str);
+#ifdef __linux__
+			pclose(pipe);
+#else
+			_pclose(pipe);
+#endif //__linux__
+
+			return result;
+		}
+
+		/**
+		  * Replaces all occurrences of search with replace in str
+		 **/
+		inline std::string replaceAll(const std::string &str, const std::string &search, const std::string &replace)
+		{
+			std::string result;
+			std::size_t last = 0;
+			std::size_t pos = 0;
+
+			while((pos=str.find(search, pos)) != std::string::npos)
+			{
+				result += str.substr(last, pos-last);
+				result += replace;
+				pos += search.length();
+				last = pos;
+			}
+			result += str.substr(last);
+
+			return std::move(result);
+		}
+
+		/**
+		  * Splits the string using the given delimiter
+		  * and stores the result in out
+		 **/
+		template <template<class ...T> class cont>
+		void split(const std::string &toSplit, char delimiter, cont<std::string> &out)
+		{
+			std::stringstream ss(toSplit);
+			std::string item;
+
+			while(std::getline(ss, item, delimiter))
+				out.push_back(item);
 		}
 
 		/**

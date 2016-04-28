@@ -23,7 +23,7 @@ CPP_SOURCES= \
 OBJECTS=$(SOURCES:src/%.c=bin/%.o) $(CPP_SOURCES:src/%.cpp=bin/%.o)
 DEPS=$(OBJECTS:bin/%.o=bin/%.d)
 
-TARGETS=bin tdisk
+TARGETS=bin tdisk make_fileshare
 
 ifeq ($(OS),Windows_NT)
 else
@@ -60,8 +60,14 @@ make_plugins:
 make_tests:
 	make -C tests
 
+make_fileshare:
+	make -C share
+	cp share/fileshare fileshare
+
 clean:
 	@echo "Cleaning"
 	@rm -rf bin/*.o bin/*.d tdisk libtd-backend.a
 	@make -C plugins clean
 	@make -C tests clean
+	@rm share
+	@make -C share clean

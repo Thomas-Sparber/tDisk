@@ -8,6 +8,7 @@
 #ifndef CI_STRING_HPP
 #define CI_STRING_HPP
 
+#include <ostream>
 #include <string>
 
 namespace td
@@ -85,7 +86,7 @@ namespace td
 		 **/
 		inline std::ostream& operator<<(std::ostream &out, const ci_string &str)
 		{
-			out<<str.c_str();
+			out.write(str.c_str(), str.length());
 			return out;
 		}
 

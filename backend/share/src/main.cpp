@@ -56,6 +56,13 @@ vector<Command> commands {
 
 	Command("list_fileshare", list_fileshare,
 		"Prints information about the fileshare with the given name"),
+
+	Command("create", create,
+		"Creates a new fileshare using the given name, path and optional\n"
+		"description"),
+
+	Command("remove", remove_fileshare,
+		"Removes the fileshare with the given name"),
 };
 
 vector<string> configfiles = {

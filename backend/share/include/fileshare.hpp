@@ -68,6 +68,17 @@ public:
 	 **/
 	static Fileshare load(const std::string &name);
 
+	/**
+	  * Creates the fileshare with the given name,
+	  * path and optional description
+	 **/
+	static Fileshare create(const std::string &name, const std::string &path, const std::string &description="");
+
+	/**
+	  * Removes the fileshare with the given name
+	 **/
+	static void remove(const std::string &name);
+
 public:
 
 	/**
@@ -88,6 +99,38 @@ public:
 		path(str_path),
 		description(str_description)
 	{}
+
+	/**
+	  * Returns the name of the fileshare
+	 **/
+	const std::string& getName() const
+	{
+		return name;
+	}
+
+	/**
+	  * Returns the path of the fileshare
+	 **/
+	const std::string& getPath() const
+	{
+		return path;
+	}
+
+	/**
+	  * Returns the description of the fileshare
+	 **/
+	const std::string& getDescription() const
+	{
+		return description;
+	}
+
+	/**
+	  * Removes the fileshare from the system
+	 **/
+	void remove()
+	{
+		Fileshare::remove(name);
+	}
 
 	friend std::string createResultString<Fileshare>(const Fileshare &share, unsigned int hierarchy, const utils::ci_string &outputFormat);
 

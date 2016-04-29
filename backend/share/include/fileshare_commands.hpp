@@ -23,6 +23,10 @@ namespace td
 
 	BackendResult list_fileshare(const std::vector<std::string> &args, Options &options);
 
+	BackendResult create(const std::vector<std::string> &args, Options &options);
+
+	BackendResult remove_fileshare(const std::vector<std::string> &args, Options &options);
+
 }
 
 #endif //FILESHARE_COMMANDS_HPP

@@ -29,7 +29,7 @@ Fileshare Fileshare::load(const std::string &name)
 	string path;
 	string description;
 	vector<string> helper;
-	string result = utils::exec(utils::concat("net usershare info -l ",'"',name,'"'));
+	string result = utils::exec(utils::concat("net usershare info -l \"",name,"\""));
 	utils::split(result, '\n', helper);
 
 	for(const string &line : helper)
@@ -48,6 +48,22 @@ Fileshare Fileshare::load(const std::string &name)
 	if(path == "")throw BackendException("Invalid share ",name,": no path");
 
 	return Fileshare(name, path, description);
+}
+
+Fileshare Fileshare::create(const string &name, const string &path, const string &description)
+{
+	string result = utils::exec(utils::concat("net usershare add \"",name,"\" \"",path,"\" \"",description,"\" Everyone:F guest_ok=y"));
+
+	if(result != "")throw BackendException("Error when creating fileshare ",name,": ",result);
+
+	return Fileshare(name, path, description);
+}
+
+void Fileshare::remove(const string &name)
+{
+	string result = utils::exec(utils::concat("net usershare delete \"",name,"\""));
+
+	if(result != "")throw BackendException("Error when creating fileshare ",name,": ",result);
 }
 
 #else

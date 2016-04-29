@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <sys/stat.h>
 #include <vector>
 
 #ifdef WINDOWS
@@ -165,6 +166,26 @@ namespace td
 		{
 			std::ifstream f(name.c_str());
 			return f.good();
+		}
+
+		/**
+		  * Checks if the given folder exists on the system
+		 **/
+		inline bool folderExists(const std::string &name)
+		{
+			struct stat info;
+
+			if(stat(name.c_str(), &info) != 0)return false;
+			return (info.st_mode & S_IFDIR);
+		}
+
+		/**
+		  * Checks if the given file or folder exists on the system
+		 **/
+		inline bool fileOrFolderExists(const std::string &name)
+		{
+			struct stat info;
+			return (stat(name.c_str(), &info) == 0);
 		}
 
 		/**

@@ -244,13 +244,13 @@ namespace td
 		  * and stores the result in out
 		 **/
 		template <template<class ...T> class cont>
-		void split(const std::string &toSplit, char delimiter, cont<std::string> &out)
+		void split(const std::string &toSplit, char delimiter, cont<std::string> &out, bool useEmpty=true)
 		{
 			std::stringstream ss(toSplit);
 			std::string item;
 
 			while(std::getline(ss, item, delimiter))
-				out.push_back(item);
+				if(useEmpty || !item.empty())out.push_back(item);
 		}
 
 		/**

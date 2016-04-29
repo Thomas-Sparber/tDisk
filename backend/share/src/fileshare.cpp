@@ -5,18 +5,20 @@
   *
  **/
 
+#include <iostream>
+
 #include <backendexception.hpp>
 #include <fileshare.hpp>
 #include <utils.hpp>
 
+using std::cout;
+using std::endl;
 using std::string;
 using std::vector;
 
 using namespace td;
 
 #ifdef __linux__
-
-//sudo net usershare add my_share /media/cdrom0/ "Comment of my new share" Everyone:F guest_ok=y
 
 void Fileshare::getAllFileshares(vector<string> &out)
 {
@@ -44,7 +46,6 @@ Fileshare Fileshare::load(const std::string &name)
 			description = splits[1];
 	}
 
-	if(name == "")throw BackendException("Invalid share: no name");
 	if(path == "")throw BackendException("Invalid share ",name,": no path");
 
 	return Fileshare(name, path, description);
@@ -67,5 +68,76 @@ void Fileshare::remove(const string &name)
 }
 
 #else
+
+void Fileshare::getAllFileshares(vector<string> &out)
+{
+	string result = utils::exec("net share");
+
+	vector<string> help;
+	utils::split(result, '\n', help, false);
+
+	std::size_t i;
+	for(i = 0; i < help.size()-1; ++i)
+	{
+		if(help[i].substr(0,3) == "---")
+		{
+			i++;
+			break;
+		}
+	}
+
+	for(; i < help.size()-1; ++i)
+	{
+		vector<string> splits;
+		utils::split(help[i], ' ', splits, false);
+		if(splits.size() < 3)continue;
+		
+		out.push_back(splits[0]);
+	}
+}
+
+Fileshare Fileshare::load(const std::string &name)
+{
+	string path;
+	string description;
+	vector<string> help;
+	string result = utils::exec(utils::concat("net share \"",name,"\""));
+
+	utils::split(result, '\n', help, false);
+
+	for(std::size_t i = 1; i < help.size()-1 && i < 3; ++i)
+	{
+		vector<string> splits;
+		utils::split(help[i], ' ', splits, false);
+		if(splits.size() < 2)continue;
+		
+		switch(i)
+		{
+		case 1:
+			path = splits[1];
+			break;
+		case 2:
+			description = splits[1];
+			break;
+		}
+	}
+
+	if(path == "")throw BackendException("Invalid share ",name,": no path");
+
+	return Fileshare(name, path, description);
+}
+
+Fileshare Fileshare::create(const string &name, const string &path, const string &description)
+{
+	cout<<utils::concat("net share \"",name,"\"=\"",path,"\" /remark:\"",description,"\"")<<endl;
+	string result = utils::exec(utils::concat("net share \"",name,"\"=\"",path,"\" /remark:\"",description,"\""));
+
+	return Fileshare(name, path, description);
+}
+
+void Fileshare::remove(const string &name)
+{
+	utils::exec(utils::concat("net share \"",name,"\" /delete"));
+}
 
 #endif //__linux__

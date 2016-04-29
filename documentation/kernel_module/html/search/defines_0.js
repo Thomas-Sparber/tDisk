@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['compare',['COMPARE',['../tdisk_8c.html#a34d12e2e386464a40aff3b4d9cf7019e',1,'tdisk.c']]]
+  ['auto_5freset_5faccess_5fcount',['AUTO_RESET_ACCESS_COUNT',['../config_8h.html#a89fdb164fcc14dc8a28a47baae0ccbcd',1,'config.h']]]
 ];

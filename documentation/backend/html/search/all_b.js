@@ -7,7 +7,7 @@ var searchData=
   ['maxhistory',['maxHistory',['../classtd_1_1HistoryBuffer.html#a8bcb1fcfa5320097faab20a37706c8bc',1,'td::HistoryBuffer']]],
   ['merge',['merge',['../classtd_1_1configuration.html#af661c56b9b13c696adef35b20193be5c',1,'td::configuration']]],
   ['message',['message',['../structtd_1_1IndividualResult.html#a7ec3311e18691e68134ac5915a2f8323',1,'td::IndividualResult::message()'],['../classtd_1_1BackendResult.html#a9109ee96614eded99187d72ab23b811c',1,'td::BackendResult::message(BackendResultType type, const std::string &amp;message)'],['../classtd_1_1BackendResult.html#ad002ac73f3aab09608c173a63d4c9adf',1,'td::BackendResult::message(BackendResultType type) const ']]],
-  ['messagereceived',['messageReceived',['../classtd_1_1Plugin.html#a4400dc0b7ccf0ebb5396fecccf4fecd9',1,'td::Plugin']]],
+  ['messagereceived',['messageReceived',['../classtd_1_1Plugin.html#a3e38646e7cdcb2645e2e17bfbadcf487',1,'td::Plugin']]],
   ['messages',['messages',['../classtd_1_1BackendResult.html#a8047509df4dad31453d93566035d589c',1,'td::BackendResult']]],
   ['mime_5ftype',['mime_type',['../structtd_1_1FileMetadata.html#accc980428967bec6e5a8d95cb18b805c',1,'td::FileMetadata::mime_type()'],['../structtd_1_1LinkMetadata.html#a21743b52c3e97ee5543965f2a4fd646d',1,'td::LinkMetadata::mime_type()']]],
   ['minornumber',['minornumber',['../structtd_1_1configuration_1_1tdisk__config.html#ac02c82d06082dcaa8e4027d64dea6c2f',1,'td::configuration::tdisk_config::minornumber()'],['../classtd_1_1tDisk.html#ac18788504f3bba14ad7a85ae06470e51',1,'td::tDisk::minornumber()']]],

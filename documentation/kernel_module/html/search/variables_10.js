@@ -1,13 +1,13 @@
 var searchData=
 [
-  ['sector',['sector',['../interface_8h.html#a1654a2e64dbbc62e55ebad995ee3a877',1,'sector_index']]],
-  ['seq_5fnr',['seq_nr',['../tdisk__nl_8c.html#ae968468257412ec22aebdd3ece1d86d1',1,'pending_request']]],
-  ['size',['size',['../interface_8h.html#aa8ed9b213276e273ccc049339d8b7be4',1,'internal_device_info']]],
-  ['size_5fblocks',['size_blocks',['../interface_8h.html#a8432eba1790f4e07fc75433ccbb8229f',1,'tdisk_info::size_blocks()'],['../tdisk_8h.html#ab68302835fe933d37f54549a7b5b4175',1,'td_internal_device::size_blocks()'],['../tdisk_8h.html#aad9141cfda875098a0475bb688f7d6d5',1,'tdisk::size_blocks()']]],
-  ['sorted_5fsectors',['sorted_sectors',['../tdisk_8h.html#a19b7faba24f2fae4b3068bc6c997fae6',1,'tdisk']]],
-  ['sorted_5fsectors_5fhead',['sorted_sectors_head',['../tdisk_8h.html#aecec8c7810c43f1440ae010f556bb4f9',1,'tdisk']]],
-  ['started',['started',['../tdisk__nl_8c.html#a2bc421341f97cbb94be7d78f7da2f2c8',1,'pending_request']]],
-  ['state',['state',['../tdisk_8h.html#aef112692675cde246a7443167403f8df',1,'tdisk']]],
-  ['stdev_5fread_5ftime_5fcycles',['stdev_read_time_cycles',['../interface_8h.html#aa5beb0c3a8421142496a5893e3670900',1,'device_performance']]],
-  ['stdev_5fwrite_5ftime_5fcycles',['stdev_write_time_cycles',['../interface_8h.html#a0d850521d615d218f78f51b015edb859',1,'device_performance']]]
+  ['tag_5fset',['tag_set',['../tdisk_8h.html#af2bb632e15d4bcf579ff27c029ed4f72',1,'tdisk']]],
+  ['td_5ffops',['td_fops',['../tdisk_8c.html#ac3d1798b9cf3045b991c2731a2008a57',1,'tdisk.c']]],
+  ['td_5fmajor',['TD_MAJOR',['../tdisk_8c.html#a3ab416cb2b57e1ce4580511e115898e1',1,'tdisk.c']]],
+  ['td_5fwork',['td_work',['../tdisk_8h.html#a7a2ad3aeacc6549962d4868591fbdfdb',1,'td_command']]],
+  ['tdisk_5fctl_5ffops',['tdisk_ctl_fops',['../tdisk__control_8c.html#ad71894ae66cd434f4eae52b9a258197d',1,'tdisk_control.c']]],
+  ['tdisk_5fmisc',['tdisk_misc',['../tdisk__control_8c.html#a2386d45668f945ed446144ae76215e8c',1,'tdisk_control.c']]],
+  ['tdisk_5fmq_5fops',['tdisk_mq_ops',['../tdisk_8c.html#a6a43f0b91f8791d051f93a01c1c1d06c',1,'tdisk.c']]],
+  ['timeout',['timeout',['../structworker__timeout__data.html#a70433e8dd140c0f8c60afb21ef1d9576',1,'worker_timeout_data']]],
+  ['total_5fsorted',['total_sorted',['../tdisk_8h.html#aad36b5c3ab1e38f3182d0bb1dc5a335b',1,'sorted_sector_index']]],
+  ['type',['type',['../interface_8h.html#a2519f3aedcc12a0c00a61a9f9334212a',1,'internal_device_add_parameters::type()'],['../interface_8h.html#ad5c3e7a51e8f93fbef8a7806ef332e96',1,'internal_device_info::type()'],['../tdisk_8h.html#a8b6c240bf8dd40ad5ca41be7b34fb0bf',1,'td_internal_device::type()']]]
 ];

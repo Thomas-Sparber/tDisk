@@ -416,19 +416,22 @@ Functions</h2></td></tr>
 <tr class="memitem:ac5a722660f0a564202912e884fc7588b"><td class="memTemplParams" colspan="2">template&lt;c::nl_tdisk_attr type, class T &gt; </td></tr>
 <tr class="memitem:ac5a722660f0a564202912e884fc7588b"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structtd_1_1Arg.html">Arg</a>&lt; type, T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#ac5a722660f0a564202912e884fc7588b">createArg</a> (const T &amp;t)</td></tr>
 <tr class="separator:ac5a722660f0a564202912e884fc7588b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a271cfb3bf047fdd093d5a91392fbc9a1"><td class="memTemplParams" colspan="2">template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_PLUGIN_NAME&gt;::type&gt; </td></tr>
+<tr class="memitem:a271cfb3bf047fdd093d5a91392fbc9a1"><td class="memTemplParams" colspan="2">template&lt;int type, typename std::enable_if&lt; type==c::NLTD_PLUGIN_NAME, bool &gt;::type *  = nullptr&gt; </td></tr>
 <tr class="memitem:a271cfb3bf047fdd093d5a91392fbc9a1"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a271cfb3bf047fdd093d5a91392fbc9a1">addNlArg</a> (nl_msg *msg, const std::string &amp;name)</td></tr>
 <tr class="separator:a271cfb3bf047fdd093d5a91392fbc9a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5a574a51acd41a60e6b6c5e09b6fc999"><td class="memTemplParams" colspan="2">template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ_NUMBER&gt;::type&gt; </td></tr>
+<tr class="memitem:a5a574a51acd41a60e6b6c5e09b6fc999"><td class="memTemplParams" colspan="2">template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_NUMBER, bool &gt;::type *  = nullptr&gt; </td></tr>
 <tr class="memitem:a5a574a51acd41a60e6b6c5e09b6fc999"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a5a574a51acd41a60e6b6c5e09b6fc999">addNlArg</a> (nl_msg *msg, const uint32_t &amp;number)</td></tr>
 <tr class="separator:a5a574a51acd41a60e6b6c5e09b6fc999"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa44172e765df8a5f9eaba29828855a0d"><td class="memTemplParams" colspan="2">template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ_OFFSET&gt;::type&gt; </td></tr>
+<tr class="memitem:aa44172e765df8a5f9eaba29828855a0d"><td class="memTemplParams" colspan="2">template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_OFFSET, bool &gt;::type *  = nullptr&gt; </td></tr>
 <tr class="memitem:aa44172e765df8a5f9eaba29828855a0d"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#aa44172e765df8a5f9eaba29828855a0d">addNlArg</a> (nl_msg *msg, const unsigned long long &amp;offset)</td></tr>
 <tr class="separator:aa44172e765df8a5f9eaba29828855a0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a41b7d8d0db528f0fd2c4bf2ce31c6e1a"><td class="memTemplParams" colspan="2">template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ_LENGTH&gt;::type&gt; </td></tr>
-<tr class="memitem:a41b7d8d0db528f0fd2c4bf2ce31c6e1a"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a41b7d8d0db528f0fd2c4bf2ce31c6e1a">addNlArg</a> (nl_msg *msg, const int &amp;length)</td></tr>
-<tr class="separator:a41b7d8d0db528f0fd2c4bf2ce31c6e1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a09d0ddccb4871f28631fd96e53454521"><td class="memTemplParams" colspan="2">template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ_BUFFER&gt;::type&gt; </td></tr>
+<tr class="memitem:a438db6402fbd558bb3f49703379a8012"><td class="memTemplParams" colspan="2">template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_LENGTH, bool &gt;::type *  = nullptr&gt; </td></tr>
+<tr class="memitem:a438db6402fbd558bb3f49703379a8012"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a438db6402fbd558bb3f49703379a8012">addNlArg</a> (nl_msg *msg, const std::size_t &amp;length)</td></tr>
+<tr class="separator:a438db6402fbd558bb3f49703379a8012"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e57cd3e874d44122117ebe329fd6f32"><td class="memTemplParams" colspan="2">template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_RET, bool &gt;::type *  = nullptr&gt; </td></tr>
+<tr class="memitem:a5e57cd3e874d44122117ebe329fd6f32"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a5e57cd3e874d44122117ebe329fd6f32">addNlArg</a> (nl_msg *msg, const int &amp;r)</td></tr>
+<tr class="separator:a5e57cd3e874d44122117ebe329fd6f32"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09d0ddccb4871f28631fd96e53454521"><td class="memTemplParams" colspan="2">template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_BUFFER, bool &gt;::type *  = nullptr&gt; </td></tr>
 <tr class="memitem:a09d0ddccb4871f28631fd96e53454521"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a09d0ddccb4871f28631fd96e53454521">addNlArg</a> (nl_msg *msg, const std::vector&lt; char &gt; &amp;data)</td></tr>
 <tr class="separator:a09d0ddccb4871f28631fd96e53454521"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a70c0ff1f45b0a2dd34c252c71a6efbbc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a70c0ff1f45b0a2dd34c252c71a6efbbc">addNlArgs</a> (nl_msg *)</td></tr>
@@ -439,19 +442,22 @@ Functions</h2></td></tr>
 <tr class="memitem:a590566f5ab3b41a612b9da97050aaaf7"><td class="memTemplParams" colspan="2">template&lt;c::nl_tdisk_attr type, class T , class... Args&gt; </td></tr>
 <tr class="memitem:a590566f5ab3b41a612b9da97050aaaf7"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a590566f5ab3b41a612b9da97050aaaf7">addNlArgs</a> (nl_msg *msg, const <a class="el" href="structtd_1_1Arg.html">Arg</a>&lt; type, T &gt; &amp;a, Args...args)</td></tr>
 <tr class="separator:a590566f5ab3b41a612b9da97050aaaf7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3944b40a599ba173322bba7b8312c8ae"><td class="memTemplParams" colspan="2">template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_PLUGIN_NAME&gt;::type&gt; </td></tr>
+<tr class="memitem:a3944b40a599ba173322bba7b8312c8ae"><td class="memTemplParams" colspan="2">template&lt;int type, typename std::enable_if&lt; type==c::NLTD_PLUGIN_NAME, bool &gt;::type *  = nullptr&gt; </td></tr>
 <tr class="memitem:a3944b40a599ba173322bba7b8312c8ae"><td class="memTemplItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a3944b40a599ba173322bba7b8312c8ae">getNlArgumentSize</a> (const std::string &amp;)</td></tr>
 <tr class="separator:a3944b40a599ba173322bba7b8312c8ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a64a213143c55eb74538f262a806e9465"><td class="memTemplParams" colspan="2">template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ_NUMBER&gt;::type&gt; </td></tr>
+<tr class="memitem:a64a213143c55eb74538f262a806e9465"><td class="memTemplParams" colspan="2">template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_NUMBER, bool &gt;::type *  = nullptr&gt; </td></tr>
 <tr class="memitem:a64a213143c55eb74538f262a806e9465"><td class="memTemplItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a64a213143c55eb74538f262a806e9465">getNlArgumentSize</a> (const uint32_t &amp;)</td></tr>
 <tr class="separator:a64a213143c55eb74538f262a806e9465"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a42629868dde7b9164009268b06416280"><td class="memTemplParams" colspan="2">template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ_OFFSET&gt;::type&gt; </td></tr>
+<tr class="memitem:a42629868dde7b9164009268b06416280"><td class="memTemplParams" colspan="2">template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_OFFSET, bool &gt;::type *  = nullptr&gt; </td></tr>
 <tr class="memitem:a42629868dde7b9164009268b06416280"><td class="memTemplItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a42629868dde7b9164009268b06416280">getNlArgumentSize</a> (const unsigned long long &amp;)</td></tr>
 <tr class="separator:a42629868dde7b9164009268b06416280"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a089e070c06b50236a67e361e5cdaf6a5"><td class="memTemplParams" colspan="2">template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ_LENGTH&gt;::type&gt; </td></tr>
+<tr class="memitem:a83fc83ad62dd2a62aba6d473e5cba59d"><td class="memTemplParams" colspan="2">template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_LENGTH, bool &gt;::type *  = nullptr&gt; </td></tr>
+<tr class="memitem:a83fc83ad62dd2a62aba6d473e5cba59d"><td class="memTemplItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a83fc83ad62dd2a62aba6d473e5cba59d">getNlArgumentSize</a> (const std::size_t &amp;)</td></tr>
+<tr class="separator:a83fc83ad62dd2a62aba6d473e5cba59d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a089e070c06b50236a67e361e5cdaf6a5"><td class="memTemplParams" colspan="2">template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_RET, bool &gt;::type *  = nullptr&gt; </td></tr>
 <tr class="memitem:a089e070c06b50236a67e361e5cdaf6a5"><td class="memTemplItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a089e070c06b50236a67e361e5cdaf6a5">getNlArgumentSize</a> (const int &amp;)</td></tr>
 <tr class="separator:a089e070c06b50236a67e361e5cdaf6a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abbb180b0ef48cfe07800eb83b90cb42f"><td class="memTemplParams" colspan="2">template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ_BUFFER&gt;::type&gt; </td></tr>
+<tr class="memitem:abbb180b0ef48cfe07800eb83b90cb42f"><td class="memTemplParams" colspan="2">template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_BUFFER, bool &gt;::type *  = nullptr&gt; </td></tr>
 <tr class="memitem:abbb180b0ef48cfe07800eb83b90cb42f"><td class="memTemplItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#abbb180b0ef48cfe07800eb83b90cb42f">getNlArgumentSize</a> (const std::vector&lt; char &gt; &amp;data)</td></tr>
 <tr class="separator:abbb180b0ef48cfe07800eb83b90cb42f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:add297bf836f007ce2c3b84f708037660"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#add297bf836f007ce2c3b84f708037660">getNlArgumentsSize</a> ()</td></tr>
@@ -911,7 +917,7 @@ time_taken</td>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_PLUGIN_NAME&gt;::type&gt; </div>
+template&lt;int type, typename std::enable_if&lt; type==c::NLTD_PLUGIN_NAME, bool &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -947,7 +953,7 @@ template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_PLU
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ_NUMBER&gt;::type&gt; </div>
+template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_NUMBER, bool &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -983,7 +989,7 @@ template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ_OFFSET&gt;::type&gt; </div>
+template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_OFFSET, bool &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1015,11 +1021,47 @@ template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ
 
 </div>
 </div>
-<a class="anchor" id="a41b7d8d0db528f0fd2c4bf2ce31c6e1a"></a>
+<a class="anchor" id="a438db6402fbd558bb3f49703379a8012"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ_LENGTH&gt;::type&gt; </div>
+template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_LENGTH, bool &gt;::type *  = nullptr&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void td::addNlArg </td>
+          <td>(</td>
+          <td class="paramtype">nl_msg *&#160;</td>
+          <td class="paramname"><em>msg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::size_t &amp;&#160;</td>
+          <td class="paramname"><em>length</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a5e57cd3e874d44122117ebe329fd6f32"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_RET, bool &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1034,7 +1076,7 @@ template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const int &amp;&#160;</td>
-          <td class="paramname"><em>length</em>&#160;</td>
+          <td class="paramname"><em>r</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1055,7 +1097,7 @@ template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ_BUFFER&gt;::type&gt; </div>
+template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_BUFFER, bool &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -3961,7 +4003,7 @@ template&lt;class T , class... V&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_PLUGIN_NAME&gt;::type&gt; </div>
+template&lt;int type, typename std::enable_if&lt; type==c::NLTD_PLUGIN_NAME, bool &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -3987,7 +4029,7 @@ template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_PLU
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ_NUMBER&gt;::type&gt; </div>
+template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_NUMBER, bool &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -4013,7 +4055,7 @@ template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ_OFFSET&gt;::type&gt; </div>
+template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_OFFSET, bool &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -4035,11 +4077,37 @@ template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ
 
 </div>
 </div>
+<a class="anchor" id="a83fc83ad62dd2a62aba6d473e5cba59d"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_LENGTH, bool &gt;::type *  = nullptr&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t td::getNlArgumentSize </td>
+          <td>(</td>
+          <td class="paramtype">const std::size_t &amp;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a089e070c06b50236a67e361e5cdaf6a5"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ_LENGTH&gt;::type&gt; </div>
+template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_RET, bool &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -4065,7 +4133,7 @@ template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;int type, typename  = typename std::enable_if&lt;type == c::NLTD_REQ_BUFFER&gt;::type&gt; </div>
+template&lt;int type, typename std::enable_if&lt; type==c::NLTD_REQ_BUFFER, bool &gt;::type *  = nullptr&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -4451,7 +4519,7 @@ template&lt;class... Args&gt; </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Apr 7 2016 11:41:41 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 29 2016 16:09:46 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

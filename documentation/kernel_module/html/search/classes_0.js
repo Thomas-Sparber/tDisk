@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['aio_5fdata',['aio_data',['../structaio__data.html',1,'']]]
+  ['device_5fperformance',['device_performance',['../interface_8h.html#structdevice__performance',1,'']]]
 ];

@@ -93,7 +93,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">interface.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;linux/types.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;<a class="el" href="config_8h_source.html">tdisk/config.h</a>&gt;</code><br />
+<code>#include &lt;linux/types.h&gt;</code><br />
 </div>
 <p><a href="interface_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -180,8 +181,8 @@ Enumerations</h2></td></tr>
 <a class="el" href="interface_8h.html#a06fc87d81c62e9abb8790b6e5713c55bac90f5ef55815f809f2f7d889594025bd">TD_FLAGS_AUTOCLEAR</a> = 4
  }</td></tr>
 <tr class="separator:a06fc87d81c62e9abb8790b6e5713c55b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0db0b8b46f02e6072d756e11be83fbac"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a0db0b8b46f02e6072d756e11be83fbac">internal_device_type</a> { <a class="el" href="interface_8h.html#a0db0b8b46f02e6072d756e11be83fbacaad36280478df906a9a86ec8e73da067a">internal_device_type_file</a>, 
-<a class="el" href="interface_8h.html#a0db0b8b46f02e6072d756e11be83fbacaac0bebe09989ac822ba7c3299b7eca08">internal_device_type_plugin</a>
+<tr class="memitem:a0db0b8b46f02e6072d756e11be83fbac"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a0db0b8b46f02e6072d756e11be83fbac">internal_device_type</a> { <a class="el" href="interface_8h.html#a0db0b8b46f02e6072d756e11be83fbacaad36280478df906a9a86ec8e73da067a">internal_device_type_file</a> = 0, 
+<a class="el" href="interface_8h.html#a0db0b8b46f02e6072d756e11be83fbacaac0bebe09989ac822ba7c3299b7eca08">internal_device_type_plugin</a> = 1
  }<tr class="memdesc:a0db0b8b46f02e6072d756e11be83fbac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines the type on an internal device.  <a href="interface_8h.html#a0db0b8b46f02e6072d756e11be83fbac">More...</a><br /></td></tr>
 </td></tr>
 <tr class="separator:a0db0b8b46f02e6072d756e11be83fbac"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -204,6 +205,7 @@ Enumerations</h2></td></tr>
 <a class="el" href="interface_8h.html#ad34f54d2a6fba7e48e851ba3096bebb0a85b8f394187209c665773f9f15d0ebd4">NLTD_REQ_OFFSET</a>, 
 <br />
 &#160;&#160;<a class="el" href="interface_8h.html#ad34f54d2a6fba7e48e851ba3096bebb0a7908a7db046f3a3e6fcf3a10852a4fb7">NLTD_REQ_LENGTH</a>, 
+<a class="el" href="interface_8h.html#ad34f54d2a6fba7e48e851ba3096bebb0aa57a0c69cc3ef14f8ec7e992008799aa">NLTD_REQ_RET</a>, 
 <a class="el" href="interface_8h.html#ad34f54d2a6fba7e48e851ba3096bebb0af49045eae4773fd6449f944e87f973b1">NLTD_REQ_BUFFER</a>, 
 <a class="el" href="interface_8h.html#ad34f54d2a6fba7e48e851ba3096bebb0af7d6ad9b1cb6a466f50cc8769b9117d5">__NLTD_MAX</a>
 <br />
@@ -851,6 +853,8 @@ size_blocks</td>
 </td></tr>
 <tr><td class="fieldname"><a class="anchor" id="ad34f54d2a6fba7e48e851ba3096bebb0a7908a7db046f3a3e6fcf3a10852a4fb7"></a>NLTD_REQ_LENGTH&#160;</td><td class="fielddoc">
 </td></tr>
+<tr><td class="fieldname"><a class="anchor" id="ad34f54d2a6fba7e48e851ba3096bebb0aa57a0c69cc3ef14f8ec7e992008799aa"></a>NLTD_REQ_RET&#160;</td><td class="fielddoc">
+</td></tr>
 <tr><td class="fieldname"><a class="anchor" id="ad34f54d2a6fba7e48e851ba3096bebb0af49045eae4773fd6449f944e87f973b1"></a>NLTD_REQ_BUFFER&#160;</td><td class="fielddoc">
 </td></tr>
 <tr><td class="fieldname"><a class="anchor" id="ad34f54d2a6fba7e48e851ba3096bebb0af7d6ad9b1cb6a466f50cc8769b9117d5"></a>__NLTD_MAX&#160;</td><td class="fielddoc">
@@ -890,7 +894,7 @@ size_blocks</td>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Apr 7 2016 11:41:29 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 29 2016 16:09:41 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

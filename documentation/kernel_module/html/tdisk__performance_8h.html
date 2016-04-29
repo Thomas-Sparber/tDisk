@@ -84,94 +84,18 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 </div><!-- top -->
 <div class="header">
-  <div class="summary">
-<a href="#define-members">Macros</a> &#124;
-<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">tdisk_performance.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;linux/timex.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;<a class="el" href="config_8h_source.html">tdisk/config.h</a>&gt;</code><br />
+<code>#include &lt;linux/timex.h&gt;</code><br />
 </div>
 <p><a href="tdisk__performance_8h_source.html">Go to the source code of this file.</a></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
-Macros</h2></td></tr>
-<tr class="memitem:af70b594f8518322914deeca11c9abdc9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__performance_8h.html#af70b594f8518322914deeca11c9abdc9">PREVIOUS_RECORDS</a>&#160;&#160;&#160;((1 &lt;&lt; <a class="el" href="interface_8h.html#a4e73efcdf86ccce6dfd20dd25eb008ac">MEASURE_RECORDS_SHIFT</a>) - 1)</td></tr>
-<tr class="memdesc:af70b594f8518322914deeca11c9abdc9"><td class="mdescLeft">&#160;</td><td class="mdescRight">tDisk Driver  <a href="#af70b594f8518322914deeca11c9abdc9">More...</a><br /></td></tr>
-<tr class="separator:af70b594f8518322914deeca11c9abdc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a2b17e0984ecdd5fabfc948d3f70b8dbd"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__performance_8h.html#a2b17e0984ecdd5fabfc948d3f70b8dbd">update_performance</a> (int direction, cycles_t time, struct <a class="el" href="interface_8h.html#structdevice__performance">device_performance</a> *perf)</td></tr>
-<tr class="memdesc:a2b17e0984ecdd5fabfc948d3f70b8dbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function updates the performance data of the given performacen data.  <a href="#a2b17e0984ecdd5fabfc948d3f70b8dbd">More...</a><br /></td></tr>
-<tr class="separator:a2b17e0984ecdd5fabfc948d3f70b8dbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
-<h2 class="groupheader">Macro Definition Documentation</h2>
-<a class="anchor" id="af70b594f8518322914deeca11c9abdc9"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define PREVIOUS_RECORDS&#160;&#160;&#160;((1 &lt;&lt; <a class="el" href="interface_8h.html#a4e73efcdf86ccce6dfd20dd25eb008ac">MEASURE_RECORDS_SHIFT</a>) - 1)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>tDisk Driver </p>
-<dl class="section author"><dt>Author</dt><dd>Thomas Sparber (2015-2016) Calculates the amount of measured records-1 </dd></dl>
-<dl class="section see"><dt>See also</dt><dd>file_update_performance </dd></dl>
-
-</div>
-</div>
-<h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a2b17e0984ecdd5fabfc948d3f70b8dbd"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void update_performance </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>direction</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">cycles_t&#160;</td>
-          <td class="paramname"><em>time</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">struct <a class="el" href="interface_8h.html#structdevice__performance">device_performance</a> *&#160;</td>
-          <td class="paramname"><em>perf</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>This function updates the performance data of the given performacen data. </p>
-<p>Actually it calculates the average and standard deviation over the last (1 &lt;&lt; MEASURE_RECORDS_SHIFT) requests </p>
-
-</div>
-</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Apr 7 2016 11:41:30 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 29 2016 16:09:41 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

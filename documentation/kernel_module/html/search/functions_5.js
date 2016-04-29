@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['kthread_5fflush_5fwork_5ffn_5ftimeout',['kthread_flush_work_fn_timeout',['../worker__timeout_8c.html#a9cb5d7f5650cedfe0249a116d574ed76',1,'worker_timeout.c']]],
-  ['kthread_5fworker_5ffn_5ftimeout',['kthread_worker_fn_timeout',['../worker__timeout_8c.html#aeeaf145beeced418bedd6922339af97c',1,'kthread_worker_fn_timeout(void *worker_ptr):&#160;worker_timeout.c'],['../worker__timeout_8h.html#aeeaf145beeced418bedd6922339af97c',1,'kthread_worker_fn_timeout(void *worker_ptr):&#160;worker_timeout.c']]]
+  ['read_5fbio_5fvec',['read_bio_vec',['../tdisk_8c.html#a1efd2d4f27fce5d5f531ca6740da6421',1,'tdisk.c']]],
+  ['read_5fdata',['read_data',['../tdisk_8c.html#aef5a276b75fc3125ea4ba57e59031cf0',1,'tdisk.c']]],
+  ['register_5ftdisk_5fcontrol',['register_tdisk_control',['../tdisk__control_8c.html#a3390bb9a6c7b60e83d3b037d13837077',1,'register_tdisk_control(void):&#160;tdisk_control.c'],['../tdisk__control_8h.html#a3390bb9a6c7b60e83d3b037d13837077',1,'register_tdisk_control(void):&#160;tdisk_control.c']]]
 ];

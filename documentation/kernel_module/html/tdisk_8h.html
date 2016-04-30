@@ -92,17 +92,22 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">tdisk.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;linux/atomic.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;<a class="el" href="config_8h_source.html">tdisk/config.h</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="interface_8h_source.html">tdisk/interface.h</a>&gt;</code><br />
+<code>#include &quot;<a class="el" href="worker__timeout_8h_source.html">worker_timeout.h</a>&quot;</code><br />
+<code>#include &lt;linux/atomic.h&gt;</code><br />
 <code>#include &lt;linux/bio.h&gt;</code><br />
 <code>#include &lt;linux/blkdev.h&gt;</code><br />
 <code>#include &lt;linux/blk-mq.h&gt;</code><br />
 <code>#include &lt;linux/kthread.h&gt;</code><br />
 <code>#include &lt;linux/list.h&gt;</code><br />
+<code>#include &lt;linux/list_sort.h&gt;</code><br />
+<code>#include &lt;linux/module.h&gt;</code><br />
 <code>#include &lt;linux/mutex.h&gt;</code><br />
+<code>#include &lt;linux/sort.h&gt;</code><br />
 <code>#include &lt;linux/spinlock.h&gt;</code><br />
 <code>#include &lt;linux/types.h&gt;</code><br />
-<code>#include &quot;<a class="el" href="interface_8h_source.html">../include/tdisk/interface.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="worker__timeout_8h_source.html">worker_timeout.h</a>&quot;</code><br />
+<code>#include &lt;linux/vmalloc.h&gt;</code><br />
 </div>
 <p><a href="tdisk_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -117,6 +122,9 @@ Classes</h2></td></tr>
 <tr class="memitem:structtd__internal__device"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a></td></tr>
 <tr class="memdesc:structtd__internal__device"><td class="mdescLeft">&#160;</td><td class="mdescRight">A <a class="el" href="tdisk_8h.html#structtd__internal__device" title="A td_internal_device represents an underlying physical device of a tDisk. ">td_internal_device</a> represents an underlying physical device of a tDisk.  <a href="tdisk_8h.html#structtd__internal__device">More...</a><br /></td></tr>
 <tr class="separator:structtd__internal__device"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:structsorted__internal__device"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#structsorted__internal__device">sorted_internal_device</a></td></tr>
+<tr class="memdesc:structsorted__internal__device"><td class="mdescLeft">&#160;</td><td class="mdescRight">This struct represents an internal device but sorted accorting to its performance.  <a href="tdisk_8h.html#structsorted__internal__device">More...</a><br /></td></tr>
+<tr class="separator:structsorted__internal__device"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:structtdisk"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#structtdisk">tdisk</a></td></tr>
 <tr class="memdesc:structtdisk"><td class="mdescLeft">&#160;</td><td class="mdescRight">This struct represents a tDisk.  <a href="tdisk_8h.html#structtdisk">More...</a><br /></td></tr>
 <tr class="separator:structtdisk"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -301,6 +309,46 @@ type</td>
 
 </div>
 </div>
+<a name="structsorted__internal__device" id="structsorted__internal__device"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct sorted_internal_device</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>This struct represents an internal device but sorted accorting to its performance. </p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Class Members</th></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a2652902da07e65d66c398d92aafac28d"></a>sector_t</td>
+<td class="fieldname">
+amount_blocks</td>
+<td class="fielddoc">
+Also used internally to count the currently correct blocks. </td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a1e51da025e8ad35b42d0b6cb210c1005"></a>sector_t</td>
+<td class="fieldname">
+available_blocks</td>
+<td class="fielddoc">
+This variable is just internally to count the blocks. </td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="af109937d58659b3feb209e009cb7a30b"></a>struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *</td>
+<td class="fieldname">
+dev</td>
+<td class="fielddoc">
+The actual device. </td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="af5a0c30cc5002f09a980821506d8ee2c"></a>struct list_head</td>
+<td class="fieldname">
+preferred_blocks</td>
+<td class="fielddoc">
+The blocks which should be - according to performance and block access count - stored on the device. </td></tr>
+</table>
+
+</div>
+</div>
 <a name="structtdisk" id="structtdisk"></a>
 <div class="memitem">
 <div class="memproto">
@@ -414,6 +462,12 @@ refcount</td>
 <a class="anchor" id="aad9141cfda875098a0475bb688f7d6d5"></a>sector_t</td>
 <td class="fieldname">
 size_blocks</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="afc94f39a23273730a4272e1cc9f4efe1"></a>struct <a class="el" href="tdisk_8h.html#structsorted__internal__device">sorted_internal_device</a> *</td>
+<td class="fieldname">
+sorted_devices</td>
 <td class="fielddoc">
 </td></tr>
 <tr><td class="fieldtype">
@@ -602,7 +656,7 @@ td_work</td>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Apr 7 2016 11:41:29 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 29 2016 16:09:41 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

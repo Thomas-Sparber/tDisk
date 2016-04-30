@@ -13,5 +13,6 @@ var searchData=
   ['nltd_5freq_5flength',['NLTD_REQ_LENGTH',['../interface_8h.html#ad34f54d2a6fba7e48e851ba3096bebb0a7908a7db046f3a3e6fcf3a10852a4fb7',1,'interface.h']]],
   ['nltd_5freq_5fnumber',['NLTD_REQ_NUMBER',['../interface_8h.html#ad34f54d2a6fba7e48e851ba3096bebb0ad0658a0fae4ba4625ccf85b4f5554b0f',1,'interface.h']]],
   ['nltd_5freq_5foffset',['NLTD_REQ_OFFSET',['../interface_8h.html#ad34f54d2a6fba7e48e851ba3096bebb0a85b8f394187209c665773f9f15d0ebd4',1,'interface.h']]],
+  ['nltd_5freq_5fret',['NLTD_REQ_RET',['../interface_8h.html#ad34f54d2a6fba7e48e851ba3096bebb0aa57a0c69cc3ef14f8ec7e992008799aa',1,'interface.h']]],
   ['nltd_5funspec',['NLTD_UNSPEC',['../interface_8h.html#ad34f54d2a6fba7e48e851ba3096bebb0ac253b2fca5c610dfdc75f1921ffa5c01',1,'interface.h']]]
 ];

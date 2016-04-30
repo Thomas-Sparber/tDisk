@@ -91,17 +91,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">tdisk_control.c File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;linux/module.h&gt;</code><br />
-<code>#include &lt;linux/moduleparam.h&gt;</code><br />
-<code>#include &lt;linux/fs.h&gt;</code><br />
-<code>#include &lt;linux/file.h&gt;</code><br />
-<code>#include &lt;linux/stat.h&gt;</code><br />
-<code>#include &lt;linux/errno.h&gt;</code><br />
-<code>#include &lt;linux/major.h&gt;</code><br />
-<code>#include &lt;linux/blkdev.h&gt;</code><br />
-<code>#include &lt;linux/miscdevice.h&gt;</code><br />
-<code>#include &lt;linux/falloc.h&gt;</code><br />
-<code>#include &lt;linux/uio.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;<a class="el" href="config_8h_source.html">tdisk/config.h</a>&gt;</code><br />
 <code>#include &quot;<a class="el" href="tdisk__control_8h_source.html">tdisk_control.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="tdisk_8h_source.html">tdisk.h</a>&quot;</code><br />
 </div><table class="memberdecls">
@@ -282,7 +272,7 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    .open       = nonseekable_open,</div><div class="line">    .unlocked_ioctl = <a class="code" href="tdisk__control_8c.html#a22bf4ed010596733550f05638629fa43">tdisk_control_ioctl</a>,</div><div class="line">    .compat_ioctl   = <a class="code" href="tdisk__control_8c.html#a22bf4ed010596733550f05638629fa43">tdisk_control_ioctl</a>,</div><div class="line">    .owner      = THIS_MODULE,</div><div class="line">    .llseek     = noop_llseek,</div><div class="line">}</div><div class="ttc" id="tdisk__control_8c_html_a22bf4ed010596733550f05638629fa43"><div class="ttname"><a href="tdisk__control_8c.html#a22bf4ed010596733550f05638629fa43">tdisk_control_ioctl</a></div><div class="ttdeci">static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned long parm)</div><div class="ttdoc">This function handles the ioctl calls of the td-control device. </div><div class="ttdef"><b>Definition:</b> tdisk_control.c:29</div></div>
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    .open       = nonseekable_open,</div><div class="line">    .unlocked_ioctl = <a class="code" href="tdisk__control_8c.html#a22bf4ed010596733550f05638629fa43">tdisk_control_ioctl</a>,</div><div class="line">    .compat_ioctl   = <a class="code" href="tdisk__control_8c.html#a22bf4ed010596733550f05638629fa43">tdisk_control_ioctl</a>,</div><div class="line">    .owner      = THIS_MODULE,</div><div class="line">    .llseek     = noop_llseek,</div><div class="line">}</div><div class="ttc" id="tdisk__control_8c_html_a22bf4ed010596733550f05638629fa43"><div class="ttname"><a href="tdisk__control_8c.html#a22bf4ed010596733550f05638629fa43">tdisk_control_ioctl</a></div><div class="ttdeci">static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned long parm)</div><div class="ttdoc">This function handles the ioctl calls of the td-control device. </div><div class="ttdef"><b>Definition:</b> tdisk_control.c:18</div></div>
 </div><!-- fragment -->
 <p>Represents the file operations of the td-control device. </p>
 
@@ -305,7 +295,7 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    .minor      = MISC_DYNAMIC_MINOR,</div><div class="line">    .name       = <span class="stringliteral">&quot;td-control&quot;</span>,</div><div class="line">    .fops       = &amp;<a class="code" href="tdisk__control_8c.html#ad71894ae66cd434f4eae52b9a258197d">tdisk_ctl_fops</a>,</div><div class="line">}</div><div class="ttc" id="tdisk__control_8c_html_ad71894ae66cd434f4eae52b9a258197d"><div class="ttname"><a href="tdisk__control_8c.html#ad71894ae66cd434f4eae52b9a258197d">tdisk_ctl_fops</a></div><div class="ttdeci">static const struct file_operations tdisk_ctl_fops</div><div class="ttdoc">Represents the file operations of the td-control device. </div><div class="ttdef"><b>Definition:</b> tdisk_control.c:68</div></div>
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    .minor      = MISC_DYNAMIC_MINOR,</div><div class="line">    .name       = <span class="stringliteral">&quot;td-control&quot;</span>,</div><div class="line">    .fops       = &amp;<a class="code" href="tdisk__control_8c.html#ad71894ae66cd434f4eae52b9a258197d">tdisk_ctl_fops</a>,</div><div class="line">}</div><div class="ttc" id="tdisk__control_8c_html_ad71894ae66cd434f4eae52b9a258197d"><div class="ttname"><a href="tdisk__control_8c.html#ad71894ae66cd434f4eae52b9a258197d">tdisk_ctl_fops</a></div><div class="ttdeci">static const struct file_operations tdisk_ctl_fops</div><div class="ttdoc">Represents the file operations of the td-control device. </div><div class="ttdef"><b>Definition:</b> tdisk_control.c:61</div></div>
 </div><!-- fragment -->
 <p>Mic device operations. </p>
 
@@ -314,7 +304,7 @@ Variables</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Apr 7 2016 11:41:29 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 29 2016 16:09:41 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

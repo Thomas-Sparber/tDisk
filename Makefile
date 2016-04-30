@@ -34,6 +34,7 @@ count_lines:
 		grep -v ".*/browser.min.js$$" | \
 		grep -v ".*/jquery-2.2.1.min.js$$" | \
 		grep -v ".*/react-0.14.6.js$$" | \
+		grep -v "documentation.*" | \
 		grep -v ".*/react-dom-0.14.6.js$$" | xargs -d '\n' wc -l
 
 clean:

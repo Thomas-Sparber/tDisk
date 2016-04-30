@@ -85,7 +85,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
 <a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
@@ -93,34 +92,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">tdisk.c File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;linux/blkdev.h&gt;</code><br />
-<code>#include &lt;linux/blkpg.h&gt;</code><br />
-<code>#include &lt;linux/errno.h&gt;</code><br />
-<code>#include &lt;linux/falloc.h&gt;</code><br />
-<code>#include &lt;linux/file.h&gt;</code><br />
-<code>#include &lt;linux/fs.h&gt;</code><br />
-<code>#include &lt;linux/list_sort.h&gt;</code><br />
-<code>#include &lt;linux/major.h&gt;</code><br />
-<code>#include &lt;linux/miscdevice.h&gt;</code><br />
-<code>#include &lt;linux/module.h&gt;</code><br />
-<code>#include &lt;linux/moduleparam.h&gt;</code><br />
-<code>#include &lt;linux/sort.h&gt;</code><br />
-<code>#include &lt;linux/stat.h&gt;</code><br />
-<code>#include &lt;linux/uio.h&gt;</code><br />
-<code>#include &lt;linux/version.h&gt;</code><br />
-<code>#include &lt;linux/vmalloc.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;<a class="el" href="config_8h_source.html">tdisk/config.h</a>&gt;</code><br />
 <code>#include &quot;<a class="el" href="helpers_8h_source.html">helpers.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="tdisk_8h_source.html">tdisk.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="tdisk__control_8h_source.html">tdisk_control.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="tdisk__file_8h_source.html">tdisk_file.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="tdisk__plugin_8h_source.html">tdisk_plugin.h</a>&quot;</code><br />
 </div><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:structsorted__internal__device"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#structsorted__internal__device">sorted_internal_device</a></td></tr>
-<tr class="memdesc:structsorted__internal__device"><td class="mdescLeft">&#160;</td><td class="mdescRight">This struct represents an internal device but sorted accorting to its performance.  <a href="tdisk_8c.html#structsorted__internal__device">More...</a><br /></td></tr>
-<tr class="separator:structsorted__internal__device"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
 <tr class="memitem:a34d12e2e386464a40aff3b4d9cf7019e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a34d12e2e386464a40aff3b4d9cf7019e">COMPARE</a>&#160;&#160;&#160;1410</td></tr>
@@ -128,6 +106,11 @@ Macros</h2></td></tr>
 <tr class="separator:a34d12e2e386464a40aff3b4d9cf7019e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2cd60e49ebd11892d1cfde960552b420"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a2cd60e49ebd11892d1cfde960552b420">DEFAULT_WORKER_TIMEOUT</a>&#160;&#160;&#160;(5*HZ)</td></tr>
 <tr class="separator:a2cd60e49ebd11892d1cfde960552b420"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f08e3921f85020b9022f73ab0dee60b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a4f08e3921f85020b9022f73ab0dee60b">DEFAULT_SECONDARY_WORK_DELAY</a>&#160;&#160;&#160;1</td></tr>
+<tr class="separator:a4f08e3921f85020b9022f73ab0dee60b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f3cd5bde7d63a721b530c21be99cc0e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a6f3cd5bde7d63a721b530c21be99cc0e">DEVICE_INDEX</a>(desired,  all_devices)&#160;&#160;&#160;((<a class="el" href="interface_8h.html#affd8cffebb9bfeaab075a6d080bbc085">tdisk_index</a>)((desired)-(all_devices)+1))</td></tr>
+<tr class="memdesc:a6f3cd5bde7d63a721b530c21be99cc0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Actual internal device calculated using memory offset.  <a href="#a6f3cd5bde7d63a721b530c21be99cc0e">More...</a><br /></td></tr>
+<tr class="separator:a6f3cd5bde7d63a721b530c21be99cc0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -146,7 +129,7 @@ Functions</h2></td></tr>
 <tr class="separator:a3bfedbd1b6427eb9e89aef58a6c9d705"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4cbca7b2c027cbb21b00c05c17a957c8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a4cbca7b2c027cbb21b00c05c17a957c8">MODULE_DESCRIPTION</a> (<a class="el" href="interface_8h.html#a25634d21648ca7fb7a2aca614bafaaeb">DRIVER_NAME</a>&quot; Driver&quot;)</td></tr>
 <tr class="separator:a4cbca7b2c027cbb21b00c05c17a957c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4657c9486631ad359abaa3b7ffeccd1a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a4657c9486631ad359abaa3b7ffeccd1a">MODULE_ALIAS_BLOCKDEV_MAJOR</a> (<a class="el" href="tdisk_8c.html#aa1c5b3bb76e4f2567b1539ea0c37797e">TD_MAJOR</a>)</td></tr>
+<tr class="memitem:a4657c9486631ad359abaa3b7ffeccd1a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a4657c9486631ad359abaa3b7ffeccd1a">MODULE_ALIAS_BLOCKDEV_MAJOR</a> (<a class="el" href="tdisk_8c.html#a3ab416cb2b57e1ce4580511e115898e1">TD_MAJOR</a>)</td></tr>
 <tr class="separator:a4657c9486631ad359abaa3b7ffeccd1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abe0e26a8351543bdb2138bd0786a698c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#abe0e26a8351543bdb2138bd0786a698c">DEFINE_IDR</a> (td_index_idr)</td></tr>
 <tr class="separator:abe0e26a8351543bdb2138bd0786a698c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -176,36 +159,15 @@ Functions</h2></td></tr>
 <tr class="memitem:ab2ac2de6430027382248318b34364d2b"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#ab2ac2de6430027382248318b34364d2b">td_flush_devices</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td)</td></tr>
 <tr class="memdesc:ab2ac2de6430027382248318b34364d2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flushes the underlying devices of the tDisk.  <a href="#ab2ac2de6430027382248318b34364d2b">More...</a><br /></td></tr>
 <tr class="separator:ab2ac2de6430027382248318b34364d2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3d3def15917c648547ea4e4ab3394317"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a3d3def15917c648547ea4e4ab3394317">td_write_all_indices</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device)</td></tr>
+<tr class="memdesc:a3d3def15917c648547ea4e4ab3394317"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes all the sector indices to the device.  <a href="#a3d3def15917c648547ea4e4ab3394317">More...</a><br /></td></tr>
+<tr class="separator:a3d3def15917c648547ea4e4ab3394317"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aebf9d7e91de647f431c16445c15975d7"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#aebf9d7e91de647f431c16445c15975d7">td_perform_index_operation</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td_dev, int direction, sector_t logical_sector, struct <a class="el" href="interface_8h.html#structsector__index">sector_index</a> *physical_sector, bool do_disk_operation, bool update_access_count)</td></tr>
 <tr class="memdesc:aebf9d7e91de647f431c16445c15975d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Performs the given index operation.  <a href="#aebf9d7e91de647f431c16445c15975d7">More...</a><br /></td></tr>
 <tr class="separator:aebf9d7e91de647f431c16445c15975d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad0f70cbc430d47e38c5ea47fbfb15471"><td class="memItemLeft" align="right" valign="top">static unsigned long long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#ad0f70cbc430d47e38c5ea47fbfb15471">td_get_device_performance</a> (const struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *d)</td></tr>
-<tr class="memdesc:ad0f70cbc430d47e38c5ea47fbfb15471"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is the heuristic function that calculates the speed of a device.  <a href="#ad0f70cbc430d47e38c5ea47fbfb15471">More...</a><br /></td></tr>
-<tr class="separator:ad0f70cbc430d47e38c5ea47fbfb15471"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa592f2f0716373c8d14853578d7aadc8"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#aa592f2f0716373c8d14853578d7aadc8">td_sort_devices_callback</a> (const void *a, const void *b)</td></tr>
-<tr class="memdesc:aa592f2f0716373c8d14853578d7aadc8"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is the callback which is used to sort the devices according to its performance.  <a href="#aa592f2f0716373c8d14853578d7aadc8">More...</a><br /></td></tr>
-<tr class="separator:aa592f2f0716373c8d14853578d7aadc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2f4a65855dc847af50d586ddd172fed6"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a2f4a65855dc847af50d586ddd172fed6">td_insert_sorted_internal_devices</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, struct <a class="el" href="tdisk_8c.html#structsorted__internal__device">sorted_internal_device</a> *sorted_devices)</td></tr>
-<tr class="memdesc:a2f4a65855dc847af50d586ddd172fed6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inserts the internal devices in the given array in an ordered manner.  <a href="#a2f4a65855dc847af50d586ddd172fed6">More...</a><br /></td></tr>
-<tr class="separator:a2f4a65855dc847af50d586ddd172fed6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac1743f35277fabb23256faa0a2045afe"><td class="memItemLeft" align="right" valign="top">static struct <a class="el" href="tdisk_8c.html#structsorted__internal__device">sorted_internal_device</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#ac1743f35277fabb23256faa0a2045afe">td_find_sorted_device</a> (struct <a class="el" href="tdisk_8c.html#structsorted__internal__device">sorted_internal_device</a> *sorted_devices, struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *desired_device, unsigned int devices)</td></tr>
-<tr class="memdesc:ac1743f35277fabb23256faa0a2045afe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding sorted device of the given <a class="el" href="tdisk_8h.html#structtd__internal__device" title="A td_internal_device represents an underlying physical device of a tDisk. ">td_internal_device</a>.  <a href="#ac1743f35277fabb23256faa0a2045afe">More...</a><br /></td></tr>
-<tr class="separator:ac1743f35277fabb23256faa0a2045afe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af58aee48b1fbe8c7ad34226e013226e0"><td class="memItemLeft" align="right" valign="top">static struct <a class="el" href="tdisk_8h.html#structsorted__sector__index">sorted_sector_index</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#af58aee48b1fbe8c7ad34226e013226e0">td_find_sector_index</a> (struct <a class="el" href="tdisk_8c.html#structsorted__internal__device">sorted_internal_device</a> *device, <a class="el" href="interface_8h.html#affd8cffebb9bfeaab075a6d080bbc085">tdisk_index</a> disk)</td></tr>
-<tr class="memdesc:af58aee48b1fbe8c7ad34226e013226e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function returns the <a class="el" href="interface_8h.html#structsector__index" title="A index represents the physical location of a logical sector. ">sector_index</a> in the given disk with the lowest access count.  <a href="#af58aee48b1fbe8c7ad34226e013226e0">More...</a><br /></td></tr>
-<tr class="separator:af58aee48b1fbe8c7ad34226e013226e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a144e0ed93ab2f49b0d2b00164d82b939"><td class="memItemLeft" align="right" valign="top">static struct <a class="el" href="tdisk_8h.html#structsorted__sector__index">sorted_sector_index</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a144e0ed93ab2f49b0d2b00164d82b939">td_find_sector_index_acc</a> (struct <a class="el" href="tdisk_8c.html#structsorted__internal__device">sorted_internal_device</a> *device, <a class="el" href="interface_8h.html#affd8cffebb9bfeaab075a6d080bbc085">tdisk_index</a> disk, __u16 access_count, bool is_faster)</td></tr>
-<tr class="memdesc:a144e0ed93ab2f49b0d2b00164d82b939"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is an optimizing function for assigning sectors properly to their devices.  <a href="#a144e0ed93ab2f49b0d2b00164d82b939">More...</a><br /></td></tr>
-<tr class="separator:a144e0ed93ab2f49b0d2b00164d82b939"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa572acfe0ad72adbb0e4f6dff82429ad"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#aa572acfe0ad72adbb0e4f6dff82429ad">td_assign_sectors</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, struct <a class="el" href="tdisk_8c.html#structsorted__internal__device">sorted_internal_device</a> *sorted_devices)</td></tr>
-<tr class="memdesc:aa572acfe0ad72adbb0e4f6dff82429ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function assigns the sorted sectors to the sorted devices and tries to optimize it using the function td_find_sector_index_acc The result of this function is the base of the sectors to be swapped.  <a href="#aa572acfe0ad72adbb0e4f6dff82429ad">More...</a><br /></td></tr>
-<tr class="separator:aa572acfe0ad72adbb0e4f6dff82429ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4434ada390e9a24588faa68fef9041af"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a4434ada390e9a24588faa68fef9041af">td_swap_sectors</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, sector_t logical_a, struct <a class="el" href="interface_8h.html#structsector__index">sector_index</a> *a, sector_t logical_b, struct <a class="el" href="interface_8h.html#structsector__index">sector_index</a> *b)</td></tr>
 <tr class="memdesc:a4434ada390e9a24588faa68fef9041af"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function physically swaps the two given sectors.  <a href="#a4434ada390e9a24588faa68fef9041af">More...</a><br /></td></tr>
 <tr class="separator:a4434ada390e9a24588faa68fef9041af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed2ff4381f92a752fecb64f81ac1b268"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#aed2ff4381f92a752fecb64f81ac1b268">td_move_one_sector</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td)</td></tr>
-<tr class="memdesc:aed2ff4381f92a752fecb64f81ac1b268"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function moves the sector with the highest access count to the disk with the best performance.  <a href="#aed2ff4381f92a752fecb64f81ac1b268">More...</a><br /></td></tr>
-<tr class="separator:aed2ff4381f92a752fecb64f81ac1b268"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abe44fd4301e1a613584c0cba063a1d36"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#abe44fd4301e1a613584c0cba063a1d36">td_sector_index_callback_total</a> (void *priv, struct list_head *a, struct list_head *b)</td></tr>
 <tr class="memdesc:abe44fd4301e1a613584c0cba063a1d36"><td class="mdescLeft">&#160;</td><td class="mdescRight">This callback is used by the list_sort to determine the order of a sector index.  <a href="#abe44fd4301e1a613584c0cba063a1d36">More...</a><br /></td></tr>
 <tr class="separator:abe44fd4301e1a613584c0cba063a1d36"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -216,7 +178,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:abbe3ef44bd53b6ced274645aa161cc88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the given disk header is compatible with the current driver.  <a href="#abbe3ef44bd53b6ced274645aa161cc88">More...</a><br /></td></tr>
 <tr class="separator:abbe3ef44bd53b6ced274645aa161cc88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af1d09b8f3bf325ef0708b310cf980ca3"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#af1d09b8f3bf325ef0708b310cf980ca3">td_read_header</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, struct <a class="el" href="tdisk_8h.html#structtdisk__header">tdisk_header</a> *header, bool first_device, int *index_operation_to_do)</td></tr>
-<tr class="memdesc:af1d09b8f3bf325ef0708b310cf980ca3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads the td header from the given file and measures the disk performance if perf != NULL.  <a href="#af1d09b8f3bf325ef0708b310cf980ca3">More...</a><br /></td></tr>
+<tr class="memdesc:af1d09b8f3bf325ef0708b310cf980ca3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads the td header from the given device and measures the disk performance if perf != NULL.  <a href="#af1d09b8f3bf325ef0708b310cf980ca3">More...</a><br /></td></tr>
 <tr class="separator:af1d09b8f3bf325ef0708b310cf980ca3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3bf9aa5806e550a172fad50351f00d43"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a3bf9aa5806e550a172fad50351f00d43">td_write_header</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, struct <a class="el" href="tdisk_8h.html#structtdisk__header">tdisk_header</a> *header)</td></tr>
 <tr class="memdesc:a3bf9aa5806e550a172fad50351f00d43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes the td header to the given device and measures the disk performance if perf != NULL.  <a href="#a3bf9aa5806e550a172fad50351f00d43">More...</a><br /></td></tr>
@@ -224,9 +186,6 @@ Functions</h2></td></tr>
 <tr class="memitem:a2257008d123cf68b79268d8d4fef4081"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a2257008d123cf68b79268d8d4fef4081">td_read_all_indices</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, u8 *data)</td></tr>
 <tr class="memdesc:a2257008d123cf68b79268d8d4fef4081"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads all the sector indices from the device and stores them in data.  <a href="#a2257008d123cf68b79268d8d4fef4081">More...</a><br /></td></tr>
 <tr class="separator:a2257008d123cf68b79268d8d4fef4081"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d3def15917c648547ea4e4ab3394317"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a3d3def15917c648547ea4e4ab3394317">td_write_all_indices</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device)</td></tr>
-<tr class="memdesc:a3d3def15917c648547ea4e4ab3394317"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes all the sector indices to the device.  <a href="#a3d3def15917c648547ea4e4ab3394317">More...</a><br /></td></tr>
-<tr class="separator:a3d3def15917c648547ea4e4ab3394317"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa3d78e85e0eb26deae43a19adc91413e"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#aa3d78e85e0eb26deae43a19adc91413e">td_do_disk_operation</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, struct request *rq)</td></tr>
 <tr class="memdesc:aa3d78e85e0eb26deae43a19adc91413e"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function does the actual device operations.  <a href="#aa3d78e85e0eb26deae43a19adc91413e">More...</a><br /></td></tr>
 <tr class="separator:aa3d78e85e0eb26deae43a19adc91413e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -242,9 +201,6 @@ Functions</h2></td></tr>
 <tr class="memitem:ae660b62d97f779b17ec9cf9341f99aa2"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#ae660b62d97f779b17ec9cf9341f99aa2">td_set_max_sectors</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, sector_t max_sectors)</td></tr>
 <tr class="memdesc:ae660b62d97f779b17ec9cf9341f99aa2"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function is used to resize the sector indices.  <a href="#ae660b62d97f779b17ec9cf9341f99aa2">More...</a><br /></td></tr>
 <tr class="separator:ae660b62d97f779b17ec9cf9341f99aa2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a88db5d411c5f6d650a1d72dd7d012ece"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a88db5d411c5f6d650a1d72dd7d012ece">td_add_check_file</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, fmode_t mode, struct block_device *bdev, struct file *file)</td></tr>
-<tr class="memdesc:a88db5d411c5f6d650a1d72dd7d012ece"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function checks if the given file can be added as internal device to the tDisk.  <a href="#a88db5d411c5f6d650a1d72dd7d012ece">More...</a><br /></td></tr>
-<tr class="separator:a88db5d411c5f6d650a1d72dd7d012ece"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa46e93482f86d50df7d6604547fe2502"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#aa46e93482f86d50df7d6604547fe2502">td_add_disk</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, fmode_t mode, struct block_device *bdev, struct <a class="el" href="interface_8h.html#structinternal__device__add__parameters">internal_device_add_parameters</a> __user *arg)</td></tr>
 <tr class="memdesc:aa46e93482f86d50df7d6604547fe2502"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds the given internal device to the tDisk.  <a href="#aa46e93482f86d50df7d6604547fe2502">More...</a><br /></td></tr>
 <tr class="separator:aa46e93482f86d50df7d6604547fe2502"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -306,8 +262,8 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:aa1c5b3bb76e4f2567b1539ea0c37797e"><td class="memItemLeft" align="right" valign="top">static u_int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#aa1c5b3bb76e4f2567b1539ea0c37797e">TD_MAJOR</a> = 0</td></tr>
-<tr class="separator:aa1c5b3bb76e4f2567b1539ea0c37797e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ab416cb2b57e1ce4580511e115898e1"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a3ab416cb2b57e1ce4580511e115898e1">TD_MAJOR</a> = 0</td></tr>
+<tr class="separator:a3ab416cb2b57e1ce4580511e115898e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac3d1798b9cf3045b991c2731a2008a57"><td class="memItemLeft" align="right" valign="top">static const struct block_device_operations&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#ac3d1798b9cf3045b991c2731a2008a57">td_fops</a></td></tr>
 <tr class="memdesc:ac3d1798b9cf3045b991c2731a2008a57"><td class="mdescLeft">&#160;</td><td class="mdescRight">The block device operations which are presented to the kernel.  <a href="#ac3d1798b9cf3045b991c2731a2008a57">More...</a><br /></td></tr>
 <tr class="separator:ac3d1798b9cf3045b991c2731a2008a57"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -315,47 +271,6 @@ Variables</h2></td></tr>
 <tr class="memdesc:a6a43f0b91f8791d051f93a01c1c1d06c"><td class="mdescLeft">&#160;</td><td class="mdescRight">This struct defines the functions to dispatch requests.  <a href="#a6a43f0b91f8791d051f93a01c1c1d06c">More...</a><br /></td></tr>
 <tr class="separator:a6a43f0b91f8791d051f93a01c1c1d06c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/><h2 class="groupheader">Class Documentation</h2>
-<a name="structsorted__internal__device" id="structsorted__internal__device"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">struct sorted_internal_device</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<div class="textblock"><p>This struct represents an internal device but sorted accorting to its performance. </p>
-</div><table class="fieldtable">
-<tr><th colspan="3">Class Members</th></tr>
-<tr><td class="fieldtype">
-<a class="anchor" id="a2652902da07e65d66c398d92aafac28d"></a>sector_t</td>
-<td class="fieldname">
-amount_blocks</td>
-<td class="fielddoc">
-Also used internally to count the currently correct blocks. </td></tr>
-<tr><td class="fieldtype">
-<a class="anchor" id="a1e51da025e8ad35b42d0b6cb210c1005"></a>sector_t</td>
-<td class="fieldname">
-available_blocks</td>
-<td class="fielddoc">
-This variable is just internally to count the blocks. </td></tr>
-<tr><td class="fieldtype">
-<a class="anchor" id="af109937d58659b3feb209e009cb7a30b"></a>struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *</td>
-<td class="fieldname">
-dev</td>
-<td class="fielddoc">
-The actual device. </td></tr>
-<tr><td class="fieldtype">
-<a class="anchor" id="af5a0c30cc5002f09a980821506d8ee2c"></a>struct list_head</td>
-<td class="fieldname">
-preferred_blocks</td>
-<td class="fielddoc">
-The blocks which should be - according to performance and block access count - stored on the device. </td></tr>
-</table>
-
-</div>
-</div>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a class="anchor" id="a34d12e2e386464a40aff3b4d9cf7019e"></a>
 <div class="memitem">
@@ -372,6 +287,18 @@ The blocks which should be - according to performance and block access count - s
 
 </div>
 </div>
+<a class="anchor" id="a4f08e3921f85020b9022f73ab0dee60b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define DEFAULT_SECONDARY_WORK_DELAY&#160;&#160;&#160;1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a2cd60e49ebd11892d1cfde960552b420"></a>
 <div class="memitem">
 <div class="memproto">
@@ -381,6 +308,34 @@ The blocks which should be - according to performance and block access count - s
         </tr>
       </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6f3cd5bde7d63a721b530c21be99cc0e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define DEVICE_INDEX</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">desired, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">all_devices&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td>&#160;&#160;&#160;((<a class="el" href="interface_8h.html#affd8cffebb9bfeaab075a6d080bbc085">tdisk_index</a>)((desired)-(all_devices)+1))</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Actual internal device calculated using memory offset. </p>
 
 </div>
 </div>
@@ -505,7 +460,7 @@ The blocks which should be - according to performance and block access count - s
         <tr>
           <td class="memname">MODULE_ALIAS_BLOCKDEV_MAJOR </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="tdisk_8c.html#aa1c5b3bb76e4f2567b1539ea0c37797e">TD_MAJOR</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="tdisk_8c.html#a3ab416cb2b57e1ce4580511e115898e1">TD_MAJOR</a>&#160;</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
@@ -686,54 +641,6 @@ The blocks which should be - according to performance and block access count - s
 
 </div>
 </div>
-<a class="anchor" id="a88db5d411c5f6d650a1d72dd7d012ece"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static int td_add_check_file </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *&#160;</td>
-          <td class="paramname"><em>td</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">fmode_t&#160;</td>
-          <td class="paramname"><em>mode</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">struct block_device *&#160;</td>
-          <td class="paramname"><em>bdev</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">struct file *&#160;</td>
-          <td class="paramname"><em>file</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>This function checks if the given file can be added as internal device to the tDisk. </p>
-
-</div>
-</div>
 <a class="anchor" id="aa46e93482f86d50df7d6604547fe2502"></a>
 <div class="memitem">
 <div class="memproto">
@@ -780,42 +687,6 @@ The blocks which should be - according to performance and block access count - s
 
 <p>Adds the given internal device to the tDisk. </p>
 <p>This function reads the disk header, performs the correct index operation (WRITE, READ, COMPARE), adds it to the tDisk and informs user space about any changes (size, partitions...) </p>
-
-</div>
-</div>
-<a class="anchor" id="aa572acfe0ad72adbb0e4f6dff82429ad"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void td_assign_sectors </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *&#160;</td>
-          <td class="paramname"><em>td</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8c.html#structsorted__internal__device">sorted_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>sorted_devices</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>This function assigns the sorted sectors to the sorted devices and tries to optimize it using the function td_find_sector_index_acc The result of this function is the base of the sectors to be swapped. </p>
 
 </div>
 </div>
@@ -880,134 +751,6 @@ The blocks which should be - according to performance and block access count - s
 
 <p>This function does the actual device operations. </p>
 <p>It extracts the logical sector and the data from the request. Then it searches for the corresponding disk and physical sector and does the actual device operation. Disk performances are also recorded. </p>
-
-</div>
-</div>
-<a class="anchor" id="af58aee48b1fbe8c7ad34226e013226e0"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static struct <a class="el" href="tdisk_8h.html#structsorted__sector__index">sorted_sector_index</a>* td_find_sector_index </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8c.html#structsorted__internal__device">sorted_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="interface_8h.html#affd8cffebb9bfeaab075a6d080bbc085">tdisk_index</a>&#160;</td>
-          <td class="paramname"><em>disk</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>This function returns the <a class="el" href="interface_8h.html#structsector__index" title="A index represents the physical location of a logical sector. ">sector_index</a> in the given disk with the lowest access count. </p>
-<p>This is used when swapping a (high access) sector from a slower disk with a (lowest possible) sector from a faster disk. A sector with a lower access count has a lower probability of being moved to a faster disk in the near future. </p>
-
-</div>
-</div>
-<a class="anchor" id="a144e0ed93ab2f49b0d2b00164d82b939"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static struct <a class="el" href="tdisk_8h.html#structsorted__sector__index">sorted_sector_index</a>* td_find_sector_index_acc </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8c.html#structsorted__internal__device">sorted_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="interface_8h.html#affd8cffebb9bfeaab075a6d080bbc085">tdisk_index</a>&#160;</td>
-          <td class="paramname"><em>disk</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">__u16&#160;</td>
-          <td class="paramname"><em>access_count</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>is_faster</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>This is an optimizing function for assigning sectors properly to their devices. </p>
-<p>Obviously it is possible that two or more sectors have the same access count (or acceptable variation). So it is also possible that sector a and sector b have the same access count but are stored on the wrong disks (according to the sorting algorithm). So if they have the same access count they can simply be ignored. </p>
-
-</div>
-</div>
-<a class="anchor" id="ac1743f35277fabb23256faa0a2045afe"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static struct <a class="el" href="tdisk_8c.html#structsorted__internal__device">sorted_internal_device</a>* td_find_sorted_device </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8c.html#structsorted__internal__device">sorted_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>sorted_devices</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>desired_device</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>devices</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Finds the corresponding sorted device of the given <a class="el" href="tdisk_8h.html#structtd__internal__device" title="A td_internal_device represents an underlying physical device of a tDisk. ">td_internal_device</a>. </p>
 
 </div>
 </div>
@@ -1130,32 +873,6 @@ The blocks which should be - according to performance and block access count - s
 </div><div class="memdoc">
 
 <p>This function transfers information about the internal devices to user space. </p>
-
-</div>
-</div>
-<a class="anchor" id="ad0f70cbc430d47e38c5ea47fbfb15471"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static unsigned long long td_get_device_performance </td>
-          <td>(</td>
-          <td class="paramtype">const struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>d</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>This is the heuristic function that calculates the speed of a device. </p>
 
 </div>
 </div>
@@ -1314,42 +1031,6 @@ The blocks which should be - according to performance and block access count - s
 
 </div>
 </div>
-<a class="anchor" id="a2f4a65855dc847af50d586ddd172fed6"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void td_insert_sorted_internal_devices </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *&#160;</td>
-          <td class="paramname"><em>td</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8c.html#structsorted__internal__device">sorted_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>sorted_devices</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Inserts the internal devices in the given array in an ordered manner. </p>
-
-</div>
-</div>
 <a class="anchor" id="a503596ed44bb46b9b677cdcee315af2b"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1437,33 +1118,6 @@ The blocks which should be - according to performance and block access count - s
 <li>-1 if the the header was from a driver with a greater minor version than the current driver. It may be compatible...</li>
 <li>-2 if the the header was from a driver with a greater major version than the current driver. It may be compatible but probably not... </li>
 </ul>
-
-</div>
-</div>
-<a class="anchor" id="aed2ff4381f92a752fecb64f81ac1b268"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static bool td_move_one_sector </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *&#160;</td>
-          <td class="paramname"><em>td</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>This function moves the sector with the highest access count to the disk with the best performance. </p>
-<p>The function returns true and sets td-&gt;access_count_resort when a sector could be moved. </p>
 
 </div>
 </div>
@@ -1727,7 +1381,7 @@ The blocks which should be - according to performance and block access count - s
 </table>
 </div><div class="memdoc">
 
-<p>Reads the td header from the given file and measures the disk performance if perf != NULL. </p>
+<p>Reads the td header from the given device and measures the disk performance if perf != NULL. </p>
 
 </div>
 </div>
@@ -1901,42 +1555,6 @@ The blocks which should be - according to performance and block access count - s
 
 <p>This function is used to resize the sector indices. </p>
 <p>It also sets all the required parameters in the tDisk. The function returns the amount of additional blocks which are used to store the increased amount of sectors (can be 0) or a negative value when an error happened. </p>
-
-</div>
-</div>
-<a class="anchor" id="aa592f2f0716373c8d14853578d7aadc8"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static int td_sort_devices_callback </td>
-          <td>(</td>
-          <td class="paramtype">const void *&#160;</td>
-          <td class="paramname"><em>a</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const void *&#160;</td>
-          <td class="paramname"><em>b</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>This is the callback which is used to sort the devices according to its performance. </p>
 
 </div>
 </div>
@@ -2452,15 +2070,15 @@ The blocks which should be - according to performance and block access count - s
   </tr>
 </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    .owner =    THIS_MODULE,</div><div class="line">    .open =     <a class="code" href="tdisk_8c.html#a4d2aad48720f719c7d748a78e6b23280">td_open</a>,</div><div class="line">    .release =  <a class="code" href="tdisk_8c.html#a3e5539a1a5601e4fe32720bdf1ace7fc">td_release</a>,</div><div class="line">    .ioctl =    <a class="code" href="tdisk_8c.html#a503596ed44bb46b9b677cdcee315af2b">td_ioctl</a>,</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">}</div><div class="ttc" id="tdisk_8c_html_a4d2aad48720f719c7d748a78e6b23280"><div class="ttname"><a href="tdisk_8c.html#a4d2aad48720f719c7d748a78e6b23280">td_open</a></div><div class="ttdeci">static int td_open(struct block_device *bdev, fmode_t mode)</div><div class="ttdoc">This function is called by the kernel whenever it it needs the device. </div><div class="ttdef"><b>Definition:</b> tdisk.c:1647</div></div>
-<div class="ttc" id="tdisk_8c_html_a3e5539a1a5601e4fe32720bdf1ace7fc"><div class="ttname"><a href="tdisk_8c.html#a3e5539a1a5601e4fe32720bdf1ace7fc">td_release</a></div><div class="ttdeci">static void td_release(struct gendisk *disk, fmode_t mode)</div><div class="ttdoc">This function is called by the kernel whenever it doesn&amp;#39;t need the device anymore. </div><div class="ttdef"><b>Definition:</b> tdisk.c:1663</div></div>
-<div class="ttc" id="tdisk_8c_html_a503596ed44bb46b9b677cdcee315af2b"><div class="ttname"><a href="tdisk_8c.html#a503596ed44bb46b9b677cdcee315af2b">td_ioctl</a></div><div class="ttdeci">static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, unsigned long arg)</div><div class="ttdoc">This function handles all ioctl coming from userspace. </div><div class="ttdef"><b>Definition:</b> tdisk.c:1581</div></div>
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    .owner =    THIS_MODULE,</div><div class="line">    .open =     <a class="code" href="tdisk_8c.html#a4d2aad48720f719c7d748a78e6b23280">td_open</a>,</div><div class="line">    .release =  <a class="code" href="tdisk_8c.html#a3e5539a1a5601e4fe32720bdf1ace7fc">td_release</a>,</div><div class="line">    .ioctl =    <a class="code" href="tdisk_8c.html#a503596ed44bb46b9b677cdcee315af2b">td_ioctl</a>,</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">}</div><div class="ttc" id="tdisk_8c_html_a4d2aad48720f719c7d748a78e6b23280"><div class="ttname"><a href="tdisk_8c.html#a4d2aad48720f719c7d748a78e6b23280">td_open</a></div><div class="ttdeci">static int td_open(struct block_device *bdev, fmode_t mode)</div><div class="ttdoc">This function is called by the kernel whenever it it needs the device. </div><div class="ttdef"><b>Definition:</b> tdisk.c:1792</div></div>
+<div class="ttc" id="tdisk_8c_html_a3e5539a1a5601e4fe32720bdf1ace7fc"><div class="ttname"><a href="tdisk_8c.html#a3e5539a1a5601e4fe32720bdf1ace7fc">td_release</a></div><div class="ttdeci">static void td_release(struct gendisk *disk, fmode_t mode)</div><div class="ttdoc">This function is called by the kernel whenever it doesn&amp;#39;t need the device anymore. </div><div class="ttdef"><b>Definition:</b> tdisk.c:1808</div></div>
+<div class="ttc" id="tdisk_8c_html_a503596ed44bb46b9b677cdcee315af2b"><div class="ttname"><a href="tdisk_8c.html#a503596ed44bb46b9b677cdcee315af2b">td_ioctl</a></div><div class="ttdeci">static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, unsigned long arg)</div><div class="ttdoc">This function handles all ioctl coming from userspace. </div><div class="ttdef"><b>Definition:</b> tdisk.c:1726</div></div>
 </div><!-- fragment -->
 <p>The block device operations which are presented to the kernel. </p>
 
 </div>
 </div>
-<a class="anchor" id="aa1c5b3bb76e4f2567b1539ea0c37797e"></a>
+<a class="anchor" id="a3ab416cb2b57e1ce4580511e115898e1"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -2468,7 +2086,7 @@ The blocks which should be - according to performance and block access count - s
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">u_int TD_MAJOR = 0</td>
+          <td class="memname">int TD_MAJOR = 0</td>
         </tr>
       </table>
   </td>
@@ -2497,8 +2115,8 @@ The blocks which should be - according to performance and block access count - s
   </tr>
 </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    .queue_rq       = <a class="code" href="tdisk_8c.html#acacec26fa7ba78bdd565596ffcd44701">td_queue_rq</a>,</div><div class="line">    .map_queue      = blk_mq_map_queue,</div><div class="line">    .init_request   = <a class="code" href="tdisk_8c.html#ab5ab4b6ac9f074e0fdc8ca2ca5125a0c">td_init_request</a>,</div><div class="line">}</div><div class="ttc" id="tdisk_8c_html_ab5ab4b6ac9f074e0fdc8ca2ca5125a0c"><div class="ttname"><a href="tdisk_8c.html#ab5ab4b6ac9f074e0fdc8ca2ca5125a0c">td_init_request</a></div><div class="ttdeci">static int td_init_request(void *data, struct request *rq, unsigned int hctx_idx, unsigned int request_idx, unsigned int numa_node)</div><div class="ttdoc">This function is called for every request before it is given to the workr thread. ...</div><div class="ttdef"><b>Definition:</b> tdisk.c:1719</div></div>
-<div class="ttc" id="tdisk_8c_html_acacec26fa7ba78bdd565596ffcd44701"><div class="ttname"><a href="tdisk_8c.html#acacec26fa7ba78bdd565596ffcd44701">td_queue_rq</a></div><div class="ttdeci">static int td_queue_rq(struct blk_mq_hw_ctx *hctx, const struct blk_mq_queue_data *bd)</div><div class="ttdoc">This function is called by the kernel for each request it reqeives. </div><div class="ttdef"><b>Definition:</b> tdisk.c:1735</div></div>
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    .queue_rq       = <a class="code" href="tdisk_8c.html#acacec26fa7ba78bdd565596ffcd44701">td_queue_rq</a>,</div><div class="line">    .map_queue      = blk_mq_map_queue,</div><div class="line">    .init_request   = <a class="code" href="tdisk_8c.html#ab5ab4b6ac9f074e0fdc8ca2ca5125a0c">td_init_request</a>,</div><div class="line">}</div><div class="ttc" id="tdisk_8c_html_ab5ab4b6ac9f074e0fdc8ca2ca5125a0c"><div class="ttname"><a href="tdisk_8c.html#ab5ab4b6ac9f074e0fdc8ca2ca5125a0c">td_init_request</a></div><div class="ttdeci">static int td_init_request(void *data, struct request *rq, unsigned int hctx_idx, unsigned int request_idx, unsigned int numa_node)</div><div class="ttdoc">This function is called for every request before it is given to the workr thread. ...</div><div class="ttdef"><b>Definition:</b> tdisk.c:1865</div></div>
+<div class="ttc" id="tdisk_8c_html_acacec26fa7ba78bdd565596ffcd44701"><div class="ttname"><a href="tdisk_8c.html#acacec26fa7ba78bdd565596ffcd44701">td_queue_rq</a></div><div class="ttdeci">static int td_queue_rq(struct blk_mq_hw_ctx *hctx, const struct blk_mq_queue_data *bd)</div><div class="ttdoc">This function is called by the kernel for each request it reqeives. </div><div class="ttdef"><b>Definition:</b> tdisk.c:1881</div></div>
 </div><!-- fragment -->
 <p>This struct defines the functions to dispatch requests. </p>
 
@@ -2507,7 +2125,7 @@ The blocks which should be - according to performance and block access count - s
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Apr 7 2016 11:41:29 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 29 2016 16:09:41 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

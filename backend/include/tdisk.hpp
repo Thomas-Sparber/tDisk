@@ -716,6 +716,6 @@ template <> inline std::string createResultString(const tDisk &disk, unsigned in
 		throw FormatException("Invalid output-format ", outputFormat);
 }
 
-}
+} //end namespace td
 
 #endif //TDISK_HPP

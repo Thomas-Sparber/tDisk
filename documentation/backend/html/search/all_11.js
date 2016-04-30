@@ -4,7 +4,7 @@ var searchData=
   ['save',['save',['../classtd_1_1configuration.html#a9beac1a5f2baecaa9e4758a9bbc2f718',1,'td::configuration']]],
   ['score',['score',['../structdevice__combination.html#ad782174c13cf30ade287c91b74a6f6c1',1,'device_combination']]],
   ['sector',['sector',['../tdisk_8h.html#ab39ab1f8bf925362a5788d64ef0bbf69',1,'f_sector_index::sector()'],['../namespacetd_1_1c.html#a9532353f85071f36de63c3ae0bcb56ca',1,'td::c::f_sector_index::sector()']]],
-  ['sendfinishedmessage',['sendFinishedMessage',['../classtd_1_1Plugin.html#ad285f119aab7a5adb6c9776f3e034b5a',1,'td::Plugin']]],
+  ['sendfinishedmessage',['sendFinishedMessage',['../classtd_1_1Plugin.html#a85804276ce659f8f5ddca04d860d9afc',1,'td::Plugin']]],
   ['sendnlmessage',['sendNlMessage',['../namespacetd.html#a0087fafe159cffca804c6096dfc5bfdb',1,'td']]],
   ['set',['set',['../classtd_1_1HistoryBuffer.html#ad3e0fd21e2e2a00aa021627eb144d6fa',1,'td::HistoryBuffer']]],
   ['setname',['setName',['../classtd_1_1Plugin.html#a8f86c44109fbc04b416cb0eaf8e7d8a8',1,'td::Plugin']]],

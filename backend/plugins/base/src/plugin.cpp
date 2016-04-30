@@ -303,8 +303,7 @@ bool Plugin::messageReceived(uint32_t sequenceNumber, PluginOperation operation,
 	else if(operation == PluginOperation::size)
 	{
 		data = vector<char>(length);
-		if(length != sizeof(unsigned long long))cerr<<"Data type long long is not "<<length<<" bytes!"<<endl;
-		(*(unsigned long long*)(&data[0])) = getSize();
+		snprintf(&data[0], length, "%llu", getSize());
 		success = true;
 	}
 	else

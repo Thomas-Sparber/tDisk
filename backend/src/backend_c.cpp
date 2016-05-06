@@ -60,6 +60,7 @@ C_FUNCTION_IMPLEMENTATION(get_internal_devices_count)
 C_FUNCTION_IMPLEMENTATION(get_device_info)
 C_FUNCTION_IMPLEMENTATION(load_config_file)
 C_FUNCTION_IMPLEMENTATION(get_device_advice)
+C_FUNCTION_IMPLEMENTATION(get_files_at)
 
 Options* create_options()
 {

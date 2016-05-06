@@ -183,6 +183,18 @@ namespace td
 	 **/
 	BackendResult get_device_advice(const std::vector<std::string> &args, Options &options);
 
+	/**
+	  * Returns all files which are located on the given disk
+	  * at the given position
+	  * @param args:
+	  *  - Disk
+	  *  - Start in bytes
+	  *  - End in bytes
+	  * @param options: The command options (e.g. output-format)
+	  * @return An array of the files
+	 **/
+	BackendResult get_files_at(const std::vector<std::string> & args, Options &options);
+
 } //end namespace td
 
 #endif //BACKEND_HPP

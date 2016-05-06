@@ -95,6 +95,11 @@ struct BackendResult* load_config_file(int argc, char *args[], struct Options *o
  **/
 struct BackendResult* get_device_advice(int argc, char *args[], struct Options *options);
 
+/**
+  * C version of get_files_at. Look at the C++ version for more details.
+ **/
+struct BackendResult* get_files_at(int argc, char *args[], struct Options *options);
+
 /************************* Options ****************************/
 
 /**

@@ -2,7 +2,7 @@ CC=gcc
 CXX=g++
 CFLAGS=-c -g -Wall -Wextra -I../kernel_module/include -I./include -I./utils -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wunsafe-loop-optimizations -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast
 CPPFLAGS=-std=c++11 -Weffc++
-LDFLAGS=-L. -ltd-backend
+LDFLAGS=-lext2fs -L. -ltd-backend
 SOURCES= \
 	src/tdisk.c \
 	src/tdisk_fake.c \
@@ -12,6 +12,7 @@ CPP_SOURCES= \
 	src/configfile.cpp \
 	src/device.cpp \
 	src/deviceadvisor.cpp \
+	src/extinodescan.cpp \
 	src/filesystem.cpp \
 	src/backend.cpp \
 	src/main.cpp \

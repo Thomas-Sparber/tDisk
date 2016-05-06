@@ -673,3 +673,35 @@ BackendResult td::get_device_advice(const vector<string> &args, Options &options
 	
 	return std::move(r);
 }
+
+BackendResult td::get_files_at(const std::vector<std::string> & args, Options &options)
+{
+	BackendResult r;
+	if(args.size() < 3)
+	{
+		r.error(BackendResultType::general, "\"get_files_at\" needs the disk, start and end\n");
+		return std::move(r);
+	}
+
+	char *test;
+	const string &path = args[0];
+
+	unsigned long long start = strtoull(args[1].c_str(), &test, 0);
+	if(test != args[1].c_str()+ args[1].length())
+	{
+		r.error(BackendResultType::general, utils::concat(args[1]," is not a valid number for start"));
+		return std::move(r);
+	}
+
+	unsigned long long end = strtoull(args[2].c_str(), &test, 0);
+	if(test != args[2].c_str()+ args[2].length())
+	{
+		r.error(BackendResultType::general, utils::concat(args[2]," is not a valid number for end"));
+		return std::move(r);
+	}
+
+	vector<string> files = fs::getFilesOnDisk(path, start, end);
+	r.result(files, options.getOptionValue("output-format"));
+
+	return std::move(r);
+}

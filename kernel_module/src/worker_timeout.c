@@ -83,7 +83,8 @@ int kthread_worker_fn_timeout(void *worker_ptr)
 			current_timeout = MAX_SCHEDULE_TIMEOUT;
 			break;
 		case secondary_work_to_do:
-			current_timeout = data->secondary_work_delay;
+			current_timeout = 0;
+			schedule_timeout(data->secondary_work_delay);
 			break;
 		default:
 			BUG_ON(1);

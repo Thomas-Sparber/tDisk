@@ -15,7 +15,6 @@ ccflags-y := -I$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/include
 	-Wswitch-default \
 	-Wswitch-enum \
 	-Wunused \
-	-Wbool-compare \
 	-Wtype-limits \
 	-Wcast-qual \
 	-Wcast-align \

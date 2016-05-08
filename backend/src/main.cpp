@@ -12,6 +12,7 @@
 #include <map>
 
 #include <ci_string.hpp>
+#include <extinodescan.hpp>
 #include <tdisk.hpp>
 #include <backend.hpp>
 #include <backendexception.hpp>
@@ -115,7 +116,11 @@ vector<Command> commands {
 	
 	Command("get_device_advice", get_device_advice,
 		"Returns a device on how to configure a given list of devices\n"
-		"optimally. It needs all desired devices as agrument")
+		"optimally. It needs all desired devices as agrument"),
+	
+	Command("get_files_at", get_files_at,
+		"Returns all files which are located on the given disk at the given\n"
+		"position. It needs the device, start and end bytes as argument")
 };
 
 vector<string> configfiles = {
@@ -128,6 +133,8 @@ vector<string> configfiles = {
 
 string programName;
 Options options;
+
+bool extRegistered = InodeScan::registerInodeScan<ExtInodeScan>();
 
 int main(int argc, char *args[])
 {

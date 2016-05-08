@@ -30,6 +30,12 @@ namespace fs
 	 **/
 	void getDevices(std::vector<Device> &out);
 
+	/**
+	  * Returns a list of files which are stored on the given
+	  * disk at the given position
+	 **/
+	std::vector<std::string> getFilesOnDisk(const std::string &disk, unsigned long long start, unsigned long long end);
+
 } //end namespace fs
 
 } //end namespace td

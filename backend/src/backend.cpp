@@ -204,6 +204,9 @@ BackendResult td::create_tDisk(const vector<string> &args, Options &options)
 			//I don't care about the error since I'm just trying
 			//to find a suitable minornumber
 		}
+
+		//No tDisks are present yet
+		if(number == -1)number = 0;
 	}
 
 	//Perform driver operation
@@ -305,6 +308,9 @@ BackendResult td::add_tDisk(const vector<string> &args, Options &options)
 			//I don't care about the error since I'm just trying
 			//to find a suitable minornumber
 		}
+
+		//No tDisks are present yet
+		if(number == -1)number = 0;
 	}
 
 	//Perform driver operation

@@ -198,14 +198,18 @@ int tdisk_remove(int device)
 
 int tdisk_add_disk(const char *device, const char *new_disk)
 {
+	int exists;
 	int dev;
 	int ret;
 	int file;
+	struct stat info;
 	struct internal_device_add_parameters parameters;
 
 	if(!check_td_control())return -ENODEV;
 
-	file = open(new_disk, O_RDWR/* | O_SYNC | O_DIRECT*/);
+	exists = (stat(device, &info) == 0);
+
+	file = open(new_disk, O_RDWR | O_LARGEFILE/* | O_SYNC | O_DIRECT*/);
 	if(file > 0)
 	{
 		parameters.type = internal_device_type_file;
@@ -213,6 +217,8 @@ int tdisk_add_disk(const char *device, const char *new_disk)
 	}
 	else
 	{
+		if(exists)return -EACCES;
+
 		parameters.type = internal_device_type_plugin;
 	}
 	strncpy(parameters.name, new_disk, TDISK_MAX_INTERNAL_DEVICE_NAME);	//TODO??

@@ -1,6 +1,6 @@
 CC=gcc
 CXX=g++
-CFLAGS=-c -g -Wall -Wextra -I../kernel_module/include -I./include -I./utils -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wunsafe-loop-optimizations -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast
+CFLAGS=-c -g -Wall -Wextra -I../kernel_module/include -I./include -I./utils -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wunsafe-loop-optimizations -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast
 CPPFLAGS=-std=c++11 -Weffc++
 LDFLAGS=-lext2fs -L. -ltd-backend
 SOURCES= \
@@ -70,5 +70,5 @@ clean:
 	@rm -rf bin/*.o bin/*.d tdisk libtd-backend.a
 	@make -C plugins clean
 	@make -C tests clean
-	@rm share
+	@rm fileshare
 	@make -C share clean

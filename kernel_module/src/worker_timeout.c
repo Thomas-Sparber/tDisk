@@ -68,23 +68,27 @@ int kthread_worker_fn_timeout(void *worker_ptr)
 	if(unlikely(work && work->func))
 	{
 		//Flush operation
+		__set_current_state(TASK_RUNNING);
 		BUG_ON(work->func != &kthread_flush_work_fn_timeout);
 		work->func(work);
 	}
 	else if(work || current_timeout == 0)
 	{
+		//if(!work)printk(KERN_DEBUG "tDisk worker: no work to do, timeout %d/%d\n", current_timeout, data->timeout);
 		__set_current_state(TASK_RUNNING);
 		switch(data->work_func(data->private_data, work))
 		{
 		case next_primary_work:
 			current_timeout = data->timeout;
 			break;
+		case secondary_work_to_do:
+			//printk(KERN_DEBUG "tDisk worker: No more primary work\n");
+			current_timeout = 0;
+			set_current_state(TASK_INTERRUPTIBLE);
+			schedule_timeout(data->secondary_work_delay);
+			break;
 		case secondary_work_finished:
 			current_timeout = MAX_SCHEDULE_TIMEOUT;
-			break;
-		case secondary_work_to_do:
-			current_timeout = 0;
-			schedule_timeout(data->secondary_work_delay);
 			break;
 		default:
 			BUG_ON(1);
@@ -92,7 +96,11 @@ int kthread_worker_fn_timeout(void *worker_ptr)
 		}
 	}
 	else if(!freezing(current))
+	{
+		//printk(KERN_DEBUG "tDisk worker: sleeping %d jiffies\n", current_timeout);
 		current_timeout = schedule_timeout(current_timeout);
+		//printk(KERN_DEBUG "tDisk worker: woke up, %d jiffies left\n", current_timeout);
+	}
 
 	try_to_freeze();
 	goto repeat;

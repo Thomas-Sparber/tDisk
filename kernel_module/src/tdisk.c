@@ -15,7 +15,7 @@
 #define COMPARE 1410
 
 #define DEFAULT_WORKER_TIMEOUT (5*HZ)
-#define DEFAULT_SECONDARY_WORK_DELAY 1
+#define DEFAULT_SECONDARY_WORK_DELAY (1*HZ)
 
 /**
   * Actual internal device calculated using memory offset
@@ -1336,6 +1336,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	{
 #ifdef USE_FILES
 	case internal_device_type_file:
+		printk(KERN_INFO "tDisk: Adding new internal device file: %s (Path: %s)\n", new_device.name, new_device.path);
 		error = -EBADF;
 		file = fget(parameters.fd);
 		if(!file)goto out;
@@ -1357,6 +1358,8 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 
 #ifdef USE_PLUGINS
 	case internal_device_type_plugin:
+		printk(KERN_INFO "tDisk: Adding new internal device plugin: %s (Path: %s)\n", new_device.name, new_device.path);
+
 		//Plugin size in bytes
 		size = plugin_get_size(new_device.name);
 		break;
@@ -1837,7 +1840,7 @@ static int td_start_worker_thread(struct tdisk *td)
 	init_kthread_worker(&td->worker_timeout.worker);
 	td->worker_timeout.private_data = td;
 	td->worker_timeout.timeout = DEFAULT_WORKER_TIMEOUT;
-	td->worker_timeout.timeout = DEFAULT_SECONDARY_WORK_DELAY;
+	td->worker_timeout.secondary_work_delay = DEFAULT_SECONDARY_WORK_DELAY;
 	td->worker_timeout.work_func = &td_queue_work;
 	td->worker_task = kthread_run(kthread_worker_fn_timeout, &td->worker_timeout, "td%d", td->number);
 

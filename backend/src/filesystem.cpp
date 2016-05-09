@@ -218,108 +218,45 @@ vector<string> fs::getFilesOnDisk(const string &disk, unsigned long long start, 
 		result.push_back(i->getPath(parent));
 	}
 
-#if 0
-	struct block_walk_struct bw;
-	struct block_info	*binfo;
-	int			i;
-	ext2_inode_scan		scan = 0;
-	ext2_ino_t		ino;
-	struct ext2_inode	inode;
-	errcode_t		retval;
-	char			*block_buf;
+	return std::move(result);
+}
 
-	if (check_fs_open(argv[0]))
-		return;
+void fs::iterateFiles(const string &disk, function<bool(unsigned int, const string&, unsigned long long, const vector<unsigned long long>&)> callback)
+{
+	unique_ptr<InodeScan> scan(InodeScan::getInodeScan(disk));
+	unique_ptr<Inode> inode(scan->getInitialInode());
 
-	/*bw.barray = malloc(sizeof(struct block_info) * argc);
-	if (!bw.barray) {
-		com_err("icheck", ENOMEM,
-			"while allocating inode info array");
-		return;
-	}
-	memset(bw.barray, 0, sizeof(struct block_info) * argc);
+	unsigned int blocksize = scan->getBlocksize();
 
-	block_buf = malloc(current_fs->blocksize * 3);
-	if (!block_buf) {
-		com_err("icheck", ENOMEM, "while allocating block buffer");
-		goto error_out;
-	}
+	list<unique_ptr<Inode> > directories;
 
-	for (i=1; i < argc; i++) {
-		if (strtoblk(argv[0], argv[i], NULL, &bw.barray[i-1].blk))
-			goto error_out;
-	}
+	unsigned long long inodeBlock;
+	vector<unsigned long long> dataBlocks;
+	while(scan->nextInode(inode.get()))
+	{
+		Inode *parent = nullptr;
+		inodeBlock = inode->getInodeBlock();
+		inode->getDataBlocks(dataBlocks);
 
-	bw.num_blocks = bw.blocks_left = argc-1;*/
-
-	retval = ext2fs_open_inode_scan(current_fs, 0, &scan);
-	if(retval)throw BackendException("Error while opening inode scan:",retval);
-
-	do {
-		retval = ext2fs_get_next_inode(scan, &ino, &inode);
-	} while (retval == EXT2_ET_BAD_BLOCK_IN_INODE_TABLE);
-	if (retval)throw BackendException("Error while starting inode scan: ",retval);
-
-	while (ino) {
-		blk64_t blk;
-
-		if(inode.i_links_count)
+		if(inode->isDirectory())
 		{
-			bw.inode = ino;
-
-			blk = ext2fs_file_acl_block(current_fs, &inode);
-			if(blk)
+			directories.emplace_back(inode->clone());
+		}
+		else
+		{
+			for(const auto &directory : directories)
 			{
-				icheck_proc(current_fs, &blk, 0, 0, 0, &bw);
-				if (bw.blocks_left == 0)break;
-				ext2fs_file_acl_block_set(current_fs, &inode, blk);
-			}
-
-			if (ext2fs_inode_has_valid_blocks2(current_fs, &inode))
-			{
-				/*
-				 * To handle filesystems touched by 0.3c extfs; can be
-				 * removed later.
-				 */
-				if (!inode.i_dtime)
+				if(directory->contains(inode.get()))
 				{
-					retval = ext2fs_block_iterate3(current_fs, ino,
-									   BLOCK_FLAG_READ_ONLY, block_buf,
-									   icheck_proc, &bw);
-					/*if (retval) {
-						com_err("icheck", retval,
-							"while calling ext2fs_block_iterate");
-						goto next;
-					}
-
-					if (bw.blocks_left == 0)
-						break;*/
+					parent = directory.get();
+					break;
 				}
 			}
 		}
 
-		do {
-			retval = ext2fs_get_next_inode(scan, &ino, &inode);
-		} while (retval == EXT2_ET_BAD_BLOCK_IN_INODE_TABLE);
-		if (retval) {
-			com_err("icheck", retval,
-				"while doing inode scan");
-			goto error_out;
-		}
+		bool cont = callback(blocksize, inode->getPath(parent), inodeBlock, dataBlocks);
+		if(!cont)break;
 	}
-
-	for (i=0, binfo = bw.barray; i < bw.num_blocks; i++, binfo++) {
-		if (binfo->ino == 0) {
-			printf("%llu\t<block not found>\n", binfo->blk);
-			continue;
-		}
-		printf("%llu\t%u\n", binfo->blk, binfo->ino);
-	}
-
-	if (scan)ext2fs_close_inode_scan(scan);
-#endif
-
-	return std::move(result);
 }
 
 #else

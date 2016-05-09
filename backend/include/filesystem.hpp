@@ -9,6 +9,7 @@
 #define FILESYSTEM_HPP
 
 #include <algorithm>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -35,6 +36,13 @@ namespace fs
 	  * disk at the given position
 	 **/
 	std::vector<std::string> getFilesOnDisk(const std::string &disk, unsigned long long start, unsigned long long end);
+
+	/**
+	  * This function iterates over all files on the given filesystem
+	  * and calls callback for every file. The callback takes
+	  * the blocksize, filename, file index block and data blocks
+	 **/
+	void iterateFiles(const std::string &disk, std::function<bool(unsigned int, const std::string&, unsigned long long, const std::vector<unsigned long long>&)> callback);
 
 } //end namespace fs
 

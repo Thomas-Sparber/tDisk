@@ -9,7 +9,7 @@ make_backend:
 
 disks:
 	sudo dd if=/dev/zero of=slow_disk bs=1M count=256
-	sudo dd if=/dev/zero of=big_disk bs=1M count=1024
+	sudo dd if=/dev/zero of=big_disk bs=1M count=4096
 	sudo dd if=/dev/zero of=other_disk bs=1M count=384
 
 web_interface/tdisk: backend/tdisk

@@ -9,6 +9,7 @@
 #define INODE_HPP
 
 #include <string>
+#include <memory>
 #include <vector>
 
 namespace td
@@ -40,6 +41,15 @@ public:
 	virtual bool isDirectory() const = 0;
 
 	virtual bool contains(const Inode *inode) const = 0;
+
+	std::vector<std::unique_ptr<Inode> > getContent() const
+	{
+		std::vector<std::unique_ptr<Inode> > ret;
+		getContent(ret);
+		return std::move(ret);
+	}
+
+	virtual void getContent(std::vector<std::unique_ptr<Inode> > &out) const = 0;
 
 }; //end class Inode
 

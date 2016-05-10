@@ -155,7 +155,7 @@ vector<string> fs::getFilesOnDisk(const string &disk, unsigned long long start, 
 {
 	vector<string> result;
 
-	unique_ptr<InodeScan> scan(InodeScan::getInodeScan(disk));
+	/*unique_ptr<InodeScan> scan(InodeScan::getInodeScan(disk));
 	if(!scan)return result;
 
 	unique_ptr<Inode> inode(scan->getInitialInode());
@@ -216,7 +216,30 @@ vector<string> fs::getFilesOnDisk(const string &disk, unsigned long long start, 
 		}
 
 		result.push_back(i->getPath(parent));
-	}
+	}*/
+
+	auto checkBlock = [start,end](unsigned int blocksize, unsigned long long block)
+	{
+		return (block*blocksize >= start && block*blocksize <= end);
+	};
+	auto checkBlocks = [checkBlock](unsigned int blocksize, const vector<unsigned long long> &blocks)
+	{
+		for(unsigned long long block : blocks)
+		{
+			if(checkBlock(blocksize, block))return true;
+		}
+		return false;
+	};
+
+	iterateFiles(disk, [&result,checkBlock,checkBlocks](unsigned int blocksize, const string &file, unsigned long long inodeBlock, const vector<unsigned long long> &dataBlocks)
+	{
+		if(checkBlock(blocksize, inodeBlock) || checkBlocks(blocksize, dataBlocks))
+		{
+			result.push_back(file);
+		}
+
+		return true;
+	});
 
 	return std::move(result);
 }
@@ -240,7 +263,7 @@ void fs::iterateFiles(const string &disk, function<bool(unsigned int, const stri
 
 		if(inode->isDirectory())
 		{
-			directories.emplace_back(inode->clone());
+			directories.emplace_front(inode->clone());
 		}
 		else
 		{

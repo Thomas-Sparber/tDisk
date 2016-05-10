@@ -8,6 +8,7 @@
 #ifndef EXTINODE_HPP
 #define EXTINODE_HPP
 
+#include <algorithm>
 #include <ext2fs/ext2_fs.h>
 #include <ext2fs/ext2fs.h>
 
@@ -46,6 +47,13 @@ static inline int ext_helper_lookup(struct ext2_dir_entry *dirent, int /*offset*
 	return 0;
 }
 
+static inline int ext_helper_get_content(struct ext2_dir_entry *dirent, int /*offset*/, int /*blocksize*/, char */*buf*/, void *data)
+{
+	std::vector<ext2_ino_t> &out = *(std::vector<ext2_ino_t>*)data;
+	out.push_back(dirent->inode);
+	return 0;
+}
+
 class ExtInode : public Inode
 {
 
@@ -54,7 +62,9 @@ public:
 		Inode(),
 		fs(e_fs),
 		ino(0),
-		inode()
+		inode(),
+		contentRetrieved(false),
+		content()
 	{}
 
 	ExtInode(const ExtInode &other) = default;
@@ -74,19 +84,12 @@ public:
 
 	virtual unsigned long long getInodeBlock() const
 	{
-		//if (!inode.i_links_count)
-		//	goto next;
-
-		blk64_t blk = ext2fs_file_acl_block(fs, &inode);
-		//if(blk)ext2fs_file_acl_block_set(current_fs, &inode, blk);
-		return blk;
+		return ext2fs_file_acl_block(fs, &inode);
 	}
 
 	virtual void getDataBlocks(std::vector<unsigned long long> &out) const
 	{
 		if(!ext2fs_inode_has_valid_blocks2(fs, const_cast<ext2_inode*>(&inode)))return;
-
-		//if(inode.i_dtime)return;
 
 		std::vector<char> block_buf(fs->blocksize * 3);
 		ext2fs_block_iterate3(fs, ino, BLOCK_FLAG_READ_ONLY, &block_buf[0], ext_helper_save_blocks, &out);
@@ -97,10 +100,8 @@ public:
 		char *name;
 		const ExtInode *parent = reinterpret_cast<const ExtInode*>(p);
 
-		if(parent)
-			ext2fs_get_pathname(fs, parent->ino, ino, &name);
-		else
-			ext2fs_get_pathname(fs, ino, 0, &name);
+		if(parent)ext2fs_get_pathname(fs, parent->ino, ino, &name);
+		else ext2fs_get_pathname(fs, ino, 0, &name);
 
 		return name;
 	}
@@ -110,21 +111,42 @@ public:
 		return LINUX_S_ISDIR(inode.i_mode);
 	}
 
+	void retrieveContent() const
+	{
+		ext2fs_dir_iterate(fs, ino, 0, nullptr, ext_helper_get_content, &content);
+		contentRetrieved = true;
+	}
+
 	virtual bool contains(const Inode *i) const
 	{
 		const ExtInode *converted = reinterpret_cast<const ExtInode*>(i);
 		if(!isDirectory())return false;
+		if(!contentRetrieved)retrieveContent();
 
-		ext_helper_lookup_struct helper(converted->ino);
-		ext2fs_dir_iterate(fs, ino, 0, nullptr, ext_helper_lookup, &helper);
+		return (std::find(content.cbegin(), content.cend(), converted->ino) != content.cend());
+	}
 
-		return helper.found;
+	virtual void getContent(std::vector<std::unique_ptr<Inode> > &out) const
+	{
+		if(!isDirectory())return;
+		if(!contentRetrieved)retrieveContent();
+
+		for(ext2_ino_t i: content)
+		{
+			ExtInode *c = new ExtInode(fs);
+			c->ino = i;
+			ext2fs_read_inode(fs, i, &c->inode);
+			out.emplace_back(c);
+		}
 	}
 
 public:
 	ext2_filsys fs;
 	ext2_ino_t ino;
 	struct ext2_inode inode;
+
+	mutable bool contentRetrieved;
+	mutable std::vector<ext2_ino_t> content;
 
 }; //end class ExtInode
 

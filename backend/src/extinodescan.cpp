@@ -88,10 +88,16 @@ bool ExtInodeScan::nextInode(Inode *iterator) const
 
 	do
 	{
-		retval = ext2fs_get_next_inode(scan, &inode->ino, &inode->inode);
+		do
+		{
+			retval = ext2fs_get_next_inode(scan, &inode->ino, &inode->inode);
+		}
+		while(retval == EXT2_ET_BAD_BLOCK_IN_INODE_TABLE);
 	}
-	while(retval == EXT2_ET_BAD_BLOCK_IN_INODE_TABLE);
+	while((!inode->inode.i_links_count || inode->inode.i_dtime) && (!retval && inode->ino));
 
+	inode->contentRetrieved = false;
+	inode->content.clear();
 	return ((!retval) && (inode->ino));
 }
 

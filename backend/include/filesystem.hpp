@@ -14,6 +14,7 @@
 #include <vector>
 
 #include <device.hpp>
+#include <fileassignment.hpp>
 
 namespace td
 {
@@ -35,7 +36,7 @@ namespace fs
 	  * Returns a list of files which are stored on the given
 	  * disk at the given position
 	 **/
-	std::vector<std::string> getFilesOnDisk(const std::string &disk, unsigned long long start, unsigned long long end);
+	std::vector<FileAssignment> getFilesOnDisk(const std::string &disk, const std::vector<std::pair<unsigned long long,unsigned long long> > &positions, bool calculatePercentage);
 
 	/**
 	  * This function iterates over all files on the given filesystem

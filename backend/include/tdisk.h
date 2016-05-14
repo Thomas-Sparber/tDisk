@@ -171,6 +171,11 @@ int tdisk_get_max_sectors(const char *device, uint64_t *out);
 int tdisk_get_size_bytes(const char *device, uint64_t *out);
 
 /**
+  * Gets the blocksize for the given tDisk
+ **/
+int tdisk_get_blocksize(const char *device, uint32_t *out);
+
+/**
   * Gets information about the given sector index
  **/
 int tdisk_get_sector_index(const char *device, uint64_t logical_sector, struct f_sector_index *out);

@@ -193,7 +193,18 @@ namespace td
 	  * @param options: The command options (e.g. output-format)
 	  * @return An array of the files
 	 **/
-	BackendResult get_files_at(const std::vector<std::string> & args, Options &options);
+	BackendResult get_files_at(const std::vector<std::string> &args, Options &options);
+
+	/**
+	  * Returns all files which are located on the given internal device
+	  * of the given tDisk
+	  * @param args:
+	  *  - Disk
+	  *  - Internal device index
+	  * @param options: The command options (e.g. output-format)
+	  * @return An array of the files
+	 **/
+	BackendResult get_files_on_disk(const std::vector<std::string> &args, Options &options);
 
 } //end namespace td
 

@@ -100,6 +100,11 @@ struct BackendResult* get_device_advice(int argc, char *args[], struct Options *
  **/
 struct BackendResult* get_files_at(int argc, char *args[], struct Options *options);
 
+/**
+  * C version of get_files_on_disk. Look at the C++ version for more details.
+ **/
+struct BackendResult* get_files_on_disk(int argc, char *args[], struct Options *options);
+
 /************************* Options ****************************/
 
 /**

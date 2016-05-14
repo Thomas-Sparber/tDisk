@@ -9,16 +9,22 @@
 #include <iostream>
 #include <typeinfo>
 
+#include <backend.hpp>
+#include <backendexception.hpp>
 #include <configfile.hpp>
 #include <device.hpp>
 #include <deviceadvisor.hpp>
-#include <backend.hpp>
-#include <backendexception.hpp>
+#include <fileassignment.hpp>
+#include <logger.hpp>
+#include <performance.hpp>
 #include <resultformatter.hpp>
 #include <tdisk.hpp>
 #include <utils.hpp>
 
 using std::find;
+using std::make_pair;
+using std::pair;
+using std::sort;
 using std::string;
 using std::swap;
 using std::vector;
@@ -706,8 +712,82 @@ BackendResult td::get_files_at(const std::vector<std::string> & args, Options &o
 		return std::move(r);
 	}
 
-	vector<string> files = fs::getFilesOnDisk(path, start, end);
-	r.result(files, options.getOptionValue("output-format"));
+	vector<FileAssignment> files = fs::getFilesOnDisk(path, { { start, end } }, false);
 
+	performance::start("r.result");
+	r.result(files, options.getOptionValue("output-format"));
+	performance::stop("r.result");
+
+	return std::move(r);
+}
+
+BackendResult td::get_files_on_disk(const vector<string> &args, Options &options)
+{
+	BackendResult r;
+	if(args.empty())
+	{
+		r.error(BackendResultType::general, "\"get_files_on_disk\" needs the td device and the internal device");
+		return std::move(r);
+	}
+
+	char *test;
+	unsigned int device = strtol(args[1].c_str(), &test, 0);
+	if(test != args[1].c_str()+args[1].length())
+	{
+		r.error(BackendResultType::general, utils::concat(args[1]," is not a valid number for an internal device"));
+		return std::move(r);
+	}
+
+	tDisk d;
+	vector<f_sector_info> sectorIndices;
+
+	performance::start("getAllSectorIndices");
+	try {
+		d = tDisk::get(args[0]);
+		sectorIndices = d.getAllSectorIndices();
+	} catch (const tDiskException &e) {
+		r.error(BackendResultType::driver, e.what());
+		return std::move(r);
+	}
+	performance::stop("getAllSectorIndices");
+
+	//auto newEnd = remove_if(sectorIndices.begin(), sectorIndices.end(), [device](const f_sector_info &info) { return info.physical_sector.disk != device });
+	//sectorIndices.erase(newEnd, sectorIndices.end());
+
+	performance::start("sortSectorIndices");
+	sort(sectorIndices.begin(), sectorIndices.end(), [](const f_sector_info &a, const f_sector_info &b)
+	{
+		return a.logical_sector < b.logical_sector;
+	});
+	performance::stop("sortSectorIndices");
+
+	LOG(LogLevel::debug, d.getPath(),": ",sectorIndices.size()," initial sectors");
+
+	unsigned int blocksize = d.getBlocksize();
+	vector<pair<unsigned long long,unsigned long long> > positions;
+	for(const f_sector_info &info : sectorIndices)
+	{
+		if(info.physical_sector.disk == device)
+		{
+			if(!positions.empty() && info.logical_sector*blocksize == positions.back().first)
+				positions.back().second = (info.logical_sector+1)*blocksize;
+			else
+				positions.push_back(make_pair(info.logical_sector*blocksize, (info.logical_sector+1)*blocksize));
+		}
+	}
+
+	LOG(LogLevel::debug, d.getPath(),": ",positions.size()," sectors after sorting and combining");
+
+	vector<FileAssignment> files = fs::getFilesOnDisk(d.getPath(), positions, false);
+
+	performance::start("sortFiles");
+	sort(files.begin(), files.end(), [](const FileAssignment &a, const FileAssignment &b)
+	{
+		return a.percentage < b.percentage;
+	});
+	performance::stop("sortFiles");
+
+	r.result(files, options.getOptionValue("output-format"));
+	
 	return std::move(r);
 }

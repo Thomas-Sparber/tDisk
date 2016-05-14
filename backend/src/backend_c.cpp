@@ -61,6 +61,7 @@ C_FUNCTION_IMPLEMENTATION(get_device_info)
 C_FUNCTION_IMPLEMENTATION(load_config_file)
 C_FUNCTION_IMPLEMENTATION(get_device_advice)
 C_FUNCTION_IMPLEMENTATION(get_files_at)
+C_FUNCTION_IMPLEMENTATION(get_files_on_disk)
 
 Options* create_options()
 {

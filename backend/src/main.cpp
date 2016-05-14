@@ -120,7 +120,11 @@ vector<Command> commands {
 	
 	Command("get_files_at", get_files_at,
 		"Returns all files which are located on the given disk at the given\n"
-		"position. It needs the device, start and end bytes as argument")
+		"position. It needs the device, start and end bytes as argument"),
+	
+	Command("get_files_on_disk", get_files_on_disk,
+		"Returns all files which are located on the given internal device of\n"
+		"the given tDisk. It needs the tDisk, and device index as argument")
 };
 
 vector<string> configfiles = {

@@ -313,6 +313,14 @@ public:
 	}
 
 	/**
+	  * Returns the path of the tDisk
+	 **/
+	std::string getPath() const
+	{
+		return name;
+	}
+
+	/**
 	  * Returns the minornumber of the tDisk
 	 **/
 	int getMinornumber() const
@@ -434,6 +442,26 @@ public:
 
 		online = true;
 		return sizeBytes;
+	}
+
+	/**
+	  * Returns the current size in bytes
+	 **/
+	unsigned int getBlocksize() const
+	{
+		uint32_t blocksize;
+		int ret = c::tdisk_get_blocksize(name.c_str(), &blocksize);
+
+		try {
+			handleError(ret);
+		} catch (const tDiskOfflineException &e) {
+			throw tDiskOfflineException("Can't get blocksize for tDisk ", name, ": ", e.what());
+		} catch (const tDiskException &e) {
+			throw tDiskException("Can't get blocksize for tDisk ", name, ": ", e.what());
+		}
+
+		online = true;
+		return blocksize;
 	}
 
 	/**

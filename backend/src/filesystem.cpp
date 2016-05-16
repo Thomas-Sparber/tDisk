@@ -172,7 +172,7 @@ vector<FileAssignment> fs::getFilesOnDisk(const string &disk, const vector<pair<
 
 		unsigned long long start;
 		unsigned long long end;
-	}
+	};
 
 	performance::start("getFilesOnDisk");
 	iterateFiles(disk, [&result,positions,calculatePercentage](unsigned int blocksize, const string &file, unsigned long long inodeBlock, const vector<unsigned long long> &dataBlocks)

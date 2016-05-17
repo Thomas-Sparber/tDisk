@@ -423,8 +423,8 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	int ret;
 	loff_t pos_a = (loff_t)a->sector * td->blocksize;
 	loff_t pos_b = (loff_t)b->sector * td->blocksize;
-	u8 *buffer_a = kmalloc(td->blocksize, GFP_KERNEL);
-	u8 *buffer_b = kmalloc(td->blocksize, GFP_KERNEL);
+	u8 *buffer_a = vmalloc(td->blocksize);
+	u8 *buffer_b = vmalloc(td->blocksize);
 	if(!buffer_a || !buffer_b)return;
 
 	//Reading blocks from both disks
@@ -457,8 +457,8 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
  out_err:
 	printk(KERN_WARNING "tDisk: Error swapping sectors %llu and %llu\n", logical_a, logical_b);
  out:
-	kfree(buffer_a);
-	kfree(buffer_b);
+	vfree(buffer_a);
+	vfree(buffer_b);
 }
 
 #ifdef MOVE_SECTORS

@@ -16,6 +16,7 @@
 #include <tdisk.hpp>
 #include <backend.hpp>
 #include <backendexception.hpp>
+#include <shell.hpp>
 #include <utils.hpp>
 
 using std::cerr;
@@ -142,6 +143,8 @@ bool extRegistered = InodeScan::registerInodeScan<ExtInodeScan>();
 
 int main(int argc, char *args[])
 {
+	shell::runTestCommand();
+
 	programName = args[0];
 	options = getDefaultOptions();
 

@@ -5,6 +5,8 @@
   *
  **/
 
+#ifdef __linux__
+
 #ifndef EXTINODE_HPP
 #define EXTINODE_HPP
 
@@ -153,3 +155,5 @@ public:
 } //end namespace td
 
 #endif //EXTINODE_HPP
+
+#endif //__linux__

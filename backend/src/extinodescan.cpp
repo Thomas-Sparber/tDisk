@@ -5,6 +5,8 @@
   *
  **/
 
+#ifdef __linux__
+
 #include <extinodescan.hpp>
 
 using std::string;
@@ -105,3 +107,5 @@ unsigned int ExtInodeScan::getBlocksize() const
 {
 	return fs->blocksize;
 }
+
+#endif //__linux__

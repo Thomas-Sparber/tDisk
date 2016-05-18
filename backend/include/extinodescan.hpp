@@ -4,6 +4,8 @@
   * @author Thomas Sparber (2015-2016)
   *
  **/
+ 
+#ifdef __linux__
 
 #ifndef EXTINODESCAN_HPP
 #define EXTINODESCAN_HPP
@@ -60,3 +62,5 @@ private:
 } //end namespace td
 
 #endif //EXTINODESCAN_HPP
+
+#endif //__linux__

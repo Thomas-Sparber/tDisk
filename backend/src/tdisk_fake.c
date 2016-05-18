@@ -80,6 +80,14 @@ int tdisk_get_size_bytes(const char *device, uint64_t *out)
 	return 0;
 }
 
+int tdisk_get_blocksize(const char *device, uint32_t *out)
+{
+	UNUSED(device);
+
+	(*out) = 16384;
+	return 0;
+}
+
 int tdisk_get_sector_index(const char *device, uint64_t logical_sector, struct f_sector_index *out)
 {
 	UNUSED(device);

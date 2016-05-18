@@ -68,7 +68,7 @@ namespace performance
 
 	inline double stop(const std::string &what)
 	{
-		if(!measurePerformance)return 0;
+		if(!measurePerformance())return 0;
 
 		auto found = currentMeasures().find(PerformanceIndex(what, std::this_thread::get_id()));
 

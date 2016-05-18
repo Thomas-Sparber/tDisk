@@ -67,6 +67,49 @@ namespace td
 		}
 
 		/**
+		  * Helper function to concat variables using quotes
+		 **/
+		template <class S>
+		inline void concatQuoted(std::stringstream &ss, const S &s)
+		{
+			ss<<"\""<<s<<"\" ";
+		}
+
+		/**
+		  * Helper function to concat variables using quotes
+		 **/
+		template <class T>
+		inline void concatQuoted(std::stringstream &ss, const std::vector<T> &v)
+		{
+			for(const T &t : v)
+				concatQuoted(ss, t);
+		}
+
+		/**
+		  * Helper function to concat variables using quotes
+		 **/
+		template <class S, class ...T>
+		inline void concatQuoted(std::stringstream &ss, const S &s, T ...t)
+		{
+			concatQuoted(ss, s);
+			concatQuoted(ss, t...);
+		}
+
+		/**
+		  * Cancats any kind of data into a single string.
+		  * Every argument is quoted and separated by a space
+		 **/
+		template <class ...T>
+		inline std::string concatQuoted(T ...t)
+		{
+			std::stringstream ss;
+			concatQuoted(ss, t...);
+			const std::string &result = ss.str();
+			if(result.empty())return result;
+			return result.substr(0, result.length()-1);
+		}
+
+		/**
 		  * Fills the given vector with random chars
 		 **/
 		inline void generateRandomData(std::vector<char> &data)
@@ -251,6 +294,28 @@ namespace td
 
 			while(std::getline(ss, item, delimiter))
 				if(useEmpty || !item.empty())out.push_back(item);
+		}
+
+		/**
+		  * Splits the string using the given delimiter
+		  * and stores the result in out
+		 **/
+		template <template<class ...T> class cont>
+		void split(const std::string& toSplit, const std::string &delimiter, cont<std::string> &out, bool useEmpty=true)
+		{
+			std::size_t lastPos = 0;
+
+			while(true)
+			{
+				std::size_t pos = toSplit.find(delimiter, lastPos);
+
+				const std::string &item = toSplit.substr(lastPos, pos);
+				if(useEmpty || !item.empty())out.push_back(item);
+
+				if(pos == std::string::npos)break;
+
+				lastPos = pos + delimiter.length();
+			}
 		}
 
 		/**

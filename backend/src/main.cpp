@@ -13,6 +13,7 @@
 
 #include <ci_string.hpp>
 #include <extinodescan.hpp>
+#include <inodescanfake.hpp>
 #include <tdisk.hpp>
 #include <backend.hpp>
 #include <backendexception.hpp>
@@ -139,7 +140,12 @@ vector<string> configfiles = {
 string programName;
 Options options;
 
+//The ext filesystem is only available on linux
+#ifdef __linux__
 bool extRegistered = InodeScan::registerInodeScan<ExtInodeScan>();
+#else
+bool extRegistered = InodeScan::registerInodeScan<InodeScanFake>();
+#endif //__linux__
 
 int main(int argc, char *args[])
 {

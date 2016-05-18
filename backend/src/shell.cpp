@@ -22,6 +22,13 @@ string getCommandPath(const string &command)
 	return utils::concat("scripts/",command,".sh");
 }
 
+#else
+
+string getCommandPath(const string &command)
+{
+	return utils::concat("scripts\\",command,".bat");
+}
+
 #endif //__linux__
 
 vector<unique_ptr<ShellObjectBase> > shell::execute_internal(const ShellCommand &command, const string &args)

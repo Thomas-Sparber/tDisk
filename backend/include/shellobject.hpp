@@ -145,7 +145,7 @@ namespace shell
 
 			for(std::size_t i = 0; i < splitted.size(); ++i)
 			{
-				BaseRetValue &v = getRetValue(i+1, retValues);
+				BaseRetValue &v = getRetValue((int)(i+1), retValues);
 				v.setValue(splitted[i]);
 			}
 		}

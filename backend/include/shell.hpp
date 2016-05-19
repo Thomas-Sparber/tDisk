@@ -18,30 +18,79 @@
 namespace td
 {
 
+/**
+  * The shell namespace contains functions to execute scripts
+  * on the filesystem and parse their result
+ **/
 namespace shell
 {
 
+	/**
+	  * A Shell command is identified by a command string
+	  * and a result object
+	 **/
 	struct ShellCommand
 	{
+		/**
+		  * Constructs a ShellCommand using a string identifier
+		  * and a return object
+		 **/
 		ShellCommand(const std::string &str_command, const ShellObjectBase &so_ret) :
 			command(str_command),
 			ret(so_ret.clone())
 		{}
 
+		/**
+		  * The string identifier of the command
+		 **/
 		std::string command;
+
+		/**
+		  * The return object of the command
+		 **/
 		std::unique_ptr<ShellObjectBase> ret;
+
 	}; //end struct ShellCommand
 
+	/**
+	  * This function must be called before executing any Shell commands.
+	  * The argument executable must be the name of the current program
+	 **/
+	void initShell(const char *executable);
+
+	/**
+	  * This function is called internally to execute
+	  * the geven command with the given arguments
+	 **/
 	std::vector<std::unique_ptr<ShellObjectBase> > execute_internal(const ShellCommand &command, const std::string &args);
 
+	/**
+	  * Executes the given command with an arbitrary
+	  * amount of arguments. The result is the parsed
+	  * return value
+	 **/
 	template <class ...Args>
 	std::vector<std::unique_ptr<ShellObjectBase> > execute(const ShellCommand &command, Args ...args)
 	{
 		return  execute_internal(command, utils::concatQuoted(args...));
 	}
 
+	/**
+	  * The test command which can be used to test the
+	  * functionality of the shell
+	 **/
 	const ShellCommand TestCommand("test", TestResult());
 
+	/**
+	  * The command which executes the tasks which are needed
+	  * after creating a tDisk
+	 **/
+	const ShellCommand tDiskPostCreateCommand("tdisk-post-create", tDiskPostCreateResult());
+
+	/**
+	  * This function calls the test command and checks its
+	  * return type to see if the shell is working properly
+	 **/
 	inline bool runTestCommand()
 	{
 		std::vector<std::unique_ptr<ShellObjectBase> > result = execute(TestCommand, 5, 7, 2);

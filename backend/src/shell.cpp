@@ -15,21 +15,48 @@ using std::vector;
 using namespace td;
 using namespace shell;
 
+bool initialized = false;
+string executable;
+
 #ifdef __linux__
 
+/**
+  * Builds the command path on linux
+ **/
 string getCommandPath(const string &command)
 {
-	return utils::concat("scripts/",command,".sh");
+	if(!initialized)
+	{
+		LOG(LogLevel::warn, "Shell is not initialized");
+		return utils::concatPath("scripts",(command+".sh"));		
+	}
+
+	return utils::concatPath(executable,"scripts",(command+".sh"));
 }
 
 #else
 
+/**
+  * Builds the command path on windows
+ **/
 string getCommandPath(const string &command)
 {
-	return utils::concat("scripts\\",command,".bat");
+	if(!initialized)
+	{
+		LOG(LogLevel::warn, "Shell is not initialized");
+		return utils::concatPath("scripts",(command+".bat"));		
+	}
+
+	return utils::concatPath(executable,"scripts",(command+".bat"));
 }
 
 #endif //__linux__
+
+void shell::initShell(const char *c_executable)
+{
+	initialized = true;
+	executable = utils::dirnameOf(c_executable, c_executable);
+}
 
 vector<unique_ptr<ShellObjectBase> > shell::execute_internal(const ShellCommand &command, const string &args)
 {

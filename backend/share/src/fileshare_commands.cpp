@@ -49,7 +49,7 @@ BackendResult td::list_fileshare(const vector<string> &args, Options &options)
 	return std::move(res);
 }
 
-BackendResult td::create(const vector<string> &args, Options &options)
+BackendResult td::create(const vector<string> &args, Options &/*options*/)
 {
 	BackendResult res;
 
@@ -63,12 +63,13 @@ BackendResult td::create(const vector<string> &args, Options &options)
 	if(args.size() == 2)share = Fileshare::create(args[0], args[1]);
 	else share = Fileshare::create(args[0], args[1], args[2]);
 
-	res.result(share, options.getOptionValue("output-format"));
+	//res.result("", options.getOptionValue("output-format"));
+	res.message(BackendResultType::general, utils::concat("Fileshare ",share.getName()," created successfully"));
 
 	return std::move(res);
 }
 
-BackendResult td::remove_fileshare(const vector<string> &args, Options &options)
+BackendResult td::remove_fileshare(const vector<string> &args, Options &/*options*/)
 {
 	BackendResult res;
 

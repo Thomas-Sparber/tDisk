@@ -60,5 +60,6 @@ fi
 
 #Create data directory
 mkdir -p $mountpoint/data
+chmod 777 $mountpoint/data
 
 echo $mountpoint/data

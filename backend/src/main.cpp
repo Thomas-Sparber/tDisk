@@ -126,7 +126,12 @@ vector<Command> commands {
 	
 	Command("get_files_on_disk", get_files_on_disk,
 		"Returns all files which are located on the given internal device of\n"
-		"the given tDisk. It needs the tDisk, and device index as argument")
+		"the given tDisk. It needs the tDisk, and device index as argument"),
+	
+	Command("tdisk_post_create", tdisk_post_create,
+		"Runs the tDisk post create script which creates a filesystem,\n"
+		"mounts it, creates a data folder (to hide lost+found) and prints\n"
+		"the mount point. It needs the desired tDisk as argument")
 };
 
 vector<string> configfiles = {
@@ -149,8 +154,7 @@ bool extRegistered = InodeScan::registerInodeScan<InodeScanFake>();
 
 int main(int argc, char *args[])
 {
-	shell::runTestCommand();
-
+	shell::initShell(args[0]);
 	programName = args[0];
 	options = getDefaultOptions();
 

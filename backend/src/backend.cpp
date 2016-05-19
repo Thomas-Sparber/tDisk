@@ -18,6 +18,7 @@
 #include <logger.hpp>
 #include <performance.hpp>
 #include <resultformatter.hpp>
+#include <shell.hpp>
 #include <tdisk.hpp>
 #include <utils.hpp>
 
@@ -27,6 +28,7 @@ using std::pair;
 using std::sort;
 using std::string;
 using std::swap;
+using std::unique_ptr;
 using std::vector;
 
 using namespace td;
@@ -788,6 +790,44 @@ BackendResult td::get_files_on_disk(const vector<string> &args, Options &options
 	performance::stop("sortFiles");
 
 	r.result(files, options.getOptionValue("output-format"));
+	
+	return std::move(r);
+}
+
+BackendResult td::tdisk_post_create(const vector<string> &args, Options &options)
+{
+	BackendResult r;
+	if(args.empty())
+	{
+		r.error(BackendResultType::general, "\"tdisk_post_create\" needs the td device");
+		return std::move(r);
+	}
+
+	tDisk d;
+
+	try {
+		d = tDisk::get(args[0]);
+	} catch (const tDiskException &e) {
+		r.error(BackendResultType::driver, e.what());
+		return std::move(r);
+	}
+
+	vector<unique_ptr<shell::ShellObjectBase> > result = shell::execute(shell::tDiskPostCreateCommand, d.getPath());
+
+	if(result.empty())
+	{
+		r.error(BackendResultType::driver, "Shell command tDiskPostCreate didn't report any output. Unknown error");
+		return std::move(r);
+	}
+
+	string path = result[0]->get<shell::path>();
+	if(!utils::folderExists(path))
+	{
+		r.error(BackendResultType::driver, utils::concat("Shell command tDiskPostCreate error: ",result[0]->getMessage()));
+		return std::move(r);
+	}
+
+	r.result(path, options.getOptionValue("output-format"));
 	
 	return std::move(r);
 }

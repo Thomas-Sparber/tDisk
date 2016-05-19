@@ -199,12 +199,23 @@ namespace td
 	  * Returns all files which are located on the given internal device
 	  * of the given tDisk
 	  * @param args:
-	  *  - Disk
+	  *  - tDisk
 	  *  - Internal device index
 	  * @param options: The command options (e.g. output-format)
 	  * @return An array of the files
 	 **/
 	BackendResult get_files_on_disk(const std::vector<std::string> &args, Options &options);
+
+	/**
+	  * Runs the tDisk post create script which creates a filesystem,
+	  * mounts it, creates a data folder (to hide lost+found) and returns
+	  * the mount point
+	  * @param args:
+	  *  - tDisk
+	  * @param options: The command options (e.g. output-format)
+	  * @return The mountpoint of the tDisk
+	 **/
+	BackendResult tdisk_post_create(const std::vector<std::string> &args, Options &options);
 
 } //end namespace td
 

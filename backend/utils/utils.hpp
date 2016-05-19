@@ -138,7 +138,17 @@ namespace td
 			std::size_t slashes = std::count(a.cbegin(), a.cend(), '/') + std::count(b.cbegin(), b.cend(), '/');
 			std::size_t backslashes = std::count(a.cbegin(), a.cend(), '\\') + std::count(b.cbegin(), b.cend(), '\\');
 
-			char pathSeparator = (slashes >= backslashes) ? '/' : '\\';
+			char pathSeparator;
+			if(slashes > backslashes)pathSeparator = '/';
+			else if(backslashes > slashes)pathSeparator = '\\';
+			else
+			{
+#ifdef WINDOWS
+				pathSeparator = '\\';
+#else
+				pathSeparator = '/';
+#endif //WINDOWS
+			}
 
 			return concat(a, pathSeparator, b);
 		}

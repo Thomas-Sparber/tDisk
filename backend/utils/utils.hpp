@@ -174,19 +174,17 @@ namespace td
 			std::size_t pos = fname.find_last_of("\\/");
 			const std::string dir = (std::string::npos == pos) ? "" : fname.substr(0, pos);
 
-			if(dir.substr(0,2) == "..")
+			if(dir.substr(0,2) == ".." || dir.substr(0,1) == ".")
 			{
-				if(executable)
-					return dirnameOf(dirnameOf(executable, nullptr), nullptr);
-				else
-					return concatPath(dirnameOf(dirnameOf("", nullptr), nullptr), dir.substr(2));
-			}
-			else if(dir.substr(0,1) == ".")
-			{
-				if(executable)
-					return dirnameOf(executable, nullptr);
-				else
-					return concatPath(dirnameOf("", nullptr), dir.substr(1));
+				char currentPath[1024];
+				realpath(executable, currentPath);
+				const std::string execPath(currentPath);
+
+				std::size_t execPos = execPath.find_last_of("\\/");
+				const std::string execDir = (std::string::npos == execPos) ? "" : execPath.substr(0, execPos);
+
+				realpath(concatPath(execDir, dir).c_str(), currentPath);
+				return currentPath;
 			}
 
 			if(dir.empty())

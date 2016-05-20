@@ -51,7 +51,7 @@ public:
 
 	virtual bool nextInode(Inode */*iterator*/) const
 	{
-		return ((rand() % 1000) == 0);
+		return ((rand() % 1000) != 0);
 	}
 
 	virtual unsigned int getBlocksize() const

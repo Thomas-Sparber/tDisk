@@ -121,7 +121,7 @@ struct internal_device_info
 /**
   * A index represents the physical location of a logical sector
  **/
-struct sector_index
+struct physical_sector_index
 {
 	//The disk where the logical sector is stored
 	tdisk_index disk;
@@ -131,6 +131,9 @@ struct sector_index
 
 	//This variable stores the access count of the physical sector
 	__u16 access_count;
+
+	//A Flag which determines whther the sector is used or not
+	__u8 used;
 }; //end struct sector_index;
 
 /**
@@ -141,7 +144,7 @@ struct sector_info
 {
 	__u64 logical_sector;
 	__u64 access_sorted_index;
-	struct sector_index physical_sector;
+	struct physical_sector_index physical_sector;
 }; //end struct sector_info
 
 /**

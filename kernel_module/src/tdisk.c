@@ -22,6 +22,31 @@
  **/
 #define DEVICE_INDEX(desired, all_devices) ((tdisk_index)((desired)-(all_devices)+1))
 
+/**
+  * Checks whether the sector is used given the access count
+ **/
+#define SECTOR_USED(sector) ((sector) & 1)
+
+/**
+  * Increments the access count
+ **/
+#define INC_ACCESS_COUNT(sector) (sector) = (typeof(sector))(((((sector)>>1)+1)<<1) | 1)
+
+/**
+  * Gets the access count of the sector
+ **/
+#define ACCESS_COUNT(sector) ((sector)>>1)
+
+/**
+  * Resets the access count of the sector
+ **/
+#define RESET_ACCESS_COUNT(sector) sector = (sector) & 1
+
+/**
+  * Sets the access count of the given sector
+ **/
+#define SET_ACCESS_COUNT(sector, count) sector = (typeof(sector))(((sector) & 1) | ((count)<<1))
+
 static int td_start_worker_thread(struct tdisk *td);
 static void td_stop_worker_thread(struct tdisk *td);
 static enum worker_status td_queue_work(void *private_data, struct kthread_work *work);
@@ -311,8 +336,8 @@ static void reset_access_count(struct tdisk *td, bool do_disk_operation)
 	//Find lowest access count
 	for(sector = 0; sector < td->size_blocks; ++sector)
 	{
-		if(td->indices[sector].access_count < min_access_count)
-			min_access_count = td->indices[sector].access_count;
+		if(ACCESS_COUNT(td->indices[sector].access_count) < min_access_count)
+			min_access_count = ACCESS_COUNT(td->indices[sector].access_count);
 	}
 
 	//Needs to be at least 2
@@ -321,7 +346,7 @@ static void reset_access_count(struct tdisk *td, bool do_disk_operation)
 	//Divide all sector access count by lowest access count
 	for(sector = 0; sector < td->size_blocks; ++sector)
 	{
-		td->indices[sector].access_count /= min_access_count;
+		SET_ACCESS_COUNT(td->indices[sector].access_count, ACCESS_COUNT(td->indices[sector].access_count) / min_access_count);
 	}
 
 	if(do_disk_operation)
@@ -365,11 +390,11 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 	//Increment access count
 	if(update_access_count)
 	{
-		actual->access_count++;
+		INC_ACCESS_COUNT(actual->access_count);
 
 #ifdef AUTO_RESET_ACCESS_COUNT
 		//printk_ratelimited(KERN_DEBUG "tDisk: access count: %u max: %u\n", actual->access_count, (typeof(actual->access_count))-1);
-		if(actual->access_count == ((typeof(actual->access_count))-1))
+		if(ACCESS_COUNT(actual->access_count) == (((typeof(actual->access_count))-1)>>1))
 		{
 			printk(KERN_DEBUG "tDisk: Resetting tDisk access count\n");
 			reset_access_count(td_dev, do_disk_operation);
@@ -546,7 +571,7 @@ static struct sorted_sector_index* td_find_sector_index(struct sorted_internal_d
 	{
 		if(item->physical_sector->disk == disk)
 		{
-			if(lowest == NULL || item->physical_sector->access_count < lowest->physical_sector->access_count)
+			if(lowest == NULL || ACCESS_COUNT(item->physical_sector->access_count) < ACCESS_COUNT(lowest->physical_sector->access_count))
 				lowest = item;
 		}
 	}
@@ -574,17 +599,17 @@ static struct sorted_sector_index* td_find_sector_index_acc(struct sorted_intern
 	{
 		if(is_faster)
 		{
-			if(item->physical_sector->disk == disk && item->physical_sector->access_count <= access_count)
+			if(item->physical_sector->disk == disk && ACCESS_COUNT(item->physical_sector->access_count) <= access_count)
 			{
-				if(ret == NULL || item->physical_sector->access_count > ret->physical_sector->access_count)
+				if(ret == NULL || ACCESS_COUNT(item->physical_sector->access_count) > ACCESS_COUNT(ret->physical_sector->access_count))
 					ret = item;
 			}
 		}
 		else
 		{
-			if(item->physical_sector->disk == disk && item->physical_sector->access_count >= access_count)
+			if(item->physical_sector->disk == disk && ACCESS_COUNT(item->physical_sector->access_count) >= access_count)
 			{
-				if(ret == NULL || item->physical_sector->access_count < ret->physical_sector->access_count)
+				if(ret == NULL || ACCESS_COUNT(item->physical_sector->access_count) < ACCESS_COUNT(ret->physical_sector->access_count))
 					ret = item;
 			}
 		}
@@ -675,7 +700,7 @@ static void td_assign_sectors(struct tdisk *td)
 
 				//Finds a sector with an equal or higher access count
 				//for the current disk inside the "corresponding"
-				to_swap = td_find_sector_index_acc(corresponding, current_disk, sector->physical_sector->access_count, isFaster);
+				to_swap = td_find_sector_index_acc(corresponding, current_disk, ACCESS_COUNT(sector->physical_sector->access_count), isFaster);
 
 				if(to_swap != NULL)
 				{
@@ -779,7 +804,7 @@ static bool td_move_one_sector(struct tdisk *td)
 		{
 			if(item->physical_sector->disk != current_disk_index)
 			{
-				if(highest == NULL || item->physical_sector->access_count > highest->physical_sector->access_count)
+				if(highest == NULL || ACCESS_COUNT(item->physical_sector->access_count) > ACCESS_COUNT(highest->physical_sector->access_count))
 					highest = item;
 			}
 		}
@@ -854,7 +879,7 @@ int td_sector_index_callback_total(void *priv, struct list_head *a, struct list_
 	if(i_a->physical_sector->disk == 0)return 1;
 	if(i_b->physical_sector->disk == 0)return -1;
 
-	return i_b->physical_sector->access_count - i_a->physical_sector->access_count;
+	return ACCESS_COUNT(i_b->physical_sector->access_count) - ACCESS_COUNT(i_a->physical_sector->access_count);
 }
 
 /**
@@ -1667,16 +1692,21 @@ static int td_get_device_info(struct tdisk *td, struct internal_device_info __us
   * This function transfers information about the given
   * logical sector to user space
  **/
-static int td_get_sector_index(struct tdisk *td, struct sector_index __user *arg)
+static int td_get_sector_index(struct tdisk *td, struct physical_sector_index __user *arg)
 {
-	struct sector_index index;
+	struct physical_sector_index index;
 
-	if(copy_from_user(&index, arg, sizeof(struct sector_index)) != 0)
+	if(copy_from_user(&index, arg, sizeof(struct physical_sector_index)) != 0)
 		return -EFAULT;
 
 	if(index.sector >= td->max_sectors)return -EINVAL;
 
-	if(copy_to_user(arg, td->sorted_sectors[index.sector].physical_sector, sizeof(struct sector_index)) != 0)
+	index.disk = td->sorted_sectors[index.sector].physical_sector->disk;
+	index.sector = td->sorted_sectors[index.sector].physical_sector->sector;
+	index.access_count = ACCESS_COUNT(td->sorted_sectors[index.sector].physical_sector->access_count);
+	index.used = SECTOR_USED(td->sorted_sectors[index.sector].physical_sector->access_count);
+
+	if(copy_to_user(arg, &index, sizeof(struct physical_sector_index)) != 0)
 		return -EFAULT;
 
 	return 0;
@@ -1694,7 +1724,10 @@ static int td_get_all_sector_indices(struct tdisk *td, struct sector_info __user
 
 	list_for_each_entry(pos, &td->sorted_sectors_head, total_sorted)
 	{
-		info.physical_sector = (*pos->physical_sector);
+		info.physical_sector.disk = pos->physical_sector->disk;
+		info.physical_sector.sector = pos->physical_sector->sector;
+		info.physical_sector.access_count = ACCESS_COUNT(pos->physical_sector->access_count);
+		info.physical_sector.used = SECTOR_USED(pos->physical_sector->access_count);
 		info.access_sorted_index = sorted_index;
 		info.logical_sector = (__u64)(pos - td->sorted_sectors);
 
@@ -1709,7 +1742,7 @@ static int td_get_all_sector_indices(struct tdisk *td, struct sector_info __user
 
 /**
   * This function clears the access count of all
-  * sectors. This is just for debugging purposes
+  * sectors. This is just for debugging purposes.
  **/
 static int td_clear_access_count(struct tdisk *td)
 {
@@ -1717,7 +1750,7 @@ static int td_clear_access_count(struct tdisk *td)
 
 	for(i = 0; i < td->max_sectors; ++i)
 	{
-		td->sorted_sectors[i].physical_sector->access_count = 0;
+		RESET_ACCESS_COUNT(td->sorted_sectors[i].physical_sector->access_count);
 	}
 
 	return 0;
@@ -1744,7 +1777,7 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 		err = td_get_device_info(td, (struct internal_device_info __user *) arg);
 		break;
 	case TDISK_GET_SECTOR_INDEX:
-		err = td_get_sector_index(td, (struct sector_index __user *) arg);
+		err = td_get_sector_index(td, (struct physical_sector_index __user *) arg);
 		break;
 	case TDISK_GET_ALL_SECTOR_INDICES:
 		err = td_get_all_sector_indices(td, (struct sector_info __user *) arg);

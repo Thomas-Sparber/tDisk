@@ -680,11 +680,14 @@ private:
  **/
 template <> inline std::string createResultString(const f_sector_index &index, unsigned int hierarchy, const utils::ci_string &outputFormat)
 {
+	bool used = index.used;
+
 	if(outputFormat == "json")
 		return utils::concat(
 			"{\n",
 				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(index, disk, hierarchy+1, outputFormat), ",\n",
 				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(index, sector, hierarchy+1, outputFormat), ",\n",
+				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_NONMEMBER_JSON(used, hierarchy+1, outputFormat), ",\n",
 				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(index, access_count, hierarchy+1, outputFormat), "\n",
 			std::vector<char>(hierarchy, '\t'), "}"
 		);
@@ -692,6 +695,7 @@ template <> inline std::string createResultString(const f_sector_index &index, u
 		return utils::concat(
 				CREATE_RESULT_STRING_MEMBER_TEXT(index, disk, hierarchy+1, outputFormat), "\n",
 				CREATE_RESULT_STRING_MEMBER_TEXT(index, sector, hierarchy+1, outputFormat), "\n",
+				CREATE_RESULT_STRING_NONMEMBER_TEXT(used, hierarchy+1, outputFormat), "\n",
 				CREATE_RESULT_STRING_MEMBER_TEXT(index, access_count, hierarchy+1, outputFormat), "\n"
 		);
 	else

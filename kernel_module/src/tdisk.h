@@ -44,6 +44,21 @@ struct tdisk_header
 }; //end struct tdisk_header
 
 /**
+  * A index represents the physical location of a logical sector
+ **/
+struct sector_index
+{
+	//The disk where the logical sector is stored
+	tdisk_index disk;
+
+	//The physical sector on the disk where the logic sector is stored
+	__u64 sector;
+
+	//This variable stores the access count of the physical sector
+	__u16 access_count;
+}; //end struct sector_index;
+
+/**
   * A sorted_sector_index represents a physical sector
   * sorted according to the access_count.
   * This struct is used for two purposes:

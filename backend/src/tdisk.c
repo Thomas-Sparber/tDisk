@@ -30,11 +30,12 @@
 
 #define CONTROL_FILE "/dev/td-control"
 
-inline static void set_sector_index(struct f_sector_index *target, const struct sector_index *source)
+inline static void set_sector_index(struct f_sector_index *target, const struct physical_sector_index *source)
 {
 	target->disk = source->disk;
 	target->sector = source->sector;
 	target->access_count = source->access_count;
+	target->used = source->used;
 }
 
 inline static void set_sector_info(struct f_sector_info *target, const struct sector_info *source)
@@ -300,7 +301,7 @@ int tdisk_get_sector_index(const char *device, uint64_t logical_sector, struct f
 {
 	int dev;
 	int ret;
-	struct sector_index temp;
+	struct physical_sector_index temp;
 
 	if(!check_td_control())return -ENODEV;
 

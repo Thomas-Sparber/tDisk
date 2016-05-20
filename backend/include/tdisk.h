@@ -99,6 +99,9 @@ struct f_sector_index
 
 	//This variable stores the access count of the physical sector
 	uint16_t access_count;
+
+	//Whether the sector is used or not
+	uint8_t used;
 }; //end struct f_sector_index;
 
 /**

@@ -8,15 +8,20 @@
 #ifndef TDISK_HPP
 #define TDISK_HPP
 
+#include <algorithm>
 #include <errno.h>
 #include <string>
 #include <string.h>
 #include <vector>
 
-#include <utils.hpp>
+#include <filesystem.hpp>
+#include <logger.hpp>
+#include <performance.hpp>
+#include <performanceimprovement.hpp>
 #include <resultformatter.hpp>
 #include <tdiskexception.hpp>
 #include <tdiskofflineexception.hpp>
+#include <utils.hpp>
 
 namespace td
 {
@@ -564,6 +569,83 @@ public:
 
 		online = true;
 		return info;
+	}
+
+	/**
+	  * Returns all files which are stored on the given internal device
+	 **/
+	std::vector<FileAssignment> getFilesOnDevice(unsigned int device, bool getPercentages, bool filesOnly)
+	{
+		performance::start("getAllSectorIndices");
+		std::vector<f_sector_info> sectorIndices = getAllSectorIndices();
+		performance::stop("getAllSectorIndices");
+
+		unsigned int blocksize = getBlocksize();
+		std::vector<std::pair<unsigned long long,unsigned long long> > positions;
+		for(const f_sector_info &info : sectorIndices)
+		{
+			if(info.physical_sector.disk == device)
+				positions.push_back(std::make_pair(info.logical_sector*blocksize, (info.logical_sector+1)*blocksize));
+		}
+
+		std::vector<FileAssignment> files = fs::getFilesOnDisk(getPath(), positions, getPercentages, filesOnly);
+
+		performance::start("sortFiles");
+		std::sort(files.begin(), files.end(), [](const FileAssignment &a, const FileAssignment &b)
+		{
+			return a.percentage > b.percentage;
+		});
+		performance::stop("sortFiles");
+
+		return std::move(files);
+	}
+
+	tDiskPerformanceImprovement getPerformanceImprovement(std::size_t amountFiles)
+	{
+		unsigned int fastestDevice = 1;
+		double bestPerformance = 999999999;
+		long double avgPerformance = 0;
+		unsigned int devices = getInternalDevicesCount();
+		for(unsigned int device = 1; device <= devices; ++device)
+		{
+			f_internal_device_info info = getDeviceInfo(device);
+
+			double avg_read_dec = (double)info.performance.mod_avg_read / (1 << c::get_measure_records_shift());
+			double avg_write_dec = (double)info.performance.mod_avg_write / (1 << c::get_measure_records_shift());
+
+			double avg_read_time_cycles = (double)info.performance.avg_read_time_cycles			+ avg_read_dec;
+			double avg_write_time_cycles = (double)info.performance.avg_write_time_cycles		+ avg_write_dec;
+
+			double performance = avg_read_time_cycles + avg_write_time_cycles;
+			if(performance < bestPerformance)
+			{
+				bestPerformance = performance;
+				fastestDevice = device;
+			}
+
+			avgPerformance += performance;
+		}
+		avgPerformance /= devices;
+
+		std::vector<FileAssignment> files = getFilesOnDevice(fastestDevice, true, true);
+
+		long double avgPercentage = 0;
+		for(const FileAssignment &f : files)
+		{
+			avgPercentage += f.percentage;
+		}
+		avgPercentage /= files.size();
+
+		long double performanceDifference = (avgPerformance - bestPerformance) / avgPerformance;
+
+		tDiskPerformanceImprovement p((double)(performanceDifference * avgPercentage));
+		for(std::size_t i = 0; i < amountFiles && i < files.size(); ++i)
+		{
+			const FileAssignment &f = files[i];
+			p.addFile(f.filename, (double)(f.percentage * performanceDifference));
+		}
+
+		return std::move(p);
 	}
 
 	friend std::string createResultString<tDisk>(const tDisk &disk, unsigned int hierarchy, const utils::ci_string &outputFormat);

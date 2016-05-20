@@ -131,7 +131,12 @@ vector<Command> commands {
 	Command("tdisk_post_create", tdisk_post_create,
 		"Runs the tDisk post create script which creates a filesystem,\n"
 		"mounts it, creates a data folder (to hide lost+found) and prints\n"
-		"the mount point. It needs the desired tDisk as argument")
+		"the mount point. It needs the desired tDisk as argument"),
+	
+	Command("performance_improvement", performance_improvement,
+		"Returns the performance improvement in percent of the tDisk and\n"
+		"lists the top 20 files with the highest performance improvement.\n"
+		"It needs the desired tDisk as argument")
 };
 
 vector<string> configfiles = {

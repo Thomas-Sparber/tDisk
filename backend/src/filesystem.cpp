@@ -209,7 +209,7 @@ void fs::getDevices(vector<Device> &out)
 
 #endif //__linux__
 
-void fs::iterateFiles(const string &disk, function<bool(unsigned int, const string&, unsigned long long, const vector<unsigned long long>&)> callback)
+void fs::iterateFiles(const string &disk, bool filesOnly, function<bool(unsigned int, const string&, unsigned long long, const vector<unsigned long long>&)> callback)
 {
 	unique_ptr<InodeScan> scan(InodeScan::getInodeScan(disk));
 	unique_ptr<Inode> inode(scan->getInitialInode());
@@ -242,13 +242,34 @@ void fs::iterateFiles(const string &disk, function<bool(unsigned int, const stri
 			}
 		}
 
-		bool cont = callback(blocksize, inode->getPath(parent), inodeBlock, dataBlocks);
-		if(!cont)break;
+		if(!filesOnly || !inode->isDirectory())
+		{
+			bool cont = callback(blocksize, inode->getPath(parent), inodeBlock, dataBlocks);
+			if(!cont)break;
+		}
 	}
 }
 
-vector<FileAssignment> fs::getFilesOnDisk(const string &disk, const vector<pair<unsigned long long,unsigned long long> > &positions, bool calculatePercentage)
+vector<FileAssignment> fs::getFilesOnDisk(const string &disk, vector<pair<unsigned long long,unsigned long long> > p, bool calculatePercentage, bool filesOnly)
 {
+	LOG(LogLevel::debug, p.size()," positions to get files for");
+	performance::start("sortSectorIndices");
+	sort(p.begin(), p.end(), [](const pair<unsigned long long,unsigned long long> &a, const pair<unsigned long long,unsigned long long> &b)
+	{
+		return a.first < b.first;
+	});
+
+	vector<pair<unsigned long long,unsigned long long> > positions;
+	for(const auto &pos : p)
+	{
+		if(!positions.empty() && pos.first == positions.back().second)
+			positions.back().second = pos.second;
+		else
+			positions.push_back(pos);
+	}
+	performance::stop("sortSectorIndices");
+	LOG(LogLevel::debug, positions.size()," positions to get files for after combining");
+
 	vector<FileAssignment> result;
 
 	struct FilePosition
@@ -268,7 +289,7 @@ vector<FileAssignment> fs::getFilesOnDisk(const string &disk, const vector<pair<
 	};
 
 	performance::start("getFilesOnDisk");
-	iterateFiles(disk, [&result,positions,calculatePercentage](unsigned int blocksize, const string &file, unsigned long long inodeBlock, const vector<unsigned long long> &dataBlocks)
+	iterateFiles(disk, filesOnly, [&result,positions,calculatePercentage](unsigned int blocksize, const string &file, unsigned long long inodeBlock, const vector<unsigned long long> &dataBlocks)
 	{
 		//performance::start("oneFile");
 		std::size_t onDisk = 0;
@@ -297,7 +318,7 @@ vector<FileAssignment> fs::getFilesOnDisk(const string &disk, const vector<pair<
 			}
 		}
 
-		if(onDisk != 0)
+		if(onDisk != 0 || calculatePercentage)
 		{
 			long double percentage = calculatePercentage ? (long double)onDisk / blocks : 0;
 			result.push_back(FileAssignment(file, (double)percentage));

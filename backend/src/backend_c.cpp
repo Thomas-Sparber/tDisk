@@ -63,6 +63,7 @@ C_FUNCTION_IMPLEMENTATION(get_device_advice)
 C_FUNCTION_IMPLEMENTATION(get_files_at)
 C_FUNCTION_IMPLEMENTATION(get_files_on_disk)
 C_FUNCTION_IMPLEMENTATION(tdisk_post_create)
+C_FUNCTION_IMPLEMENTATION(performance_improvement)
 
 Options* create_options()
 {

@@ -36,14 +36,14 @@ namespace fs
 	  * Returns a list of files which are stored on the given
 	  * disk at the given position
 	 **/
-	std::vector<FileAssignment> getFilesOnDisk(const std::string &disk, const std::vector<std::pair<unsigned long long,unsigned long long> > &positions, bool calculatePercentage);
+	std::vector<FileAssignment> getFilesOnDisk(const std::string &disk, std::vector<std::pair<unsigned long long,unsigned long long> > positions, bool calculatePercentage, bool filesOnly);
 
 	/**
 	  * This function iterates over all files on the given filesystem
 	  * and calls callback for every file. The callback takes
 	  * the blocksize, filename, file index block and data blocks
 	 **/
-	void iterateFiles(const std::string &disk, std::function<bool(unsigned int, const std::string&, unsigned long long, const std::vector<unsigned long long>&)> callback);
+	void iterateFiles(const std::string &disk, bool filesOnly, std::function<bool(unsigned int, const std::string&, unsigned long long, const std::vector<unsigned long long>&)> callback);
 
 } //end namespace fs
 

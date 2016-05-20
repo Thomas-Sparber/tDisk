@@ -17,6 +17,7 @@
 #ifdef WINDOWS
 #include <direct.h>
 #else
+#include <Windows.h>
 #include <unistd.h>
 #endif //WINDOWS
 
@@ -177,13 +178,22 @@ namespace td
 			if(dir.substr(0,2) == ".." || dir.substr(0,1) == ".")
 			{
 				char currentPath[1024];
+#ifdef __linux__
 				realpath(executable, currentPath);
+#else
+				GetFullPathName(executable, 1024, currentPath, nullptr);
+#endif //__linux__
+				
 				const std::string execPath(currentPath);
 
 				std::size_t execPos = execPath.find_last_of("\\/");
 				const std::string execDir = (std::string::npos == execPos) ? "" : execPath.substr(0, execPos);
 
+#ifdef __linux__
 				realpath(concatPath(execDir, dir).c_str(), currentPath);
+#else
+				GetFullPathName(concatPath(execDir, dir).c_str(), 1024, currentPath, nullptr);
+#endif //__linux__
 				return currentPath;
 			}
 

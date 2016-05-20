@@ -247,8 +247,6 @@ void fs::iterateFiles(const string &disk, bool filesOnly, function<bool(unsigned
 
 		if(!filesOnly || !inode->isDirectory())
 		{
-			sort(dataBlocks.begin(), dataBlocks.end());
-
 			bool cont = callback(blocksize, inode->getPath(parent), inodeBlock, dataBlocks);
 			if(!cont)break;
 		}
@@ -277,22 +275,6 @@ vector<FileAssignment> fs::getFilesOnDisk(const string &disk, vector<pair<unsign
 
 	vector<FileAssignment> result;
 
-	struct FilePosition
-	{
-		FilePosition(unsigned long long llu_start, unsigned long long llu_end) :
-			start(llu_start),
-			end(llu_end)
-		{}
-
-		bool operator< (const FilePosition &other)
-		{
-			return (start < other.start);
-		}
-
-		unsigned long long start;
-		unsigned long long end;
-	};
-
 	performance::start("getFilesOnDisk");
 	vector<pair<unsigned long long,unsigned long long> > helper;
 	iterateFiles(disk, filesOnly, [&result,positions,calculatePercentage,&helper](unsigned int blocksize, const string &file, unsigned long long inodeBlock, const vector<unsigned long long> &dataBlocks)
@@ -313,7 +295,7 @@ vector<FileAssignment> fs::getFilesOnDisk(const string &disk, vector<pair<unsign
 		if(calculatePercentage || onDisk == 0)
 		{
 			helper.clear();
-			for(unsigned long long block : dataBlocks)
+			for(const unsigned long long &block : dataBlocks)
 			{
 				if(!helper.empty() && block*blocksize == helper.back().second)
 					helper.back().second = (block+1)*blocksize;

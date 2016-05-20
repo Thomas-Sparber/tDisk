@@ -98,6 +98,7 @@ int tdisk_get_sector_index(const char *device, uint64_t logical_sector, struct f
 	out->disk = (unsigned int) (rand() % 3) + 1;
 	out->sector = (uint64_t) (rand() % 1024);
 	out->access_count = (uint16_t) (rand() % 32768);
+	out->used = (rand() % 100) == 0;
 	return 0;
 }
 
@@ -115,6 +116,7 @@ int tdisk_get_all_sector_indices(const char *device, struct f_sector_info *out, 
 		out[i].physical_sector.disk = (unsigned int) (rand() % 3) + 1;
 		out[i].physical_sector.sector = (uint64_t) (rand() % 1024);
 		out[i].physical_sector.access_count = (uint16_t) (rand() % 32768);
+		out[i].physical_sector.used = (rand() % 100) == 0;
 	}
 
 	return 0;

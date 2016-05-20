@@ -16,8 +16,8 @@
 
 #ifdef WINDOWS
 #include <direct.h>
-#else
 #include <Windows.h>
+#else
 #include <unistd.h>
 #endif //WINDOWS
 

@@ -32,6 +32,9 @@ using std::cout;
 using std::endl;
 using std::function;
 using std::list;
+using std::make_pair;
+using std::max;
+using std::min;
 using std::pair;
 using std::string;
 using std::unique_ptr;
@@ -244,6 +247,8 @@ void fs::iterateFiles(const string &disk, bool filesOnly, function<bool(unsigned
 
 		if(!filesOnly || !inode->isDirectory())
 		{
+			sort(dataBlocks.begin(), dataBlocks.end());
+
 			bool cont = callback(blocksize, inode->getPath(parent), inodeBlock, dataBlocks);
 			if(!cont)break;
 		}
@@ -289,38 +294,49 @@ vector<FileAssignment> fs::getFilesOnDisk(const string &disk, vector<pair<unsign
 	};
 
 	performance::start("getFilesOnDisk");
-	iterateFiles(disk, filesOnly, [&result,positions,calculatePercentage](unsigned int blocksize, const string &file, unsigned long long inodeBlock, const vector<unsigned long long> &dataBlocks)
+	vector<pair<unsigned long long,unsigned long long> > helper;
+	iterateFiles(disk, filesOnly, [&result,positions,calculatePercentage,&helper](unsigned int blocksize, const string &file, unsigned long long inodeBlock, const vector<unsigned long long> &dataBlocks)
 	{
 		//performance::start("oneFile");
-		std::size_t onDisk = 0;
-		std::size_t blocks = dataBlocks.size() + 1;
+		unsigned long long onDisk = 0;
+		unsigned long long totalBytes = (unsigned long long)dataBlocks.size() * blocksize + blocksize;
 
 		for(const auto &pos : positions)
 		{
 			if(inodeBlock*blocksize >= pos.first && (inodeBlock+1)*blocksize <= pos.second)
 			{
-				onDisk++;
+				onDisk += blocksize;
 				break;
 			}
 		}
 
-		for(unsigned long long block : dataBlocks)
+		if(calculatePercentage || onDisk == 0)
 		{
-			if(onDisk > 0 && !calculatePercentage)break;
+			helper.clear();
+			for(unsigned long long block : dataBlocks)
+			{
+				if(!helper.empty() && block*blocksize == helper.back().second)
+					helper.back().second = (block+1)*blocksize;
+				else
+					helper.push_back(make_pair(block*blocksize, (block+1)*blocksize));
+			}
 
 			for(const auto &pos : positions)
 			{
-				if(block*blocksize >= pos.first && (block+1)*blocksize <= pos.second)
+				for(const auto &help : helper)
 				{
-					onDisk++;
-					break;
+					unsigned long long maxStart = max(pos.first, help.first);
+					unsigned long long minEnd = min(pos.second, help.second);
+
+					if(minEnd > maxStart)
+						onDisk += (minEnd - maxStart);
 				}
 			}
 		}
 
 		if(onDisk != 0 || calculatePercentage)
 		{
-			long double percentage = calculatePercentage ? (long double)onDisk / blocks : 0;
+			long double percentage = calculatePercentage ? (long double)onDisk / totalBytes : 0;
 			result.push_back(FileAssignment(file, (double)percentage));
 		}
 

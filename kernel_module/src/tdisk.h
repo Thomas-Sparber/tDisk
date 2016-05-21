@@ -144,9 +144,12 @@ struct tdisk {
 	struct td_internal_device internal_devices[TDISK_MAX_PHYSICAL_DISKS];
 	struct sorted_internal_device *sorted_devices;
 
-	spinlock_t				lock;
+	spinlock_t				tdisk_lock;
 	int						state;
 	struct mutex			ctl_mutex;
+
+	bool					optimizing;
+	bool					modifying;
 
 	struct worker_timeout_data	worker_timeout;
 	struct task_struct		*worker_task;

@@ -5,6 +5,8 @@
   *
  **/
 
+#include <linux/delay.h>
+
 #include <tdisk/config.h>
 #include "helpers.h"
 #include "tdisk.h"
@@ -14,8 +16,8 @@
 
 #define COMPARE 1410
 
-#define DEFAULT_WORKER_TIMEOUT (5*HZ)
-#define DEFAULT_SECONDARY_WORK_DELAY (1*HZ)
+#define DEFAULT_WORKER_TIMEOUT (20*HZ)
+#define DEFAULT_SECONDARY_WORK_DELAY 2
 
 /**
   * Actual internal device calculated using memory offset
@@ -443,28 +445,57 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
   * sector a in sector b and vice versa and updates the
   * indices
  **/
-static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_index *a, sector_t logical_b, struct sector_index *b)
+static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_index *a, sector_t logical_b, struct sector_index *b)
 {
 	int ret;
 	loff_t pos_a = (loff_t)a->sector * td->blocksize;
 	loff_t pos_b = (loff_t)b->sector * td->blocksize;
-	u8 *buffer_a = vmalloc(td->blocksize);
-	u8 *buffer_b = vmalloc(td->blocksize);
-	if(!buffer_a || !buffer_b)return;
+	u8 *buffer_a;
+	u8 *buffer_b;
+
+	buffer_a = vmalloc(td->blocksize);
+	if(!buffer_a)return;
+
+	buffer_b = vmalloc(td->blocksize);
+	if(!buffer_b)
+	{
+		vfree(buffer_a);
+		return;
+	}
+	
 
 	//Reading blocks from both disks
 	ret = read_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);		//a read op1
-	if(ret != 0)goto out_err;
+	if(ret != 0)
+	{
+		printk(KERN_WARNING "tDisk: Swap error: reading %llu, disk: %u\n", logical_a, a->disk, ret);
+		goto out;
+	}
+	
 
 	ret = read_data(&td->internal_devices[b->disk-1], buffer_b, pos_b, td->blocksize);		//b read op1
-	if(ret != 0)goto out_err;
+	if(ret != 0)
+	{
+		printk(KERN_WARNING "tDisk: Swap error: reading %llu, disk: %u\n", logical_b, b->disk, ret);
+		goto out;
+	}
+	
 
 	//Saving swapped data to both disks
 	ret = write_data(&td->internal_devices[a->disk-1], buffer_b, pos_a, td->blocksize);		//a write op1
-	if(ret != 0)goto out_err;
+	if(ret != 0)
+	{
+		printk(KERN_WARNING "tDisk: Swap error: writing %llu, disk: %u\n", logical_a, a->disk, ret);
+		goto out;
+	}
 
 	ret = write_data(&td->internal_devices[b->disk-1], buffer_a, pos_b, td->blocksize);		//b write op1
-	if(ret != 0)goto out_restore_a;
+	if(ret != 0)
+	{
+		printk(KERN_WARNING "tDisk: Swap error: writing %llu, disk: %u. Need to restore previous sector...\n", logical_b, b->disk, ret);
+		goto out_restore_a;
+	}
+	
 
 	swap(a->disk, b->disk);
 	swap(a->sector, b->sector);
@@ -479,11 +510,11 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
  out_restore_a:
 	ret = write_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);
 	if(ret != 0)printk(KERN_WARNING "tDisk: Error restoring logical_a. Data corrupted\n");
- out_err:
-	printk(KERN_WARNING "tDisk: Error swapping sectors %llu and %llu, ret: %d\n", logical_a, logical_b, ret);
  out:
 	vfree(buffer_a);
 	vfree(buffer_b);
+
+	return (ret != 0);
 }
 
 #ifdef MOVE_SECTORS
@@ -809,7 +840,9 @@ static bool td_move_one_sector(struct tdisk *td)
 			}
 		}
 
+		BUG_ON(!highest);
 		other_disk = td_find_sorted_device(td->sorted_devices, &td->internal_devices[highest->physical_sector->disk-1], td->internal_devices_count);
+
 		BUG_ON(!other_disk);
 		other_disk_sorted_index = DEVICE_INDEX(other_disk, td->sorted_devices);
 
@@ -921,7 +954,42 @@ int td_sector_index_callback_total(void *priv, struct list_head *a, struct list_
 void td_reorganize_all_indices(struct tdisk *td)
 {
 	//Sort entire arry
-	list_sort(NULL, &td->sorted_sectors_head, &td_sector_index_callback_total);
+	//list_sort(NULL, &td->sorted_sectors_head, &td_sector_index_callback_total);
+
+	struct sorted_sector_index *item_safe;
+	struct sorted_sector_index *item;
+	struct sorted_sector_index *prev;
+
+	list_for_each_entry_safe(item, item_safe, &td->sorted_sectors_head, total_sorted)
+	{
+		printk_ratelimited(KERN_DEBUG "tDisk sorting logical sector %u\n", item-td->sorted_sectors);
+		if(unlikely(item->total_sorted.prev != &td->sorted_sectors_head))
+		{
+			bool move = false;
+			prev = list_entry(item->total_sorted.prev, struct sorted_sector_index, total_sorted);
+
+			while(ACCESS_COUNT(item->physical_sector->access_count) > ACCESS_COUNT(prev->physical_sector->access_count))
+			{
+				move = true;
+				if(unlikely(prev->total_sorted.prev == &td->sorted_sectors_head))break;
+				prev = list_entry(prev->total_sorted.prev, struct sorted_sector_index, total_sorted);
+			}
+
+			if(move)
+			{
+				list_del_init(&item->total_sorted);
+
+				if(unlikely(prev->total_sorted.prev == &td->sorted_sectors_head))
+				{
+					list_add_tail(&item->total_sorted, &td->sorted_sectors_head);
+				}
+				else
+				{
+					list_add_tail(&item->total_sorted, &prev->total_sorted);
+				}
+			}
+		}
+	}
 }
 
 /**
@@ -1348,6 +1416,21 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		goto out;
 	}
 
+	spin_lock(&td->tdisk_lock);
+	td->modifying = true;
+	while(td->optimizing)
+	{
+		//We set the modifying flag to true so that the thread
+		//stops optimizing, but we still need to wait until the
+		//thread has finished its current work
+		printk_ratelimited(KERN_DEBUG "tDisk: Waiting for optimizer to finish before adding new device\n");
+
+		spin_unlock(&td->tdisk_lock);
+		msleep(1000);
+		spin_lock(&td->tdisk_lock);
+	}
+	spin_unlock(&td->tdisk_lock);
+
 	error = -EFAULT;
 	if(copy_from_user(&parameters, arg, sizeof(struct internal_device_add_parameters)) != 0)
 		goto out;
@@ -1527,7 +1610,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	case READ:
 		//reading all indices from disk
 		td_read_all_indices(td, &new_device, (u8*)td->indices);
-		td_reorganize_all_indices(td);
+		//td_reorganize_all_indices(td);
 
 		for(sector = 0; sector < td->max_sectors; ++sector)
 		{
@@ -1554,9 +1637,19 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	if(additional_sectors != 0)
 	{
 		//Header size increased. Let's create available sectors
-		//At the beginning of each disk by moving them to the new disk
+		//At the beginning of each disk by moving them to the new disk.
+		//Since this operation is very critical and wee need to use the
+		//newly inserted device before it it actually ready, we stop the
+		//queue to prevent any data corruption
 
 		sector_t search;
+
+		//Stopping queue
+		td_stop_worker_thread(td);
+
+		//Now we need to set the partially finished device
+		//to make sector movement possible
+		td->internal_devices[header.disk_index] = new_device;
 
 		printk(KERN_DEBUG "tDisk: Need to move sectors because index size increased by %d\n", additional_sectors);
 
@@ -1564,12 +1657,15 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		{
 			if(td->indices[sector].disk != header.disk_index+1 && td->indices[sector].disk != 0)
 			{
+				//sector is not a sector of the current disk (=header.disk_index+1) but it's used (!= 0)
+
 				if(td->indices[sector].sector < td->header_size)
 				{
+					//This sector needs to be moved
+
 					tdisk_index disk = td->indices[sector].disk;
 					bool moved = false;
 
-					//This sector needs to be moved
 					for(search = td->size_blocks; search > sector; --search)
 					{
 						if(td->indices[search].disk == header.disk_index+1)
@@ -1597,6 +1693,18 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 					MY_BUG_ON(!moved, PRINT_INT(td->indices[sector].disk), PRINT_ULL(td->indices[sector].sector), PRINT_ULL(search));
 				}
 			}
+		}
+
+		//We need to decrement the current size again becuase of the current device
+		td->size_blocks -= additional_sectors;
+		new_device.size_blocks--;
+
+		//Starting again the queue
+		error = td_start_worker_thread(td);
+		if(error)
+		{
+			printk(KERN_WARNING "tDisk: Error setting up worker thread\n");
+			goto out_reset_sectors;
 		}
 	}
 
@@ -1626,6 +1734,9 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 
 	//Grab the block_device to prevent its destruction
 	if(first_device)bdgrab(bdev);
+	spin_lock(&td->tdisk_lock);
+	td->modifying = false;
+	spin_unlock(&td->tdisk_lock);
 	return 0;
 
  out_reset_sectors:
@@ -1633,6 +1744,9 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
  out_putf:
 	if(file)fput(file);
  out:
+	spin_lock(&td->tdisk_lock);
+	td->modifying = false;
+	spin_unlock(&td->tdisk_lock);
 	return error;
 }
 
@@ -1936,6 +2050,8 @@ static int td_queue_rq(struct blk_mq_hw_ctx *hctx, const struct blk_mq_queue_dat
  **/
 static enum worker_status td_queue_work(void *private_data, struct kthread_work *work)
 {
+	struct tdisk *td = private_data;
+
 	//Since we are not using the standard kthread_work_fn
 	//It is possible that this funtion is called without work.
 	//The reason behind this is that we can reorganize the indices
@@ -1943,7 +2059,6 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 	if(work)
 	{
 		struct td_command *cmd = container_of(work, struct td_command, td_work);
-		struct tdisk *td = cmd->rq->q->queuedata;
 		int ret = 0;
 
 		if(cmd->rq->cmd_flags & REQ_WRITE && (td->flags & TD_FLAGS_READ_ONLY))
@@ -1967,7 +2082,21 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 	else
 	{
 #ifdef MOVE_SECTORS
-		struct tdisk *td = private_data;
+		enum worker_status ret_val;
+
+		spin_lock(&td->tdisk_lock);
+		if(td->modifying)
+		{
+			printk_ratelimited(KERN_DEBUG "tDisk: Not optimizing because the tDisk is currently being modified\n");
+
+			//We can't optimize the tDisk while it is being modified
+			spin_unlock(&td->tdisk_lock);
+
+			//Returning secondary_work_finished so the thread goes to sleep
+			return secondary_work_finished;
+		}
+		td->optimizing = true;
+		spin_unlock(&td->tdisk_lock);
 
 		//No work to do. This means we have reached the timeout
 		//and have now the opportunity to organize the sectors.
@@ -2001,8 +2130,13 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 			td_move_one_sector(td);
 		}
 
-		if(td->access_count_resort)return secondary_work_to_do;
-		else return secondary_work_finished;
+		if(td->access_count_resort)ret_val = secondary_work_to_do;
+		else ret_val = secondary_work_finished;
+
+		spin_lock(&td->tdisk_lock);
+		td->optimizing = false;
+		spin_unlock(&td->tdisk_lock);
+		return ret_val;
 #else
 #pragma message "Moving sectors is disabled"
 		return secondary_work_finished;
@@ -2095,7 +2229,7 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	mutex_init(&td->ctl_mutex);
 	atomic_set(&td->refcount, 0); 
 	td->number		= i;
-	spin_lock_init(&td->lock);
+	spin_lock_init(&td->tdisk_lock);
 	disk->major		= TD_MAJOR;
 	disk->first_minor	= i;
 	disk->fops		= &td_fops;

@@ -1,0 +1,6 @@
+1)	Fehler: Anzeige Speichermedien im Wizard untereinander (Photo Chris)
+2)	Neue tDisk erstellen: zuerst alte tDisks formatieren
+3)	Prioliste erstellen für Prototyp (Excel)
+4)	Für die Zukunft: Es wäre schön, wenn bereits exisiterende Daten auf den Speichermedium in die tDisk übernommen werden könnten
+5)	Legende für Festplattenfarben wird benötigt
+6)	Vermutung: Cubietruck bremst die Geschwindigkeit bei Speichermedien -> Neue Platine besorgen und in der Zwischenzeit evtl. Laptop als Prototyp verwenden.

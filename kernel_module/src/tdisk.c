@@ -480,7 +480,7 @@ static void td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	ret = write_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);
 	if(ret != 0)printk(KERN_WARNING "tDisk: Error restoring logical_a. Data corrupted\n");
  out_err:
-	printk(KERN_WARNING "tDisk: Error swapping sectors %llu and %llu\n", logical_a, logical_b);
+	printk(KERN_WARNING "tDisk: Error swapping sectors %llu and %llu, ret: %d\n", logical_a, logical_b, ret);
  out:
 	vfree(buffer_a);
 	vfree(buffer_b);

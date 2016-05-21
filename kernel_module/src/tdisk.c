@@ -960,32 +960,38 @@ void td_reorganize_all_indices(struct tdisk *td)
 	struct sorted_sector_index *item;
 	struct sorted_sector_index *prev;
 
-	list_for_each_entry_safe(item, item_safe, &td->sorted_sectors_head, total_sorted)
+	bool moved = true;
+	while(moved)
 	{
-		printk_ratelimited(KERN_DEBUG "tDisk sorting logical sector %u\n", item-td->sorted_sectors);
-		if(unlikely(item->total_sorted.prev != &td->sorted_sectors_head))
+		moved = false;
+		list_for_each_entry_safe(item, item_safe, &td->sorted_sectors_head, total_sorted)
 		{
-			bool move = false;
-			prev = list_entry(item->total_sorted.prev, struct sorted_sector_index, total_sorted);
-
-			while(ACCESS_COUNT(item->physical_sector->access_count) > ACCESS_COUNT(prev->physical_sector->access_count))
+			printk_ratelimited(KERN_DEBUG "tDisk sorting logical sector %u\n", item-td->sorted_sectors);
+			if(unlikely(item->total_sorted.prev != &td->sorted_sectors_head))
 			{
-				move = true;
-				if(unlikely(prev->total_sorted.prev == &td->sorted_sectors_head))break;
-				prev = list_entry(prev->total_sorted.prev, struct sorted_sector_index, total_sorted);
-			}
+				bool move = false;
+				prev = list_entry(item->total_sorted.prev, struct sorted_sector_index, total_sorted);
 
-			if(move)
-			{
-				list_del_init(&item->total_sorted);
-
-				if(unlikely(prev->total_sorted.prev == &td->sorted_sectors_head))
+				while(ACCESS_COUNT(item->physical_sector->access_count) > ACCESS_COUNT(prev->physical_sector->access_count))
 				{
-					list_add_tail(&item->total_sorted, &td->sorted_sectors_head);
+					move = true;
+					if(unlikely(prev->total_sorted.prev == &td->sorted_sectors_head))break;
+					prev = list_entry(prev->total_sorted.prev, struct sorted_sector_index, total_sorted);
 				}
-				else
+
+				if(move)
 				{
-					list_add_tail(&item->total_sorted, &prev->total_sorted);
+					moved = true;
+					list_del_init(&item->total_sorted);
+
+					if(unlikely(prev->total_sorted.prev == &td->sorted_sectors_head))
+					{
+						list_add(&item->total_sorted, &td->sorted_sectors_head);
+					}
+					else
+					{
+						list_add(&item->total_sorted, &prev->total_sorted);
+					}
 				}
 			}
 		}

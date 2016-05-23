@@ -403,7 +403,7 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 #pragma message "Reset auto access count is disabled"
 #endif //AUTO_RESET_ACCESS_COUNT
 	}
-	
+
 
 	MY_BUG_ON(direction == WRITE && physical_sector->disk == 0, PRINT_INT(physical_sector->disk), PRINT_ULL(logical_sector));
 	MY_BUG_ON(direction == READ && actual->disk == 0, PRINT_INT(actual->disk), PRINT_ULL(logical_sector));
@@ -912,38 +912,6 @@ int td_sector_index_callback_total(void *priv, struct list_head *a, struct list_
 
 	return ACCESS_COUNT(i_b->physical_sector->access_count) - ACCESS_COUNT(i_a->physical_sector->access_count);
 }
-
-/**
-  * This function sorts the sector index just of the given
-  * logical sector. This is useful for continuously soriting
-  * the indices since in only touches one sector index
- **/
-/*void td_reorganize_sorted_index(struct tdisk *td, sector_t logical_sector)
-{
-	struct sorted_sector_index *index;
-	struct sorted_sector_index *next = NULL;
-	struct sorted_sector_index *prev = NULL;
-
-	if(logical_sector >= td->max_sectors)
-	{
-		printk(KERN_ERR "tDisk: Can't sort sector %llu\n", logical_sector);
-		return;
-	}
-
-	//Retrieve index of logical sector and sorrounding indices
-	index = &td->sorted_sectors[logical_sector];
-	if(index->list.next)next = list_entry(index->list.next, struct sorted_sector_index, list);
-	if(index->list.pprev)prev = list_entry(index->list.pprev, struct sorted_sector_index, list.next);
-
-	//Check if it doens't fit anymore
-	if((next && index->physical_sector->access_count < next->physical_sector->access_count) || (prev && index->physical_sector->access_count > prev->physical_sector->access_count))
-	{
-		//Remove it and re-insert
-		td->access_count_resort = 1;
-		list_del_init(&index->list);
-		list_insert_sorted(&index->list, &td->sorted_sectors_head, &td_sector_index_callback);
-	}
-}*/
 
 /**
   * This function sorts all the sector indices
@@ -1618,7 +1586,14 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			int internal_ret = td_perform_index_operation(td, COMPARE, sector, &physical_sector[sector], false, false);
 			if(internal_ret == -1)
 			{
-				printk_ratelimited(KERN_WARNING "tDisk: Disk index doesn't match. Probably wrong or corrupt disk attached. Pay attention before you write to disk!\n");
+				//We have the rule that if the index doesn't match, each disk
+				//has priority over it's own index
+				if(physical_sector[sector].disk == header.disk_index+1)
+				{
+					//Replace index value
+					td_perform_index_operation(td, WRITE, sector, &physical_sector[sector], false, false);
+				}
+				else printk_ratelimited(KERN_WARNING "tDisk: Disk index doesn't match. Probably wrong or corrupt disk attached. Pay attention before you write to disk!\n");
 			}
 		}
 

@@ -1713,8 +1713,8 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		}
 
 		//We need to decrement the current size again becuase of the current device
-		td->size_blocks -= additional_sectors;
-		new_device.size_blocks--;
+		td->size_blocks -= (unsigned)additional_sectors;	//additinal_sectors < 0 was tested before so it can be safely casted
+		new_device.size_blocks -= (unsigned)additional_sectors;
 
 		//Starting again the queue
 		error = td_start_worker_thread(td);

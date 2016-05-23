@@ -497,9 +497,11 @@ public:
 	{
 		unsigned long long max_sectors = getMaxSectors();
 
+		performance::start("getAllSectorIndices");
 		std::vector<f_sector_info> indices((std::size_t)max_sectors);
 		int ret = c::tdisk_get_all_sector_indices(name.c_str(), &indices[0], max_sectors);
-		
+		performance::stop("getAllSectorIndices");
+
 		try {
 			handleError(ret);
 		} catch (const tDiskOfflineException &e) {
@@ -576,9 +578,7 @@ public:
 	 **/
 	std::vector<FileAssignment> getFilesOnDevice(unsigned int device, bool getPercentages, bool filesOnly)
 	{
-		performance::start("getAllSectorIndices");
 		std::vector<f_sector_info> sectorIndices = getAllSectorIndices();
-		performance::stop("getAllSectorIndices");
 
 		unsigned int blocksize = getBlocksize();
 		std::vector<std::pair<unsigned long long,unsigned long long> > positions;

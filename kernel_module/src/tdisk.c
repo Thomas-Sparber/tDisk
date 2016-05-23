@@ -5,8 +5,6 @@
   *
  **/
 
-#include <linux/delay.h>
-
 #include <tdisk/config.h>
 #include "helpers.h"
 #include "tdisk.h"
@@ -454,48 +452,48 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	u8 *buffer_b;
 
 	buffer_a = vmalloc(td->blocksize);
-	if(!buffer_a)return;
+	if(!buffer_a)return false;
 
 	buffer_b = vmalloc(td->blocksize);
 	if(!buffer_b)
 	{
 		vfree(buffer_a);
-		return;
+		return false;
 	}
-	
+
 
 	//Reading blocks from both disks
 	ret = read_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);		//a read op1
 	if(ret != 0)
 	{
-		printk(KERN_WARNING "tDisk: Swap error: reading %llu, disk: %u\n", logical_a, a->disk, ret);
+		printk(KERN_WARNING "tDisk: Swap error: reading %llu, disk: %u, ret: %d\n", logical_a, a->disk, ret);
 		goto out;
 	}
-	
+
 
 	ret = read_data(&td->internal_devices[b->disk-1], buffer_b, pos_b, td->blocksize);		//b read op1
 	if(ret != 0)
 	{
-		printk(KERN_WARNING "tDisk: Swap error: reading %llu, disk: %u\n", logical_b, b->disk, ret);
+		printk(KERN_WARNING "tDisk: Swap error: reading %llu, disk: %u, ret: %d\n", logical_b, b->disk, ret);
 		goto out;
 	}
-	
+
 
 	//Saving swapped data to both disks
 	ret = write_data(&td->internal_devices[a->disk-1], buffer_b, pos_a, td->blocksize);		//a write op1
 	if(ret != 0)
 	{
-		printk(KERN_WARNING "tDisk: Swap error: writing %llu, disk: %u\n", logical_a, a->disk, ret);
+		printk(KERN_WARNING "tDisk: Swap error: writing %llu, disk: %u, ret: %d\n", logical_a, a->disk, ret);
 		goto out;
 	}
 
 	ret = write_data(&td->internal_devices[b->disk-1], buffer_a, pos_b, td->blocksize);		//b write op1
 	if(ret != 0)
 	{
-		printk(KERN_WARNING "tDisk: Swap error: writing %llu, disk: %u. Need to restore previous sector...\n", logical_b, b->disk, ret);
+		printk(KERN_WARNING "tDisk: Swap error: writing %llu, disk: %u, ret: %d. Need to restore previous sector...\n", logical_b, b->disk, ret);
 		goto out_restore_a;
 	}
-	
+
 
 	swap(a->disk, b->disk);
 	swap(a->sector, b->sector);
@@ -873,7 +871,7 @@ static bool td_move_one_sector(struct tdisk *td)
 			sector_t logical_b = (sector_t)(to_swap-td->sorted_sectors);
 			struct sector_index *a = highest->physical_sector;
 			struct sector_index *b = to_swap->physical_sector;
-			
+
 			//printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u): %llu/%llu\n",
 			//		logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count, correctly_stored, td->size_blocks);
 
@@ -1506,7 +1504,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	additional_sectors = td_get_max_sectors_header_increase(td, new_max_sectors);
 	if(size < ((loff_t)td->header_size+additional_sectors+1)*td->blocksize)	//Disk too small
 	{
-		printk(KERN_WARNING "tDisk: Can't add disk, too small: %llu. Should be at least %u\n", size, ((loff_t)td->header_size+additional_sectors+1)*td->blocksize);
+		printk(KERN_WARNING "tDisk: Can't add disk, too small: %llu. Should be at least %llu\n", size, ((loff_t)td->header_size+additional_sectors+1)*td->blocksize);
 		goto out_putf;
 	}
 
@@ -1690,7 +1688,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 							//Set disks size
 							td->size_blocks--;
 							td->internal_devices[disk].size_blocks--;
-					
+
 							moved = true;
 							break;
 						}

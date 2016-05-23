@@ -1,0 +1,35 @@
+tDisk Hardware specifications
+
+Computer type:
+ - Single board computer (SBC),
+ - Computer-on-module (COM),
+ - System on a Chip (SoC)
+CPU:
+ - 2-4 Cores
+ - min 1.2 GHz
+ - (32bit or 64bit)
+ - (ARM or x86)
+RAM:
+ - min 1GB
+ - recommended 2GB+
+ - (DDR3 or DDR4)
+Internal Storage:
+ - Micro SD
+ - NAND Flash
+Other:
+ - WLAN
+ - 1GBit Ethernet
+ - USB 2.0 Ports
+ - USB 3.0 Ports
+ - SATA Port
+
+NOT NEEDED
+ - Bluetooth
+ - HDMI
+ - VGA
+ - GPU
+ - Audio
+
+Example products:
+ - http://www.compulab.co.il/products/sbcs/sbc-qs600/
+ - http://www.hardkernel.com/main/products/prdt_info.php?g_code=G145457216438

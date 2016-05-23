@@ -14,12 +14,12 @@
 #include <sys/stat.h>
 #include <vector>
 
-#ifdef WINDOWS
+#ifdef __linux__
+#include <unistd.h>
+#else
 #include <direct.h>
 #include <Windows.h>
-#else
-#include <unistd.h>
-#endif //WINDOWS
+#endif //__linux__
 
 namespace td
 {
@@ -144,11 +144,11 @@ namespace td
 			else if(backslashes > slashes)pathSeparator = '\\';
 			else
 			{
-#ifdef WINDOWS
-				pathSeparator = '\\';
-#else
+#ifdef __linux__
 				pathSeparator = '/';
-#endif //WINDOWS
+#else
+				pathSeparator = '\\';
+#endif //__linux__
 			}
 
 			return concat(a, pathSeparator, b);
@@ -200,11 +200,11 @@ namespace td
 			if(dir.empty())
 			{
 				char currentPath[1024];
-#ifdef WINDOWS
-				_getcwd(currentPath, sizeof(currentPath));
-#else
+#ifdef __linux__
 				getcwd(currentPath, sizeof(currentPath));
-#endif //WINDOWS
+#else
+				_getcwd(currentPath, sizeof(currentPath));
+#endif //__linux__
 				return currentPath;
 			}
 

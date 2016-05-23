@@ -1,5 +1,5 @@
 
-all: make_ko make_backend web_interface/tdisk
+all: make_ko make_backend
 
 make_ko:
 	@make -C kernel_module
@@ -11,9 +11,6 @@ disks:
 	sudo dd if=/dev/zero of=slow_disk bs=1M count=256
 	sudo dd if=/dev/zero of=big_disk bs=1M count=4096
 	sudo dd if=/dev/zero of=other_disk bs=1M count=384
-
-web_interface/tdisk: backend/tdisk
-	@cp backend/tdisk web_interface/tdisk
 
 doc:
 	@doxygen documentation/kernel_module/doxygen.conf

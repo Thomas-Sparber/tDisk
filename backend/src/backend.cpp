@@ -139,7 +139,7 @@ BackendResult td::get_devices(const vector<string> &/*args*/, Options &options)
 		fs::getDevices(devices);
 		for(const fs::Device &device : devices)
 		{
-			c::f_internal_device_info d = {};
+			c::f_internal_device_info d;
 			d.type = c::f_internal_device_type_file;
 			strncpy(d.name, device.name.c_str(), F_TDISK_MAX_INTERNAL_DEVICE_NAME);
 			strncpy(d.path, device.path.c_str(), F_TDISK_MAX_INTERNAL_DEVICE_NAME);

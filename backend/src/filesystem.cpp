@@ -318,7 +318,7 @@ vector<FileAssignment> fs::getFilesOnDisk(const string &disk, vector<pair<unsign
 
 		if(onDisk != 0 || calculatePercentage)
 		{
-			long double percentage = calculatePercentage ? (long double)onDisk / totalBytes : 0;
+			long double percentage = calculatePercentage ? (long double)onDisk / (long double)totalBytes : 0;
 			result.push_back(FileAssignment(file, (double)percentage));
 		}
 

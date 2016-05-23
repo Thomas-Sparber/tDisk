@@ -135,26 +135,26 @@ public:
 	/**
 	  * Sets the result message for the given type
 	 **/
-	void message(BackendResultType type, const std::string &message)
+	void message(BackendResultType type, const std::string &m)
 	{
-		individualResults[type].message = message;
+		individualResults[type].message = m;
 	}
 
 	/**
 	  * Sets the warning result message for the given type
 	 **/
-	void warning(BackendResultType type, const std::string &warning)
+	void warning(BackendResultType type, const std::string &w)
 	{
-		individualResults[type].warning = warning;
+		individualResults[type].warning = w;
 		individualResults[type].errorCode = std::max(individualResults[type].errorCode, BackendErrorCode::Warning);
 	}
 
 	/**
 	  * Sets the error result message for the given type
 	 **/
-	void error(BackendResultType type, const std::string &error)
+	void error(BackendResultType type, const std::string &e)
 	{
-		individualResults[type].error = error;
+		individualResults[type].error = e;
 		individualResults[type].errorCode = std::max(individualResults[type].errorCode, BackendErrorCode::Error);
 	}
 

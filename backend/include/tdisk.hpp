@@ -605,7 +605,7 @@ public:
 		unsigned int fastestDevice = 1;
 		double bestPerformance = 999999999;
 		long double avgPerformance = 0;
-		unsigned int devices = getInternalDevicesCount();
+		const unsigned int devices = getInternalDevicesCount();
 		for(unsigned int device = 1; device <= devices; ++device)
 		{
 			f_internal_device_info info = getDeviceInfo(device);

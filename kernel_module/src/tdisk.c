@@ -1390,6 +1390,26 @@ static int td_add_check_file(struct tdisk *td, fmode_t mode, struct block_device
 #endif //USE_FILES
 
 /**
+  * Applies the internal_device_add_parameters to the actual new
+  * internal device
+ **/
+static int set_device_parameters(struct td_internal_device *new_device, struct internal_device_add_parameters __user *arg)
+{
+	struct internal_device_add_parameters parameters;
+
+	if(copy_from_user(&parameters, arg, sizeof(struct internal_device_add_parameters)) != 0)
+		return -EFAULT;
+
+	new_device->type = parameters.type;
+	memcpy(new_device->name, parameters.name, TDISK_MAX_INTERNAL_DEVICE_NAME);
+	memcpy(new_device->path, parameters.path, TDISK_MAX_INTERNAL_DEVICE_NAME);
+
+	new_device->file = fget(parameters.fd);
+
+	return 0;
+}
+
+/**
   * Adds the given internal device to the tDisk.
   * This function reads the disk header, performs the correct
   * index operation (WRITE, READ, COMPARE), adds it to the tDisk
@@ -1397,7 +1417,7 @@ static int td_add_check_file(struct tdisk *td, fmode_t mode, struct block_device
  **/
 static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev, struct internal_device_add_parameters __user *arg)
 {
-	struct file	*file = NULL;
+	//struct file *file = NULL;
 	struct address_space *mapping;
 	struct tdisk_header header;
 	int error;
@@ -1410,7 +1430,6 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	int index_operation_to_do;
 	int first_device = (td->internal_devices_count == 0);
 	int additional_sectors;
-	struct internal_device_add_parameters parameters;
 
 	//Check for disk limit
 	if(td->internal_devices_count == TDISK_MAX_PHYSICAL_DISKS)
@@ -1436,33 +1455,27 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	spin_unlock(&td->tdisk_lock);
 
 	error = -EFAULT;
-	if(copy_from_user(&parameters, arg, sizeof(struct internal_device_add_parameters)) != 0)
+	memset(&new_device, 0, sizeof(struct td_internal_device));
+	if(set_device_parameters(&new_device, arg) != 0)
 		goto out;
 
-	memset(&new_device, 0, sizeof(struct td_internal_device));
-	new_device.type = parameters.type;
-	memcpy(new_device.name, parameters.name, TDISK_MAX_INTERNAL_DEVICE_NAME);
-	memcpy(new_device.path, parameters.path, TDISK_MAX_INTERNAL_DEVICE_NAME);
-
-	switch(parameters.type)
+	switch(new_device.type)
 	{
 #ifdef USE_FILES
 	case internal_device_type_file:
 		printk(KERN_INFO "tDisk: Adding new internal device file: %s (Path: %s)\n", new_device.name, new_device.path);
 		error = -EBADF;
-		file = fget(parameters.fd);
-		if(!file)goto out;
+		if(!new_device.file)goto out;
 
-		error = td_add_check_file(td, mode, bdev, file);
+		error = td_add_check_file(td, mode, bdev, new_device.file);
 		if(error)goto out_putf;
 
-		mapping = file->f_mapping;
+		mapping = new_device.file->f_mapping;
 		new_device.old_gfp_mask = mapping_gfp_mask(mapping);
 		mapping_set_gfp_mask(mapping, new_device.old_gfp_mask & ~(__GFP_IO|__GFP_FS));
-		new_device.file = file;
 
 		//File size in bytes
-		size = file_get_size(file);
+		size = file_get_size(new_device.file);
 		break;
 #else
 #pragma message "Files are disabled"
@@ -1480,7 +1493,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 #endif //USE_PLUGINS
 
 	default:
-		printk(KERN_WARNING "tDisk: Invalid device type %d\n", parameters.type);
+		printk(KERN_WARNING "tDisk: Invalid device type %d\n", new_device.type);
 		error = -EINVAL;
 		goto out;
 	}
@@ -1746,7 +1759,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
  out_reset_sectors:
 	td_reset_sectors(td);
  out_putf:
-	if(file)fput(file);
+	if(new_device.file)fput(new_device.file);
  out:
 	spin_lock(&td->tdisk_lock);
 	td->modifying = false;

@@ -88,4 +88,31 @@ http://beagleboard.org/green
 
 
 
+------------
 
+research andy:
+
+Nvidia Jetson TK1
+	http://www.nvidia.de/object/jetson-tk1-embedded-dev-kit-de.html
+Firefly-RK3288 Plus
+	http://de.aliexpress.com/item/Firefly-RK3288-Quad-core-Cortex-A17-processors-Development-board/32224160718.html	
+armStoneTMA9
+	https://www.fs-net.de/de/produkte/armstone/armstonea9/
+Novena
+	https://en.wikipedia.org/wiki/Novena_(computing_platform)
+Inforce 6540
+	http://www.inforcecomputing.com/products/single-board-computers-sbc/qualcomm-snapdragon-805-inforce-6540-sbc
+Firefly-RK3288 Reload
+	http://www.cnx-software.com/2016/03/07/firefly-rk3288-reload-board-features-a-som-baseboard-design-supports-sata-three-hdmi-ports-and-more/
+ODROID-XU3
+	http://www.hardkernel.com/main/products/prdt_info.php?g_code=G140448267127
+Arndale Board
+	http://www.arndaleboard.org/wiki/index.php/Main_Page
+Cubieboard 4 / CC-A80
+	http://www.cubietruck.com/products/cubieboard4-cc-a80-high-performance-mini-pc-development-board
+Utilite Pro
+	http://www.compulab.co.il/utilite-computer/web/utilite-pro-specifications
+Banana Pi M3
+	http://www.banana-pi.org/m3.html
+Orange Pi Plus 2
+	http://www.orangepi.org/orangepiplus2/

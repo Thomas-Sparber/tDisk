@@ -9,6 +9,7 @@
 #define RESULTFORMATTER_HPP
 
 #include <map>
+#include <sstream>
 #include <string>
 #include <typeinfo>
 #include <vector>
@@ -23,22 +24,28 @@ namespace td
 	/**
 	  * Creates a Json result string for an object member
 	 **/
-	#define CREATE_RESULT_STRING_MEMBER_JSON(object, member, hierarchy, outputFormat) "\"", #member, "\": ", createResultString(object.member, hierarchy, outputFormat)
+	#define CREATE_RESULT_STRING_MEMBER_JSON(ss, object, member, hierarchy, outputFormat) ss<<"\""<<#member<<"\": "; createResultString(ss, object.member, hierarchy, outputFormat)
 
 	/**
 	  * Creates a text result string for an object member
 	 **/
-	#define CREATE_RESULT_STRING_MEMBER_TEXT(object, member, hierarchy, outputFormat) #member, " = ", createResultString(object.member, hierarchy, outputFormat)
+	#define CREATE_RESULT_STRING_MEMBER_TEXT(ss, object, member, hierarchy, outputFormat) ss<<#member<<" = "; createResultString(ss, object.member, hierarchy, outputFormat)
 
 	/**
 	  * Creates a Json result string for a non object member
 	 **/
-	#define CREATE_RESULT_STRING_NONMEMBER_JSON(var, hierarchy, outputFormat) "\"", #var, "\": ", createResultString(var, hierarchy, outputFormat)
+	#define CREATE_RESULT_STRING_NONMEMBER_JSON(ss, var, hierarchy, outputFormat) ss<<"\""<<#var<<"\": "; createResultString(ss, var, hierarchy, outputFormat)
 	
 	/**
 	  * Creates a text result string for a non object member
 	 **/
-	#define CREATE_RESULT_STRING_NONMEMBER_TEXT(var, hierarchy, outputFormat) #var, " = ", createResultString(var, hierarchy, outputFormat)
+	#define CREATE_RESULT_STRING_NONMEMBER_TEXT(ss, var, hierarchy, outputFormat) ss<<#var<<" = "; createResultString(ss, var, hierarchy, outputFormat)
+
+	inline void insertTab(std::ostream &ss, unsigned int count)
+	{
+		for(unsigned int i = 0; i < count; ++i)
+			ss<<'\t';
+	}
 
 	/**
 	  * Stringifies the given object using the given format and data
@@ -50,7 +57,7 @@ namespace td
 	  * @returns The object converted to string using the given format
 	 **/
 	template <class T>
-	inline std::string createResultString(const T &t, unsigned int hierarchy, const utils::ci_string &outputFormat)
+	inline void createResultString(std::ostream &ss, const T &t, unsigned int hierarchy, const utils::ci_string &outputFormat)
 	{
 		throw FormatException("Can't create result string of type ", typeid(t).name());
 	}
@@ -64,12 +71,12 @@ namespace td
 	  * @returns The object converted to string using the given format
 	 **/
 	template <class T>
-	inline std::string createResultString_bool(const T &s, const utils::ci_string &outputFormat)
+	inline void createResultString_bool(std::ostream &ss, const T &s, const utils::ci_string &outputFormat)
 	{
 		if(outputFormat == "json")
-			return (s) ? "true" : "false";
+			ss<<((s) ? "true" : "false");
 		else if(outputFormat == "text")
-			return (s) ? "yes" : "no";
+			ss<<((s) ? "yes" : "no");
 		else
 			throw FormatException("Invalid output-format ", outputFormat);
 	}
@@ -83,12 +90,12 @@ namespace td
 	  * @returns The object converted to string using the given format
 	 **/
 	template <class T>
-	inline std::string createResultString_string(const T &s, const utils::ci_string &outputFormat)
+	inline void createResultString_string(std::ostream &ss, const T &s, const utils::ci_string &outputFormat)
 	{
 		if(outputFormat == "json")
-			return utils::concat('"', s, '"');
+			ss<<'"'<<s<<'"';
 		else if(outputFormat == "text")
-			return utils::concat(s);
+			ss<<s;
 		else
 			throw FormatException("Invalid output-format ", outputFormat);
 	}
@@ -102,12 +109,12 @@ namespace td
 	  * @returns The object converted to string using the given format
 	 **/
 	template <class T>
-	inline std::string createResultString_number(const T &i, const utils::ci_string &outputFormat)
+	inline void createResultString_number(std::ostream &ss, const T &i, const utils::ci_string &outputFormat)
 	{
 		if(outputFormat == "json")
-			return utils::concat(i);
+			ss<<i;
 		else if(outputFormat == "text")
-			return utils::concat(i);
+			ss<<i;
 		else
 			throw FormatException("Invalid output-format ", outputFormat);
 	}
@@ -122,32 +129,38 @@ namespace td
 	  * @returns The object converted to string using the given format
 	 **/
 	template <class T, template <class ...> class container>
-	inline std::string createResultString_array(const container<T> &v, unsigned int hierarchy, const utils::ci_string &outputFormat)
+	inline void createResultString_array(std::ostream &ss, const container<T> &v, unsigned int hierarchy, const utils::ci_string &outputFormat)
 	{
-		std::vector<std::string> temp(v.size());
 		if(outputFormat == "json")
 		{
-			if(v.empty())temp = { "[]" };
+			if(v.empty())ss<< "[]";
 
 			for(size_t i = 0; i < v.size(); ++i)
 			{
-				temp[i] = utils::concat(
-					(i == 0) ? "[\n" : "",
-					std::vector<char>(hierarchy+1, '\t'), createResultString(v[i], hierarchy + 1, outputFormat),
-					(i < v.size()-1) ? ",\n" : utils::concat("\n", std::vector<char>(hierarchy, '\t'), "]"));
+				if(i == 0)ss<<"[\n";
+				insertTab(ss, hierarchy+1);
+				createResultString(ss, v[i], hierarchy + 1, outputFormat);
+				if(i < v.size()-1)
+					ss<<",\n";
+				else
+				{
+					ss<<'\n';
+					insertTab(ss, hierarchy);
+					ss<<"]";
+				}
+				
 			}
 		}
 		else if(outputFormat == "text")
+		{
 			for(size_t i = 0; i < v.size(); ++i)
 			{
-				temp[i] = utils::concat(
-					createResultString(v[i], hierarchy + 1, outputFormat),
-					(i < v.size()-1) ? "\n" : "");
+				createResultString(ss, v[i], hierarchy + 1, outputFormat);
+				if(i < v.size()-1)ss<<"\n";
 			}
+		}
 		else
 			throw FormatException("Invalid output-format ", outputFormat);
-
-		return utils::concat(temp);
 	}
 
 	/**
@@ -160,31 +173,36 @@ namespace td
 	  * @returns The object converted to string using the given format
 	 **/
 	template <class S, class T>
-	inline std::string createResultString_map(const std::map<S,T> &m, unsigned int hierarchy, const utils::ci_string &outputFormat)
+	inline void createResultString_map(std::ostream &ss, const std::map<S,T> &m, unsigned int hierarchy, const utils::ci_string &outputFormat)
 	{
-		size_t i = 0;
-		std::vector<std::string> temp(m.size());
+		std::size_t i = 0;
 		if(outputFormat == "json")
 			for(const std::pair<S,T> &p : m)
 			{
-				temp[i] = utils::concat(
-					(i == 0) ? "{\n" : "",
-					std::vector<char>(hierarchy+1, '\t'), createResultString(p.first, hierarchy + 1, outputFormat), ": ", createResultString(p.second, hierarchy + 1, outputFormat),
-					(i < m.size()-1) ? ",\n" : utils::concat("\n", std::vector<char>(hierarchy, '\t'), "}"));
+				if(i == 0)ss<<"{\n";
+				insertTab(ss, hierarchy+1);
+				createResultString(ss, p.first, hierarchy + 1, outputFormat);
+				ss<<": ";
+				createResultString(ss, p.second, hierarchy + 1, outputFormat);
+				if(i < m.size()-1)
+					ss<<",\n";
+				else
+				{
+					ss<<"\n";
+					insertTab(ss, hierarchy);
+					ss<<"}";
+				}
 				i++;
 			}
 		else if(outputFormat == "text")
 			for(const std::pair<S,T> &p : m)
 			{
-				temp[i] = utils::concat(
-					createResultString(p.first, hierarchy + 1, outputFormat), " = ", createResultString(p.second, hierarchy + 1, outputFormat),
-					(i < m.size()-1) ? "\n" : "");
+				createResultString(ss, p.first, hierarchy + 1, outputFormat), " = ", createResultString(p.second, hierarchy + 1, outputFormat);
+				if(i < m.size()-1)ss<<"\n";
 				i++;
 			}
 		else
 			throw FormatException("Invalid output-format ", outputFormat);
-
-		return utils::concat(temp);
 	}
 
 	/**
@@ -196,9 +214,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <> inline std::string createResultString(const bool &b, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <> inline void createResultString(std::ostream &ss, const bool &b, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_bool(b, outputFormat);
+		createResultString_bool(ss, b, outputFormat);
 	}
 
 	/**
@@ -210,9 +228,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <> inline std::string createResultString(const std::string &s, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <> inline void createResultString(std::ostream &ss, const std::string &s, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_string(s, outputFormat);
+		createResultString_string(ss, s, outputFormat);
 	}
 
 	/**
@@ -224,9 +242,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <> inline std::string createResultString(const utils::ci_string &s, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <> inline void createResultString(std::ostream &ss, const utils::ci_string &s, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_string(s, outputFormat);
+		createResultString_string(ss, s, outputFormat);
 	}
 
 	/**
@@ -238,9 +256,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <> inline std::string createResultString(const char &s, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <> inline void createResultString(std::ostream &ss, const char &s, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_string(s, outputFormat);
+		createResultString_string(ss, s, outputFormat);
 	}
 
 	/**
@@ -252,9 +270,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <> inline std::string createResultString(const char* const &s, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <> inline void createResultString(std::ostream &ss, const char* const &s, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_string(std::string(s), outputFormat);
+		createResultString_string(ss, std::string(s), outputFormat);
 	}
 
 	/**
@@ -266,9 +284,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <std::size_t i> inline std::string createResultString(const char (&s)[i], unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <std::size_t i> inline void createResultString(std::ostream &ss, const char (&s)[i], unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_string(std::string(s), outputFormat);
+		createResultString_string(ss, std::string(s), outputFormat);
 	}
 
 	/**
@@ -280,9 +298,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <> inline std::string createResultString(const uint8_t &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <> inline void createResultString(std::ostream &ss, const uint8_t &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_number((unsigned int)i, outputFormat);
+		createResultString_number(ss, (unsigned int)i, outputFormat);
 	}
 
 	/**
@@ -294,9 +312,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <> inline std::string createResultString(const uint16_t &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <> inline void createResultString(std::ostream &ss, const uint16_t &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_number(i, outputFormat);
+		createResultString_number(ss, i, outputFormat);
 	}
 
 	/**
@@ -308,9 +326,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <> inline std::string createResultString(const int &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <> inline void createResultString(std::ostream &ss, const int &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_number(i, outputFormat);
+		createResultString_number(ss, i, outputFormat);
 	}
 
 	/**
@@ -322,9 +340,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <> inline std::string createResultString(const unsigned int &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <> inline void createResultString(std::ostream &ss, const unsigned int &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_number(i, outputFormat);
+		createResultString_number(ss, i, outputFormat);
 	}
 
 	/**
@@ -336,9 +354,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <> inline std::string createResultString(const long &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <> inline void createResultString(std::ostream &ss, const long &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_number(i, outputFormat);
+		createResultString_number(ss, i, outputFormat);
 	}
 
 	/**
@@ -350,9 +368,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <> inline std::string createResultString(const unsigned long &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <> inline void createResultString(std::ostream &ss, const unsigned long &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_number(i, outputFormat);
+		createResultString_number(ss, i, outputFormat);
 	}
 
 	/**
@@ -364,9 +382,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <> inline std::string createResultString(const long long &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <> inline void createResultString(std::ostream &ss, const long long &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_number(i, outputFormat);
+		createResultString_number(ss, i, outputFormat);
 	}
 
 	/**
@@ -378,9 +396,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <> inline std::string createResultString(const unsigned long long &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <> inline void createResultString(std::ostream &ss, const unsigned long long &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_number(i, outputFormat);
+		createResultString_number(ss, i, outputFormat);
 	}
 
 	/**
@@ -392,9 +410,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <> inline std::string createResultString(const float &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <> inline void createResultString(std::ostream &ss, const float &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_number(i, outputFormat);
+		createResultString_number(ss, i, outputFormat);
 	}
 
 	/**
@@ -406,9 +424,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <> inline std::string createResultString(const double &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <> inline void createResultString(std::ostream &ss, const double &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_number(i, outputFormat);
+		createResultString_number(ss, i, outputFormat);
 	}
 
 	/**
@@ -420,9 +438,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <> inline std::string createResultString(const long double &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
+	template <> inline void createResultString(std::ostream &ss, const long double &i, unsigned int /*hierarchy*/, const utils::ci_string &outputFormat)
 	{
-		return createResultString_number(i, outputFormat);
+		createResultString_number(ss, i, outputFormat);
 	}
 
 	/**
@@ -434,9 +452,9 @@ namespace td
 	  * Currently, json and text are supported
 	  * @returns The object converted to string using the given format
 	 **/
-	template <class T> inline std::string createResultString(const std::vector<T> &v, unsigned int hierarchy, const utils::ci_string &outputFormat)
+	template <class T> inline void createResultString(std::ostream &ss, const std::vector<T> &v, unsigned int hierarchy, const utils::ci_string &outputFormat)
 	{
-		return createResultString_array(v, hierarchy, outputFormat);
+		createResultString_array(ss, v, hierarchy, outputFormat);
 	}
 
 } //end namespace td

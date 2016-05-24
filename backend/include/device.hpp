@@ -96,7 +96,7 @@ struct Device
 /**
   * Stringifies a td::fs::Device with the given format
  **/
-template <> std::string createResultString(const fs::Device &device, unsigned int hierarchy, const utils::ci_string &outputFormat);
+template <> void createResultString(std::ostream &ss, const fs::Device &device, unsigned int hierarchy, const utils::ci_string &outputFormat);
 
 } //end namespace td
 

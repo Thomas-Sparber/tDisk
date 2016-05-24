@@ -51,20 +51,20 @@ struct FileAssignment
 /**
   * Stringifies the given FileAssignment using the given format
  **/
-template <> inline std::string createResultString(const FileAssignment &fa, unsigned int hierarchy, const utils::ci_string &outputFormat)
+template <> inline void createResultString(std::ostream &ss, const FileAssignment &fa, unsigned int hierarchy, const utils::ci_string &outputFormat)
 {
 	if(outputFormat == "json")
-		return utils::concat(
-			"{\n",
-				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(fa, filename, hierarchy+1, outputFormat), ",\n",
-				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(fa, percentage, hierarchy+1, outputFormat), "\n",
-			std::vector<char>(hierarchy, '\t'), "}"
-		);
+	{
+		ss<<"{\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, fa, filename, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, fa, percentage, hierarchy+1, outputFormat); ss<<"\n";
+		insertTab(ss, hierarchy); ss<<"}";
+	}
 	else if(outputFormat == "text")
-		return utils::concat(
-				CREATE_RESULT_STRING_MEMBER_TEXT(fa, filename, hierarchy+1, outputFormat), "\n",
-				CREATE_RESULT_STRING_MEMBER_TEXT(fa, percentage, hierarchy+1, outputFormat), "\n"
-		);
+	{
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, fa, filename, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, fa, percentage, hierarchy+1, outputFormat); ss<<"\n";
+	}
 	else
 		throw FormatException("Invalid output-format ", outputFormat);
 }

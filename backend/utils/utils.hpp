@@ -31,7 +31,7 @@ namespace td
 		  * Helper function to concat variables
 		 **/
 		template <class S>
-		inline void concat(std::stringstream &ss, const S &s)
+		inline void concat(std::ostream &ss, const S &s)
 		{
 			ss<<s;
 		}
@@ -40,7 +40,7 @@ namespace td
 		  * Helper function to concat variables
 		 **/
 		template <class T>
-		inline void concat(std::stringstream &ss, const std::vector<T> &v)
+		inline void concat(std::ostream &ss, const std::vector<T> &v)
 		{
 			for(const T &t : v)
 				concat(ss, t);
@@ -50,7 +50,7 @@ namespace td
 		  * Helper function to concat variables
 		 **/
 		template <class S, class ...T>
-		inline void concat(std::stringstream &ss, const S &s, T ...t)
+		inline void concat(std::ostream &ss, const S &s, T ...t)
 		{
 			concat(ss, s);
 			concat(ss, t...);
@@ -63,7 +63,7 @@ namespace td
 		inline std::string concat(T ...t)
 		{
 			std::stringstream ss;
-			concat(ss, t...);
+			concat((std::ostream&)ss, t...);
 			return ss.str();
 		}
 
@@ -71,7 +71,7 @@ namespace td
 		  * Helper function to concat variables using quotes
 		 **/
 		template <class S>
-		inline void concatQuoted(std::stringstream &ss, const S &s)
+		inline void concatQuoted(std::ostream &ss, const S &s)
 		{
 			ss<<"\""<<s<<"\" ";
 		}
@@ -80,7 +80,7 @@ namespace td
 		  * Helper function to concat variables using quotes
 		 **/
 		template <class T>
-		inline void concatQuoted(std::stringstream &ss, const std::vector<T> &v)
+		inline void concatQuoted(std::ostream &ss, const std::vector<T> &v)
 		{
 			for(const T &t : v)
 				concatQuoted(ss, t);
@@ -90,7 +90,7 @@ namespace td
 		  * Helper function to concat variables using quotes
 		 **/
 		template <class S, class ...T>
-		inline void concatQuoted(std::stringstream &ss, const S &s, T ...t)
+		inline void concatQuoted(std::ostream &ss, const S &s, T ...t)
 		{
 			concatQuoted(ss, s);
 			concatQuoted(ss, t...);
@@ -104,7 +104,7 @@ namespace td
 		inline std::string concatQuoted(T ...t)
 		{
 			std::stringstream ss;
-			concatQuoted(ss, t...);
+			concatQuoted((std::ostream&)ss, t...);
 			const std::string &result = ss.str();
 			if(result.empty())return result;
 			return result.substr(0, result.length()-1);

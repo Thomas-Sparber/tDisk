@@ -83,28 +83,28 @@ bool Device::isRedundant() const
 	return false;
 }
 
-template <> string td::createResultString(const fs::Device &device, unsigned int hierarchy, const ci_string &outputFormat)
+template <> void td::createResultString(std::ostream &ss, const fs::Device &device, unsigned int hierarchy, const ci_string &outputFormat)
 {
 	const string &type = device.type.getName();
 
 	if(outputFormat == "json")
-		return concat(
-			"{\n",
-				vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(device, name, hierarchy+1, outputFormat), ",\n",
-				vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(device, path, hierarchy+1, outputFormat), ",\n",
-				vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_NONMEMBER_JSON(type, hierarchy+1, outputFormat), ",\n",
-				vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(device, size, hierarchy+1, outputFormat), ",\n",
-				vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(device, subdevices, hierarchy+1, outputFormat), "\n",
-			vector<char>(hierarchy, '\t'), "}"
-		);
+	{
+		ss<<"{\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, device, name, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, device, path, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_NONMEMBER_JSON(ss, type, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, device, size, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, device, subdevices, hierarchy+1, outputFormat); ss<<"\n";
+		insertTab(ss, hierarchy); ss<<"}";
+	}
 	else if(outputFormat == "text")
-		return concat(
-				CREATE_RESULT_STRING_MEMBER_TEXT(device, name, hierarchy+1, outputFormat), "\n",
-				CREATE_RESULT_STRING_MEMBER_TEXT(device, path, hierarchy+1, outputFormat), "\n",
-				CREATE_RESULT_STRING_NONMEMBER_TEXT(type, hierarchy+1, outputFormat), "\n",
-				CREATE_RESULT_STRING_MEMBER_TEXT(device, size, hierarchy+1, outputFormat), "\n",
-				CREATE_RESULT_STRING_MEMBER_TEXT(device, subdevices, hierarchy+1, outputFormat), "\n"
-		);
+	{
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, device, name, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, device, path, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_NONMEMBER_TEXT(ss, type, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, device, size, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, device, subdevices, hierarchy+1, outputFormat); ss<<"\n";
+	}
 	else
 		throw FormatException("Invalid output-format ", outputFormat);
 }

@@ -544,7 +544,9 @@ BackendResult td::get_all_sector_indices(const vector<string> &args, Options &op
 		tDisk d = tDisk::get(args[0]);
 		sectorIndices = d.getAllSectorIndices();
 
+		performance::start("result");
 		r.result(sectorIndices, options.getOptionValue("output-format"));
+		performance::stop("result");
 	} catch (const tDiskException &e) {
 		r.error(BackendResultType::driver, e.what());
 	}

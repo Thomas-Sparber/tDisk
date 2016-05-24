@@ -193,14 +193,18 @@ int main(int argc, char *args[])
 		BackendErrorCode errorCode = result.errorCode();
 
 		cout<<"{"<<endl;
-		cout<<"\t"<<utils::concat(CREATE_RESULT_STRING_NONMEMBER_JSON(errorCode, 1, "json"))<<","<<endl;
-		cout<<"\t"<<utils::concat(CREATE_RESULT_STRING_NONMEMBER_JSON(errors, 1, "json"))<<","<<endl;
-		cout<<"\t"<<utils::concat(CREATE_RESULT_STRING_NONMEMBER_JSON(warnings, 1, "json"))<<","<<endl;
-		cout<<"\t"<<utils::concat(CREATE_RESULT_STRING_NONMEMBER_JSON(messages, 1, "json"))<<","<<endl;
+		cout<<"\t"; CREATE_RESULT_STRING_NONMEMBER_JSON(cout, errorCode, 1, "json"); cout<<","<<endl;
+		cout<<"\t"; CREATE_RESULT_STRING_NONMEMBER_JSON(cout, errors, 1, "json"); cout<<","<<endl;
+		cout<<"\t"; CREATE_RESULT_STRING_NONMEMBER_JSON(cout, warnings, 1, "json"); cout<<","<<endl;
+		cout<<"\t"; CREATE_RESULT_STRING_NONMEMBER_JSON(cout, messages, 1, "json"); cout<<","<<endl;
 
 		for(BackendResultType type : result.getResultTypes())
 		{
-			cout<<"\t"<<createResultString(type, 1, "json")<<": "<<createResultString(result.getIndividualResult(type), 1, "json")<<","<<endl;
+			cout<<"\t";
+			createResultString(cout, type, 1, "json");
+			cout<<": ";
+			createResultString(cout, result.getIndividualResult(type), 1, "json");
+			cout<<","<<endl;
 		}
 
 		cout<<"\t\"result\": "<<utils::replaceAll(result.result().empty() ? "null" : result.result(), "\n", "\n\t")<<endl;

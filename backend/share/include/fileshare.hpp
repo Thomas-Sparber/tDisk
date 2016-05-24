@@ -132,7 +132,7 @@ public:
 		Fileshare::remove(name);
 	}
 
-	friend std::string createResultString<Fileshare>(const Fileshare &share, unsigned int hierarchy, const utils::ci_string &outputFormat);
+	friend void createResultString<Fileshare>(std::ostream &ss, const Fileshare &share, unsigned int hierarchy, const utils::ci_string &outputFormat);
 
 private:
 
@@ -156,22 +156,22 @@ private:
 /**
   * Stringifies the given Fileshare using the given format
  **/
-template <> inline std::string createResultString(const Fileshare &share, unsigned int hierarchy, const utils::ci_string &outputFormat)
+template <> inline void createResultString(std::ostream &ss, const Fileshare &share, unsigned int hierarchy, const utils::ci_string &outputFormat)
 {
 	if(outputFormat == "json")
-		return utils::concat(
-			"{\n",
-				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(share, name, hierarchy+1, outputFormat), ",\n",
-				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(share, path, hierarchy+1, outputFormat), ",\n",
-				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(share, description, hierarchy+1, outputFormat), "\n",
-			std::vector<char>(hierarchy, '\t'), "}"
-		);
+	{
+		ss<<"{\n";
+			insertTab(ss, hierarchy+1), CREATE_RESULT_STRING_MEMBER_JSON(ss, share, name, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1), CREATE_RESULT_STRING_MEMBER_JSON(ss, share, path, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1), CREATE_RESULT_STRING_MEMBER_JSON(ss, share, description, hierarchy+1, outputFormat); ss<<"\n";
+		insertTab(ss, hierarchy); ss<<"}";
+	}
 	else if(outputFormat == "text")
-		return utils::concat(
-				CREATE_RESULT_STRING_MEMBER_TEXT(share, name, hierarchy+1, outputFormat), "\n",
-				CREATE_RESULT_STRING_MEMBER_TEXT(share, path, hierarchy+1, outputFormat), "\n",
-				CREATE_RESULT_STRING_MEMBER_TEXT(share, description, hierarchy+1, outputFormat), "\n"
-		);
+	{
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, share, name, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, share, path, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, share, description, hierarchy+1, outputFormat); ss<<"\n";
+	}
 	else
 		throw FormatException("Invalid output-format ", outputFormat);
 }

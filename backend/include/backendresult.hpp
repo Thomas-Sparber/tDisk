@@ -273,15 +273,17 @@ public:
 	/**
 	  * Sets actual result
 	 **/
-	template <class ...T>
-	void result(T ...t, const utils::ci_string &output_format)
+	/*template <class ...T>
+	void result(const T &t, const utils::ci_string &output_format)
 	{
 		try {
-			str_result = createResultString(utils::concat(t...), 0, output_format);
+			std::stringstream ss;
+			createResultString(ss, t, 0, output_format);
+			str_result = ss.str();
 		} catch (const FormatException &e) {
 			error(BackendResultType::general, e.what());
 		}
-	}
+	}*/
 
 	/**
 	  * Sets actual result
@@ -290,7 +292,9 @@ public:
 	void result(const T &t, const utils::ci_string &output_format)
 	{
 		try {
-			str_result = createResultString(t, 0, output_format);
+			std::stringstream ss;
+			createResultString(ss, t, 0, output_format);
+			str_result = ss.str();
 		} catch (const FormatException &e) {
 			error(BackendResultType::general, e.what());
 		}
@@ -356,40 +360,40 @@ private:
 /**
   * Stringifies the given BackendErrorCode using the given format
  **/
-template <> inline std::string createResultString(const BackendErrorCode &code, unsigned int hierarchy, const utils::ci_string &outputFormat)
+template <> inline void createResultString(std::ostream &ss, const BackendErrorCode &code, unsigned int hierarchy, const utils::ci_string &outputFormat)
 {
-	return createResultString(IndividualResult::getErrorStringCode(code), hierarchy, outputFormat);
+	createResultString(ss, IndividualResult::getErrorStringCode(code), hierarchy, outputFormat);
 }
 
 /**
   * Stringifies the given BackendResultType using the given format
  **/
-template <> inline std::string createResultString(const BackendResultType &type, unsigned int hierarchy, const utils::ci_string &outputFormat)
+template <> inline void createResultString(std::ostream &ss, const BackendResultType &type, unsigned int hierarchy, const utils::ci_string &outputFormat)
 {
-	return createResultString(BackendResult::getTypeString(type), hierarchy, outputFormat);
+	createResultString(ss, BackendResult::getTypeString(type), hierarchy, outputFormat);
 }
 
 /**
   * Stringifies the given IndividualResult using the given format
  **/
-template <> inline std::string createResultString(const IndividualResult &result, unsigned int hierarchy, const utils::ci_string &outputFormat)
+template <> inline void createResultString(std::ostream &ss, const IndividualResult &result, unsigned int hierarchy, const utils::ci_string &outputFormat)
 {
 	if(outputFormat == "json")
-		return utils::concat(
-			"{\n",
-				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(result, errorCode, hierarchy+1, outputFormat), ",\n",
-				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(result, message, hierarchy+1, outputFormat), ",\n",
-				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(result, warning, hierarchy+1, outputFormat), ",\n",
-				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(result, error, hierarchy+1, outputFormat), "\n",
-			std::vector<char>(hierarchy, '\t'), "}"
-		);
+	{
+		ss<<"{\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, result, errorCode, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, result, message, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, result, warning, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, result, error, hierarchy+1, outputFormat); ss<<"\n";
+		insertTab(ss, hierarchy); ss<<"}";
+	}
 	else if(outputFormat == "text")
-		return utils::concat(
-				CREATE_RESULT_STRING_MEMBER_TEXT(result, errorCode, hierarchy+1, outputFormat), "\n",
-				CREATE_RESULT_STRING_MEMBER_TEXT(result, message, hierarchy+1, outputFormat), "\n",
-				CREATE_RESULT_STRING_MEMBER_TEXT(result, warning, hierarchy+1, outputFormat), "\n",
-				CREATE_RESULT_STRING_MEMBER_TEXT(result, error, hierarchy+1, outputFormat), "\n"
-		);
+	{
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, result, errorCode, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, result, message, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, result, warning, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, result, error, hierarchy+1, outputFormat); ss<<"\n";
+	}
 	else
 		throw FormatException("Invalid output-format ", outputFormat);
 }

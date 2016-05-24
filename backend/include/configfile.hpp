@@ -173,48 +173,55 @@ public:
 /**
   * Creates the formatted result string for a td::configuration object
  **/
-template <> std::string createResultString(const configuration &config, unsigned int hierarchy, const utils::ci_string &outputFormat);
+template <> void createResultString(std::ostream &ss, const configuration &config, unsigned int hierarchy, const utils::ci_string &outputFormat);
 
 /**
   * Creates the formatted result string for an
   * array of td::configuration::tdisk_global_option objects
  **/
 template <template <class ...> class container>
-inline std::string createResultString_array(const container<configuration::tdisk_global_option> &v, unsigned int hierarchy, const utils::ci_string &outputFormat)
+inline void createResultString_array(std::ostream &ss, const container<configuration::tdisk_global_option> &v, unsigned int hierarchy, const utils::ci_string &outputFormat)
 {
-	std::vector<std::string> temp(v.size());
 	if(outputFormat == "json")
+	{
 		for(size_t i = 0; i < v.size(); ++i)
 		{
-			temp[i] = utils::concat(
-				(i == 0) ? "{\n" : "",
-				std::vector<char>(hierarchy+1, '\t'), createResultString(v[i], hierarchy + 1, outputFormat),
-				(i < v.size()-1) ? ",\n" : utils::concat("\n", std::vector<char>(hierarchy, '\t'), "}"));
+			if(i == 0)ss<<"{\n";
+			insertTab(ss, hierarchy+1);
+			createResultString(ss, v[i], hierarchy + 1, outputFormat);
+			if(i < v.size()-1)
+				ss<<",\n";
+			else
+			{
+				ss<<"\n";
+				insertTab(ss, hierarchy);
+				ss<<"}";
+			}
 		}
+	}
 	else if(outputFormat == "text")
+	{
 		for(size_t i = 0; i < v.size(); ++i)
 		{
-			temp[i] = utils::concat(
-				createResultString(v[i], hierarchy + 1, outputFormat),
-				(i < v.size()-1) ? "\n" : "");
+			createResultString(ss, v[i], hierarchy + 1, outputFormat);
+			if(i < v.size()-1)ss<<"\n";
 		}
+	}
 	else
 		throw FormatException("Invalid output-format ", outputFormat);
-
-	return utils::concat(temp);
 }
 
 /**
   * Creates the formatted result string for a 
   * td::configuration::tdisk_global_option object
  **/
-template <> std::string createResultString(const configuration::tdisk_global_option &option, unsigned int hierarchy, const utils::ci_string &outputFormat);
+template <> void createResultString(std::ostream &ss, const configuration::tdisk_global_option &option, unsigned int hierarchy, const utils::ci_string &outputFormat);
 
 /**
   * Creates the formatted result string for a 
   * td::configuration::tdisk_config object
  **/
-template <> std::string createResultString(const configuration::tdisk_config &config, unsigned int hierarchy, const utils::ci_string &outputFormat);
+template <> void createResultString(std::ostream &ss, const configuration::tdisk_config &config, unsigned int hierarchy, const utils::ci_string &outputFormat);
 
 } //end namespace td
 

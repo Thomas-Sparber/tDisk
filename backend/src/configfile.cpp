@@ -129,10 +129,17 @@ void configuration::save(const string &file) const
 	out<<"# Auto generated config file by tDisk backend"<<endl<<endl;
 
 	for(const configuration::tdisk_global_option &option : global_options)
-		out<<createResultString(option, 0, "json")<<endl;
+	{
+		createResultString(out, option, 0, "json");
+		out<<endl;
+	}
 
 	for(const configuration::tdisk_config &tdisk : tdisks)
-		out<<"tDisk: "<<createResultString(tdisk, 0, "json")<<endl;
+	{
+		out<<"tDisk: ";
+		createResultString(out, tdisk, 0, "json");
+		out<<endl;
+	}
 }
 
 const char* getName(const char *it, const char *end, ci_string &out)
@@ -332,50 +339,50 @@ const char* loadOption(const ci_string &name, const char *it, const char *end, c
 	return end;
 }
 
-template <> std::string td::createResultString(const configuration &config, unsigned int hierarchy, const ci_string &outputFormat)
+template <> void td::createResultString(std::ostream &ss, const configuration &config, unsigned int hierarchy, const ci_string &outputFormat)
 {
 	if(outputFormat == "json")
-		return concat(
-			"{\n",
-				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(config, global_options, hierarchy+1, outputFormat), ",\n",
-				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(config, tdisks, hierarchy+1, outputFormat), "\n",
-			std::vector<char>(hierarchy, '\t'), "}"
-		);
+	{
+		ss<<"{\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, config, global_options, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, config, tdisks, hierarchy+1, outputFormat); ss<<"\n";
+		insertTab(ss, hierarchy); ss<<"}";
+	}
 	else if(outputFormat == "text")
-		return concat(
-				createResultString(config.global_options, hierarchy+1, outputFormat), "\n",
-				createResultString(config.tdisks, hierarchy+1, outputFormat), "\n"
-		);
+	{
+		createResultString(ss, config.global_options, hierarchy+1, outputFormat); ss<<"\n";
+		createResultString(ss, config.tdisks, hierarchy+1, outputFormat); ss<<"\n";
+	}
 	else
 		throw FormatException("Invalid output-format ", outputFormat);
 }
 
-template <> std::string td::createResultString(const configuration::tdisk_global_option &option, unsigned int /*hierarchy*/, const ci_string &outputFormat)
+template <> void td::createResultString(std::ostream &ss, const configuration::tdisk_global_option &option, unsigned int /*hierarchy*/, const ci_string &outputFormat)
 {
 	if(outputFormat == "json")
-		return concat("\"", option.name, "\": \"", option.value, "\"");
+		ss<<"\""<<option.name<<"\": \""<<option.value<<"\"";
 	else if(outputFormat == "text")
-		return concat(option.name, " = ", option.value);
+		ss<<option.name<<" = "<<option.value;
 	else
 		throw FormatException("Invalid output-format ", outputFormat);
 }
 
-template <> std::string td::createResultString(const configuration::tdisk_config &config, unsigned int hierarchy, const ci_string &outputFormat)
+template <> void td::createResultString(std::ostream &ss, const configuration::tdisk_config &config, unsigned int hierarchy, const ci_string &outputFormat)
 {
 	if(outputFormat == "json")
-		return concat(
-			"{\n",
-				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(config, minornumber, hierarchy+1, outputFormat), ",\n",
-				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(config, blocksize, hierarchy+1, outputFormat), ",\n",
-				std::vector<char>(hierarchy+1, '\t'), CREATE_RESULT_STRING_MEMBER_JSON(config, devices, hierarchy+1, outputFormat), "\n",
-			std::vector<char>(hierarchy, '\t'), "}"
-		);
+	{
+		ss<<"{\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, config, minornumber, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, config, blocksize, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, config, devices, hierarchy+1, outputFormat); ss<<"\n";
+		insertTab(ss, hierarchy); ss<<"}";
+	}
 	else if(outputFormat == "text")
-		return concat(
-				CREATE_RESULT_STRING_MEMBER_TEXT(config, minornumber, hierarchy+1, outputFormat), "\n",
-				CREATE_RESULT_STRING_MEMBER_TEXT(config, blocksize, hierarchy+1, outputFormat), "\n",
-				CREATE_RESULT_STRING_MEMBER_TEXT(config, devices, hierarchy+1, outputFormat), "\n"
-		);
+	{
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, config, minornumber, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, config, blocksize, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, config, devices, hierarchy+1, outputFormat); ss<<"\n";
+	}
 	else
 		throw FormatException("Invalid output-format ", outputFormat);
 }

@@ -80,6 +80,7 @@
 		} \
 	} while(0)
 
+#ifndef __ASM_ARM_DIV64
 
 /**
   * Copied from div64.c
@@ -116,6 +117,8 @@ inline static uint32_t __div64_32(uint64_t *n, uint32_t base)
 	*n = res;
 	return rem;
 }
+
+#endif //__ASM_ARM_DIV64
 
 /**
   * This function simply returns the division result

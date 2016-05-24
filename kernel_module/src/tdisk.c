@@ -654,6 +654,7 @@ static struct sorted_sector_index* td_find_sector_index_acc(struct sorted_intern
  **/
 static void td_assign_sectors(struct tdisk *td)
 {
+	sector_t missing = td->size_blocks;
 	unsigned int sorted_disk;
 	struct sorted_sector_index *sector;
 	struct sorted_sector_index *item_safe;
@@ -672,11 +673,19 @@ static void td_assign_sectors(struct tdisk *td)
 		//Not processing unused sectors
 		if(sector->physical_sector->disk == 0)continue;
 
+		//Count missing sectors
+		missing--;
+
 		//Here the counter available_blocks of the sorted_internal_device
-		//it used to assign the sectors. If there are no more free sectors
+		//is used to assign the sectors. If there are no more free sectors
 		//the next sorted device is used
-		while(td->sorted_devices[sorted_disk-1].available_blocks-- == 0)
+		while(td->sorted_devices[sorted_disk-1].available_blocks == 0)
+		{
 			sorted_disk++;
+			MY_BUG_ON(sorted_disk > td->internal_devices_count, PRINT_UINT(sorted_disk), PRINT_ULL(missing));
+		}
+
+		td->sorted_devices[sorted_disk-1].available_blocks--;
 
 		//Adding sector to device's preferred blocks
 		INIT_LIST_HEAD(&sector->device_assigned);
@@ -687,6 +696,19 @@ static void td_assign_sectors(struct tdisk *td)
 		//to actual device
 		if(sector->physical_sector->disk == td->sorted_devices[sorted_disk-1].dev-td->internal_devices+1)
 			td->sorted_devices[sorted_disk-1].amount_blocks++;
+	}
+
+	//All blocks must be used
+	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
+	{
+		//MY_BUG_ON(td->sorted_devices[sorted_disk-1].available_blocks != 0,
+		//	PRINT_ULL(td->sorted_devices[sorted_disk-1].available_blocks),
+		//	PRINT_UINT(DEVICE_INDEX(td->sorted_devices[sorted_disk-1].dev, td->internal_devices)));
+
+		if(td->sorted_devices[sorted_disk-1].available_blocks != 0)
+		{
+			printk(KERN_ERR "tDisk: While assigning sectors: available_blocks (%llu) of disk %u is not 0 as it should\n", td->sorted_devices[sorted_disk-1].available_blocks, DEVICE_INDEX(td->sorted_devices[sorted_disk-1].dev, td->internal_devices));
+		}
 	}
 
 	//Trying to optimize a bit...
@@ -1004,7 +1026,7 @@ static int td_read_header(struct tdisk *td, struct td_internal_device *device, s
 	{
 	case 1:
 		//Entirely new disk.
-		header->disk_index = td->internal_devices_count;
+		header->disk_index = (tdisk_index)(td->internal_devices_count + 1);	//+1 because 0 means unused
 		(*index_operation_to_do) = WRITE;
 		break;
 	case 0:
@@ -1385,7 +1407,6 @@ static int set_device_parameters(struct td_internal_device *new_device, struct i
  **/
 static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev, struct internal_device_add_parameters __user *arg)
 {
-	//struct file *file = NULL;
 	struct address_space *mapping;
 	struct tdisk_header header;
 	int error;
@@ -1525,7 +1546,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	}
 
 	//Set disk references in tDisk
-	if(header.disk_index >= td->internal_devices_count)td->internal_devices_count = (tdisk_index)(header.disk_index+1);
+	if(header.disk_index > td->internal_devices_count)td->internal_devices_count = (tdisk_index)(header.disk_index);
 
 	//Calculate actual device size
 	new_device.size_blocks = __div64_32_nomod((uint64_t)size, td->blocksize);
@@ -1553,7 +1574,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			int internal_ret;
 			sector_t logical_sector = td->size_blocks++;
 			size_counter += td->blocksize;
-			physical_sector->disk = (tdisk_index)(header.disk_index + 1);	//+1 because 0 means unused
+			physical_sector->disk = (tdisk_index)(header.disk_index);
 			physical_sector->sector = td->header_size + sector++;
 			internal_ret = td_perform_index_operation(td, WRITE, logical_sector, physical_sector, false, false);
 			if(internal_ret == 1)
@@ -1588,7 +1609,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			{
 				//We have the rule that if the index doesn't match, each disk
 				//has priority over it's own index
-				if(physical_sector[sector].disk == header.disk_index+1)
+				if(physical_sector[sector].disk == header.disk_index)
 				{
 					//Replace index value
 					td_perform_index_operation(td, WRITE, sector, &physical_sector[sector], false, false);
@@ -1626,7 +1647,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		BUG_ON(true);
 	}
 
-	if(additional_sectors != 0)
+	if(additional_sectors != 0 && !first_device)
 	{
 		//Header size increased. Let's create available sectors
 		//At the beginning of each disk by moving them to the new disk.
@@ -1641,15 +1662,15 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 
 		//Now we need to set the partially finished device
 		//to make sector movement possible
-		td->internal_devices[header.disk_index] = new_device;
+		td->internal_devices[header.disk_index-1] = new_device;
 
 		printk(KERN_DEBUG "tDisk: Need to move sectors because index size increased by %d\n", additional_sectors);
 
 		for(sector = 0; sector < td->max_sectors; ++sector)
 		{
-			if(td->indices[sector].disk != header.disk_index+1 && td->indices[sector].disk != 0)
+			if(td->indices[sector].disk != header.disk_index && td->indices[sector].disk != 0)
 			{
-				//sector is not a sector of the current disk (=header.disk_index+1) but it's used (!= 0)
+				//sector is not a sector of the current disk (=header.disk_index) but it's used (!= 0)
 
 				if(td->indices[sector].sector < td->header_size)
 				{
@@ -1660,7 +1681,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 
 					for(search = td->size_blocks; search > sector; --search)
 					{
-						if(td->indices[search].disk == header.disk_index+1)
+						if(td->indices[search].disk == header.disk_index)
 						{
 							//Appropriate block found
 							printk(KERN_DEBUG "tDisk: Moved header block %llu (disk: %u, sector: %llu) to %llu (disk: %u, sector: %llu)",
@@ -1687,17 +1708,8 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			}
 		}
 
-		//We need to decrement the current size again becuase of the current device
-		td->size_blocks -= (unsigned)additional_sectors;	//additinal_sectors < 0 was tested before so it can be safely casted
-		new_device.size_blocks -= (unsigned)additional_sectors;
-
 		//Starting again the queue
-		error = td_start_worker_thread(td);
-		if(error)
-		{
-			printk(KERN_WARNING "tDisk: Error setting up worker thread\n");
-			goto out_reset_sectors;
-		}
+		td_start_worker_thread(td);
 	}
 
 	if(first_device)
@@ -1713,8 +1725,8 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		}
 	}
 
-	td->internal_devices[header.disk_index] = new_device;
-	printk(KERN_DEBUG "tDisk: new physical disk %u: size: %llu bytes. Logical size(%llu)\n", header.disk_index+1, size, td->size_blocks*td->blocksize);
+	td->internal_devices[header.disk_index-1] = new_device;
+	printk(KERN_DEBUG "tDisk: new physical disk %u: size: %llu bytes. Logical size(%llu)\n", header.disk_index, size, td->size_blocks*td->blocksize);
 
 	//let user-space know about this change
 	set_capacity(td->kernel_disk, (td->size_blocks*td->blocksize) >> 9);
@@ -2269,20 +2281,20 @@ int tdisk_remove(struct tdisk *td)
 		td_stop_worker_thread(td);
 
 	//Write header and indices to all files
-	for(i = 0; i < td->internal_devices_count; ++i)
+	for(i = 1; i <= td->internal_devices_count; ++i)
 	{
-		struct file *file = td->internal_devices[i].file;
+		struct file *file = td->internal_devices[i-1].file;
 
 		struct tdisk_header header = {
 			.disk_index = i,
-			.performance = td->internal_devices[i].performance,
+			.performance = td->internal_devices[i-1].performance,
 			.current_max_sectors = td->max_sectors
 		};
-		gfp_t gfp = td->internal_devices[i].old_gfp_mask;
+		gfp_t gfp = td->internal_devices[i-1].old_gfp_mask;
 
 		//Write current performance and index values to file
-		td_write_header(&td->internal_devices[i], &header);
-		td_write_all_indices(td, &td->internal_devices[i]);
+		td_write_header(&td->internal_devices[i-1], &header);
+		td_write_all_indices(td, &td->internal_devices[i-1]);
 
 		if(file)
 		{

@@ -364,6 +364,21 @@ static void reset_access_count(struct tdisk *td, bool do_disk_operation)
 #endif //AUTO_RESET_ACCESS_COUNT
 
 /**
+  * Writes the given sector index to the given internal device
+ **/
+int td_write_index_to_disk(struct tdisk *td, sector_t logical_sector, tdisk_index disk)
+{
+	struct sector_index *actual;
+	loff_t position = td->index_offset_byte + (loff_t)logical_sector * sizeof(struct sector_index);
+	unsigned int length = sizeof(struct sector_index);
+
+	if(position + length > td->header_size * td->blocksize)return 1;
+	actual = &td->indices[logical_sector];
+
+	return write_data(&td->internal_devices[disk-1], actual, position, length);
+}
+
+/**
   * Performs the given index operation. This can be:
   *  - READ: reads the physical sector index for the given logical sector
   *  - WRITE: stores the given physical sector index for the given logical
@@ -378,14 +393,14 @@ static void reset_access_count(struct tdisk *td, bool do_disk_operation)
   * count of the specific sector should be updated. This is useful e.g. when
   * sectors are moved - this shouldn't influence the access count variable.
  **/
-int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t logical_sector, struct sector_index *physical_sector, bool do_disk_operation, bool update_access_count)
+int td_perform_index_operation(struct tdisk *td, int direction, sector_t logical_sector, struct sector_index *physical_sector, bool do_disk_operation, bool update_access_count)
 {
 	struct sector_index *actual;
-	loff_t position = td_dev->index_offset_byte + (loff_t)logical_sector * sizeof(struct sector_index);
+	loff_t position = td->index_offset_byte + (loff_t)logical_sector * sizeof(struct sector_index);
 	unsigned int length = sizeof(struct sector_index);
 
-	if(position + length > td_dev->header_size * td_dev->blocksize)return 1;
-	actual = &td_dev->indices[logical_sector];
+	if(position + length > td->header_size * td->blocksize)return 1;
+	actual = &td->indices[logical_sector];
 
 	//Increment access count
 	if(update_access_count)
@@ -397,7 +412,7 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 		if(ACCESS_COUNT(actual->access_count) == (((typeof(actual->access_count))-1)>>1))
 		{
 			printk(KERN_DEBUG "tDisk: Resetting tDisk access count\n");
-			reset_access_count(td_dev, do_disk_operation);
+			reset_access_count(td, do_disk_operation);
 		}
 #else
 #pragma message "Reset auto access count is disabled"
@@ -418,7 +433,7 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 	}
 	else if(direction == WRITE)
 	{
-		unsigned int j;
+		tdisk_index disk;
 
 		//Memory operation
 		actual->disk = physical_sector->disk;
@@ -427,9 +442,9 @@ int td_perform_index_operation(struct tdisk *td_dev, int direction, sector_t log
 		//Disk operations
 		if(do_disk_operation)
 		{
-			for(j = 0; j < td_dev->internal_devices_count; ++j)
+			for(disk = 1; disk <= td->internal_devices_count; ++disk)
 			{
-				write_data(&td_dev->internal_devices[j], actual, position, length);
+				td_write_index_to_disk(td, logical_sector, disk);
 			}
 		}
 	}

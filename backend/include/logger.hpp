@@ -50,7 +50,7 @@ namespace td
 	}
 
 	template <class ...T>
-	inline void doLog(const char *file, int line, LogLevel level, T ...t)
+	inline void doLog(const char *file, int line, LogLevel level, const T& ...t)
 	{
 		if(level < logLevel())return;
 

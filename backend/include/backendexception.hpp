@@ -25,7 +25,7 @@ struct BackendException : public tDiskException
 	  * amount of arguments which are put together
 	 **/
 	template <class ...T>
-	BackendException(T ...t) :
+	BackendException(const T& ...t) :
 		tDiskException(t...)
 	{}
 

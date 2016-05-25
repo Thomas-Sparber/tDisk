@@ -16,7 +16,7 @@ struct tDiskException : public std::exception
 	  * Constructs a tDiskException using any number of arguments
 	 **/
 	template <class ...T>
-	tDiskException(T ...t) :
+	tDiskException(const T& ...t) :
 		msg(utils::concat(t...))
 	{}
 

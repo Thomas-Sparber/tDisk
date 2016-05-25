@@ -1120,6 +1120,80 @@ static int td_read_all_indices(struct tdisk *td, struct td_internal_device *devi
 }
 
 /**
+  * This function finds a sector which is unused and
+  * has the better performance than the given one.
+ **/
+sector_t td_find_sector_for_better_performance(struct tdisk *td, sector_t sector)
+{
+	tdisk_index i;
+	tdisk_index j;
+	tdisk_index disk = td->indices[sector].disk;
+	unsigned long long original_device_performance = td_get_device_performance(&td->internal_devices[disk-1]);
+	tdisk_index better_devices[TDISK_MAX_PHYSICAL_DISKS];
+	sector_t current_sector;
+
+	memset(better_devices, 0, sizeof(tdisk_index)*TDISK_MAX_PHYSICAL_DISKS);
+
+	//Assigning devices with better performance to better_devices
+	//in an ordered mode
+	for(i = 1; i <= td->internal_devices_count; ++i)
+	{
+		unsigned long long current_device_performance;
+
+		if(i == disk)continue;
+		current_device_performance = td_get_device_performance(&td->internal_devices[i-1]);
+
+		//The current device is slower than the original
+		//device. It doesn't make sense to use it
+		if(current_device_performance > original_device_performance)
+			continue;
+
+		for(j = td->internal_devices_count; j > 0; --j)
+		{
+			if(better_devices[j-1] != 0)
+			{
+				if(td_get_device_performance(&td->internal_devices[better_devices[j-1] - 1]) > current_device_performance)
+					swap(better_devices[j-1], better_devices[j]);
+				else break;
+			}
+		}
+
+		better_devices[j] = i;
+	}
+
+	//No faster device found
+	if(better_devices[0] == 0)return sector;
+
+	//Try to find a free sector from a bett erdevice
+	for(current_sector = 0; current_sector < td->size_blocks; ++current_sector)
+	{
+		if(td->indices[current_sector].disk == disk ||
+			td->indices[current_sector].disk == 0 ||
+			SECTOR_USED(td->indices[current_sector].access_count))continue;
+
+		for(j = 0; j < td->internal_devices_count && better_devices[j] != 0; ++j)
+		{
+			//Original sector is better than current sector
+			if(td->indices[sector].disk == better_devices[j])break;
+
+			//Current sector is better. Swapping
+			if(td->indices[current_sector].disk == better_devices[j])
+			{
+				//Better sector found
+				sector = current_sector;
+
+				//Sector from best device found
+				if(j == 0)current_sector = td->size_blocks;
+
+				break;
+			}
+		}
+	}
+
+	return sector;
+}
+
+/**
   * This function does the actual device operations. It extracts
   * the logical sector and the data from the request. Then it
   * searches for the corresponding disk and physical sector and
@@ -1149,6 +1223,32 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		loff_t offset = __div64_32(&sector_div, td->blocksize);
 		sector_t sector = (sector_t)sector_div;
 		loff_t actual_pos_byte;
+
+
+		if(!SECTOR_USED(td->indices[sector].access_count))
+		{
+			//If the sector is not yet used we can try to find a
+			//faster disk to gain some performance
+
+			sector_t better_sector = td_find_sector_for_better_performance(td, sector);
+
+			if(sector != better_sector)
+			{
+				physical_sector.disk = td->indices[better_sector].disk;
+				physical_sector.sector = td->indices[better_sector].sector;
+
+				td->indices[better_sector].disk = td->indices[sector].disk;
+				td->indices[better_sector].sector = td->indices[sector].sector;
+
+				td->indices[sector].disk = physical_sector.disk;
+				td->indices[sector].sector = physical_sector.sector;
+
+				td_write_index_to_disk(td, sector, td->indices[sector].disk);
+				td_write_index_to_disk(td, better_sector, td->indices[sector].disk);
+				td_write_index_to_disk(td, sector, td->indices[better_sector].disk);
+				td_write_index_to_disk(td, better_sector, td->indices[better_sector].disk);
+			}
+		}
 
 		//Fetch physical index
 		td_perform_index_operation(td, READ, sector, &physical_sector, true, true);

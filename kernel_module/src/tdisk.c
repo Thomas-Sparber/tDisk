@@ -1119,6 +1119,7 @@ static int td_read_all_indices(struct tdisk *td, struct td_internal_device *devi
 	return ret;
 }
 
+#ifdef USE_INITIAL_OPTIMIZATION
 /**
   * This function finds a sector which is unused and
   * has the better performance than the given one.
@@ -1192,6 +1193,9 @@ sector_t td_find_sector_for_better_performance(struct tdisk *td, sector_t sector
 
 	return sector;
 }
+#else
+#pragma message "Initial optimization is disabled"
+#endif //USE_INITIAL_OPTIMIZATION
 
 /**
   * This function does the actual device operations. It extracts
@@ -1224,7 +1228,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		sector_t sector = (sector_t)sector_div;
 		loff_t actual_pos_byte;
 
-
+#ifdef USE_INITIAL_OPTIMIZATION
 		if(!SECTOR_USED(td->indices[sector].access_count))
 		{
 			//If the sector is not yet used we can try to find a
@@ -1249,6 +1253,9 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 				td_write_index_to_disk(td, better_sector, td->indices[better_sector].disk);
 			}
 		}
+#else
+#pragma message "Initial optimization is disabled"
+#endif //USE_INITIAL_OPTIMIZATION
 
 		//Fetch physical index
 		td_perform_index_operation(td, READ, sector, &physical_sector, true, true);

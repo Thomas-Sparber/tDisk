@@ -969,7 +969,7 @@ void td_reorganize_all_indices(struct tdisk *td)
 		moved = false;
 		list_for_each_entry_safe(item, item_safe, &td->sorted_sectors_head, total_sorted)
 		{
-			printk_ratelimited(KERN_DEBUG "tDisk sorting logical sector %u\n", item-td->sorted_sectors);
+			//printk_ratelimited(KERN_DEBUG "tDisk sorting logical sector %u\n", item-td->sorted_sectors);
 			if(unlikely(item->total_sorted.prev != &td->sorted_sectors_head))
 			{
 				bool move = false;

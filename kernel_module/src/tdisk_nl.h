@@ -63,26 +63,26 @@ loff_t nltd_get_size(const char *plugin);
 /**
   * Asynchronously read data from the plugin
  **/
-void nltd_read_async(const char *plugin, loff_t offset, char *buffer, size_t length, plugin_callback callback, void *userobject);
+void nltd_read_async(const char *plugin, loff_t offset, char *buffer, unsigned int length, plugin_callback callback, void *userobject);
 
 /**
   * Asynchronously write data to the plugin
  **/
-void nltd_write_async(const char *plugin, loff_t offset, char *buffer, size_t length, plugin_callback callback, void *userobject);
+void nltd_write_async(const char *plugin, loff_t offset, char *buffer, unsigned int length, plugin_callback callback, void *userobject);
 
 /**
   * Synchronously read data from the plugin.
   * The struct sync_request is used to wait for
   * completion of the request
  **/
-int nltd_read_sync(const char *plugin, loff_t offset, char *buffer, size_t length);
+int nltd_read_sync(const char *plugin, loff_t offset, char *buffer, unsigned int length);
 
 /**
   * Synchronously write data to the plugin.
   * The struct sync_request is used to wait for
   * completion of the request
  **/
-int nltd_write_sync(const char *plugin, loff_t offset, char *buffer, size_t length);
+int nltd_write_sync(const char *plugin, loff_t offset, char *buffer, unsigned int length);
 
 #else
 #pragma message "Netlink is disabled"

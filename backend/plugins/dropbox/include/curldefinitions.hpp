@@ -27,7 +27,7 @@ inline void cleanupCurl()
 inline std::string encodeURI(const std::string &path, bool replaceSlash=true)
 {
 	static CURL *curl_handle = curl_easy_init();
-	char *str = curl_easy_escape(curl_handle, path.c_str(), path.length());
+	char *str = curl_easy_escape(curl_handle, path.c_str(), (int)path.length());
 	std::string ret(str);
 	curl_free(str);
 

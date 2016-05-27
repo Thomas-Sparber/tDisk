@@ -7,6 +7,7 @@
 #include <typeinfo>
 #include <vector>
 
+#include <convert.hpp>
 #include <utils.hpp>
 
 struct InputDefinition
@@ -96,7 +97,6 @@ inline void askInputQuestion(InputDefinition &input)
 		}
 		else
 		{
-			char *end;
 			if(answer == "")
 			{
 				if(input.defaultValue == "")
@@ -110,8 +110,8 @@ inline void askInputQuestion(InputDefinition &input)
 			}
 			else
 			{
-				int choice = strtol(answer.c_str(), &end, 10);
-				if(end != &answer[answer.length()])
+				int choice;
+				if(!td::utils::convertTo(answer, choice))
 				{
 					std::cout<<"Invalid answer: "<<answer<<std::endl;
 					std::cout<<std::endl;
@@ -186,49 +186,45 @@ inline std::string getValueInternal(const InputDefinition &input)
 template <>
 inline unsigned long long getValueInternal(const InputDefinition &input)
 {
-	char *end;
-	unsigned long long ret = strtoull(input.value.c_str(), &end, 10);
-	if(end != &input.value[input.value.length()])throw InputException("Can't convert value \"", input.value, "\" to type unsigned long");
+	uint64_t ret;
+	if(!td::utils::convertTo(input.value, ret))throw InputException("Can't convert value \"", input.value, "\" to type unsigned long");
 	return ret;
 }
 
 template <>
 inline long long getValueInternal(const InputDefinition &input)
 {
-	char *end;
-	long long ret = strtoll(input.value.c_str(), &end, 10);
-	if(end != &input.value[input.value.length()])throw InputException("Can't convert value \"", input.value, "\" to type long");
+	int64_t ret;
+	if(!td::utils::convertTo(input.value, ret))throw InputException("Can't convert value \"", input.value, "\" to type long");
 	return ret;
 }
 
 template <>
 inline unsigned long getValueInternal(const InputDefinition &input)
 {
-	char *end;
-	long ret = strtoul(input.value.c_str(), &end, 10);
-	if(end != &input.value[input.value.length()])throw InputException("Can't convert value \"", input.value, "\" to type unsigned long");
+	unsigned long ret;
+	if(!td::utils::convertTo(input.value, ret))throw InputException("Can't convert value \"", input.value, "\" to type unsigned long");
 	return ret;
 }
 
 template <>
 inline long getValueInternal(const InputDefinition &input)
 {
-	char *end;
-	long ret = strtol(input.value.c_str(), &end, 10);
-	if(end != &input.value[input.value.length()])throw InputException("Can't convert value \"", input.value, "\" to type long");
+	long ret;
+	if(!td::utils::convertTo(input.value, ret))throw InputException("Can't convert value \"", input.value, "\" to type long");
 	return ret;
 }
 
 template <>
 inline int getValueInternal(const InputDefinition &input)
 {
-	return getValueInternal<long>(input);
+	return (int)getValueInternal<long>(input);
 }
 
 template <>
 inline unsigned int getValueInternal(const InputDefinition &input)
 {
-	return getValueInternal<unsigned long>(input);
+	return (unsigned int)getValueInternal<unsigned long>(input);
 }
 
 template <class T>

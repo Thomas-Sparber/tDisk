@@ -14,6 +14,7 @@
 #include <string.h>
 #include <vector>
 
+#include <convert.hpp>
 #include <filesystem.hpp>
 #include <logger.hpp>
 #include <performance.hpp>
@@ -122,10 +123,8 @@ public:
 		if(name.length() < 7 || name.substr(0, 7) != "/dev/td")
 			throw tDiskException("Invalid tDisk path ", name);
 
-		char *test;
-		int number = strtol(name.c_str() + 7, &test, 10);
-
-		if(test != name.c_str() + name.length())
+		int number;
+		if(!utils::convertTo(name, number))
 			throw tDiskException("Invalid tDisk ", name);
 
 		return number;
@@ -138,10 +137,8 @@ public:
 	 **/
 	static tDisk get(const std::string &str)
 	{
-		char *test;
-		int number = strtol(str.c_str(), &test, 10);
-
-		if(test == str.c_str() + str.length())return tDisk(number);
+		int number;
+		if(utils::convertTo(str, number))return tDisk(number);
 		else return tDisk(str);
 	}
 

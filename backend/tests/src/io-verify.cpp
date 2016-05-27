@@ -74,7 +74,7 @@ void doTests()
 	}
 
 	if(end-start < blocksize)throw InputException("Can't do test because blocksize (", blocksize, ") is greater than end (", end, ") - start (", start, ")");
-	srandom(time(nullptr));
+	srandom((unsigned int)time(nullptr));
 
 	for(unsigned long i = 0; i < iterations; ++i)
 	{
@@ -87,7 +87,7 @@ void doTests()
 
 		if(!file)throw InputException("Unable to write to file");
 
-		usleep(minsleep + (random() % (maxsleep-minsleep)));
+		usleep((__useconds_t)(minsleep + (random() % (maxsleep-minsleep))));
 
 		file.seekg(pos);
 		file.read(&data2[0], data2.size());

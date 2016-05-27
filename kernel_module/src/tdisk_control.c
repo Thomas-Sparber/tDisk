@@ -44,7 +44,7 @@ static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned lo
 		ret = tdisk_remove(td);
 		break;
 	case TDISK_CTL_GET_FREE:
-		ret = tdisk_add(&td, -1, parm);
+		ret = tdisk_add(&td, -1, (unsigned int)parm);
 		break;
 	default:
 		ret = -EINVAL;

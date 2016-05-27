@@ -202,17 +202,17 @@ inline long long getValueInternal(const InputDefinition &input)
 template <>
 inline unsigned long getValueInternal(const InputDefinition &input)
 {
-	unsigned long ret;
+	uint64_t ret;
 	if(!td::utils::convertTo(input.value, ret))throw InputException("Can't convert value \"", input.value, "\" to type unsigned long");
-	return ret;
+	return (unsigned long)ret;
 }
 
 template <>
 inline long getValueInternal(const InputDefinition &input)
 {
-	long ret;
+	int64_t ret;
 	if(!td::utils::convertTo(input.value, ret))throw InputException("Can't convert value \"", input.value, "\" to type long");
-	return ret;
+	return (long)ret;
 }
 
 template <>

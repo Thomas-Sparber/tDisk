@@ -14,14 +14,6 @@ namespace td
 		out = v[value];
 	}
 
-	template <>
-	inline void extractJson(unsigned long long &out, const Json::Value &v, const std::string &value)
-	{
-		if(v.type() == Json::nullValue)throw DropboxException("Can't extract Json value \"",value,"\"");
-		if(v[value].type() == Json::nullValue)throw DropboxException("Can't extract Json value \"",value,"\"");
-		out = v[value].asUInt64();
-	}
-
 	template <class T, std::size_t size>
 	inline void extractJson(std::array<T,size> &out, const Json::Value &v, const std::string &value)
 	{

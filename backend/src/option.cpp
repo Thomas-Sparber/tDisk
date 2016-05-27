@@ -34,9 +34,9 @@ char Option::getCharValue() const
 
 long Option::getLongValue() const
 {
-	long v;
+	uint64_t v;
 	if(!utils::convertTo(value, v))throw BackendException("Invalid number ", value);
-	return v;
+	return (long)v;
 }
 
 bool Option::getBoolValue() const

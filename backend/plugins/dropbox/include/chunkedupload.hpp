@@ -25,7 +25,7 @@ struct ChunkedUpload
 
 	std::string expires;
 	std::string upload_id;
-	unsigned long long offset;
+	uint64_t offset;
 
 }; //end class ChunkedUpload
 

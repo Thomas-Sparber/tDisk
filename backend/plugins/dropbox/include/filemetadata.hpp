@@ -78,7 +78,7 @@ struct FileMetadata
 	std::string hash;
 
 	//The file size in bytes.
-	unsigned long long bytes;
+	uint64_t bytes;
 
 	//True if the file is an image that can be converted to a thumbnail via the /thumbnails call.
 	bool thumb_exists;

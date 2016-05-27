@@ -35,7 +35,7 @@ inline static loff_t plugin_get_size(const char *plugin)
   * This function writes the given bytes to
   * plugin at the given position. It also measures the performance
  **/
-inline static int plugin_write_data(const char *plugin, void *data, loff_t pos, size_t length, struct device_performance *perf)
+inline static int plugin_write_data(const char *plugin, void *data, loff_t pos, unsigned int length, struct device_performance *perf)
 {
 	int ret;
 
@@ -60,7 +60,7 @@ inline static int plugin_write_data(const char *plugin, void *data, loff_t pos, 
   * This function reads the given bytes from
   * plugin at the given position. It also measures the performance
  **/
-inline static int plugin_read_data(const char *plugin, void *data, loff_t pos, size_t length, struct device_performance *perf)
+inline static int plugin_read_data(const char *plugin, void *data, loff_t pos, unsigned int length, struct device_performance *perf)
 {
 	int ret;
 

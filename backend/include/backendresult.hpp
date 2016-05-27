@@ -273,21 +273,6 @@ public:
 	/**
 	  * Sets actual result
 	 **/
-	/*template <class ...T>
-	void result(const T &t, const utils::ci_string &output_format)
-	{
-		try {
-			std::stringstream ss;
-			createResultString(ss, t, 0, output_format);
-			str_result = ss.str();
-		} catch (const FormatException &e) {
-			error(BackendResultType::general, e.what());
-		}
-	}*/
-
-	/**
-	  * Sets actual result
-	 **/
 	template <class T>
 	void result(const T &t, const utils::ci_string &output_format)
 	{

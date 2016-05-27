@@ -18,7 +18,7 @@ struct FormatException : public tDiskException
 	  * and concats them
 	 **/
 	template <class ...T>
-	FormatException(T ...t) :
+	FormatException(const T& ...t) :
 		tDiskException(t...)
 	{}
 	 

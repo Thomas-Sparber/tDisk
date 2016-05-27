@@ -20,7 +20,7 @@ ExtInodeScan::ExtInodeScan(const string &str_path) :
 {
 	//Open fs
 	io_manager io_ptr = unix_io_manager;
-	int retval = ext2fs_open(getPath().c_str(), 0, 0, 0, io_ptr, &fs);
+	errcode_t retval = ext2fs_open(getPath().c_str(), 0, 0, 0, io_ptr, &fs);
 	if(retval)
 	{
 		fs = nullptr;
@@ -85,7 +85,7 @@ bool ExtInodeScan::valid() const
 
 bool ExtInodeScan::nextInode(Inode *iterator) const
 {
-	int retval;
+	errcode_t retval;
 	ExtInode *inode = reinterpret_cast<ExtInode*>(iterator);
 
 	do

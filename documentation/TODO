@@ -1,13 +1,2 @@
-﻿Spezifikationen computer
-Bug "No such device" (SSD)
-
-Präsentation
-	linux (Blckdevice, char device, block layer, interrupts),
-	hdd (Logik, Dateisystem),
-	raid (Software, hardware)
-	Speicheroptimierung in der Praxis (Firmen)
-	NAS
-	
-
 chris:
 webinterface: styles.css 2. farbe zum vergleich hinzugefügt -> vergleichen auf unterschiedl. bildschirmen

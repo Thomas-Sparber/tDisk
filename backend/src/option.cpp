@@ -6,6 +6,7 @@
  **/
 
 #include <backendexception.hpp>
+#include <convert.hpp>
 #include <option.hpp>
 
 using namespace td;
@@ -33,10 +34,9 @@ char Option::getCharValue() const
 
 long Option::getLongValue() const
 {
-	char *test;
-	long v = strtol(value.c_str(), &test, 10);
-	if(test != value.c_str()+value.length())throw BackendException("Invalid number ", value);
-	return v;
+	uint64_t v;
+	if(!utils::convertTo(value, v))throw BackendException("Invalid number ", value);
+	return (long)v;
 }
 
 bool Option::getBoolValue() const

@@ -269,7 +269,7 @@ static u32 get_plugin_port(const char *name)
 {
 	u32 port = 0;
 	struct tdisk_plugin *plugin;
-	unsigned int name_length = strlen(name);
+	size_t name_length = strlen(name);
 
 	spin_lock_irq(&plugin_lock);
 	list_for_each_entry(plugin, &registered_plugins, list)
@@ -399,17 +399,18 @@ static int genl_finished(struct sk_buff *skb, struct genl_info *info)
   * values and sends the message to the plugin with
   + the given name.
  **/
-int nltd_send_async(const char *plugin, loff_t offset, char *buffer, size_t length, int operation, plugin_callback callback, void *userobject)
+int nltd_send_async(const char *plugin, loff_t offset, char *buffer, unsigned int length, int operation, plugin_callback callback, void *userobject)
 {
 	int err;
 	void *hdr;
 	struct sk_buff *msg;
 	struct pending_request *req = NULL;
 	u32 port = get_plugin_port(plugin);
-	size_t msg_size = sizeof(__u32) /*u32 -> req_nr*/ +
+	unsigned int msg_size = (unsigned int)
+							(sizeof(__u32) /*u32 -> req_nr*/ +
 							sizeof(__u64) /*u64 -> offset*/ +
 							sizeof(__u32) /*u32 -> length*/ +
-							length /* buffer */;
+							length) /* buffer */;
 
 	if(msg_size < PAGE_SIZE)msg_size = PAGE_SIZE;
 
@@ -495,7 +496,7 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, size_t leng
 	genlmsg_cancel(msg, hdr);
 	kfree_skb(msg);
  error:
-	printk(KERN_WARNING "tDisk: Error sending netlink message: %d. Operation: %s, Offset: %llu, Length: %d\n",
+	printk(KERN_WARNING "tDisk: Error sending netlink message: %d. Operation: %s, Offset: %llu, Length: %u\n",
 			err,
 			(operation == READ ? "READ" : (operation == WRITE ? "WRITE" : (operation == SIZE ? "SIZE" : "UNKNOWN"))),
 			offset,
@@ -516,23 +517,23 @@ int nltd_send_async(const char *plugin, loff_t offset, char *buffer, size_t leng
 	return err;
 }
 
-void nltd_read_async(const char *plugin, loff_t offset, char *buffer, size_t length, plugin_callback callback, void *userobject)
+void nltd_read_async(const char *plugin, loff_t offset, char *buffer, unsigned int length, plugin_callback callback, void *userobject)
 {
 	nltd_send_async(plugin, offset, buffer, length, READ, callback, userobject);
 }
 
-void nltd_write_async(const char *plugin, loff_t offset, char *buffer, size_t length, plugin_callback callback, void *userobject)
+void nltd_write_async(const char *plugin, loff_t offset, char *buffer, unsigned int length, plugin_callback callback, void *userobject)
 {
 	nltd_send_async(plugin, offset, buffer, length, WRITE, callback, userobject);
 }
 
-int nltd_read_sync(const char *plugin, loff_t offset, char *buffer, size_t length)
+int nltd_read_sync(const char *plugin, loff_t offset, char *buffer, unsigned int length)
 {
-	size_t pos;
+	unsigned int pos;
 
-	for(pos = 0; pos < length; pos += PAGE_SIZE)
+	for(pos = 0; pos < length; pos += (unsigned int)PAGE_SIZE)
 	{
-		size_t currentLength = min(PAGE_SIZE, length-pos);
+		unsigned int currentLength = min((unsigned int)PAGE_SIZE, length-pos);
 
 		struct sync_request sync = {
 			0,
@@ -548,13 +549,13 @@ int nltd_read_sync(const char *plugin, loff_t offset, char *buffer, size_t lengt
 	return 0;
 }
 
-int nltd_write_sync(const char *plugin, loff_t offset, char *buffer, size_t length)
+int nltd_write_sync(const char *plugin, loff_t offset, char *buffer, unsigned int length)
 {
-	size_t pos;
+	unsigned int pos;
 
-	for(pos = 0; pos < length; pos += PAGE_SIZE)
+	for(pos = 0; pos < length; pos += (unsigned int)PAGE_SIZE)
 	{
-		size_t currentLength = min(PAGE_SIZE, length-pos);
+		unsigned int currentLength = min((unsigned int)PAGE_SIZE, length-pos);
 
 		struct sync_request sync = {
 			0,
@@ -639,7 +640,7 @@ void clear_timed_out_requests(unsigned long data)
 	list_for_each_entry_safe(request, n, &removed, list)
 	{
 		unsigned long time = jiffies_to_msecs((unsigned long)request->started);
-		printk(KERN_DEBUG "tDisk: Timing out request %u: start-time: %us %ums\n", request->seq_nr, time/1000, (time%1000));
+		printk(KERN_DEBUG "tDisk: Timing out request %u: start-time: %lus %lums\n", request->seq_nr, time/1000, (time%1000));
 		if(request->callback)request->callback(request->userobject, -ETIMEDOUT);
 		kfree(request);
 		amount++;

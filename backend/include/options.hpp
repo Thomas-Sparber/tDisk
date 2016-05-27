@@ -50,7 +50,7 @@ public:
 	  * Adds the given options to be managed
 	 **/
 	template <class ...O>
-	void addOptions(const Option &o, O ...others)
+	void addOptions(const Option &o, const O& ...others)
 	{
 		addOption(o);
 		addOptions(others...);

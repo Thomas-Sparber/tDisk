@@ -25,7 +25,7 @@ struct tDiskOfflineException : public tDiskException
 	  * amount of arguments which are put together
 	 **/
 	template <class ...T>
-	tDiskOfflineException(T ...t) :
+	tDiskOfflineException(const T& ...t) :
 		tDiskException(t...)
 	{}
 

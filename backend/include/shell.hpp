@@ -70,7 +70,7 @@ namespace shell
 	  * return value
 	 **/
 	template <class ...Args>
-	std::vector<std::unique_ptr<ShellObjectBase> > execute(const ShellCommand &command, Args ...args)
+	std::vector<std::unique_ptr<ShellObjectBase> > execute(const ShellCommand &command, const Args& ...args)
 	{
 		return  execute_internal(command, utils::concatQuoted(args...));
 	}

@@ -46,4 +46,11 @@
  **/
 #define MEASURE_PERFORMANCE
 
+/**
+  * Defines whether the driver should already try to optimize operations
+  * when they are performed. This is possible for sectors which are
+  * not yet used
+ **/
+#define USE_INITIAL_OPTIMIZATION
+
 #endif //CONFIG_H

@@ -250,9 +250,7 @@ const char* getLongValue(const char *it, const char *end, T &out)
 	string str;
 	end = getStringValue(it, end, str);
 
-	char *test;
-	out = strtol(str.c_str(), &test, 10);
-	if(test != str.c_str()+str.length())throw ConfigException("Invalid number ", str);
+	if(!utils::convertTo(str, out))throw ConfigException("Invalid number ", str);
 	return end;
 }
 

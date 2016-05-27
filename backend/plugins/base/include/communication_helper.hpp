@@ -61,7 +61,7 @@ inline void addNlArg(nl_msg *msg, const unsigned long long &offset)
 template <int type, typename std::enable_if<type == c::NLTD_REQ_LENGTH, bool>::type* = nullptr>
 inline void addNlArg(nl_msg *msg, const std::size_t &length)
 {
-	int ret = nla_put_u32(msg, c::NLTD_REQ_LENGTH, length);
+	int ret = nla_put_u32(msg, c::NLTD_REQ_LENGTH, (uint32_t)length);
 	if(ret)throw PluginException("Can't add argument length to message: ", nl_geterror(ret));
 }
 
@@ -75,7 +75,7 @@ inline void addNlArg(nl_msg *msg, const int &r)
 template <int type, typename std::enable_if<type == c::NLTD_REQ_BUFFER, bool>::type* = nullptr>
 inline void addNlArg(nl_msg *msg, const std::vector<char> &data)
 {
-	int ret = nla_put(msg, c::NLTD_REQ_BUFFER, data.size(), &data[0]);
+	int ret = nla_put(msg, c::NLTD_REQ_BUFFER, (int)data.size(), &data[0]);
 	if(ret)throw PluginException("Can't add argument buffer to message: ", nl_geterror(ret));
 }
 

@@ -21,7 +21,7 @@ namespace td
 		if(v.size() != size)throw DropboxException("Json array size of ", value, " not identical: ", v.size(), " != ", size);
 
 		for(std::size_t i = 0; i < size; ++i)
-			extractJson(out[i], v[value][i], "");
+			extractJson(out[i], v[value][(Json::Value::ArrayIndex)i], "");
 	}
 
 	template <class T, class ...V>

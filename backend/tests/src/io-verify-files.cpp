@@ -101,7 +101,7 @@ void doTests()
 			continue;
 		}
 
-		usleep(sleepTime);
+		usleep((__useconds_t)sleepTime);
 
 		if(!readFile(folder, counter, data2))
 			throw InputException("Unable to read file ", counter);

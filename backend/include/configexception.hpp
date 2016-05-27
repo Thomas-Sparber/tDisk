@@ -25,7 +25,7 @@ struct ConfigException : public tDiskException
 	  * amount of arguments which are put together
 	 **/
 	template <class ...T>
-	ConfigException(T ...t) :
+	ConfigException(const T& ...t) :
 		tDiskException(t...)
 	{}
 

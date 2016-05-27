@@ -51,7 +51,7 @@ namespace shell
 		bool get(T &out) const
 		{
 			try {
-				return utils::convertTo<T>(getValue(name), out);
+				return utils::convertTo(getValue(name), out);
 			} catch (const BackendException &e) {
 				return false;
 			}

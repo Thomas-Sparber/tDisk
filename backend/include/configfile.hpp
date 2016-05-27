@@ -88,7 +88,7 @@ public:
 		/**
 		  * The tDisk's blocksize
 		 **/
-		long blocksize;
+		unsigned int blocksize;
 
 		/**
 		  * The internal devices of the tDisk

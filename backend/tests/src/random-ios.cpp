@@ -76,7 +76,7 @@ void doTests()
 	}
 
 	if(end-start < blocksize)throw InputException("Can't do test because blocksize (", blocksize, ") is greater than end (", end, ") - start (", start, ")");
-	srandom(time(nullptr));
+	srandom((unsigned int)time(nullptr));
 
 	do
 	{

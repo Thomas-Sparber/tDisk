@@ -40,7 +40,7 @@ public:
 		return s;
 	}
 
-	unsigned int age() const
+	std::time_t age() const
 	{
 		return (std::time(nullptr) - lastAccessTime);
 	}

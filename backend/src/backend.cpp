@@ -12,6 +12,7 @@
 #include <backend.hpp>
 #include <backendexception.hpp>
 #include <configfile.hpp>
+#include <convert.hpp>
 #include <device.hpp>
 #include <deviceadvisor.hpp>
 #include <fileassignment.hpp>
@@ -165,18 +166,17 @@ BackendResult td::create_tDisk(const vector<string> &args, Options &options)
 
 	//First, read minornumber and blocksize
 	size_t devicesIndex = 1;
-	int number = -1;
-	char *test;
 	tDisk disk;
-	int blocksize = strtol(args[0].c_str(), &test, 10);
-	if(test != args[0].c_str() + args[0].length())
+
+	int blocksize;
+	if(!utils::convertTo(args[0], blocksize))
 	{
 		r.error(BackendResultType::general, utils::concat("Invalid blocksize ", args[0]));
 		return std::move(r);
 	}
 
-	number = strtol(args[1].c_str(), &test, 10);
-	if(test == args[1].c_str() + args[1].length())
+	int number = -1;
+	if(utils::convertTo(args[1], number))
 	{
 		//If minornumber and blocksize are given, they are given in the reverse order
 		swap(number, blocksize);
@@ -221,8 +221,8 @@ BackendResult td::create_tDisk(const vector<string> &args, Options &options)
 	if(!options.getOptionBoolValue("config-only"))
 	{
 		try {
-			if(number >= 0)disk = tDisk::create(number, blocksize);
-			else disk = tDisk::create(blocksize);
+			if(number >= 0)disk = tDisk::create(number, (unsigned int)blocksize);
+			else disk = tDisk::create((unsigned int)blocksize);
 
 			for(size_t i = devicesIndex; i < args.size(); ++i)disk.addDisk(args[i]);
 		} catch(const tDiskOfflineException &e) {
@@ -264,21 +264,18 @@ BackendResult td::add_tDisk(const vector<string> &args, Options &options)
 	}
 
 	//Read minornumber and blocksize first
-	char *test;
 	tDisk disk;
 	int number = -1;
 	unsigned int blocksize = 0;
 	if(args.size() > 1)
 	{
-		number = strtol(args[0].c_str(), &test, 10);
-		if(test != args[0].c_str() + args[0].length())
+		if(!utils::convertTo(args[0], number))
 		{
 			r.error(BackendResultType::general, utils::concat("Invalid minor number ", args[0]));
 			return std::move(r);
 		}
 
-		blocksize = strtol(args[1].c_str(), &test, 10);
-		if(test != args[1].c_str() + args[1].length())
+		if(!utils::convertTo(args[1], blocksize))
 		{
 			r.error(BackendResultType::general, utils::concat("Invalid blocksize ", args[1]));
 			return std::move(r);
@@ -286,8 +283,7 @@ BackendResult td::add_tDisk(const vector<string> &args, Options &options)
 	}
 	else
 	{
-		blocksize = strtol(args[0].c_str(), &test, 10);
-		if(test != args[0].c_str() + args[0].length())
+		if(!utils::convertTo(args[0], blocksize))
 		{
 			r.error(BackendResultType::general, utils::concat("Invalid blocksize ", args[0]));
 			return std::move(r);
@@ -510,9 +506,8 @@ BackendResult td::get_sector_index(const vector<string> &args, Options &options)
 	}
 
 	//Read requested logical sector
-	char *test;
-	unsigned long long logicalSector = strtoull(args[1].c_str(), &test, 10);
-	if(test != args[1].c_str() + args[1].length())
+	uint64_t logicalSector;
+	if(!utils::convertTo(args[1], logicalSector))
 	{
 		r.error(BackendResultType::general, utils::concat(args[1], " is not a valid number"));
 		return std::move(r);
@@ -606,9 +601,8 @@ BackendResult td::get_device_info(const vector<string> &args, Options &options)
 	}
 
 	//Read requested device id first
-	char *test;
-	unsigned int device = strtol(args[1].c_str(), &test, 10);
-	if(test != args[1].c_str() + args[1].length())
+	unsigned int device;
+	if(!utils::convertTo(args[1], device))
 	{
 		r.error(BackendResultType::general, utils::concat("Invalid number ", args[1], " for device index"));
 		return std::move(r);
@@ -699,18 +693,17 @@ BackendResult td::get_files_at(const std::vector<std::string> & args, Options &o
 		return std::move(r);
 	}
 
-	char *test;
 	const string &path = args[0];
 
-	unsigned long long start = strtoull(args[1].c_str(), &test, 0);
-	if(test != args[1].c_str()+ args[1].length())
+	uint64_t start;
+	if(!utils::convertTo(args[1], start))
 	{
 		r.error(BackendResultType::general, utils::concat(args[1]," is not a valid number for start"));
 		return std::move(r);
 	}
 
-	unsigned long long end = strtoull(args[2].c_str(), &test, 0);
-	if(test != args[2].c_str()+ args[2].length())
+	uint64_t end;
+	if(!utils::convertTo(args[2], end))
 	{
 		r.error(BackendResultType::general, utils::concat(args[2]," is not a valid number for end"));
 		return std::move(r);
@@ -734,9 +727,8 @@ BackendResult td::get_files_on_disk(const vector<string> &args, Options &options
 		return std::move(r);
 	}
 
-	char *test;
-	unsigned int device = strtol(args[1].c_str(), &test, 0);
-	if(test != args[1].c_str()+args[1].length())
+	unsigned int device;;
+	if(!utils::convertTo(args[1], device))
 	{
 		r.error(BackendResultType::general, utils::concat(args[1]," is not a valid number for an internal device"));
 		return std::move(r);

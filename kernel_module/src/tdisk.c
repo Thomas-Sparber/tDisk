@@ -2045,9 +2045,13 @@ static int td_compat_ioctl(struct block_device *bdev, fmode_t mode, unsigned int
 
 	switch(cmd)
 	{
-	case TDISK_GET_STATUS:
-		arg = (unsigned long)compat_ptr(arg);
 	case TDISK_ADD_DISK:
+	case TDISK_GET_STATUS:
+	case TDISK_GET_DEVICE_INFO:
+	case TDISK_GET_SECTOR_INDEX:
+	case TDISK_GET_ALL_SECTOR_INDICES:
+	case TDISK_CLEAR_ACCESS_COUNT:
+		arg = (unsigned long)compat_ptr(arg);
 		err = td_ioctl(bdev, mode, cmd, arg);
 		break;
 	default:
@@ -2055,9 +2059,6 @@ static int td_compat_ioctl(struct block_device *bdev, fmode_t mode, unsigned int
 		break;
 	}
 	return err;
-
-	//Added TODO so that it doesn't compile
-	TODO
 }
 #endif
 

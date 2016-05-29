@@ -35,18 +35,19 @@ Example products:
  - http://www.hardkernel.com/main/products/prdt_info.php?g_code=G145457216438
 
 
+INTERESSANT
+
+odroid / hardkernel
+http://www.hardkernel.com/main/products/prdt_info.php?g_code=G145457216438
 
 
+selber konfigurieren
+https://www.toradex.com/de/customized-single-board-computer?sbc
 
 
+http://www.emacinc.com/products/pc_compatible_sbcs
+---------------------------------------------------------------------------------
 
-
-research chris:
-Anderer name für SBC - embedded boards?
-
-Brauchen wir SICHER 1GB Ethernet? 100MB evtl ausreichend? Weil wir sowieso nie über 50mb kommen..
-
-block diagrams schauen recht hilfreich aus!
 
 https://www.reddit.com/r/embedded/ 	-> specs posten und nachfragen nach sbc quellen
 
@@ -71,12 +72,10 @@ hummingboard
 https://www.solid-run.com/product/hummingboard-gate/
 	konfigurierbar, aber teuer?
 
-odroid / hardkernel
-http://www.hardkernel.com/main/products/prdt_info.php?g_code=G145457216438
+
 
 http://keith-koep.com/en/products/products-trizeps/
 
-http://schmid-elektronik.ch/de/180/Singleboard_Computers.htm
 
 qualcomm boards
 https://developer.qualcomm.com/hardware/dragonboard-410c
@@ -87,9 +86,7 @@ tlw customizbar? vgl "capes"
 http://beagleboard.org/green
 
 
-selber konfigurieren
-https://www.toradex.com/de/customized-single-board-computer?sbc
-http://www.emacinc.com/products/pc_compatible_sbcs
+
 
 ------------
 

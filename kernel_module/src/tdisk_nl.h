@@ -34,7 +34,7 @@
   * The callback type which is used for asynchronous
   * plugin requests
  **/
-typedef void (*plugin_callback)(void*,int);
+typedef void (*plugin_callback)(void*,long);
 
 /**
   * Registers the netlink family and starts the timeout thread

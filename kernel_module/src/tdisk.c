@@ -192,6 +192,154 @@ static int read_bio_vec(struct td_internal_device *device, struct bio_vec *bvec,
 }
 
 /**
+  * Generic function that writes data to a device.
+  * The device can be a file or a plugin.
+ **/
+static void write_data_async(struct td_internal_device *device, void *data, loff_t position, unsigned int length, void *private_data, void (*callback)(void*,long))
+{
+	switch(device->type)
+	{
+#ifdef USE_FILES
+	case internal_device_type_file:
+		if(unlikely(!device->file))
+		{
+			if(callback)callback(private_data, -ENODEV);
+			break;
+		}
+		file_write_data_async(device->file, data, position, length, &device->performance, private_data, callback);
+		break;
+#else
+#pragma message "Files are disabled"
+#endif //USE_FILES
+
+#ifdef USE_PLUGINS
+	case internal_device_type_plugin:
+		plugin_write_data_async(device->name, data, position, length, &device->performance, private_data, callback);
+		break;
+#else
+#pragma message "Plugins are disabled"
+#endif //USE_PLUGINS
+
+	default:
+		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
+		MY_BUG_ON(true, PRINT_INT(device->type));
+		if(callback)callback(private_data, -EINVAL);
+		break;
+	}
+}
+
+/**
+  * Generic function that reads data from a device.
+  * The device can be a file or a plugin.
+ **/
+static void read_data_async(struct td_internal_device *device, void *data, loff_t position, unsigned int length, void *private_data, void (*callback)(void*,long))
+{
+	switch(device->type)
+	{
+#ifdef USE_FILES
+	case internal_device_type_file:
+		if(unlikely(!device->file))
+		{
+			if(callback)callback(private_data, -ENODEV);
+			break;
+		}
+		file_read_data_async(device->file, data, position, length, &device->performance, private_data, callback);
+		break;
+#else
+#pragma message "Files are disabled"
+#endif //USE_FILES
+
+#ifdef USE_PLUGINS
+	case internal_device_type_plugin:
+		plugin_read_data_async(device->name, data, position, length, &device->performance, private_data, callback);
+		break;
+#else
+#pragma message "Plugins are disabled"
+#endif //USE_PLUGINS
+
+	default:
+		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
+		MY_BUG_ON(true, PRINT_INT(device->type));
+		if(callback)callback(private_data, -EINVAL);
+		break;
+	}
+}
+
+/**
+  * Generic function that writes a bio_vec to a device.
+  * The device can be a file or a plugin.
+ **/
+static void write_bio_vec_async(struct td_internal_device *device, struct bio_vec *bvec, loff_t position, void *private_data, void (*callback)(void*,long))
+{
+	switch(device->type)
+	{
+#ifdef USE_FILES
+	case internal_device_type_file:
+		if(unlikely(!device->file))
+		{
+			if(callback)callback(private_data, -ENODEV);
+			break;
+		}
+		file_write_bio_vec_async(device->file, bvec, position, &device->performance, private_data, callback);
+		break;
+#else
+#pragma message "Files are disabled"
+#endif //USE_FILES
+
+#ifdef USE_PLUGINS
+	case internal_device_type_plugin:
+		plugin_write_bio_vec_async(device->name, bvec, position, &device->performance, private_data, callback);
+		break;
+#else
+#pragma message "Plugins are disabled"
+#endif //USE_PLUGINS
+
+	default:
+		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
+		MY_BUG_ON(true, PRINT_INT(device->type));
+		if(callback)callback(private_data, -EINVAL);
+		break;
+	}
+}
+
+/**
+  * Generic function that reads a bio_vec from a device.
+  * The device can be a file or a plugin.
+ **/
+static void read_bio_vec_async(struct td_internal_device *device, struct bio_vec *bvec, loff_t position, void *private_data, void (*callback)(void*,long))
+{
+	switch(device->type)
+	{
+#ifdef USE_FILES
+	case internal_device_type_file:
+		if(unlikely(!device->file))
+		{
+			if(callback)callback(private_data, -ENODEV);
+			break;
+		}		
+		file_read_bio_vec_async(device->file, bvec, position, &device->performance, private_data, callback);
+		break;
+#else
+#pragma message "Files are disabled"
+#endif //USE_FILES
+
+#ifdef USE_PLUGINS
+	case internal_device_type_plugin:
+		plugin_read_bio_vec_async(device->name, bvec, position, &device->performance, private_data, callback);
+		break;
+#else
+#pragma message "Plugins are disabled"
+#endif //USE_PLUGINS
+
+	default:
+		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
+		MY_BUG_ON(true, PRINT_INT(device->type));
+		if(callback)callback(private_data, -EINVAL);
+		break;
+	}
+}
+
+/**
   * Generic function that flushes a device.
   * The device can be a file or a plugin.
  **/
@@ -376,6 +524,24 @@ int td_write_index_to_disk(struct tdisk *td, sector_t logical_sector, tdisk_inde
 	actual = &td->indices[logical_sector];
 
 	return write_data(&td->internal_devices[disk-1], actual, position, length);
+}
+
+/**
+  * Writes the given sector index to the given internal device aysnchronously
+ **/
+void td_write_index_to_disk_async(struct tdisk *td, sector_t logical_sector, tdisk_index disk, void *private_data, void (*callback)(void*,long))
+{
+	struct sector_index *actual;
+	loff_t position = td->index_offset_byte + (loff_t)logical_sector * (loff_t)sizeof(struct sector_index);
+	unsigned int length = sizeof(struct sector_index);
+
+	if(position + length > td->header_size * td->blocksize)
+	{
+		if(callback)callback(private_data, -ENOMEM);
+	}
+	actual = &td->indices[logical_sector];
+
+	write_data_async(&td->internal_devices[disk-1], actual, position, length, private_data, callback);
 }
 
 /**
@@ -1198,6 +1364,44 @@ sector_t td_find_sector_for_better_performance(struct tdisk *td, sector_t sector
 #endif //USE_INITIAL_OPTIMIZATION
 
 /**
+  * This callback is used for async file operations
+ **/
+static void async_request_callback(void *private_data, long ret)
+{
+	struct request *rq = private_data;
+	printk(KERN_DEBUG "tDisk: request finished, ret: %ld\n", ret);
+	if(ret > 0)
+	{
+		//Handle partial reads
+		if(!(rq->cmd_flags & REQ_WRITE))
+		{
+			if(unlikely((size_t)ret < blk_rq_bytes(rq)))
+			{
+				struct bio *bio = rq->bio;
+
+				bio_advance(bio, (unsigned int)ret);
+				zero_fill_bio(bio);
+			}
+		}
+
+		ret = 0;
+	}
+	else
+	{
+		printk(KERN_ERR "tDisk: Async disk error\n");
+		ret = -EIO;
+	}
+	
+
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+	rq->errors = ret;
+	blk_mq_complete_request(rq);
+#else
+	blk_mq_complete_request(rq, ret);
+#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+}
+
+/**
   * This function does the actual device operations. It extracts
   * the logical sector and the data from the request. Then it
   * searches for the corresponding disk and physical sector and
@@ -1324,6 +1528,128 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		cond_resched();
 	}
 
+	return ret;
+}
+
+/**
+  * This function does the actual device operations. It extracts
+  * the logical sector and the data from the request. Then it
+  * searches for the corresponding disk and physical sector and
+  * does the actual device operation. Disk performances are also
+  * recorded.
+ **/
+static int td_do_disk_operation_async(struct tdisk *td, struct request *rq)
+{
+	struct bio_vec bvec;
+	struct req_iterator iter;
+	loff_t pos_byte;
+	int ret = -EIOCBQUEUED;
+	struct sector_index physical_sector;
+
+	struct multi_aio_data *multi_data = kmalloc(sizeof(struct multi_aio_data), GFP_KERNEL);
+
+	atomic_set(&multi_data->ret, 0);
+	atomic_set(&multi_data->remaining, 1);
+	multi_data->length = (long)blk_rq_bytes(rq);
+	multi_data->private_data = rq;
+	multi_data->callback = async_request_callback;
+
+
+	pos_byte = (loff_t)blk_rq_pos(rq) << 9;
+
+	//Handle flush operations
+	if((rq->cmd_flags & REQ_WRITE) && (rq->cmd_flags & REQ_FLUSH))
+		return td_flush_devices(td);
+
+	//Normal file operations
+	rq_for_each_segment(bvec, rq, iter)
+	{
+		struct td_internal_device *device;
+		loff_t sector_div = pos_byte;
+		loff_t offset = __div64_32(&sector_div, td->blocksize);
+		sector_t sector = (sector_t)sector_div;
+		loff_t actual_pos_byte;
+
+#ifdef USE_INITIAL_OPTIMIZATION
+		if(!SECTOR_USED(td->indices[sector].access_count))
+		{
+			//If the sector is not yet used we can try to find a
+			//faster disk to gain some performance
+
+			sector_t better_sector = td_find_sector_for_better_performance(td, sector);
+
+			if(sector != better_sector)
+			{
+				physical_sector.disk = td->indices[better_sector].disk;
+				physical_sector.sector = td->indices[better_sector].sector;
+
+				td->indices[better_sector].disk = td->indices[sector].disk;
+				td->indices[better_sector].sector = td->indices[sector].sector;
+
+				td->indices[sector].disk = physical_sector.disk;
+				td->indices[sector].sector = physical_sector.sector;
+
+				atomic_inc(&multi_data->remaining);
+				atomic_inc(&multi_data->remaining);
+				atomic_inc(&multi_data->remaining);
+				atomic_inc(&multi_data->remaining);
+				td_write_index_to_disk_async(td, sector, td->indices[sector].disk, multi_data, &file_multi_aio_complete);
+				td_write_index_to_disk_async(td, better_sector, td->indices[sector].disk, multi_data, &file_multi_aio_complete);
+				td_write_index_to_disk_async(td, sector, td->indices[better_sector].disk, multi_data, &file_multi_aio_complete);
+				td_write_index_to_disk_async(td, better_sector, td->indices[better_sector].disk, multi_data, &file_multi_aio_complete);
+			}
+		}
+#else
+#pragma message "Initial optimization is disabled"
+#endif //USE_INITIAL_OPTIMIZATION
+
+		//Fetch physical index
+		td_perform_index_operation(td, READ, sector, &physical_sector, true, true);
+
+		//Calculate actual position in the physical disk
+		actual_pos_byte = (loff_t)physical_sector.sector*td->blocksize + offset;
+
+		if(physical_sector.disk == 0 || physical_sector.disk > td->internal_devices_count)
+		{
+			printk_ratelimited(KERN_ERR "tDisk: found invalid disk index for reading logical sector %llu: %u\n", sector, physical_sector.disk);
+			ret = -EIO;
+			continue;
+		}
+
+		device = &td->internal_devices[physical_sector.disk - 1];	//-1 because 0 means unused
+		if(!device_is_ready(device))
+		{
+			printk_ratelimited(KERN_DEBUG "tDisk: Device %u is not ready. Probably not yet loaded...\n", physical_sector.disk);
+			ret = -EIO;
+			continue;
+		}
+
+		if((rq->cmd_flags & REQ_WRITE) && (rq->cmd_flags & REQ_DISCARD))
+		{
+			//Handle discard operations
+			ret = device_alloc(device, actual_pos_byte, bvec.bv_len);
+			if(ret)break;
+		}
+		else if(rq->cmd_flags & REQ_WRITE)
+		{
+			//Do write operation
+			printk(KERN_DEBUG "tDisk: Async write operation\n");
+			atomic_inc(&multi_data->remaining);
+			write_bio_vec_async(device, &bvec, actual_pos_byte, multi_data, &file_multi_aio_complete);
+		}
+		else
+		{
+			//Do read operation
+			printk(KERN_DEBUG "tDisk: Async read operation\n");
+			atomic_inc(&multi_data->remaining);
+			read_bio_vec_async(device, &bvec, actual_pos_byte, multi_data, &file_multi_aio_complete);
+		}
+
+		pos_byte += bvec.bv_len;
+		cond_resched();
+	}
+
+	file_multi_aio_complete(multi_data, 0);
 	return ret;
 }
 
@@ -2191,14 +2517,32 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 		if(cmd->rq->cmd_flags & REQ_WRITE && (td->flags & TD_FLAGS_READ_ONLY))
 			ret = -EIO;
 		else
+		{
+#ifdef ASYNC_OPERATIONS
+			ret = td_do_disk_operation_async(td, cmd->rq);
+#else
 			ret = td_do_disk_operation(td, cmd->rq);
+#endif //ASYNC_OPERATIONS
+		}
 
+#ifdef ASYNC_OPERATIONS
+		if(ret && ret != -EIOCBQUEUED)
+		{
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+			cmd->rq->errors = -EIO;
+			blk_mq_complete_request(cmd->rq);
+#else
+			blk_mq_complete_request(cmd->rq, -EIO);
+#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+		}
+#else
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
 		if(ret)cmd->rq->errors = -EIO;
 		blk_mq_complete_request(cmd->rq);
 #else
 		blk_mq_complete_request(cmd->rq, ret ? -EIO : 0);
 #endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+#endif //ASYNC_OPERATIONS
 
 		//Setting this flag is required to force resoring the indices
 		//if the worker was disturbed during sector movement

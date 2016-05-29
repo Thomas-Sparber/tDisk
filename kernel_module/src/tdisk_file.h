@@ -239,14 +239,48 @@ struct aio_data
 
 	int rw;
 	struct device_performance *perf;
+	cycles_t time;
 }; //end struct aio_data
 
-inline static void lo_rw_aio_complete(struct kiocb *iocb, long ret, long ret2)
+struct multi_aio_data
 {
+	atomic_t ret;
+	atomic_t remaining;
+	long length;
+	void *private_data;
+	void (*callback)(void*,long);
+}; //end struct aio_data
+
+inline static void file_aio_complete(struct kiocb *iocb, long ret, long ret2)
+{
+	printk(KERN_DEBUG "tDisk: AIO completed, ret: %ld\n", ret);
 	struct aio_data *data = container_of(iocb, struct aio_data, iocb);
+
+#ifdef MEASURE_PERFORMANCE
+	update_performance(data->rw, get_cycles()-data->time, data->perf);
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
 
 	if(data->callback)data->callback(data->private_data, ret);
 	kfree(data);
+}
+
+inline static void file_multi_aio_complete(void *private_data, long ret)
+{
+	struct multi_aio_data *data = private_data;
+
+	if(ret < 0)atomic_inc(&data->ret);
+
+	printk(KERN_DEBUG "tDisk: Multi AIO completed, ret: %ld, %d msissing\n", ret, atomic_read(&data->remaining)-1);
+	if(atomic_dec_and_test(&data->remaining))
+	{
+		if(unlikely(atomic_read(&data->ret) != 0))data->length = -EIO;
+
+		if(data->callback)data->callback(data->private_data, data->length);
+
+		kfree(data);
+	}
 }
 
 /*inline static int lo_rw_aio(struct file *file, struct aio_data *data, loff_t pos, bool rw)
@@ -322,7 +356,7 @@ inline static void file_aio_init_aio_data(struct aio_data *data, struct file *fi
 {
 	data->iocb.ki_pos = pos;
 	data->iocb.ki_filp = file;
-	data->iocb.ki_complete = lo_rw_aio_complete;
+	data->iocb.ki_complete = file_aio_complete;
 	data->iocb.ki_flags = IOCB_DIRECT;
 
 	data->private_data = private_data;
@@ -348,6 +382,191 @@ inline static int file_aio_read_request(struct file *file, struct request *rq, l
 
 	if(ret != -EIOCBQUEUED)data->iocb.ki_complete(&data->iocb, ret, 0);
 	return 0;
+}
+
+/**
+  * This function writes the given bio_vec asyncronously to
+  * file at the given position. It also measures the performance
+ **/
+inline static int file_write_bio_vec_async(struct file *file, struct bio_vec *bvec, loff_t pos, struct device_performance *perf, void *private_data, void (*callback)(void*,long))
+{
+	int ret;
+	struct iov_iter iter;
+	struct aio_data *data = kmalloc(sizeof(struct aio_data), GFP_KERNEL);
+
+	if(!data)
+	{
+		if(callback)callback(private_data, -ENOMEM);
+		return;
+	}
+
+	iov_iter_bvec(&iter, ITER_BVEC/* | WRITE*/, bvec, 1, bvec->bv_len);
+
+	data->iocb.ki_pos = pos;
+	data->iocb.ki_filp = file;
+	data->iocb.ki_complete = file_aio_complete;
+	//data->iocb.ki_flags = IOCB_DIRECT;
+
+	data->perf = perf;
+	data->private_data = private_data;
+	data->callback = callback;
+
+#ifdef MEASURE_PERFORMANCE
+	data->time = get_cycles();
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
+
+	printk(KERN_DEBUG "tDisk: Sending async read file request\n");
+	ret = file->f_op->write_iter(&data->iocb, &iter);
+	printk(KERN_DEBUG "tDisk: Done Sending async write file request: %d\n", ret);
+
+	if(ret != -EIOCBQUEUED)
+	{
+		if(callback)callback(private_data, ret);
+	}
+}
+
+/**
+  * This function writes the given page asyncronously to
+  * file at the given position. It also measures the performance
+ **/
+inline static void file_write_page_async(struct file *file, struct page *p, loff_t pos, unsigned int length, struct device_performance *perf, void *private_data, void (*callback)(void*,long))
+{
+	struct bio_vec bvec = {
+		.bv_page = p,
+		.bv_len = length,
+		.bv_offset = 0
+	};
+
+	file_write_bio_vec_async(file, &bvec, pos, perf, private_data, callback);
+}
+
+/**
+  * This function writes the given bytes asyncronously to
+  * file at the given position. It also measures the performance
+ **/
+inline static void file_write_data_async(struct file *file, void *data, loff_t pos, unsigned int length, struct device_performance *perf, void *private_data, void (*callback)(void*,long))
+{
+	int len;
+	struct page *p = alloc_page(GFP_KERNEL);
+	struct multi_aio_data *multi_data = kmalloc(sizeof(struct multi_aio_data), GFP_KERNEL);
+
+	atomic_set(&multi_data->ret, 0);
+	atomic_set(&multi_data->remaining, 1);
+	multi_data->length = length;
+	multi_data->private_data = private_data;
+	multi_data->callback = callback;
+
+	do
+	{
+		len = (length > PAGE_SIZE) ? PAGE_SIZE : length;
+
+		memcpy(page_address(p), data, len);
+		atomic_inc(&multi_data->remaining);
+		file_write_page_async(file, p, pos, len, perf, multi_data, &file_multi_aio_complete);
+
+		data += len;
+		length -= len;
+	}
+	while(length);
+
+	__free_page(p);
+
+	file_multi_aio_complete(multi_data, 0);
+}
+
+/**
+  * This function reads the given bio_vec asyncronously to
+  * file at the given position. It also measures the performance
+ **/
+inline static int file_read_bio_vec_async(struct file *file, struct bio_vec *bvec, loff_t pos, struct device_performance *perf, void *private_data, void (*callback)(void*,long))
+{
+	int ret;
+	struct iov_iter iter;
+	struct aio_data *data = kmalloc(sizeof(struct aio_data), GFP_KERNEL);
+
+	if(!data)
+	{
+		if(callback)callback(private_data, -ENOMEM);
+		return;
+	}
+
+	iov_iter_bvec(&iter, ITER_BVEC/* | READ*/, bvec, 1, bvec->bv_len);
+
+	data->iocb.ki_pos = pos;
+	data->iocb.ki_filp = file;
+	data->iocb.ki_complete = file_aio_complete;
+	//data->iocb.ki_flags = IOCB_DIRECT;
+
+	data->perf = perf;
+	data->private_data = private_data;
+	data->callback = callback;
+
+#ifdef MEASURE_PERFORMANCE
+	data->time = get_cycles();
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
+
+	printk(KERN_DEBUG "tDisk: Sending async read file request\n");
+	ret = file->f_op->read_iter(&data->iocb, &iter);
+	printk(KERN_DEBUG "tDisk: Done Sending async read file request: %d\n", ret);
+
+	if(ret != -EIOCBQUEUED)
+	{
+		printk(KERN_DEBUG "tDisk: Async file request returned an error: %d\n", ret);
+		if(callback)callback(private_data, ret);
+	}
+}
+
+/**
+  * This function reads the given page asyncronously to
+  * file at the given position. It also measures the performance
+ **/
+inline static void file_read_page_async(struct file *file, struct page *p, loff_t pos, unsigned int length, struct device_performance *perf, void *private_data, void (*callback)(void*,long))
+{
+	struct bio_vec bvec = {
+		.bv_page = p,
+		.bv_len = length,
+		.bv_offset = 0
+	};
+
+	file_read_bio_vec_async(file, &bvec, pos, perf, private_data, callback);
+}
+
+/**
+  * This function reads the given bytes asyncronously to
+  * file at the given position. It also measures the performance
+ **/
+inline static void file_read_data_async(struct file *file, void *data, loff_t pos, unsigned int length, struct device_performance *perf, void *private_data, void (*callback)(void*,long))
+{
+	int len;
+	struct page *p = alloc_page(GFP_KERNEL);
+	struct multi_aio_data *multi_data = kmalloc(sizeof(struct multi_aio_data), GFP_KERNEL);
+
+	atomic_set(&multi_data->ret, 0);
+	atomic_set(&multi_data->remaining, 1);
+	multi_data->length = length;
+	multi_data->private_data = private_data;
+	multi_data->callback = callback;
+
+	do
+	{
+		len = (length > PAGE_SIZE) ? PAGE_SIZE : length;
+
+		memcpy(page_address(p), data, len);
+		atomic_inc(&multi_data->remaining);
+		file_read_page_async(file, p, pos, len, perf, multi_data, &file_multi_aio_complete);
+
+		data += len;
+		length -= len;
+	}
+	while(length);
+
+	__free_page(p);
+
+	file_multi_aio_complete(multi_data, 0);
 }
 
 #else

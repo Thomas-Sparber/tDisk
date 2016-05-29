@@ -110,7 +110,7 @@ static struct genl_family genl_tdisk_family = {
  **/
 struct sync_request
 {
-	int ret;
+	long ret;
 	struct completion done;
 }; //end struct sync_request
 
@@ -119,7 +119,7 @@ struct sync_request
   * operations. This callback simply wakes up the waiting
   * process and sets the result code.
  **/
-void sync_request_callback(void *data, int ret)
+void sync_request_callback(void *data, long ret)
 {
 	struct sync_request *sync = data;
 	sync->ret = ret;

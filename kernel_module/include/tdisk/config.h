@@ -53,4 +53,6 @@
  **/
 #define USE_INITIAL_OPTIMIZATION
 
+#define ASYNC_OPERATIONS
+
 #endif //CONFIG_H

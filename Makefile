@@ -37,4 +37,3 @@ count_lines:
 clean:
 	@make -C kernel_module clean
 	@make -C backend clean
-	@rm -f web_interface/tdisk

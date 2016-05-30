@@ -75,12 +75,15 @@ void doTests()
 		end = file.tellg();
 	}
 
+	start /= blocksize;
+	end /= blocksize;
+
 	if(end-start < blocksize)throw InputException("Can't do test because blocksize (", blocksize, ") is greater than end (", end, ") - start (", start, ")");
 	srandom((unsigned int)time(nullptr));
 
 	do
 	{
-		unsigned long long pos = random() % (end-start-blocksize) + start;
+		unsigned long long pos = (random() % (end-start) + start) * blocksize;
 
 		if(read)
 		{

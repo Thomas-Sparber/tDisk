@@ -28,8 +28,9 @@
   * over the last (1 << MEASURE_RECORDS_SHIFT)
   * requests
  **/
-inline static void update_performance(int direction, cycles_t time, struct device_performance *perf)
+inline static void update_performance(int direction, struct timespec *startTime, struct timespec *endTime, struct device_performance *perf)
 {
+	unsigned long long time = (endTime->tv_sec-startTime->tv_sec) * 1000000000 + (endTime->tv_nsec-startTime->tv_nsec);
 	unsigned long diff;
 
 	//time is 0 on platforms which have no cycles measure
@@ -39,14 +40,16 @@ inline static void update_performance(int direction, cycles_t time, struct devic
 	switch(direction)
 	{
 	case READ:
-		if(unlikely(perf->avg_read_time_cycles == 0))
+		/*if(unlikely(perf->avg_read_time_cycles == 0))
 		{
 			//Means it was the first read operation of this file.
-			//Assuming that this is the averyge read performance
+			//Assuming that this is the average read performance
 			printk(KERN_DEBUG "tDisk: measuring ping read-performance for device: %llu\n", time);
 			perf->avg_read_time_cycles = time;
 			break;
-		}
+		}*/
+
+		printk(KERN_DEBUG "tDisk: measuring read-performance for device: %llu\n", time);
 
 		//Avg difference
 		if(perf->avg_read_time_cycles > time)
@@ -67,19 +70,21 @@ inline static void update_performance(int direction, cycles_t time, struct devic
 		perf->stdev_read_time_cycles = perf->stdev_read_time_cycles >> MEASURE_RECORDS_SHIFT;
 		break;
 	case WRITE:
-		if(unlikely(perf->avg_write_time_cycles == 0))
+		/*if(unlikely(perf->avg_write_time_cycles == 0))
 		{
-			//Means it was the first read operation of this file.
-			//Assuming that this is the averyge read performance
+			//Means it was the first write operation of this file.
+			//Assuming that this is the average write performance
 			printk(KERN_DEBUG "tDisk: measuring ping write-performance for device: %llu\n", time);
 			perf->avg_write_time_cycles = time;
 			break;
-		}
+		}*/
 
 		//Avg difference
 		if(perf->avg_write_time_cycles > time)
 			diff = perf->avg_write_time_cycles-time;
 		else diff = time-perf->avg_write_time_cycles;
+
+		printk(KERN_DEBUG "tDisk: measuring write-performance for device: %llu\n", time);
 
 		//The following lines calculate the following
 		//equation using bitshift for better performance

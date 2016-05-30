@@ -40,7 +40,10 @@ inline static int plugin_write_data(const char *plugin, void *data, loff_t pos, 
 	int ret;
 
 #ifdef MEASURE_PERFORMANCE
-	cycles_t time = get_cycles();
+	struct timespec startTime;
+	struct timespec endTime;
+
+	getnstimeofday(&startTime);
 #else
 #pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
@@ -48,7 +51,8 @@ inline static int plugin_write_data(const char *plugin, void *data, loff_t pos, 
 	ret = nltd_write_sync(plugin, pos, data, length);
 
 #ifdef MEASURE_PERFORMANCE
-	update_performance(WRITE, get_cycles()-time, perf);
+	getnstimeofday(&endTime);
+	update_performance(WRITE, &startTime, &endTime, perf);
 #else
 #pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
@@ -65,7 +69,10 @@ inline static int plugin_read_data(const char *plugin, void *data, loff_t pos, u
 	int ret;
 
 #ifdef MEASURE_PERFORMANCE
-	cycles_t time = get_cycles();
+	struct timespec startTime;
+	struct timespec endTime;
+
+	getnstimeofday(&startTime);
 #else
 #pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
@@ -73,7 +80,8 @@ inline static int plugin_read_data(const char *plugin, void *data, loff_t pos, u
 	ret = nltd_read_sync(plugin, pos, data, length);
 
 #ifdef MEASURE_PERFORMANCE
-	update_performance(READ, get_cycles()-time, perf);
+	getnstimeofday(&endTime);
+	update_performance(READ, &startTime, &endTime, perf);
 #else
 #pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
@@ -120,7 +128,7 @@ struct aio_plugin_data
 
 	int rw;
 	struct device_performance *perf;
-	cycles_t time;
+	struct timespec startTime;
 }; //end struct aio_plugin_data
 
 inline static void plugin_aio_complete(void *private_data, long ret)
@@ -128,7 +136,9 @@ inline static void plugin_aio_complete(void *private_data, long ret)
 	struct aio_plugin_data *data = private_data;
 
 #ifdef MEASURE_PERFORMANCE
-	update_performance(data->rw, get_cycles()-data->time, data->perf);
+	struct timespec endTime;
+	getnstimeofday(&endTime);
+	update_performance(data->rw, &data->startTime, &endTime, data->perf);
 #else
 #pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
@@ -151,7 +161,7 @@ inline static void plugin_write_data_async(const char *plugin, void *data, loff_
 	aio_data->rw = WRITE;
 
 #ifdef MEASURE_PERFORMANCE
-	aio_data->time = get_cycles();
+	getnstimeofday(&aio_data->startTime);
 #else
 #pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
@@ -173,7 +183,7 @@ inline static void plugin_read_data_async(const char *plugin, void *data, loff_t
 	aio_data->rw = WRITE;
 
 #ifdef MEASURE_PERFORMANCE
-	aio_data->time = get_cycles();
+	getnstimeofday(&aio_data->startTime);
 #else
 #pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE

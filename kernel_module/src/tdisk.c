@@ -1589,10 +1589,14 @@ static int td_do_disk_operation_async(struct tdisk *td, struct request *rq)
 				td->indices[sector].disk = physical_sector.disk;
 				td->indices[sector].sector = physical_sector.sector;
 
-				atomic_inc(&multi_data->remaining);
-				atomic_inc(&multi_data->remaining);
-				atomic_inc(&multi_data->remaining);
-				atomic_inc(&multi_data->remaining);
+				//atomic_inc(&multi_data->remaining);
+				//atomic_inc(&multi_data->remaining);
+				//atomic_inc(&multi_data->remaining);
+				//atomic_inc(&multi_data->remaining);
+				//td_write_index_to_disk_async(td, sector, td->indices[sector].disk, multi_data, &file_multi_aio_complete);
+				//td_write_index_to_disk_async(td, better_sector, td->indices[sector].disk, multi_data, &file_multi_aio_complete);
+				//td_write_index_to_disk_async(td, sector, td->indices[better_sector].disk, multi_data, &file_multi_aio_complete);
+				//td_write_index_to_disk_async(td, better_sector, td->indices[better_sector].disk, multi_data, &file_multi_aio_complete);
 				td_write_index_to_disk_async(td, sector, td->indices[sector].disk, multi_data, &file_multi_aio_complete);
 				td_write_index_to_disk_async(td, better_sector, td->indices[sector].disk, multi_data, &file_multi_aio_complete);
 				td_write_index_to_disk_async(td, sector, td->indices[better_sector].disk, multi_data, &file_multi_aio_complete);

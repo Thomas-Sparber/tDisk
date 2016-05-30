@@ -76,7 +76,11 @@ inline static int file_write_bio_vec(struct file *file, struct bio_vec *bvec, lo
 	struct iov_iter i;
 
 #ifdef MEASURE_PERFORMANCE
-	cycles_t time = get_cycles();
+	//cycles_t time = get_cycles();
+	struct timespec startTime;
+	struct timespec endTime;
+
+	getnstimeofday(&startTime);
 #else
 #pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
@@ -88,7 +92,8 @@ inline static int file_write_bio_vec(struct file *file, struct bio_vec *bvec, lo
 	file_end_write(file);
 
 #ifdef MEASURE_PERFORMANCE
-	update_performance(WRITE, get_cycles()-time, perf);
+	getnstimeofday(&endTime);
+	update_performance(WRITE, &startTime, &endTime, perf);
 #else
 #pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
@@ -159,7 +164,10 @@ inline static int file_read_bio_vec(struct file *file, struct bio_vec *bvec, lof
 	struct iov_iter i;
 
 #ifdef MEASURE_PERFORMANCE
-	cycles_t time = get_cycles();
+	struct timespec startTime;
+	struct timespec endTime;
+
+	getnstimeofday(&startTime);
 #else
 #pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
@@ -169,7 +177,8 @@ inline static int file_read_bio_vec(struct file *file, struct bio_vec *bvec, lof
 	ret = vfs_iter_read(file, &i, pos);
 
 #ifdef MEASURE_PERFORMANCE
-	update_performance(READ, get_cycles()-time, perf);
+	getnstimeofday(&endTime);
+	update_performance(READ, &startTime, &endTime, perf);
 #else
 #pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
@@ -239,7 +248,7 @@ struct aio_data
 
 	int rw;
 	struct device_performance *perf;
-	cycles_t time;
+	struct timespec startTime;
 }; //end struct aio_data
 
 struct multi_aio_data
@@ -257,7 +266,9 @@ inline static void file_aio_complete(struct kiocb *iocb, long ret, long ret2)
 	struct aio_data *data = container_of(iocb, struct aio_data, iocb);
 
 #ifdef MEASURE_PERFORMANCE
-	update_performance(data->rw, get_cycles()-data->time, data->perf);
+	struct timespec endTime;
+	getnstimeofday(&endTime);
+	update_performance(data->rw, &data->startTime, &endTime, data->perf);
 #else
 #pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
@@ -281,107 +292,6 @@ inline static void file_multi_aio_complete(void *private_data, long ret)
 
 		kfree(data);
 	}
-}
-
-/*inline static int lo_rw_aio(struct file *file, struct aio_data *data, loff_t pos, bool rw)
-{
-	struct iov_iter iter;
-	struct bio_vec *bvec;
-	struct bio *bio = data->rq->bio;
-	int ret;
-
-	//nomerge for request queue
-	WARN_ON(data->rq->bio != data->rq->biotail);
-
-	bvec = __bvec_iter_bvec(bio->bi_io_vec, bio->bi_iter);
-	iov_iter_bvec(&iter, ITER_BVEC | rw, bvec, bio_segments(bio), blk_rq_bytes(data->rq));
-
-	data->iocb.ki_pos = pos;
-	data->iocb.ki_filp = file;
-	data->iocb.ki_complete = lo_rw_aio_complete;
-	data->iocb.ki_flags = IOCB_DIRECT;
-
-	if(rw == WRITE)
-		ret = file->f_op->write_iter(&data->iocb, &iter);
-	else
-		ret = file->f_op->read_iter(&data->iocb, &iter);
-
-	if(ret != -EIOCBQUEUED)data->iocb.ki_complete(&data->iocb, ret, 0);
-	return 0;
-}*/
-
-inline static void file_aio_request_callback(void *private_data, long bytes)
-{
-	struct request *rq = private_data;
-
-	if(bytes > 0)
-	{
-		//Handle partial reads
-		if(!(rq->cmd_flags & REQ_WRITE))
-		{
-			if(unlikely(bytes < blk_rq_bytes(rq)))
-			{
-				struct bio *bio = rq->bio;
-
-				bio_advance(bio, bytes);
-				zero_fill_bio(bio);
-			}
-		}
-
-		bytes = 0;
-	}
-	else bytes = -EIO;
-
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
-	rq->errors = bytes;
-	blk_mq_complete_request(rq);
-#else
-	blk_mq_complete_request(rq, bytes);
-#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
-}
-
-inline static void file_aio_prepare_request(struct request *rq, struct iov_iter *iter, int rw)
-{
-	struct bio_vec *bvec;
-	struct bio *bio = rq->bio;
-
-	//nomerge for request queue
-	WARN_ON(rq->bio != rq->biotail);
-
-	bvec = __bvec_iter_bvec(bio->bi_io_vec, bio->bi_iter);
-	iov_iter_bvec(iter, ITER_BVEC | rw, bvec, bio_segments(bio), blk_rq_bytes(rq));
-}
-
-inline static void file_aio_init_aio_data(struct aio_data *data, struct file *file, loff_t pos, void *private_data, void (*callback)(void*,long))
-{
-	data->iocb.ki_pos = pos;
-	data->iocb.ki_filp = file;
-	data->iocb.ki_complete = file_aio_complete;
-	data->iocb.ki_flags = IOCB_DIRECT;
-
-	data->private_data = private_data;
-	data->callback = callback;
-}
-
-inline static int file_aio_read_request(struct file *file, struct request *rq, loff_t pos)
-{
-	int ret;
-	struct iov_iter iter;
-	struct aio_data *data = kmalloc(sizeof(struct aio_data), GFP_KERNEL);
-
-	file_aio_prepare_request(rq, &iter, READ);
-
-	if(!data)return -ENOMEM;
-
-	file_aio_init_aio_data(data, file, pos, rq, file_aio_request_callback);
-
-	//if(rw == WRITE)
-	//	ret = file->f_op->write_iter(&data->iocb, &iter);
-	//else
-		ret = file->f_op->read_iter(&data->iocb, &iter);
-
-	if(ret != -EIOCBQUEUED)data->iocb.ki_complete(&data->iocb, ret, 0);
-	return 0;
 }
 
 /**
@@ -412,7 +322,7 @@ inline static int file_write_bio_vec_async(struct file *file, struct bio_vec *bv
 	data->callback = callback;
 
 #ifdef MEASURE_PERFORMANCE
-	data->time = get_cycles();
+	getnstimeofday(&data->startTime);
 #else
 #pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
@@ -504,7 +414,7 @@ inline static int file_read_bio_vec_async(struct file *file, struct bio_vec *bve
 	data->callback = callback;
 
 #ifdef MEASURE_PERFORMANCE
-	data->time = get_cycles();
+	getnstimeofday(&data->startTime);
 #else
 #pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE

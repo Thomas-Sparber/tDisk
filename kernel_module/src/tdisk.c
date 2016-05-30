@@ -1935,8 +1935,10 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		goto out;
 	}
 
+	printk(KERN_DEBUG "tDisk: device performance before reading header: %llu\n", td_get_device_performance(&new_device));
 	error = td_read_header(td, &new_device, &header, first_device, &index_operation_to_do);
 	if(error)goto out_putf;
+	printk(KERN_DEBUG "tDisk: device performance after reading header: %llu\n", td_get_device_performance(&new_device));
 
 	//Calculate new max_sectors of tDisk
 	if(index_operation_to_do == WRITE)

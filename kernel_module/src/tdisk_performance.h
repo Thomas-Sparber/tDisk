@@ -43,6 +43,7 @@ inline static void update_performance(int direction, cycles_t time, struct devic
 		{
 			//Means it was the first read operation of this file.
 			//Assuming that this is the averyge read performance
+			printk(KERN_DEBUG "tDisk: measuring ping read-performance for device: %llu\n", time);
 			perf->avg_read_time_cycles = time;
 			break;
 		}
@@ -70,6 +71,7 @@ inline static void update_performance(int direction, cycles_t time, struct devic
 		{
 			//Means it was the first read operation of this file.
 			//Assuming that this is the averyge read performance
+			printk(KERN_DEBUG "tDisk: measuring ping write-performance for device: %llu\n", time);
 			perf->avg_write_time_cycles = time;
 			break;
 		}

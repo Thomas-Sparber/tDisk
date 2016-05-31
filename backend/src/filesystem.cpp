@@ -112,6 +112,10 @@ void fs::getDevices(vector<Device> &out)
 		if(!mountResult.empty())device.mountPoint = mountResult[0]->get<shell::path>();
 		device.mounted = !device.mountPoint.empty();
 
+		auto availableResult = execute(shell::DiskFreeSpaceCommand, device.path);
+		if(!availableResult.empty())device.available = availableResult[0]->get<shell::size,uint64_t>();
+		else device.available = device.size;
+
 		PedDisk *disk = ped_disk_new(dev);
 		if(!disk)continue;
 
@@ -131,6 +135,10 @@ void fs::getDevices(vector<Device> &out)
 			auto subMountResult = execute(shell::GetMountPointCommand, subdevice.path);
 			if(!subMountResult.empty())subdevice.mountPoint = subMountResult[0]->get<shell::path>();
 			subdevice.mounted = !subdevice.mountPoint.empty();
+
+			auto subAvailableResult = execute(shell::DiskFreeSpaceCommand, subdevice.path);
+			if(!subAvailableResult.empty())subdevice.available = subAvailableResult[0]->get<shell::size,uint64_t>();
+			else subdevice.available = subdevice.size;
 
 			if(subdevice.path != dev->path)
 			{

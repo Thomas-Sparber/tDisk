@@ -278,6 +278,10 @@ namespace shell
 		ShellRetValue<std::string, 1, path>
 	> GetMountPointResult;
 
+	typedef ShellObject<
+		ShellRetValue<std::string, 1, size>
+	> DiskFreeSpaceResult;
+
 } //end namespace shell
 
 } //end namespace td

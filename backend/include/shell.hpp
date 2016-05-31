@@ -88,10 +88,14 @@ namespace shell
 	const ShellCommand tDiskPostCreateCommand("tdisk-post-create", tDiskPostCreateResult());
 
 	/**
-	  * The command which executes the tasks which are needed
-	  * after creating a tDisk
+	  * The command which returns the mount point of the given device
 	 **/
 	const ShellCommand GetMountPointCommand("get-mount-point", GetMountPointResult());
+
+	/**
+	  * The command which returns the free space of the given device
+	 **/
+	const ShellCommand DiskFreeSpaceCommand("disk-free-space", DiskFreeSpaceResult());
 
 	/**
 	  * This function calls the test command and checks its

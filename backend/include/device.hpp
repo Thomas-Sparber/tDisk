@@ -84,6 +84,11 @@ struct Device
 	uint64_t size;
 
 	/**
+	  * The available space of the device in bytes
+	 **/
+	uint64_t available;
+
+	/**
 	  * A flag whether the device is mounted or not
 	 **/
 	bool mounted;

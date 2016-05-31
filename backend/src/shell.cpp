@@ -60,7 +60,7 @@ void shell::initShell(const char *c_executable)
 	LOG(LogLevel::debug, "Initializing shell with executable ",c_executable,": ",executable);
 }
 
-vector<unique_ptr<ShellObjectBase> > shell::execute_internal(const ShellCommand &command, const string &args)
+ShellResult shell::execute_internal(const ShellCommand &command, const string &args)
 {
 	const string commandPath = getCommandPath(command.command);
 	const string cmd = utils::concat(commandPath," ",args);
@@ -71,12 +71,12 @@ vector<unique_ptr<ShellObjectBase> > shell::execute_internal(const ShellCommand 
 	vector<string> results;
 	utils::split(stringResult, "\n\n", results, false);
 
-	vector<unique_ptr<ShellObjectBase> > ret;
+	ShellResult ret;
 	for(const string &result : results)
 	{
 		unique_ptr<ShellObjectBase> o(command.ret->clone());
 		o->parse(result);
-		ret.push_back(std::move(o));
+		ret.addResult(std::move(o));
 	}
 
 	return std::move(ret);

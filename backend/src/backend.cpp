@@ -763,7 +763,7 @@ BackendResult td::tdisk_post_create(const vector<string> &args, Options &options
 		return std::move(r);
 	}
 
-	vector<unique_ptr<shell::ShellObjectBase> > result = shell::execute(shell::tDiskPostCreateCommand, d.getPath());
+	shell::ShellResult result = shell::execute(shell::tDiskPostCreateCommand, d.getPath());
 
 	if(result.empty())
 	{
@@ -771,10 +771,10 @@ BackendResult td::tdisk_post_create(const vector<string> &args, Options &options
 		return std::move(r);
 	}
 
-	string path = result[0]->get<shell::path>();
+	string path = result.get<shell::path>();
 	if(!utils::folderExists(path))
 	{
-		r.error(BackendResultType::driver, utils::concat("Shell command tDiskPostCreate error: ",result[0]->getMessage()));
+		r.error(BackendResultType::driver, utils::concat("Shell command tDiskPostCreate error: ",result.getMessage()));
 		return std::move(r);
 	}
 

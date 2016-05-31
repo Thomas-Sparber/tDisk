@@ -14,6 +14,7 @@
 
 #include <logger.hpp>
 #include <shellobject.hpp>
+#include <shellresult.hpp>
 
 namespace td
 {
@@ -62,7 +63,7 @@ namespace shell
 	  * This function is called internally to execute
 	  * the geven command with the given arguments
 	 **/
-	std::vector<std::unique_ptr<ShellObjectBase> > execute_internal(const ShellCommand &command, const std::string &args);
+	ShellResult execute_internal(const ShellCommand &command, const std::string &args);
 
 	/**
 	  * Executes the given command with an arbitrary
@@ -70,7 +71,7 @@ namespace shell
 	  * return value
 	 **/
 	template <class ...Args>
-	std::vector<std::unique_ptr<ShellObjectBase> > execute(const ShellCommand &command, const Args& ...args)
+	ShellResult execute(const ShellCommand &command, const Args& ...args)
 	{
 		return  execute_internal(command, utils::concatQuoted(args...));
 	}
@@ -103,7 +104,7 @@ namespace shell
 	 **/
 	inline bool runTestCommand()
 	{
-		std::vector<std::unique_ptr<ShellObjectBase> > result = execute(TestCommand, 5, 7, 2);
+		ShellResult result = execute(TestCommand, 5, 7, 2);
 
 		if(result.size() == 5)
 		{
@@ -114,22 +115,22 @@ namespace shell
 			std::size_t i;
 			for(i = 0; i < result.size(); ++i)
 			{
-				passed = passed && result[i]->get<name>(testName);
-				passed = passed && result[i]->get<number>(testNumber);
-				passed = passed && result[i]->get<success>(testSuccess);
+				passed = passed && result[i].get<name>(testName);
+				passed = passed && result[i].get<number>(testNumber);
+				passed = passed && result[i].get<success>(testSuccess);
 				passed = passed && testSuccess;
 
 				if(!passed)break;
 			}
 
 			if(passed)LOG(LogLevel::debug, result.size()," tests passed");
-			else LOG(LogLevel::error, "Error at test ",i,"/",result.size(),": ",result[i]->get<name>()," ",result[i]->get<number,int>(),": ",result[i]->get<success,bool>());
+			else LOG(LogLevel::error, "Error at test ",i,"/",result.size(),": ",result[i].get<name>()," ",result[i].get<number,int>(),": ",result[i].get<success,bool>());
 
 			return passed;
 		}
 		else
 		{
-			if(!result.empty())LOG(LogLevel::error, "Test command threw an error: ",result[0]->getMessage());
+			if(!result.empty())LOG(LogLevel::error, "Test command threw an error: ",result.getMessage());
 			else LOG(LogLevel::error, "Test command didn't return any message");
 			return false;
 		}

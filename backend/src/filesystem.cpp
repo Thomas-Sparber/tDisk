@@ -178,12 +178,19 @@ void fs::getDevices(vector<Device> &out)
 	device.name = "USB Stick";
 	device.path = "/dev/sda";
 	device.size = rand() % 1000000;
+	device.available = rand() % device.size;
 
 	Device subdevice;
 	subdevice.type = device_type::blockdevice_part;
 	subdevice.name = "USB Stick Partition 1";
 	subdevice.path = "/dev/sda1";
 	subdevice.size = rand() % 1000000;
+	subdevice.available = rand() % subdevice.size;
+	if(rand() % 5 == 0)
+	{
+		subdevice.mounted = true;
+		subdevice.mountPoint = "/media/sda1-mount-point";
+	}
 	device.subdevices.push_back(std::move(subdevice));
 	out.push_back(std::move(device));
 
@@ -191,23 +198,42 @@ void fs::getDevices(vector<Device> &out)
 	device.type = device_type::blockdevice;
 	device.path = "/dev/sdb";
 	device.size = rand() % 10000000;
+	device.available = rand() % device.size;
 
 	subdevice.type = device_type::blockdevice_part;
 	subdevice.name = "SATA Festplatte Partition 1";
 	subdevice.path = "/dev/sdb1";
 	subdevice.size = rand() % 10000000;
+	subdevice.available = rand() % subdevice.size;
+	if(rand() % 5 == 0)
+	{
+		subdevice.mounted = true;
+		subdevice.mountPoint = "/media/sdb1-mount-point";
+	}
 	device.subdevices.push_back(std::move(subdevice));
 
 	subdevice.type = device_type::blockdevice_part;
 	subdevice.name = "SATA Festplatte Partition 2";
 	subdevice.path = "/dev/sdb2";
 	subdevice.size = rand() % 10000000;
+	subdevice.available = rand() % subdevice.size;
+	if(rand() % 5 == 0)
+	{
+		subdevice.mounted = true;
+		subdevice.mountPoint = "/media/sdb12mount-point";
+	}
 	device.subdevices.push_back(std::move(subdevice));
 
 	subdevice.type = device_type::blockdevice_part;
 	subdevice.name = "SATA Festplatte Partition 3";
 	subdevice.path = "/dev/sdb3";
 	subdevice.size = rand() % 10000000;
+	subdevice.available = rand() % subdevice.size;
+	if(rand() % 5 == 0)
+	{
+		subdevice.mounted = true;
+		subdevice.mountPoint = "/media/sdb3-mount-point";
+	}
 	device.subdevices.push_back(std::move(subdevice));
 	out.push_back(std::move(device));
 }

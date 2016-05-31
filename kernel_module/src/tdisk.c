@@ -1120,7 +1120,7 @@ int td_sector_index_callback_total(void *priv, struct list_head *a, struct list_
   * This function sorts all the sector indices
   * This is useful at the loading time
  **/
-void td_reorganize_all_indices(struct tdisk *td)
+bool td_reorganize_all_indices(struct tdisk *td)
 {
 	//Sort entire arry
 	//list_sort(NULL, &td->sorted_sectors_head, &td_sector_index_callback_total);
@@ -1129,6 +1129,9 @@ void td_reorganize_all_indices(struct tdisk *td)
 	struct sorted_sector_index *item;
 	struct sorted_sector_index *prev;
 
+	unsigned long start_time = jiffies;
+
+	bool did_something = false;
 	bool moved = true;
 	while(moved)
 	{
@@ -1150,6 +1153,7 @@ void td_reorganize_all_indices(struct tdisk *td)
 
 				if(move)
 				{
+					did_something = true;
 					moved = true;
 					list_del_init(&item->total_sorted);
 
@@ -1163,8 +1167,12 @@ void td_reorganize_all_indices(struct tdisk *td)
 					}
 				}
 			}
+
+			if((jiffies - start_time) >= HZ && did_something)return did_something;
 		}
 	}
+
+	return did_something;
 }
 
 /**
@@ -2580,24 +2588,31 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 
 		if(td->access_count_resort == 0)
 		{
-			//struct list_head *item_safe;
-			//struct sorted_sector_index *item;
+			bool still_to_sort;
 
 			printk(KERN_DEBUG "tDisk: nothing to do anymore. Sorting sectors\n");
-			//list_for_each_entry_safe(item, item_safe, &td->sorted_sectors_head, list)
-			//{
-			//	td_reorganize_sorted_index(td, item-td->sorted_sectors);
-			//}
-			td_reorganize_all_indices(td);
 
-			if(td->sorted_devices != NULL)
+			still_to_sort = td_reorganize_all_indices(td);
+
+			if(still_to_sort)
 			{
-				vfree(td->sorted_devices);
-				td->sorted_devices = NULL;
+				printk(KERN_DEBUG "tDisk: Still sectors to sort. Doing next time...\n");
+			}
+			else
+			{
+				printk(KERN_DEBUG "tDisk: Done sorting sectors. Now moving sectors\n");
+
+				if(td->sorted_devices != NULL)
+				{
+					vfree(td->sorted_devices);
+					td->sorted_devices = NULL;
+				}
+
+				//Setting to true so the next time we will do move operations
+				td->access_count_resort = 1;
 			}
 
-			//Setting to true so that we will always do move operations
-			td->access_count_resort = 1;
+			ret_val = secondary_work_to_do;
 		}
 		else
 		{
@@ -2605,10 +2620,10 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 
 			td->access_count_resort = 0;
 			td_move_one_sector(td);
-		}
 
-		if(td->access_count_resort)ret_val = secondary_work_to_do;
-		else ret_val = secondary_work_finished;
+			if(td->access_count_resort)ret_val = secondary_work_to_do;
+			else ret_val = secondary_work_finished;
+		}
 
 		spin_lock(&td->tdisk_lock);
 		td->optimizing = false;

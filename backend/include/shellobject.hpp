@@ -53,6 +53,7 @@ namespace shell
 			try {
 				return utils::convertTo(getValue(name), out);
 			} catch (const BackendException &e) {
+				out = T();
 				return false;
 			}
 		}

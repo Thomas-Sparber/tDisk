@@ -121,7 +121,7 @@ BackendResult td::get_tDisk(const vector<string> &args, Options &options)
 
 	if(!d.isValid())
 	{
-		//tDisk wos neither found by driver nor by configfile
+		//tDisk was neither found by driver nor by configfile
 		r.error(BackendResultType::general, utils::concat("tDisk ",args[0]," does not exist"));
 		return std::move(r);
 	}
@@ -134,11 +134,11 @@ BackendResult td::get_devices(const vector<string> &/*args*/, Options &options)
 {
 	BackendResult r;
 	vector<fs::Device> devices;
-	vector<c::f_internal_device_info> internal_devices;
+	//vector<c::f_internal_device_info> internal_devices;
 
 	try {
 		fs::getDevices(devices);
-		for(const fs::Device &device : devices)
+		/*for(const fs::Device &device : devices)
 		{
 			c::f_internal_device_info d;
 			d.type = c::f_internal_device_type_file;
@@ -146,12 +146,12 @@ BackendResult td::get_devices(const vector<string> &/*args*/, Options &options)
 			strncpy(d.path, device.path.c_str(), F_TDISK_MAX_INTERNAL_DEVICE_NAME);
 			d.size = device.size;
 			internal_devices.push_back(d);
-		}
+		}*/
 	} catch (const tDiskException &e) {
 		r.error(BackendResultType::general, e.what());
 	}
 
-	r.result(internal_devices, options.getOptionValue("output-format"));
+	r.result(devices, options.getOptionValue("output-format"));
 	return std::move(r);
 }
 
@@ -763,7 +763,7 @@ BackendResult td::tdisk_post_create(const vector<string> &args, Options &options
 		return std::move(r);
 	}
 
-	vector<unique_ptr<shell::ShellObjectBase> > result = shell::execute(shell::tDiskPostCreateCommand, d.getPath());
+	shell::ShellResult result = shell::execute(shell::tDiskPostCreateCommand, d.getPath());
 
 	if(result.empty())
 	{
@@ -771,10 +771,10 @@ BackendResult td::tdisk_post_create(const vector<string> &args, Options &options
 		return std::move(r);
 	}
 
-	string path = result[0]->get<shell::path>();
+	string path = result.get<shell::path>();
 	if(!utils::folderExists(path))
 	{
-		r.error(BackendResultType::driver, utils::concat("Shell command tDiskPostCreate error: ",result[0]->getMessage()));
+		r.error(BackendResultType::driver, utils::concat("Shell command tDiskPostCreate error: ",result.getMessage()));
 		return std::move(r);
 	}
 

@@ -25,6 +25,8 @@ Device::Device() :
 	path(),
 	type(device_type::invalid),
 	size(),
+	mounted(),
+	mountPoint(),
 	subdevices()
 {}
 
@@ -94,6 +96,8 @@ template <> void td::createResultString(std::ostream &ss, const fs::Device &devi
 			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, device, path, hierarchy+1, outputFormat); ss<<",\n";
 			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_NONMEMBER_JSON(ss, type, hierarchy+1, outputFormat); ss<<",\n";
 			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, device, size, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, device, mounted, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, device, mountPoint, hierarchy+1, outputFormat); ss<<",\n";
 			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, device, subdevices, hierarchy+1, outputFormat); ss<<"\n";
 		insertTab(ss, hierarchy); ss<<"}";
 	}
@@ -103,6 +107,8 @@ template <> void td::createResultString(std::ostream &ss, const fs::Device &devi
 		CREATE_RESULT_STRING_MEMBER_TEXT(ss, device, path, hierarchy+1, outputFormat); ss<<"\n";
 		CREATE_RESULT_STRING_NONMEMBER_TEXT(ss, type, hierarchy+1, outputFormat); ss<<"\n";
 		CREATE_RESULT_STRING_MEMBER_TEXT(ss, device, size, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, device, mounted, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, device, mountPoint, hierarchy+1, outputFormat); ss<<"\n";
 		CREATE_RESULT_STRING_MEMBER_TEXT(ss, device, subdevices, hierarchy+1, outputFormat); ss<<"\n";
 	}
 	else

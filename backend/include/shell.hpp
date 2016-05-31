@@ -88,6 +88,12 @@ namespace shell
 	const ShellCommand tDiskPostCreateCommand("tdisk-post-create", tDiskPostCreateResult());
 
 	/**
+	  * The command which executes the tasks which are needed
+	  * after creating a tDisk
+	 **/
+	const ShellCommand GetMountPointCommand("get-mount-point", GetMountPointResult());
+
+	/**
 	  * This function calls the test command and checks its
 	  * return type to see if the shell is working properly
 	 **/

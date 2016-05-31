@@ -121,7 +121,7 @@ BackendResult td::get_tDisk(const vector<string> &args, Options &options)
 
 	if(!d.isValid())
 	{
-		//tDisk wos neither found by driver nor by configfile
+		//tDisk was neither found by driver nor by configfile
 		r.error(BackendResultType::general, utils::concat("tDisk ",args[0]," does not exist"));
 		return std::move(r);
 	}
@@ -134,11 +134,11 @@ BackendResult td::get_devices(const vector<string> &/*args*/, Options &options)
 {
 	BackendResult r;
 	vector<fs::Device> devices;
-	vector<c::f_internal_device_info> internal_devices;
+	//vector<c::f_internal_device_info> internal_devices;
 
 	try {
 		fs::getDevices(devices);
-		for(const fs::Device &device : devices)
+		/*for(const fs::Device &device : devices)
 		{
 			c::f_internal_device_info d;
 			d.type = c::f_internal_device_type_file;
@@ -146,12 +146,12 @@ BackendResult td::get_devices(const vector<string> &/*args*/, Options &options)
 			strncpy(d.path, device.path.c_str(), F_TDISK_MAX_INTERNAL_DEVICE_NAME);
 			d.size = device.size;
 			internal_devices.push_back(d);
-		}
+		}*/
 	} catch (const tDiskException &e) {
 		r.error(BackendResultType::general, e.what());
 	}
 
-	r.result(internal_devices, options.getOptionValue("output-format"));
+	r.result(devices, options.getOptionValue("output-format"));
 	return std::move(r);
 }
 

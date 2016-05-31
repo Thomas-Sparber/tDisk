@@ -274,6 +274,10 @@ namespace shell
 		ShellRetValue<std::string, 1, path>
 	> tDiskPostCreateResult;
 
+	typedef ShellObject<
+		ShellRetValue<std::string, 1, path>
+	> GetMountPointResult;
+
 } //end namespace shell
 
 } //end namespace td

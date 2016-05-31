@@ -84,6 +84,16 @@ struct Device
 	uint64_t size;
 
 	/**
+	  * A flag whether the device is mounted or not
+	 **/
+	bool mounted;
+
+	/**
+	  * The mount point where the device is currently mounted
+	 **/
+	std::string mountPoint;
+
+	/**
 	  * The subdevices. e.g. for raid
 	 **/
 	std::vector<Device> subdevices;

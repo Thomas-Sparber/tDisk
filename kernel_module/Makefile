@@ -1,5 +1,5 @@
 obj-m := tdisk.o
-ccflags-y := -g -I$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/include \
+ccflags-y := -O3 -I$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/include \
 	-Wall \
 	-Wextra \
 	-Wshadow \

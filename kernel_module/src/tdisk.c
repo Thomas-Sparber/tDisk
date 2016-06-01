@@ -1701,7 +1701,12 @@ int td_get_max_sectors_header_increase(struct tdisk *td, sector_t max_sectors)
 	size_t new_header_size;
 
 	//Check if we can actually hold the index in memory...
-	if(unlikely(header_size_byte_help != header_size_byte))return -1;
+	if(unlikely(header_size_byte_help != header_size_byte))
+	{
+		printk(KERN_WARNING "tDisk: can't hold index memory of %llu bytes\n", header_size_byte_help);
+		return -1;
+	}
+	
 
 	new_header_size = header_size_byte/td->blocksize + ((header_size_byte%td->blocksize == 0) ? 0 : 1);
 
@@ -1734,9 +1739,9 @@ int td_set_max_sectors(struct tdisk *td, sector_t max_sectors)
 	sector_t j;
 
 	//Just casting and hoping that it was previously checked using td_get_max_sectors_header_increase
-	unsigned int header_size_byte = (unsigned int)(td->index_offset_byte + max_sectors * sizeof(struct sector_index));
+	size_t header_size_byte = (size_t)(td->index_offset_byte + max_sectors * sizeof(struct sector_index));
 
-	unsigned int new_header_size = header_size_byte/td->blocksize + ((header_size_byte%td->blocksize == 0) ? 0 : 1);
+	size_t new_header_size = header_size_byte/td->blocksize + ((header_size_byte%td->blocksize == 0) ? 0 : 1);
 
 	struct sector_index *new_indices;
 	struct sorted_sector_index *new_sorted_sectors;
@@ -1964,8 +1969,12 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	//Set max_sectors if it's a known device
 	if(index_operation_to_do == READ && header.current_max_sectors > new_max_sectors)new_max_sectors = header.current_max_sectors;
 
-	error = -EINVAL;
+	error = -ENOMEM;
 	additional_sectors = td_get_max_sectors_header_increase(td, new_max_sectors);
+	if(additional_sectors < 0)goto out_putf;
+
+	error = -EINVAL;
+	if(additional_sectors != 0)printk(KERN_DEBUG "tDisk: %d additional sectors needed\n", additional_sectors);
 	if(size < ((loff_t)td->header_size+additional_sectors+1)*td->blocksize)	//Disk too small
 	{
 		printk(KERN_WARNING "tDisk: Can't add disk, too small: %llu. Should be at least %llu\n", size, ((loff_t)td->header_size+additional_sectors+1)*td->blocksize);

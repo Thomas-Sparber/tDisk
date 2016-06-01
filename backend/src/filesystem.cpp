@@ -117,7 +117,12 @@ void fs::getDevices(vector<Device> &out)
 		else device.available = device.size;
 
 		PedDisk *disk = ped_disk_new(dev);
-		if(!disk)continue;
+		if(!disk)
+		{
+			out.push_back(std::move(device));
+			continue;
+		}
+		
 
 		for(PedPartition *part = ped_disk_next_partition(disk, nullptr); part; part = ped_disk_next_partition (disk, part))
 		{

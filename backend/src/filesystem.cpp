@@ -108,11 +108,11 @@ void fs::getDevices(vector<Device> &out)
 		device.path = dev->path;
 		device.size = dev->sector_size * dev->length;
 
-		ShellResult mountResult = execute(shell::GetMountPointCommand, device.path);
+		shell::ShellResult mountResult = execute(shell::GetMountPointCommand, device.path);
 		if(!mountResult.empty())device.mountPoint = mountResult.get<shell::path>();
 		device.mounted = !device.mountPoint.empty();
 
-		ShellResult availableResult = execute(shell::DiskFreeSpaceCommand, device.path);
+		shell::ShellResult availableResult = execute(shell::DiskFreeSpaceCommand, device.path);
 		if(!availableResult.empty())device.available = availableResult.get<shell::size,uint64_t>();
 		else device.available = device.size;
 
@@ -132,11 +132,11 @@ void fs::getDevices(vector<Device> &out)
 			if(subdevice.name.empty())subdevice.name = subdevice.path;
 			subdevice.size = part->geom.length * dev->sector_size;
 
-			ShellResult subMountResult = execute(shell::GetMountPointCommand, subdevice.path);
+			shell::ShellResult subMountResult = execute(shell::GetMountPointCommand, subdevice.path);
 			if(!subMountResult.empty())subdevice.mountPoint = subMountResult.get<shell::path>();
 			subdevice.mounted = !subdevice.mountPoint.empty();
 
-			ShellResult subAvailableResult = execute(shell::DiskFreeSpaceCommand, subdevice.path);
+			shell::ShellResult subAvailableResult = execute(shell::DiskFreeSpaceCommand, subdevice.path);
 			if(!subAvailableResult.empty())subdevice.available = subAvailableResult.get<shell::size,uint64_t>();
 			else subdevice.available = subdevice.size;
 

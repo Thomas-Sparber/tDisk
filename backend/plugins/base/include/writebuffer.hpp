@@ -68,7 +68,12 @@ public:
 	{
 		std::vector<char> ret;
 
-		if(!buffer.empty())outPos = buffer.front().pos;
+		if(buffer.empty())
+		{
+			outPos = 0;
+			return std::move(ret);
+		}
+		else outPos = buffer.front().pos;
 
 		for(const WriteBufferElement &e : buffer)
 			ret.insert(ret.end(), e.data.begin(), e.data.end());

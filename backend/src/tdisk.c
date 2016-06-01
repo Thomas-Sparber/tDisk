@@ -210,7 +210,7 @@ int tdisk_add_disk(const char *device, const char *new_disk)
 
 	exists = (stat(new_disk, &info) == 0);
 
-	file = open(new_disk, O_RDWR | O_LARGEFILE | O_SYNC /*| O_DIRECT*/);
+	file = open(new_disk, O_RDWR | O_LARGEFILE /*| O_SYNC /*| O_DIRECT*/);
 	if(file > 0)
 	{
 		parameters.type = internal_device_type_file;

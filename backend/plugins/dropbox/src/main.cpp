@@ -18,7 +18,7 @@ int main(int argc, char *args[])
 	void initCurl();
 
 	try{
-		DropboxTDisk api("oauth_token_secret=d7z7oc0i6ueomsi&oauth_token=yhqzektts3cithe6&uid=24443477", "tdisk1/", 163840, /*3ULL*1024*1024*1024*/249280325320400);
+		DropboxTDisk api("oauth_token_secret=d7z7oc0i6ueomsi&oauth_token=yhqzektts3cithe6&uid=24443477", "tdisk1/", 163840, /*3ULL*1024*1024*1024*/1149280325320400);
 		//api.reserveSpace();
 		api.registerInKernel();
 		api.listen();

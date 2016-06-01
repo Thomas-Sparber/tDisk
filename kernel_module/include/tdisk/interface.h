@@ -73,10 +73,10 @@ enum internal_device_type
  **/
 struct internal_device_add_parameters
 {
-	enum internal_device_type type;
 	char name[TDISK_MAX_INTERNAL_DEVICE_NAME];
 	char path[TDISK_MAX_INTERNAL_DEVICE_NAME];
 	unsigned int fd;
+	enum internal_device_type type;
 }; //end struct internal_device_add_parameters
 
 /**
@@ -110,12 +110,12 @@ struct device_performance
  **/
 struct internal_device_info
 {
-	tdisk_index disk;
-	enum internal_device_type type;
 	char name[TDISK_MAX_INTERNAL_DEVICE_NAME];
 	char path[TDISK_MAX_INTERNAL_DEVICE_NAME];
-	__u64 size;
 	struct device_performance performance;
+	__u64 size;
+	enum internal_device_type type;
+	tdisk_index disk;
 }; //end struct internal_device_info
 
 /**
@@ -123,16 +123,16 @@ struct internal_device_info
  **/
 struct physical_sector_index
 {
-	//The disk where the logical sector is stored
-	tdisk_index disk;
-
 	//The physical sector on the disk where the logic sector is stored
 	__u64 sector;
 
 	//This variable stores the access count of the physical sector
 	__u16 access_count;
 
-	//A Flag which determines whther the sector is used or not
+	//The disk where the logical sector is stored
+	tdisk_index disk;
+
+	//A Flag which determines whether the sector is used or not
 	__u8 used;
 }; //end struct sector_index;
 
@@ -142,9 +142,9 @@ struct physical_sector_index
  **/
 struct sector_info
 {
+	struct physical_sector_index physical_sector;
 	__u64 logical_sector;
 	__u64 access_sorted_index;
-	struct physical_sector_index physical_sector;
 }; //end struct sector_info
 
 /**

@@ -8,12 +8,11 @@
 #ifndef TDISK_PERFORMANCE_H
 #define TDISK_PERFORMANCE_H
 
+#include "helpers.h"
 #include <tdisk/config.h>
 
 #pragma GCC system_header
 #include <linux/timex.h>
-
-#ifdef MEASURE_PERFORMANCE
 
 /**
   * Calculates the amount of measured records-1
@@ -28,14 +27,14 @@
   * over the last (1 << MEASURE_RECORDS_SHIFT)
   * requests
  **/
-inline static void update_performance(int direction, struct timespec *startTime, struct timespec *endTime, struct device_performance *perf)
+inline static void update_performance(int direction, struct timespec *startTime, struct timespec *endTime, unsigned int length, struct device_performance *perf)
 {
-	unsigned long long time = (endTime->tv_sec-startTime->tv_sec) * 1000000000 + (endTime->tv_nsec-startTime->tv_nsec);
 	unsigned long diff;
+	unsigned long long time = (endTime->tv_sec-startTime->tv_sec) * 1000000000 + (endTime->tv_nsec-startTime->tv_nsec);
+	//time *= 1024;
+	__div64_32(&time, length);
 
-	//time is 0 on platforms which have no cycles measure
-	WARN_ONCE(time == 0, "Your processor doesn't count cycles. Performances values may be wrong!");
-	if(perf == NULL || time == 0)return;
+	if(perf == NULL)return;
 
 	switch(direction)
 	{
@@ -49,12 +48,13 @@ inline static void update_performance(int direction, struct timespec *startTime,
 			break;
 		}
 
-		//printk(KERN_DEBUG "tDisk: measuring read-performance for device: %llu\n", time);
-
 		//Avg difference
 		if(perf->avg_read_time_cycles > time)
 			diff = perf->avg_read_time_cycles-time;
 		else diff = time-perf->avg_read_time_cycles;
+
+		if(unlikely(diff > perf->avg_read_time_cycles))
+			printk_ratelimited(KERN_WARNING "tDisk: High read difference: avg=%llu current=%llu\n", perf->avg_read_time_cycles, time);
 
 		//The following lines calculate the following
 		//equation using bitshift for better performance
@@ -84,7 +84,8 @@ inline static void update_performance(int direction, struct timespec *startTime,
 			diff = perf->avg_write_time_cycles-time;
 		else diff = time-perf->avg_write_time_cycles;
 
-		//printk(KERN_DEBUG "tDisk: measuring write-performance for device: %llu\n", time);
+		if(unlikely(diff > perf->avg_write_time_cycles))
+			printk_ratelimited(KERN_WARNING "tDisk: High write difference: avg=%llu current=%llu\n", perf->avg_write_time_cycles, time);
 
 		//The following lines calculate the following
 		//equation using bitshift for better performance
@@ -101,9 +102,5 @@ inline static void update_performance(int direction, struct timespec *startTime,
 		break;
 	}
 }
-
-#else
-#pragma message "Performance measurement is disabled"
-#endif //MEASURE_PERFORMANCE
 
 #endif //TDISK_PERFORMANCE_H

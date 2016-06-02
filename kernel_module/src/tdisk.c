@@ -10,6 +10,7 @@
 #include "tdisk.h"
 #include "tdisk_control.h"
 #include "tdisk_file.h"
+#include "tdisk_performance.h"
 #include "tdisk_plugin.h"
 
 #define COMPARE 1410
@@ -77,19 +78,32 @@ static int td_flush(struct tdisk *td)
  **/
 static int write_data(struct td_internal_device *device, void *data, loff_t position, unsigned int length)
 {
+	int ret;
+
+#ifdef MEASURE_PERFORMANCE
+	struct timespec startTime;
+	struct timespec endTime;
+
+	getnstimeofday(&startTime);
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
+
 	switch(device->type)
 	{
 #ifdef USE_FILES
 	case internal_device_type_file:
 		if(unlikely(!device->file))return -ENODEV;
-		return file_write_data(device->file, data, position, length, &device->performance);
+		ret = file_write_data(device->file, data, position, length);
+		break;
 #else
 #pragma message "Files are disabled"
 #endif //USE_FILES
 
 #ifdef USE_PLUGINS
 	case internal_device_type_plugin:
-		return plugin_write_data(device->name, data, position, length, &device->performance);
+		ret = plugin_write_data(device->name, data, position, length);
+		break;
 #else
 #pragma message "Plugins are disabled"
 #endif //USE_PLUGINS
@@ -97,8 +111,18 @@ static int write_data(struct td_internal_device *device, void *data, loff_t posi
 	default:
 		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
 		MY_BUG_ON(true, PRINT_INT(device->type));
-		return -EINVAL;
+		ret = -EINVAL;
+		break;
 	}
+
+#ifdef MEASURE_PERFORMANCE
+	getnstimeofday(&endTime);
+	update_performance(WRITE, &startTime, &endTime, length, &device->performance);
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
+
+	return ret;
 }
 
 /**
@@ -107,19 +131,32 @@ static int write_data(struct td_internal_device *device, void *data, loff_t posi
  **/
 static int read_data(struct td_internal_device *device, void *data, loff_t position, unsigned int length)
 {
+	int ret;
+
+#ifdef MEASURE_PERFORMANCE
+	struct timespec startTime;
+	struct timespec endTime;
+
+	getnstimeofday(&startTime);
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
+
 	switch(device->type)
 	{
 #ifdef USE_FILES
 	case internal_device_type_file:
 		if(unlikely(!device->file))return -ENODEV;
-		return file_read_data(device->file, data, position, length, &device->performance);
+		ret = file_read_data(device->file, data, position, length);
+		break;
 #else
 #pragma message "Files are disabled"
 #endif //USE_FILES
 
 #ifdef USE_PLUGINS
 	case internal_device_type_plugin:
-		return plugin_read_data(device->name, data, position, length, &device->performance);
+		ret = plugin_read_data(device->name, data, position, length);
+		break;
 #else
 #pragma message "Plugins are disabled"
 #endif //USE_PLUGINS
@@ -127,8 +164,18 @@ static int read_data(struct td_internal_device *device, void *data, loff_t posit
 	default:
 		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
 		MY_BUG_ON(true, PRINT_INT(device->type));
-		return -EINVAL;
+		ret = -EINVAL;
+		break;
 	}
+
+#ifdef MEASURE_PERFORMANCE
+	getnstimeofday(&endTime);
+	update_performance(READ, &startTime, &endTime, length, &device->performance);
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
+
+	return ret;
 }
 
 /**
@@ -137,19 +184,32 @@ static int read_data(struct td_internal_device *device, void *data, loff_t posit
  **/
 static int write_bio_vec(struct td_internal_device *device, struct bio_vec *bvec, loff_t *position)
 {
+	int ret;
+
+#ifdef MEASURE_PERFORMANCE
+	struct timespec startTime;
+	struct timespec endTime;
+
+	getnstimeofday(&startTime);
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
+
 	switch(device->type)
 	{
 #ifdef USE_FILES
 	case internal_device_type_file:
 		if(unlikely(!device->file))return -ENODEV;
-		return file_write_bio_vec(device->file, bvec, position, &device->performance);
+		ret = file_write_bio_vec(device->file, bvec, position);
+		break;
 #else
 #pragma message "Files are disabled"
 #endif //USE_FILES
 
 #ifdef USE_PLUGINS
 	case internal_device_type_plugin:
-		return plugin_write_bio_vec(device->name, bvec, position, &device->performance);
+		ret = plugin_write_bio_vec(device->name, bvec, position);
+		break;
 #else
 #pragma message "Plugins are disabled"
 #endif //USE_PLUGINS
@@ -157,8 +217,18 @@ static int write_bio_vec(struct td_internal_device *device, struct bio_vec *bvec
 	default:
 		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
 		MY_BUG_ON(true, PRINT_INT(device->type));
-		return -EINVAL;
+		ret = -EINVAL;
+		break;
 	}
+
+#ifdef MEASURE_PERFORMANCE
+	getnstimeofday(&endTime);
+	update_performance(WRITE, &startTime, &endTime, bvec->bv_len, &device->performance);
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
+
+	return ret;
 }
 
 /**
@@ -167,19 +237,32 @@ static int write_bio_vec(struct td_internal_device *device, struct bio_vec *bvec
  **/
 static int read_bio_vec(struct td_internal_device *device, struct bio_vec *bvec, loff_t *position)
 {
+	int ret;
+
+#ifdef MEASURE_PERFORMANCE
+	struct timespec startTime;
+	struct timespec endTime;
+
+	getnstimeofday(&startTime);
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
+
 	switch(device->type)
 	{
 #ifdef USE_FILES
 	case internal_device_type_file:
 		if(unlikely(!device->file))return -ENODEV;
-		return file_read_bio_vec(device->file, bvec, position, &device->performance);
+		ret = file_read_bio_vec(device->file, bvec, position);
+		break;
 #else
 #pragma message "Files are disabled"
 #endif //USE_FILES
 
 #ifdef USE_PLUGINS
 	case internal_device_type_plugin:
-		return plugin_read_bio_vec(device->name, bvec, position, &device->performance);
+		ret = plugin_read_bio_vec(device->name, bvec, position);
+		break;
 #else
 #pragma message "Plugins are disabled"
 #endif //USE_PLUGINS
@@ -187,8 +270,18 @@ static int read_bio_vec(struct td_internal_device *device, struct bio_vec *bvec,
 	default:
 		printk(KERN_ERR "tDisk: Invalid internal device type: %d\n", device->type);
 		MY_BUG_ON(true, PRINT_INT(device->type));
-		return -EINVAL;
+		ret = -EINVAL;
+		break;
 	}
+
+#ifdef MEASURE_PERFORMANCE
+	getnstimeofday(&endTime);
+	update_performance(READ, &startTime, &endTime, bvec->bv_len, &device->performance);
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
+
+	return ret;
 }
 
 /**
@@ -206,7 +299,7 @@ static void write_data_async(struct td_internal_device *device, void *data, loff
 			if(callback)callback(private_data, -ENODEV);
 			break;
 		}
-		file_write_data_async(device->file, data, position, length, &device->performance, private_data, callback);
+		file_write_data_async(device->file, data, position, length, private_data, callback);
 		break;
 #else
 #pragma message "Files are disabled"
@@ -214,7 +307,7 @@ static void write_data_async(struct td_internal_device *device, void *data, loff
 
 #ifdef USE_PLUGINS
 	case internal_device_type_plugin:
-		plugin_write_data_async(device->name, data, position, length, &device->performance, private_data, callback);
+		plugin_write_data_async(device->name, data, position, length, private_data, callback);
 		break;
 #else
 #pragma message "Plugins are disabled"
@@ -243,7 +336,7 @@ static void read_data_async(struct td_internal_device *device, void *data, loff_
 			if(callback)callback(private_data, -ENODEV);
 			break;
 		}
-		file_read_data_async(device->file, data, position, length, &device->performance, private_data, callback);
+		file_read_data_async(device->file, data, position, length, private_data, callback);
 		break;
 #else
 #pragma message "Files are disabled"
@@ -251,7 +344,7 @@ static void read_data_async(struct td_internal_device *device, void *data, loff_
 
 #ifdef USE_PLUGINS
 	case internal_device_type_plugin:
-		plugin_read_data_async(device->name, data, position, length, &device->performance, private_data, callback);
+		plugin_read_data_async(device->name, data, position, length, private_data, callback);
 		break;
 #else
 #pragma message "Plugins are disabled"
@@ -280,7 +373,7 @@ static void write_bio_vec_async(struct td_internal_device *device, struct bio_ve
 			if(callback)callback(private_data, -ENODEV);
 			break;
 		}
-		file_write_bio_vec_async(device->file, bvec, position, &device->performance, private_data, callback);
+		file_write_bio_vec_async(device->file, bvec, position, private_data, callback);
 		break;
 #else
 #pragma message "Files are disabled"
@@ -288,7 +381,7 @@ static void write_bio_vec_async(struct td_internal_device *device, struct bio_ve
 
 #ifdef USE_PLUGINS
 	case internal_device_type_plugin:
-		plugin_write_bio_vec_async(device->name, bvec, position, &device->performance, private_data, callback);
+		plugin_write_bio_vec_async(device->name, bvec, position, private_data, callback);
 		break;
 #else
 #pragma message "Plugins are disabled"
@@ -317,7 +410,7 @@ static void read_bio_vec_async(struct td_internal_device *device, struct bio_vec
 			if(callback)callback(private_data, -ENODEV);
 			break;
 		}		
-		file_read_bio_vec_async(device->file, bvec, position, &device->performance, private_data, callback);
+		file_read_bio_vec_async(device->file, bvec, position, private_data, callback);
 		break;
 #else
 #pragma message "Files are disabled"
@@ -325,7 +418,7 @@ static void read_bio_vec_async(struct td_internal_device *device, struct bio_vec
 
 #ifdef USE_PLUGINS
 	case internal_device_type_plugin:
-		plugin_read_bio_vec_async(device->name, bvec, position, &device->performance, private_data, callback);
+		plugin_read_bio_vec_async(device->name, bvec, position, private_data, callback);
 		break;
 #else
 #pragma message "Plugins are disabled"
@@ -1099,6 +1192,35 @@ static bool td_move_one_sector(struct tdisk *td)
 #else
 #pragma message "Moving sectors is disabled"
 #endif //MOVE_SECTORS
+
+#ifdef MEASURE_PING_PERFORMANCE
+
+void td_measure_device_performance(struct td_internal_device *device, loff_t size)
+{
+	struct timespec startTime;
+	struct timespec endTime;
+	unsigned long time = jiffies;
+	char *buffer = vmalloc(1048576);
+	unsigned int counter = 0;
+
+	getnstimeofday(&startTime);
+
+	while(jiffies-time < HZ*5)
+	{
+		read_data(device, buffer, counter*1048576, 1048576);
+		counter++;
+		if(counter*1048576 > size)break;
+	}
+
+	getnstimeofday(&endTime);
+	update_performance(READ, &startTime, &endTime, counter, &device->performance);
+
+	printk(KERN_DEBUG "tDisk: read %u MiB --> %u MiB/s\n", counter, counter/(unsigned)(endTime.tv_sec-startTime.tv_sec));
+}
+
+#else
+#pragma message "Ping performance measurement is disabled"
+#endif //MEASURE_PING_PERFORMANCE
 
 /**
   * This callback is used by the list_sort to determine the
@@ -1951,6 +2073,12 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		error = -EINVAL;
 		goto out;
 	}
+
+#ifdef MEASURE_PING_PERFORMANCE
+	td_measure_device_performance(&new_device, size);
+#else
+#pragma message "Ping performance measurement is disabled"
+#endif //MEASURE_PING_PERFORMANCE
 
 	printk(KERN_DEBUG "tDisk: device performance before reading header: %llu\n", td_get_device_performance(&new_device));
 	error = td_read_header(td, &new_device, &header, first_device, &index_operation_to_do);

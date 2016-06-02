@@ -10,7 +10,6 @@
 
 #include <tdisk/config.h>
 #include <tdisk/interface.h>
-#include "tdisk_performance.h"
 
 #ifdef USE_FILES
 
@@ -68,22 +67,12 @@ inline static int file_flush(struct file *file)
 
 /**
   * This function writes the given bio_vec to
-  * file at the given position. It also measures the performance
+  * file at the given position.
  **/
-inline static int file_write_bio_vec(struct file *file, struct bio_vec *bvec, loff_t *pos, struct device_performance *perf)
+inline static int file_write_bio_vec(struct file *file, struct bio_vec *bvec, loff_t *pos)
 {
 	int ret;
 	struct iov_iter i;
-
-#ifdef MEASURE_PERFORMANCE
-	//cycles_t time = get_cycles();
-	struct timespec startTime;
-	struct timespec endTime;
-
-	getnstimeofday(&startTime);
-#else
-#pragma message "Performance measurement is disabled"
-#endif //MEASURE_PERFORMANCE
 
 	iov_iter_bvec(&i, ITER_BVEC, bvec, 1, bvec->bv_len);
 
@@ -91,21 +80,14 @@ inline static int file_write_bio_vec(struct file *file, struct bio_vec *bvec, lo
 	ret = vfs_iter_write(file, &i, pos);
 	file_end_write(file);
 
-#ifdef MEASURE_PERFORMANCE
-	getnstimeofday(&endTime);
-	update_performance(WRITE, &startTime, &endTime, perf);
-#else
-#pragma message "Performance measurement is disabled"
-#endif //MEASURE_PERFORMANCE
-
 	return ret;
 }
 
 /**
   * This function writes the given page to
-  * file at the given position. It also measures the performance
+  * file at the given position.
  **/
-inline static int file_write_page(struct file *file, struct page *p, loff_t *pos, unsigned int length, struct device_performance *perf)
+inline static int file_write_page(struct file *file, struct page *p, loff_t *pos, unsigned int length)
 {
 	struct bio_vec bvec = {
 		.bv_page = p,
@@ -113,14 +95,14 @@ inline static int file_write_page(struct file *file, struct page *p, loff_t *pos
 		.bv_offset = 0
 	};
 
-	return file_write_bio_vec(file, &bvec, pos, perf);
+	return file_write_bio_vec(file, &bvec, pos);
 }
 
 /**
   * This function writes the given bytes to
-  * file at the given position. It also measures the performance
+  * file at the given position.
  **/
-inline static int file_write_data(struct file *file, void *data, loff_t pos, unsigned int length, struct device_performance *perf)
+inline static int file_write_data(struct file *file, void *data, loff_t pos, unsigned int length)
 {
 	int len;
 	int ret = 0;
@@ -131,7 +113,7 @@ inline static int file_write_data(struct file *file, void *data, loff_t pos, uns
 		len = (length > PAGE_SIZE) ? PAGE_SIZE : length;
 
 		memcpy(page_address(p), data, len);
-		len = file_write_page(file, p, &pos, len, perf);
+		len = file_write_page(file, p, &pos, len);
 
 		if(unlikely(len < 0))
 		{
@@ -156,41 +138,24 @@ inline static int file_write_data(struct file *file, void *data, loff_t pos, uns
 
 /**
   * This function reads the given bio_vec from
-  * file at the given position. It also measures the performance
+  * file at the given position.
  **/
-inline static int file_read_bio_vec(struct file *file, struct bio_vec *bvec, loff_t *pos, struct device_performance *perf)
+inline static int file_read_bio_vec(struct file *file, struct bio_vec *bvec, loff_t *pos)
 {
 	int ret;
 	struct iov_iter i;
 
-#ifdef MEASURE_PERFORMANCE
-	struct timespec startTime;
-	struct timespec endTime;
-
-	getnstimeofday(&startTime);
-#else
-#pragma message "Performance measurement is disabled"
-#endif //MEASURE_PERFORMANCE
-
 	iov_iter_bvec(&i, ITER_BVEC, bvec, 1, bvec->bv_len);
-
 	ret = vfs_iter_read(file, &i, pos);
-
-#ifdef MEASURE_PERFORMANCE
-	getnstimeofday(&endTime);
-	update_performance(READ, &startTime, &endTime, perf);
-#else
-#pragma message "Performance measurement is disabled"
-#endif //MEASURE_PERFORMANCE
 
 	return ret;
 }
 
 /**
   * This function reads the given page from
-  * file at the given position. It also measures the performance
+  * file at the given position.
  **/
-inline static int file_read_page(struct file *file, struct page *p, loff_t *pos, unsigned int length, struct device_performance *perf)
+inline static int file_read_page(struct file *file, struct page *p, loff_t *pos, unsigned int length)
 {
 	struct bio_vec bvec = {
 		.bv_page = p,
@@ -198,14 +163,14 @@ inline static int file_read_page(struct file *file, struct page *p, loff_t *pos,
 		.bv_offset = 0
 	};
 
-	return file_read_bio_vec(file, &bvec, pos, perf);
+	return file_read_bio_vec(file, &bvec, pos);
 }
 
 /**
   * This function reads the given bytes from
-  * file at the given position. It also measures the performance
+  * file at the given position.
  **/
-inline static int file_read_data(struct file *file, void *data, loff_t pos, unsigned int length, struct device_performance *perf)
+inline static int file_read_data(struct file *file, void *data, loff_t pos, unsigned int length)
 {
 	int len;
 	int ret = 0;
@@ -213,7 +178,7 @@ inline static int file_read_data(struct file *file, void *data, loff_t pos, unsi
 	do
 	{
 		len = (length > PAGE_SIZE) ? PAGE_SIZE : length;
-		len = file_read_page(file, p, &pos, len, perf);
+		len = file_read_page(file, p, &pos, len);
 
 		if(unlikely(len < 0))
 		{
@@ -245,10 +210,6 @@ struct aio_data
 	struct kiocb iocb;
 	void *private_data;
 	void (*callback)(void*,long);
-
-	int rw;
-	struct device_performance *perf;
-	struct timespec startTime;
 }; //end struct aio_data
 
 struct multi_aio_data
@@ -264,14 +225,6 @@ inline static void file_aio_complete(struct kiocb *iocb, long ret, long ret2)
 {
 	printk(KERN_DEBUG "tDisk: AIO completed, ret: %ld\n", ret);
 	struct aio_data *data = container_of(iocb, struct aio_data, iocb);
-
-#ifdef MEASURE_PERFORMANCE
-	struct timespec endTime;
-	getnstimeofday(&endTime);
-	update_performance(data->rw, &data->startTime, &endTime, data->perf);
-#else
-#pragma message "Performance measurement is disabled"
-#endif //MEASURE_PERFORMANCE
 
 	if(data->callback)data->callback(data->private_data, ret);
 	kfree(data);
@@ -296,9 +249,9 @@ inline static void file_multi_aio_complete(void *private_data, long ret)
 
 /**
   * This function writes the given bio_vec asyncronously to
-  * file at the given position. It also measures the performance
+  * file at the given position.
  **/
-inline static int file_write_bio_vec_async(struct file *file, struct bio_vec *bvec, loff_t pos, struct device_performance *perf, void *private_data, void (*callback)(void*,long))
+inline static int file_write_bio_vec_async(struct file *file, struct bio_vec *bvec, loff_t pos, void *private_data, void (*callback)(void*,long))
 {
 	int ret;
 	struct iov_iter iter;
@@ -317,15 +270,8 @@ inline static int file_write_bio_vec_async(struct file *file, struct bio_vec *bv
 	data->iocb.ki_complete = file_aio_complete;
 	//data->iocb.ki_flags = IOCB_DIRECT;
 
-	data->perf = perf;
 	data->private_data = private_data;
 	data->callback = callback;
-
-#ifdef MEASURE_PERFORMANCE
-	getnstimeofday(&data->startTime);
-#else
-#pragma message "Performance measurement is disabled"
-#endif //MEASURE_PERFORMANCE
 
 	printk(KERN_DEBUG "tDisk: Sending async read file request\n");
 	ret = file->f_op->write_iter(&data->iocb, &iter);
@@ -339,9 +285,9 @@ inline static int file_write_bio_vec_async(struct file *file, struct bio_vec *bv
 
 /**
   * This function writes the given page asyncronously to
-  * file at the given position. It also measures the performance
+  * file at the given position.
  **/
-inline static void file_write_page_async(struct file *file, struct page *p, loff_t pos, unsigned int length, struct device_performance *perf, void *private_data, void (*callback)(void*,long))
+inline static void file_write_page_async(struct file *file, struct page *p, loff_t pos, unsigned int length, void *private_data, void (*callback)(void*,long))
 {
 	struct bio_vec bvec = {
 		.bv_page = p,
@@ -349,14 +295,14 @@ inline static void file_write_page_async(struct file *file, struct page *p, loff
 		.bv_offset = 0
 	};
 
-	file_write_bio_vec_async(file, &bvec, pos, perf, private_data, callback);
+	file_write_bio_vec_async(file, &bvec, pos, private_data, callback);
 }
 
 /**
   * This function writes the given bytes asyncronously to
-  * file at the given position. It also measures the performance
+  * file at the given position.
  **/
-inline static void file_write_data_async(struct file *file, void *data, loff_t pos, unsigned int length, struct device_performance *perf, void *private_data, void (*callback)(void*,long))
+inline static void file_write_data_async(struct file *file, void *data, loff_t pos, unsigned int length, void *private_data, void (*callback)(void*,long))
 {
 	int len;
 	struct page *p = alloc_page(GFP_KERNEL);
@@ -374,7 +320,7 @@ inline static void file_write_data_async(struct file *file, void *data, loff_t p
 
 		memcpy(page_address(p), data, len);
 		atomic_inc(&multi_data->remaining);
-		file_write_page_async(file, p, pos, len, perf, multi_data, &file_multi_aio_complete);
+		file_write_page_async(file, p, pos, len, multi_data, &file_multi_aio_complete);
 
 		data += len;
 		length -= len;
@@ -388,9 +334,9 @@ inline static void file_write_data_async(struct file *file, void *data, loff_t p
 
 /**
   * This function reads the given bio_vec asyncronously to
-  * file at the given position. It also measures the performance
+  * file at the given position.
  **/
-inline static int file_read_bio_vec_async(struct file *file, struct bio_vec *bvec, loff_t pos, struct device_performance *perf, void *private_data, void (*callback)(void*,long))
+inline static int file_read_bio_vec_async(struct file *file, struct bio_vec *bvec, loff_t pos, void *private_data, void (*callback)(void*,long))
 {
 	int ret;
 	struct iov_iter iter;
@@ -409,15 +355,8 @@ inline static int file_read_bio_vec_async(struct file *file, struct bio_vec *bve
 	data->iocb.ki_complete = file_aio_complete;
 	//data->iocb.ki_flags = IOCB_DIRECT;
 
-	data->perf = perf;
 	data->private_data = private_data;
 	data->callback = callback;
-
-#ifdef MEASURE_PERFORMANCE
-	getnstimeofday(&data->startTime);
-#else
-#pragma message "Performance measurement is disabled"
-#endif //MEASURE_PERFORMANCE
 
 	printk(KERN_DEBUG "tDisk: Sending async read file request\n");
 	ret = file->f_op->read_iter(&data->iocb, &iter);
@@ -432,9 +371,9 @@ inline static int file_read_bio_vec_async(struct file *file, struct bio_vec *bve
 
 /**
   * This function reads the given page asyncronously to
-  * file at the given position. It also measures the performance
+  * file at the given position.
  **/
-inline static void file_read_page_async(struct file *file, struct page *p, loff_t pos, unsigned int length, struct device_performance *perf, void *private_data, void (*callback)(void*,long))
+inline static void file_read_page_async(struct file *file, struct page *p, loff_t pos, unsigned int length, void *private_data, void (*callback)(void*,long))
 {
 	struct bio_vec bvec = {
 		.bv_page = p,
@@ -442,14 +381,14 @@ inline static void file_read_page_async(struct file *file, struct page *p, loff_
 		.bv_offset = 0
 	};
 
-	file_read_bio_vec_async(file, &bvec, pos, perf, private_data, callback);
+	file_read_bio_vec_async(file, &bvec, pos, private_data, callback);
 }
 
 /**
   * This function reads the given bytes asyncronously to
-  * file at the given position. It also measures the performance
+  * file at the given position.
  **/
-inline static void file_read_data_async(struct file *file, void *data, loff_t pos, unsigned int length, struct device_performance *perf, void *private_data, void (*callback)(void*,long))
+inline static void file_read_data_async(struct file *file, void *data, loff_t pos, unsigned int length, void *private_data, void (*callback)(void*,long))
 {
 	int len;
 	struct page *p = alloc_page(GFP_KERNEL);
@@ -467,7 +406,7 @@ inline static void file_read_data_async(struct file *file, void *data, loff_t po
 
 		memcpy(page_address(p), data, len);
 		atomic_inc(&multi_data->remaining);
-		file_read_page_async(file, p, pos, len, perf, multi_data, &file_multi_aio_complete);
+		file_read_page_async(file, p, pos, len, multi_data, &file_multi_aio_complete);
 
 		data += len;
 		length -= len;

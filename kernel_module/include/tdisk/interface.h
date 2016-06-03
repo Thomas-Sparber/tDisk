@@ -76,6 +76,7 @@ struct internal_device_add_parameters
 	char name[TDISK_MAX_INTERNAL_DEVICE_NAME];
 	char path[TDISK_MAX_INTERNAL_DEVICE_NAME];
 	unsigned int fd;
+	int format;
 	enum internal_device_type type;
 }; //end struct internal_device_add_parameters
 

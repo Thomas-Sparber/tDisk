@@ -392,9 +392,9 @@ public:
 	  * @param path The disk to be added. If the file doesn't exist it
 	  * is treated as a plugin name
 	 **/
-	void addDisk(const std::string &path)
+	void addDisk(const std::string &path, bool format)
 	{
-		int ret = c::tdisk_add_disk(name.c_str(), path.c_str());
+		int ret = c::tdisk_add_disk(name.c_str(), path.c_str(), format);
 
 		try {
 			handleError(ret);

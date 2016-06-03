@@ -1990,6 +1990,20 @@ static int set_device_parameters(struct td_internal_device *new_device, struct i
 }
 
 /**
+  * Applies the internal_device_add_parameters to the actual new
+  * internal device
+ **/
+static int device_should_format(struct internal_device_add_parameters __user *arg)
+{
+	struct internal_device_add_parameters parameters;
+
+	if(copy_from_user(&parameters, arg, sizeof(struct internal_device_add_parameters)) != 0)
+		return -EFAULT;
+
+	return parameters.format;
+}
+
+/**
   * Adds the given internal device to the tDisk.
   * This function reads the disk header, performs the correct
   * index operation (WRITE, READ, COMPARE), adds it to the tDisk
@@ -2009,6 +2023,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	int index_operation_to_do;
 	int first_device = (td->internal_devices_count == 0);
 	int additional_sectors;
+	int format;
 
 	//Check for disk limit
 	if(td->internal_devices_count == TDISK_MAX_PHYSICAL_DISKS)
@@ -2037,6 +2052,8 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	memset(&new_device, 0, sizeof(struct td_internal_device));
 	if(set_device_parameters(&new_device, arg) != 0)
 		goto out;
+
+	format = device_should_format(arg);
 
 	switch(new_device.type)
 	{
@@ -2083,10 +2100,17 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 #pragma message "Ping performance measurement is disabled"
 #endif //MEASURE_PING_PERFORMANCE
 
-	printk(KERN_DEBUG "tDisk: device performance before reading header: %llu\n", td_get_device_performance(&new_device));
+	//printk(KERN_DEBUG "tDisk: device performance before reading header: %llu\n", td_get_device_performance(&new_device));
 	error = td_read_header(td, &new_device, &header, first_device, &index_operation_to_do);
 	if(error)goto out_putf;
-	printk(KERN_DEBUG "tDisk: device performance after reading header: %llu\n", td_get_device_performance(&new_device));
+	//printk(KERN_DEBUG "tDisk: device performance after reading header: %llu\n", td_get_device_performance(&new_device));
+
+	if(index_operation_to_do != WRITE && format == true)
+	{
+		printk(KERN_INFO "tDisk: device was part of a tDisk but formatting as you requested\n");
+		index_operation_to_do = WRITE;
+		header.disk_index = (tdisk_index)(td->internal_devices_count + 1);
+	}
 
 	//Calculate new max_sectors of tDisk
 	if(index_operation_to_do == WRITE)

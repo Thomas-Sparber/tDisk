@@ -34,18 +34,6 @@ enum f_internal_device_type
 
 /**
   * Frontend version
-  * This struct is used for the "ADD_DISK"
-  * ioctl to add a specific device to a tDisk
- **/
-/*struct f_internal_device_add_parameters
-{
-	enum f_internal_device_type type;
-	char name[F_TDISK_MAX_INTERNAL_DEVICE_NAME];
-	unsigned int fd;
-}; //end struct internal_device_add_parameters*/
-
-/**
-  * Frontend version
   * This struct represents performance indicators of a
   * physical disk. It contains the average and standard
   * deviation values in processor cycles of read and write
@@ -158,10 +146,11 @@ int tdisk_remove(int device);
   * Adds a new internal device to the tDisk
   * @param device The tDisk where to add the new internal device
   * @param new_disk The new internal device to be added to the tDisk.
+  * @param format Defines whether the disk should be formatted
   * If it is a file path it is added as file. If not it is added as a
   * plugin.
  **/
-int tdisk_add_disk(const char *device, const char *new_disk);
+int tdisk_add_disk(const char *device, const char *new_disk, int format);
 
 /**
   * Gets the current maximum amount of sectors for the given tDisk

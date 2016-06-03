@@ -224,7 +224,7 @@ BackendResult td::create_tDisk(const vector<string> &args, Options &options)
 			if(number >= 0)disk = tDisk::create(number, (unsigned int)blocksize);
 			else disk = tDisk::create((unsigned int)blocksize);
 
-			for(size_t i = devicesIndex; i < args.size(); ++i)disk.addDisk(args[i]);
+			for(size_t i = devicesIndex; i < args.size(); ++i)disk.addDisk(args[i], true);
 		} catch(const tDiskOfflineException &e) {
 			r.warning(BackendResultType::driver, e.what());
 		} catch(const tDiskException &e) {
@@ -415,7 +415,7 @@ BackendResult td::add_disk(const vector<string> &args, Options &options)
 		try {
 			for(std::size_t i = 1; i < args.size(); ++i)
 			{
-				d.addDisk(args[i]);
+				d.addDisk(args[i], false);
 				r.message(BackendResultType::driver, concat("Successfully added disk ", args[i]));
 			}
 		} catch (const tDiskOfflineException &e) {
@@ -654,7 +654,7 @@ BackendResult td::load_config_file(const vector<string> &args, Options &options)
 				tDisk disk = tDisk::create(config.minornumber, config.blocksize);
 
 				for(const string device : config.devices)
-					disk.addDisk(device);
+					disk.addDisk(device, false);
 
 				loadedCfg.addDevice(config);
 			} catch (const tDiskException &e) {

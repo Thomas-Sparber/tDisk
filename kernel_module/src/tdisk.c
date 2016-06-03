@@ -1202,6 +1202,7 @@ void td_measure_device_performance(struct td_internal_device *device, loff_t siz
 	unsigned long time = jiffies;
 	char *buffer = vmalloc(1048576);
 	unsigned int counter = 0;
+	unsigned int elapsed;
 
 	getnstimeofday(&startTime);
 
@@ -1215,7 +1216,9 @@ void td_measure_device_performance(struct td_internal_device *device, loff_t siz
 	getnstimeofday(&endTime);
 	update_performance(READ, &startTime, &endTime, counter, &device->performance);
 
-	printk(KERN_DEBUG "tDisk: read %u MiB --> %u MiB/s\n", counter, counter/(unsigned)(endTime.tv_sec-startTime.tv_sec));
+	elapsed = (unsigned)(endTime.tv_sec-startTime.tv_sec);
+	if(elapsed == 0)elapsed = 1;
+	printk(KERN_DEBUG "tDisk: read %u MiB --> %u MiB/s\n", counter, counter/elapsed);
 }
 
 #else

@@ -679,7 +679,7 @@ int td_perform_index_operation(struct tdisk *td, int direction, sector_t logical
 	}
 
 
-	MY_BUG_ON(direction == WRITE && physical_sector->disk == 0, PRINT_INT(physical_sector->disk), PRINT_ULL(logical_sector));
+	//MY_BUG_ON(direction == WRITE && physical_sector->disk == 0, PRINT_INT(physical_sector->disk), PRINT_ULL(logical_sector));
 	MY_BUG_ON(direction == READ && actual->disk == 0, PRINT_INT(actual->disk), PRINT_ULL(logical_sector));
 
 	//index operation
@@ -712,6 +712,15 @@ int td_perform_index_operation(struct tdisk *td, int direction, sector_t logical
 }
 
 /**
+  * This is the heuristic function that calculates the
+  * speed of a device
+ **/
+inline static unsigned long long td_get_device_performance(const struct td_internal_device *d)
+{
+	return (d->performance.avg_read_time_cycles + d->performance.avg_write_time_cycles) >> 1;
+}
+
+/**
   * This function physically swaps the two given sectors.
   * This means it reads the data of both sectors, stores
   * sector a in sector b and vice versa and updates the
@@ -720,10 +729,42 @@ int td_perform_index_operation(struct tdisk *td, int direction, sector_t logical
 static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_index *a, sector_t logical_b, struct sector_index *b)
 {
 	int ret;
-	loff_t pos_a = (loff_t)a->sector * td->blocksize;
-	loff_t pos_b = (loff_t)b->sector * td->blocksize;
+	loff_t pos_a;
+	loff_t pos_b;
+	loff_t pos_help_a;
+	loff_t pos_help_b;
+	tdisk_index disk_a;
+	tdisk_index disk_b;
+	sector_t sector_b;
+	sector_t sector_a;
+	u16 access_count_a;
+	u16 access_count_b;
 	u8 *buffer_a;
 	u8 *buffer_b;
+
+	struct sector_index unused_sector = {
+		.sector = 0,
+		.access_count = 0,
+		.disk = 0
+	};
+
+	//Swap sectors in case disk b is better. This speeds up the swapping process
+	if(td_get_device_performance(&td->internal_devices[a->disk-1]) > td_get_device_performance(&td->internal_devices[b->disk-1]))
+	{
+		swap(a, b);
+		swap(logical_a, logical_b);
+	}
+
+	disk_a = a->disk;
+	disk_b = b->disk;
+	sector_b = b->sector;
+	sector_a = a->sector;
+	access_count_a = a->access_count;
+	access_count_b = b->access_count;
+	pos_a = (loff_t)a->sector * td->blocksize;
+	pos_b = (loff_t)b->sector * td->blocksize;
+	pos_help_a = (loff_t)td->internal_devices[disk_a-1].move_help_sector * td->blocksize;
+	pos_help_b = (loff_t)td->internal_devices[disk_b-1].move_help_sector * td->blocksize;
 
 	buffer_a = vmalloc(td->blocksize);
 	if(!buffer_a)return false;
@@ -737,51 +778,62 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 
 
 	//Reading blocks from both disks
-	ret = read_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);		//a read op1
+	ret = read_data(&td->internal_devices[disk_a-1], buffer_a, pos_a, td->blocksize);		//a read op1
 	if(ret != 0)
 	{
-		printk(KERN_WARNING "tDisk: Swap error: reading %lu, disk: %u, ret: %d\n", logical_a, a->disk, ret);
+		printk(KERN_WARNING "tDisk: Swap error: reading %lu, disk: %u, ret: %d\n", logical_a, disk_a, ret);
+		goto out;
+	}
+
+	ret = read_data(&td->internal_devices[disk_b-1], buffer_b, pos_b, td->blocksize);		//b read op1
+	if(ret != 0)
+	{
+		printk(KERN_WARNING "tDisk: Swap error: reading %lu, disk: %u, ret: %d\n", logical_b, disk_b, ret);
 		goto out;
 	}
 
 
-	ret = read_data(&td->internal_devices[b->disk-1], buffer_b, pos_b, td->blocksize);		//b read op1
+
+	ret = write_data(&td->internal_devices[disk_a-1], buffer_a, pos_help_a, td->blocksize);
 	if(ret != 0)
 	{
-		printk(KERN_WARNING "tDisk: Swap error: reading %lu, disk: %u, ret: %d\n", logical_b, b->disk, ret);
+		printk(KERN_WARNING "tDisk: Swap-help error: writing %lu, disk: %u, ret: %d\n", logical_a, disk_a, ret);
 		goto out;
 	}
 
+	a->disk = disk_a;
+	a->access_count = access_count_a;
+	a->sector = td->internal_devices[disk_a-1].move_help_sector;
+	td_perform_index_operation(td, WRITE, logical_a, a, true, false);
 
-	//Saving swapped data to both disks
-	ret = write_data(&td->internal_devices[a->disk-1], buffer_b, pos_a, td->blocksize);		//a write op1
+	ret = write_data(&td->internal_devices[disk_a-1], buffer_b, pos_a, td->blocksize);
 	if(ret != 0)
 	{
-		printk(KERN_WARNING "tDisk: Swap error: writing %lu, disk: %u, ret: %d\n", logical_a, a->disk, ret);
+		printk(KERN_WARNING "tDisk: Swap error: writing %lu, disk: %u, ret: %d\n", logical_a, disk_a, ret);
 		goto out;
 	}
 
-	ret = write_data(&td->internal_devices[b->disk-1], buffer_a, pos_b, td->blocksize);		//b write op1
+	b->disk = disk_a;
+	b->access_count = access_count_b;
+	b->sector = sector_a;
+	td_perform_index_operation(td, WRITE, logical_b, b, true, false);
+
+	ret = write_data(&td->internal_devices[disk_b-1], buffer_a, pos_b, td->blocksize);
 	if(ret != 0)
 	{
-		printk(KERN_WARNING "tDisk: Swap error: writing %lu, disk: %u, ret: %d. Need to restore previous sector...\n", logical_b, b->disk, ret);
-		goto out_restore_a;
+		printk(KERN_WARNING "tDisk: Swap error: writing %lu, disk: %u, ret: %d\n", logical_b, disk_b, ret);
+		goto out;
 	}
 
+	a->disk = disk_b;
+	a->access_count = access_count_a;
+	a->sector = sector_b;
+	td_perform_index_operation(td, WRITE, logical_a, a, true, false);
 
-	swap(a->disk, b->disk);
-	swap(a->sector, b->sector);
+	//Make help_move_sector empty again
+	BUG_ON(unused_sector.disk != 0);
+	td_perform_index_operation(td, WRITE, td->internal_devices[disk_a-1].move_help_sector, &unused_sector, true, false);
 
-	//Updating indices
-	td_perform_index_operation(td, WRITE, logical_a, a, true, false);						//a&b write op2
-	td_perform_index_operation(td, WRITE, logical_b, b, true, false);						//a&b write op3
-
-	goto out;
-
-	//error handling
- out_restore_a:
-	ret = write_data(&td->internal_devices[a->disk-1], buffer_a, pos_a, td->blocksize);
-	if(ret != 0)printk(KERN_WARNING "tDisk: Error restoring logical_a. Data corrupted\n");
  out:
 	vfree(buffer_a);
 	vfree(buffer_b);
@@ -790,15 +842,6 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 }
 
 #ifdef MOVE_SECTORS
-
-/**
-  * This is the heuristic function that calculates the
-  * speed of a device
- **/
-inline static unsigned long long td_get_device_performance(const struct td_internal_device *d)
-{
-	return (d->performance.avg_read_time_cycles + d->performance.avg_write_time_cycles) >> 1;
-}
 
 /**
   * This is the callback which is used to sort the
@@ -981,7 +1024,7 @@ static void td_assign_sectors(struct tdisk *td)
 
 		if(td->sorted_devices[sorted_disk-1].available_blocks != 0)
 		{
-			printk(KERN_ERR "tDisk: While assigning sectors: available_blocks (%lu) of disk %u is not 0 as it should\n", td->sorted_devices[sorted_disk-1].available_blocks, DEVICE_INDEX(td->sorted_devices[sorted_disk-1].dev, td->internal_devices));
+			printk(KERN_ERR "tDisk: While assigning sectors: available_blocks (%lu) of disk %u is not 0 as it should\n", td->sorted_devices[sorted_disk-1].available_blocks, DEVICE_INDEX(td->sorted_devices[sorted_disk-1].dev, td->internal_devices)+1);
 		}
 	}
 

@@ -19,7 +19,7 @@ fi
 mount -l | grep $1 > /dev/null
 if [ $? -eq 0 ]; then
 	#Device is mounted, so unmounting it
-	umount $1
+	umount $1 2>&1 > /dev/null
 fi
 status=$?
 if [ $status -ne 0 ]; then

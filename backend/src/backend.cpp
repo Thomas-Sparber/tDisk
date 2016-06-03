@@ -783,6 +783,34 @@ BackendResult td::tdisk_post_create(const vector<string> &args, Options &options
 	return std::move(r);
 }
 
+BackendResult td::tdisk_pre_remove(const vector<string> &args, Options &/*options*/)
+{
+	BackendResult r;
+	if(args.empty())
+	{
+		r.error(BackendResultType::general, "\"tdisk_pre_remove\" needs the td device");
+		return std::move(r);
+	}
+
+	tDisk d;
+
+	try {
+		d = tDisk::get(args[0]);
+	} catch (const tDiskException &e) {
+		r.error(BackendResultType::driver, e.what());
+		return std::move(r);
+	}
+
+	shell::ShellResult result = shell::execute(shell::tDiskPreRemoveCommand, d.getPath());
+
+	if(!result.empty())
+	{
+		r.message(BackendResultType::general, result.getMessage());
+	}
+
+	return std::move(r);
+}
+
 BackendResult td::performance_improvement(const vector<string> &args, Options &options)
 {
 	BackendResult r;

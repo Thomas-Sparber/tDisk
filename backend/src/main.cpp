@@ -133,6 +133,10 @@ vector<Command> commands {
 		"mounts it, creates a data folder (to hide lost+found) and prints\n"
 		"the mount point. It needs the desired tDisk as argument"),
 	
+	Command("tdisk_pre_remove", tdisk_pre_remove,
+		"Runs the tDisk pre remove script which just unmounts the tDisk.\n"
+		"It needs the desired tDisk as argument"),
+	
 	Command("performance_improvement", performance_improvement,
 		"Returns the performance improvement in percent of the tDisk and\n"
 		"lists the top 20 files with the highest performance improvement.\n"

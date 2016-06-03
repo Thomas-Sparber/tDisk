@@ -14,7 +14,7 @@ if [ $? -eq 0 ]; then
 	return 0
 else
 	mkdir /tmp/td_mount_test
-	mount $1 /tmp/td_mount_test 2>1 > /dev/null
+	mount $1 /tmp/td_mount_test 2>&1 > /dev/null
 	if [ $? -eq 0 ]; then
 		avail=$(df --output=avail $1 | tail -n1)
 		umount $1

@@ -91,6 +91,11 @@ struct td_internal_device
 	struct device_performance performance;
 
 	sector_t size_blocks;
+
+	/**
+	  * The sector which is used for sector move operations. To guarantee no data loss
+	 **/
+	sector_t move_help_sector;
 }; //end struct td_internal_device
 
 /**
@@ -105,13 +110,19 @@ struct sorted_internal_device
 	 **/
 	struct list_head preferred_blocks;
 
-	/** The actual device **/
+	/**
+	  * The actual device
+	 **/
 	struct td_internal_device *dev;
 
-	/** This variable is just internally to count the blocks **/
+	/**
+	  * This variable is just internally to count the blocks
+	 **/
 	sector_t available_blocks;
 
-	/** Also used internally to count the currently correct blocks **/
+	/**
+	  * Also used internally to count the currently correct blocks
+	 **/
 	sector_t amount_blocks;
 
 }; //end struct sorted_internal_device

@@ -2003,6 +2003,31 @@ static int device_should_format(struct internal_device_add_parameters __user *ar
 	return parameters.format;
 }
 
+static sector_t find_move_help_sector(struct tdisk *td, tdisk_index disk, sector_t max_sector)
+{
+	sector_t sector;
+	sector_t current_sector = 0;
+
+	for(current_sector = td->header_size; current_sector <= max_sector; ++current_sector)
+	{
+		bool found = false;
+
+		for(sector = 0; sector < td->max_sectors; ++sector)
+		{
+			if(td->indices[sector].disk == disk && td->indices[sector].sector == current_sector)
+			{
+				found = true;
+				break;
+			}
+		}
+
+		if(!found)return current_sector;
+	}
+
+	printk(KERN_WARNING "tDisk: No move help sector found for disk %u! Using last: %llu\n", disk, max_sector+1);
+	return max_sector+1;
+}
+
 /**
   * Adds the given internal device to the tDisk.
   * This function reads the disk header, performs the correct
@@ -2175,7 +2200,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	if(header.disk_index > td->internal_devices_count)td->internal_devices_count = (tdisk_index)(header.disk_index);
 
 	//Calculate actual device size
-	new_device.size_blocks = __div64_32_nomod((uint64_t)size, td->blocksize);
+	new_device.size_blocks = __div64_32_nomod((uint64_t)size, td->blocksize) - 1;	//-1 to leave one sector for movement
 
 	error = 0;
 
@@ -2195,7 +2220,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		sector = 0;
 		size_counter = 0;
 		physical_sector = vmalloc(sizeof(struct sector_index));
-		while((size_counter+td->blocksize) <= size)
+		while((size_counter+td->blocksize+td->blocksize) <= size)	//+td->blocksize to leave one sector for movement
 		{
 			int internal_ret;
 			sector_t logical_sector = td->size_blocks++;
@@ -2211,6 +2236,8 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			}
 		}
 		vfree(physical_sector);
+
+		new_device.move_help_sector = td->header_size + sector;
 
 		//Write indices
 		td_write_all_indices(td, &new_device);
@@ -2234,7 +2261,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			if(internal_ret == -1)
 			{
 				//We have the rule that if the index doesn't match, each disk
-				//has priority over it's own index
+				//has priority of it's own index
 				if(physical_sector[sector].disk == header.disk_index)
 				{
 					//Replace index value
@@ -2244,12 +2271,13 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			}
 		}
 
+		new_device.move_help_sector = find_move_help_sector(td, header.disk_index, new_device.size_blocks+1);
+
 		vfree(physical_sector);
 		break;
 	case READ:
 		//reading all indices from disk
 		td_read_all_indices(td, &new_device, (u8*)td->indices);
-		//td_reorganize_all_indices(td);
 
 		for(sector = 0; sector < td->max_sectors; ++sector)
 		{
@@ -2259,6 +2287,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			if(td->indices[sector].disk == 0)break;
 		}
 		td->size_blocks = sector;
+		new_device.move_help_sector = find_move_help_sector(td, header.disk_index, new_device.size_blocks+1);
 		if(td->size_blocks == 0)
 		{
 			error = -EINVAL;
@@ -2272,6 +2301,8 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		printk(KERN_ERR "tDisk: Invalid index_operation_to_do: %d\n", index_operation_to_do);
 		BUG_ON(true);
 	}
+
+	printk(KERN_DEBUG "tDisk: move_help_sector is %llu\n", new_device.move_help_sector);
 
 	if(additional_sectors != 0 && !first_device)
 	{

@@ -1407,7 +1407,11 @@ static int td_read_header(struct tdisk *td, struct td_internal_device *device, s
 		else
 			(*index_operation_to_do) = COMPARE;
 
+#ifdef MEASURE_PERFORMANCE
 		device->performance = header->performance;
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
 		break;
 	default:
 		//Bug

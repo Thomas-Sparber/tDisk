@@ -34,7 +34,7 @@ DropboxTDisk::DropboxTDisk(const string &str_tDiskPath, unsigned int ui_blocksiz
 }
 
 DropboxTDisk::DropboxTDisk(const string &str_accessToken, const string &str_tDiskPath, unsigned int ui_blocksize, unsigned long long llu_size, unsigned int maxHistoryBuffer) :
-	Plugin("", ui_blocksize, 5),
+	Plugin("", ui_blocksize, 50),
 	Dropbox(str_accessToken),
 	user(),
 	tDiskPath(str_tDiskPath),

@@ -27,6 +27,7 @@
 #include <inodescan.hpp>
 #include <logger.hpp>
 #include <performance.hpp>
+#include <shell.hpp>
 
 using std::cout;
 using std::endl;
@@ -102,13 +103,26 @@ void fs::getDevices(vector<Device> &out)
 		if(!ped_device_open(dev))break;
 
 		Device device;
+		device.type = device_type::blockdevice;
 		device.name = dev->model;
 		device.path = dev->path;
 		device.size = dev->sector_size * dev->length;
-		out.push_back(std::move(device));
+
+		shell::ShellResult mountResult = execute(shell::GetMountPointCommand, device.path);
+		if(!mountResult.empty())device.mountPoint = mountResult.get<shell::path>();
+		device.mounted = !device.mountPoint.empty();
+
+		shell::ShellResult availableResult = execute(shell::DiskFreeSpaceCommand, device.path);
+		if(!availableResult.empty())device.available = availableResult.get<shell::size,uint64_t>();
+		else device.available = device.size;
 
 		PedDisk *disk = ped_disk_new(dev);
-		if(!disk)continue;
+		if(!disk)
+		{
+			out.push_back(std::move(device));
+			continue;
+		}
+		
 
 		for(PedPartition *part = ped_disk_next_partition(disk, nullptr); part; part = ped_disk_next_partition (disk, part))
 		{
@@ -116,45 +130,31 @@ void fs::getDevices(vector<Device> &out)
 			const char *path = ped_partition_get_path(part);
 			const char *name = ped_partition_get_name(part);
 
-			device = Device();
-			if(name)device.name = name;
-			if(path)device.path = path;
-			device.size = part->geom.length * dev->sector_size;
-			if(device.path != dev->path)out.push_back(device);
+			Device subdevice;
+			subdevice.type = device_type::blockdevice_part;
+			if(name)subdevice.name = name;
+			if(path)subdevice.path = path;
+			if(subdevice.name.empty())subdevice.name = subdevice.path;
+			subdevice.size = part->geom.length * dev->sector_size;
+
+			shell::ShellResult subMountResult = execute(shell::GetMountPointCommand, subdevice.path);
+			if(!subMountResult.empty())subdevice.mountPoint = subMountResult.get<shell::path>();
+			subdevice.mounted = !subdevice.mountPoint.empty();
+
+			shell::ShellResult subAvailableResult = execute(shell::DiskFreeSpaceCommand, subdevice.path);
+			if(!subAvailableResult.empty())subdevice.available = subAvailableResult.get<shell::size,uint64_t>();
+			else subdevice.available = subdevice.size;
+
+			if(subdevice.path != dev->path)
+			{
+				device.subdevices.push_back(std::move(subdevice));
+			}
+			
 		}
 
+		out.push_back(std::move(device));
 		ped_disk_destroy(disk);
-
-		/*{
-			next = 0x80947f0,
-			model = 0x8094868 "ATA VBOX HARDDISK",
-			path = 0x8094758 "/dev/sda",
-			type = PED_DEVICE_SCSI,
-			sector_size = 512,
-			phys_sector_size = 512,
-			length = 33554432,
-			open_count = 0,
-			read_only = 0,
-			external_mode = 0,
-			dirty = 0,
-			boot_dirty = 0,
-			hw_geom = {
-				cylinders = 2088,
-				heads = 255,
-				sectors = 63
-			},
-			bios_geom = {
-				cylinders = 2088,
-				heads = 255,
-				sectors = 63
-			},
-			host = 3,
-			did = 0,
-			arch_specific = 0x80945c8
-		}*/
 	}
-
-	//fdisk_unref_context(cxt);
 }
 
 #else
@@ -178,35 +178,74 @@ fs::Device fs::getDevice(const string &name)
 
 void fs::getDevices(vector<Device> &out)
 {
+	srand((unsigned)time(nullptr));
+
 	Device device;
+	device.type = device_type::blockdevice;
 	device.name = "USB Stick";
 	device.path = "/dev/sda";
 	device.size = rand() % 1000000;
+	device.available = rand() % device.size;
+
+	Device subdevice;
+	subdevice.type = device_type::blockdevice_part;
+	subdevice.name = "USB Stick Partition 1";
+	subdevice.path = "/dev/sda1";
+	subdevice.size = rand() % 1000000;
+	subdevice.available = rand() % subdevice.size;
+	if((rand() % 5) == 0)
+	{
+		subdevice.mounted = true;
+		subdevice.mountPoint = "/media/sda1-mount-point";
+	}
+	device.subdevices.push_back(std::move(subdevice));
 	out.push_back(std::move(device));
 
-	device.name = "USB Stick Partition 1";
-	device.path = "/dev/sda1";
-	device.size = rand() % 1000000;
-	out.push_back(std::move(device));
-
+	device = Device();
 	device.name = "SATA Festplatte";
+	device.type = device_type::blockdevice;
 	device.path = "/dev/sdb";
 	device.size = rand() % 10000000;
-	out.push_back(std::move(device));
+	device.available = rand() % device.size;
 
-	device.name = "SATA Festplatte Partition 1";
-	device.path = "/dev/sdb1";
-	device.size = rand() % 10000000;
-	out.push_back(std::move(device));
+	subdevice = Device();
+	subdevice.type = device_type::blockdevice_part;
+	subdevice.name = "SATA Festplatte Partition 1";
+	subdevice.path = "/dev/sdb1";
+	subdevice.size = rand() % 10000000;
+	subdevice.available = rand() % subdevice.size;
+	if((rand() % 5) == 0)
+	{
+		subdevice.mounted = true;
+		subdevice.mountPoint = "/media/sdb1-mount-point";
+	}
+	device.subdevices.push_back(std::move(subdevice));
 
-	device.name = "SATA Festplatte Partition 2";
-	device.path = "/dev/sdb2";
-	device.size = rand() % 10000000;
-	out.push_back(std::move(device));
+	subdevice = Device();
+	subdevice.type = device_type::blockdevice_part;
+	subdevice.name = "SATA Festplatte Partition 2";
+	subdevice.path = "/dev/sdb2";
+	subdevice.size = rand() % 10000000;
+	subdevice.available = rand() % subdevice.size;
+	if((rand() % 5) == 0)
+	{
+		subdevice.mounted = true;
+		subdevice.mountPoint = "/media/sdb2-mount-point";
+	}
+	device.subdevices.push_back(std::move(subdevice));
 
-	device.name = "SATA Festplatte Partition 3";
-	device.path = "/dev/sdb3";
-	device.size = rand() % 10000000;
+	subdevice = Device();
+	subdevice.type = device_type::blockdevice_part;
+	subdevice.name = "SATA Festplatte Partition 3";
+	subdevice.path = "/dev/sdb3";
+	subdevice.size = rand() % 10000000;
+	subdevice.available = rand() % subdevice.size;
+	if((rand() % 5) == 0)
+	{
+		subdevice.mounted = true;
+		subdevice.mountPoint = "/media/sdb3-mount-point";
+	}
+	device.subdevices.push_back(std::move(subdevice));
 	out.push_back(std::move(device));
 }
 

@@ -583,12 +583,22 @@ loff_t nltd_get_size(const char *plugin)
 	};
 
 	ret = nltd_send_async(plugin, 0, temp, 256, SIZE, sync_request_callback, &sync);
-	if(ret)return 0;
+	if(ret)
+	{
+		printk(KERN_WARNING "tDisk: Error sending size request: %d\n", ret);
+		return 0;
+	}
+	
 
 	wait_for_completion(&sync.done);
 
-	ret = kstrtos64(temp, 0, &size);
-	if(ret)return 0;
+	ret = kstrtou64(temp, 0, &size);
+	if(ret)
+	{
+		printk(KERN_WARNING "tDisk: Error converting size (%s) to int64: %d\n", temp, ret);
+		return 0;
+	}
+	
 
 	printk(KERN_DEBUG "tDisk: Plugin %s size: %llu\n", plugin, size);
 

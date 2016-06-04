@@ -53,6 +53,7 @@ namespace shell
 			try {
 				return utils::convertTo(getValue(name), out);
 			} catch (const BackendException &e) {
+				out = T();
 				return false;
 			}
 		}
@@ -273,6 +274,16 @@ namespace shell
 	typedef ShellObject<
 		ShellRetValue<std::string, 1, path>
 	> tDiskPostCreateResult;
+
+	typedef ShellObject<> tDiskPreRemoveResult;
+
+	typedef ShellObject<
+		ShellRetValue<std::string, 1, path>
+	> GetMountPointResult;
+
+	typedef ShellObject<
+		ShellRetValue<std::string, 1, size>
+	> DiskFreeSpaceResult;
 
 } //end namespace shell
 

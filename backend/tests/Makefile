@@ -1,5 +1,5 @@
 CXX=g++
-CFLAGS=-c -g -std=c++11 -Weffc++ -Wall -Wextra -I../../kernel_module/include -I./include -I../include -I../utils -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wunsafe-loop-optimizations -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast
+CFLAGS=-c -O3 -std=c++11 -Weffc++ -Wall -Wextra -I../../kernel_module/include -I./include -I../include -I../utils -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wunsafe-loop-optimizations -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast
 LDFLAGS=-L.. -ltd-backend
 PROGRAMS= \
 	random-ios \

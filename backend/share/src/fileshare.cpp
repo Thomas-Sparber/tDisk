@@ -9,6 +9,7 @@
 
 #include <backendexception.hpp>
 #include <fileshare.hpp>
+#include <logger.hpp>
 #include <utils.hpp>
 
 using std::cout;
@@ -64,7 +65,22 @@ void Fileshare::remove(const string &name)
 {
 	string result = utils::exec(utils::concat("net usershare delete \"",name,"\""));
 
-	if(result != "")throw BackendException("Error when creating fileshare ",name,": ",result);
+	if(result != "")throw BackendException("Error when removing fileshare ",name,": ",result);
+
+	vector<string> help;
+	utils::split(utils::exec("net status shares parseable"), '\n', help);
+	for(const string &s : help)
+	{
+		vector<string> share;
+		utils::split(s, '\\', share);
+		if(share.size() < 2)continue;
+		LOG(LogLevel::debug, "Checking open connection to share ",share[0]);
+		if(share[0] == name)
+		{
+			LOG(LogLevel::debug, "Share ",share[0]," matches. Killing pid ",share[1]);
+			utils::exec(utils::concat("kill -2 ", share[1]));
+		}
+	}
 }
 
 #else

@@ -31,6 +31,7 @@ string getCommandPath(const string &command)
 		return utils::concatPath("scripts",(command+".sh"));		
 	}
 
+	//LOG(LogLevel::debug, "concat: ",executable," & scripts & ",command," & .sh");
 	return utils::concatPath(executable,"scripts",(command+".sh"));
 }
 
@@ -55,10 +56,11 @@ string getCommandPath(const string &command)
 void shell::initShell(const char *c_executable)
 {
 	initialized = true;
-	executable = utils::dirnameOf(c_executable, c_executable);
+	executable = utils::dirnameOf(c_executable, utils::filenameOf(c_executable).c_str());
+	LOG(LogLevel::debug, "Initializing shell with executable ",c_executable,": ",executable);
 }
 
-vector<unique_ptr<ShellObjectBase> > shell::execute_internal(const ShellCommand &command, const string &args)
+ShellResult shell::execute_internal(const ShellCommand &command, const string &args)
 {
 	const string commandPath = getCommandPath(command.command);
 	const string cmd = utils::concat(commandPath," ",args);
@@ -69,12 +71,12 @@ vector<unique_ptr<ShellObjectBase> > shell::execute_internal(const ShellCommand 
 	vector<string> results;
 	utils::split(stringResult, "\n\n", results, false);
 
-	vector<unique_ptr<ShellObjectBase> > ret;
+	ShellResult ret;
 	for(const string &result : results)
 	{
 		unique_ptr<ShellObjectBase> o(command.ret->clone());
 		o->parse(result);
-		ret.push_back(std::move(o));
+		ret.addResult(std::move(o));
 	}
 
 	return std::move(ret);

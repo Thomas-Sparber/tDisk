@@ -44,7 +44,9 @@
 /**
   * Defines whether the performance of the devices should be measured
  **/
-#define MEASURE_PERFORMANCE
+//#define MEASURE_PERFORMANCE
+
+#define MEASURE_PING_PERFORMANCE
 
 /**
   * Defines whether the driver should already try to optimize operations

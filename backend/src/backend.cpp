@@ -121,7 +121,7 @@ BackendResult td::get_tDisk(const vector<string> &args, Options &options)
 
 	if(!d.isValid())
 	{
-		//tDisk wos neither found by driver nor by configfile
+		//tDisk was neither found by driver nor by configfile
 		r.error(BackendResultType::general, utils::concat("tDisk ",args[0]," does not exist"));
 		return std::move(r);
 	}
@@ -134,11 +134,11 @@ BackendResult td::get_devices(const vector<string> &/*args*/, Options &options)
 {
 	BackendResult r;
 	vector<fs::Device> devices;
-	vector<c::f_internal_device_info> internal_devices;
+	//vector<c::f_internal_device_info> internal_devices;
 
 	try {
 		fs::getDevices(devices);
-		for(const fs::Device &device : devices)
+		/*for(const fs::Device &device : devices)
 		{
 			c::f_internal_device_info d;
 			d.type = c::f_internal_device_type_file;
@@ -146,12 +146,12 @@ BackendResult td::get_devices(const vector<string> &/*args*/, Options &options)
 			strncpy(d.path, device.path.c_str(), F_TDISK_MAX_INTERNAL_DEVICE_NAME);
 			d.size = device.size;
 			internal_devices.push_back(d);
-		}
+		}*/
 	} catch (const tDiskException &e) {
 		r.error(BackendResultType::general, e.what());
 	}
 
-	r.result(internal_devices, options.getOptionValue("output-format"));
+	r.result(devices, options.getOptionValue("output-format"));
 	return std::move(r);
 }
 
@@ -224,7 +224,7 @@ BackendResult td::create_tDisk(const vector<string> &args, Options &options)
 			if(number >= 0)disk = tDisk::create(number, (unsigned int)blocksize);
 			else disk = tDisk::create((unsigned int)blocksize);
 
-			for(size_t i = devicesIndex; i < args.size(); ++i)disk.addDisk(args[i]);
+			for(size_t i = devicesIndex; i < args.size(); ++i)disk.addDisk(args[i], true);
 		} catch(const tDiskOfflineException &e) {
 			r.warning(BackendResultType::driver, e.what());
 		} catch(const tDiskException &e) {
@@ -415,7 +415,7 @@ BackendResult td::add_disk(const vector<string> &args, Options &options)
 		try {
 			for(std::size_t i = 1; i < args.size(); ++i)
 			{
-				d.addDisk(args[i]);
+				d.addDisk(args[i], false);
 				r.message(BackendResultType::driver, concat("Successfully added disk ", args[i]));
 			}
 		} catch (const tDiskOfflineException &e) {
@@ -654,7 +654,7 @@ BackendResult td::load_config_file(const vector<string> &args, Options &options)
 				tDisk disk = tDisk::create(config.minornumber, config.blocksize);
 
 				for(const string device : config.devices)
-					disk.addDisk(device);
+					disk.addDisk(device, false);
 
 				loadedCfg.addDevice(config);
 			} catch (const tDiskException &e) {
@@ -763,7 +763,7 @@ BackendResult td::tdisk_post_create(const vector<string> &args, Options &options
 		return std::move(r);
 	}
 
-	vector<unique_ptr<shell::ShellObjectBase> > result = shell::execute(shell::tDiskPostCreateCommand, d.getPath());
+	shell::ShellResult result = shell::execute(shell::tDiskPostCreateCommand, d.getPath());
 
 	if(result.empty())
 	{
@@ -771,15 +771,43 @@ BackendResult td::tdisk_post_create(const vector<string> &args, Options &options
 		return std::move(r);
 	}
 
-	string path = result[0]->get<shell::path>();
+	string path = result.get<shell::path>();
 	if(!utils::folderExists(path))
 	{
-		r.error(BackendResultType::driver, utils::concat("Shell command tDiskPostCreate error: ",result[0]->getMessage()));
+		r.error(BackendResultType::driver, utils::concat("Shell command tDiskPostCreate error: ",result.getMessage()));
 		return std::move(r);
 	}
 
 	r.result(path, options.getOptionValue("output-format"));
 	
+	return std::move(r);
+}
+
+BackendResult td::tdisk_pre_remove(const vector<string> &args, Options &/*options*/)
+{
+	BackendResult r;
+	if(args.empty())
+	{
+		r.error(BackendResultType::general, "\"tdisk_pre_remove\" needs the td device");
+		return std::move(r);
+	}
+
+	tDisk d;
+
+	try {
+		d = tDisk::get(args[0]);
+	} catch (const tDiskException &e) {
+		r.error(BackendResultType::driver, e.what());
+		return std::move(r);
+	}
+
+	shell::ShellResult result = shell::execute(shell::tDiskPreRemoveCommand, d.getPath());
+
+	if(!result.empty())
+	{
+		r.message(BackendResultType::general, result.getMessage());
+	}
+
 	return std::move(r);
 }
 

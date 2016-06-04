@@ -2,6 +2,7 @@
 #define HISTORYBUFFER_HPP
 
 #include <set>
+#include <string.h>
 #include <vector>
 
 namespace td

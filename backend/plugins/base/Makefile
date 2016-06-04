@@ -1,6 +1,6 @@
 CC=gcc
 CXX=g++
-CFLAGS=-c -g -Wall -Wextra  -I./include -I../../utils -I../../../kernel_module/include -isystem../../libs/libnl/include -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wunsafe-loop-optimizations -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast
+CFLAGS=-c -O3 -Wall -Wextra  -I./include -I../../utils -I../../../kernel_module/include -isystem../../libs/libnl/include -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wunsafe-loop-optimizations -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast
 CPPFLAGS=-std=c++11 -Weffc++
 SOURCES=
 

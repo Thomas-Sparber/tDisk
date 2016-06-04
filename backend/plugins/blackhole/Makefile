@@ -6,18 +6,16 @@ LDFLAGS=-lcurl -L../../libs/liboauthcpp -loauthcpp -L../../libs/jsoncpp/src/lib_
 SOURCES=
 
 CPP_SOURCES= \
-	src/dropbox.cpp \
-	src/dropboxtdisk.cpp \
 	src/main.cpp
 
 OBJECTS=$(SOURCES:src/%.c=bin/%.o) $(CPP_SOURCES:src/%.cpp=bin/%.o)
 DEPS=$(OBJECTS:bin/%.o=bin/%.d)
 
-all: bin dropbox
+all: bin blackhole
 
 -include $(DEPS)
 
-dropbox: $(OBJECTS)
+blackhole: $(OBJECTS)
 	@echo "Linking" $@
 	@$(CXX) -o $@ $(OBJECTS) $(LDFLAGS)
 
@@ -34,4 +32,4 @@ bin:
 
 clean:
 	@echo "Cleaning"
-	@rm -rf bin/*.o bin/*.d dropbox
+	@rm -rf bin/*.o bin/*.d blackhole

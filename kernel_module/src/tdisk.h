@@ -33,30 +33,30 @@
   * disk. This makes it possible to identify it as a
   * member of a tDisk
  **/
-struct tdisk_header
+struct __attribute__((packed)) tdisk_header
 {
 	char driver_name[10];	//tdisk
 	__u32 major_version;
 	__u32 minor_version;
-	tdisk_index disk_index;	//disk index in the tdisk
 	struct device_performance performance;
 	__u64 current_max_sectors;
-	char placeholder[72];	//For future releases
+	tdisk_index disk_index;	//disk index in the tdisk
+	char placeholder[53];	//For future releases (total 128 Byte)
 }; //end struct tdisk_header
 
 /**
   * A index represents the physical location of a logical sector
  **/
-struct sector_index
+struct __attribute__((packed)) sector_index
 {
-	//The disk where the logical sector is stored
-	tdisk_index disk;
-
 	//The physical sector on the disk where the logic sector is stored
 	__u64 sector;
 
 	//This variable stores the access count of the physical sector
 	__u16 access_count;
+
+	//The disk where the logical sector is stored
+	tdisk_index disk;
 }; //end struct sector_index;
 
 /**
@@ -91,6 +91,11 @@ struct td_internal_device
 	struct device_performance performance;
 
 	sector_t size_blocks;
+
+	/**
+	  * The sector which is used for sector move operations. To guarantee no data loss
+	 **/
+	sector_t move_help_sector;
 }; //end struct td_internal_device
 
 /**
@@ -99,19 +104,25 @@ struct td_internal_device
  **/
 struct sorted_internal_device
 {
-	/** The actual device **/
-	struct td_internal_device *dev;
-
-	/** This variable is just internally to count the blocks **/
-	sector_t available_blocks;
-
 	/**
 	  * The blocks which should be - according to performance
 	  * and block access count - stored on the device
 	 **/
 	struct list_head preferred_blocks;
 
-	/** Also used internally to count the currently correct blocks **/
+	/**
+	  * The actual device
+	 **/
+	struct td_internal_device *dev;
+
+	/**
+	  * This variable is just internally to count the blocks
+	 **/
+	sector_t available_blocks;
+
+	/**
+	  * Also used internally to count the currently correct blocks
+	 **/
 	sector_t amount_blocks;
 
 }; //end struct sorted_internal_device

@@ -218,6 +218,15 @@ namespace td
 	BackendResult tdisk_post_create(const std::vector<std::string> &args, Options &options);
 
 	/**
+	  * Runs the tDisk pre remove script which just unmounts the tDisk.
+	  * @param args:
+	  *  - tDisk
+	  * @param options: The command options (e.g. output-format)
+	  * @return
+	 **/
+	BackendResult tdisk_pre_remove(const std::vector<std::string> &args, Options &options);
+
+	/**
 	  * Returns the performance improvement in percent of the tDisk
 	  * and lists the top 20 files with the highest performance improvement
 	  * @param args:

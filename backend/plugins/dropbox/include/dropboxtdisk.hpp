@@ -1,6 +1,8 @@
 #ifndef DROPBOXTDISK_HPP
 #define DROPBOXTDISK_HPP
 
+#include <iostream>
+
 #include <dropbox.hpp>
 #include <historybuffer.hpp>
 #include <plugin.hpp>
@@ -22,6 +24,7 @@ public:
 
 	virtual unsigned long long getSize() const
 	{
+		std::cout<<"Size request: "<<size<<std::endl;
 		return size;
 	}
 

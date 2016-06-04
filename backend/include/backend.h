@@ -111,6 +111,11 @@ struct BackendResult* get_files_on_disk(int argc, char *args[], struct Options *
 struct BackendResult* tdisk_post_create(int argc, char *args[], struct Options *options);
 
 /**
+  * C version of tdisk_pre_remove. Look at the C++ version for more details.
+ **/
+struct BackendResult* tdisk_pre_remove(int argc, char *args[], struct Options *options);
+
+/**
   * C version of get_files_on_disk. Look at the C++ version for more details.
  **/
 struct BackendResult* performance_improvement(int argc, char *args[], struct Options *options);

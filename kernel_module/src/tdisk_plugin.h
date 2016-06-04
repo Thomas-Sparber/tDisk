@@ -10,7 +10,6 @@
 
 #include <tdisk/config.h>
 #include "tdisk_nl.h"
-#include "tdisk_performance.h"
 
 #ifdef USE_PLUGINS
 
@@ -33,70 +32,30 @@ inline static loff_t plugin_get_size(const char *plugin)
 
 /**
   * This function writes the given bytes to
-  * plugin at the given position. It also measures the performance
+  * plugin at the given position.
  **/
-inline static int plugin_write_data(const char *plugin, void *data, loff_t pos, unsigned int length, struct device_performance *perf)
+inline static int plugin_write_data(const char *plugin, void *data, loff_t pos, unsigned int length)
 {
-	int ret;
-
-#ifdef MEASURE_PERFORMANCE
-	struct timespec startTime;
-	struct timespec endTime;
-
-	getnstimeofday(&startTime);
-#else
-#pragma message "Performance measurement is disabled"
-#endif //MEASURE_PERFORMANCE
-
-	ret = nltd_write_sync(plugin, pos, data, length);
-
-#ifdef MEASURE_PERFORMANCE
-	getnstimeofday(&endTime);
-	update_performance(WRITE, &startTime, &endTime, perf);
-#else
-#pragma message "Performance measurement is disabled"
-#endif //MEASURE_PERFORMANCE
-
-	return ret;
+	return nltd_write_sync(plugin, pos, data, length);
 }
 
 /**
   * This function reads the given bytes from
-  * plugin at the given position. It also measures the performance
+  * plugin at the given position.
  **/
-inline static int plugin_read_data(const char *plugin, void *data, loff_t pos, unsigned int length, struct device_performance *perf)
+inline static int plugin_read_data(const char *plugin, void *data, loff_t pos, unsigned int length)
 {
-	int ret;
-
-#ifdef MEASURE_PERFORMANCE
-	struct timespec startTime;
-	struct timespec endTime;
-
-	getnstimeofday(&startTime);
-#else
-#pragma message "Performance measurement is disabled"
-#endif //MEASURE_PERFORMANCE
-
-	ret = nltd_read_sync(plugin, pos, data, length);
-
-#ifdef MEASURE_PERFORMANCE
-	getnstimeofday(&endTime);
-	update_performance(READ, &startTime, &endTime, perf);
-#else
-#pragma message "Performance measurement is disabled"
-#endif //MEASURE_PERFORMANCE
-
-	return ret;
+	return nltd_read_sync(plugin, pos, data, length);
 }
 
 /**
   * This function writes the given bio_vec to
-  * plugin at the given position. It also measures the performance
+  * plugin at the given position.
  **/
-inline static int plugin_write_bio_vec(const char *plugin, struct bio_vec *bvec, loff_t *pos, struct device_performance *perf)
+inline static int plugin_write_bio_vec(const char *plugin, struct bio_vec *bvec, loff_t *pos)
 {
 	char *data = page_address(bvec->bv_page) + bvec->bv_offset;
-	int ret = plugin_write_data(plugin, data, (*pos), bvec->bv_len, perf);
+	int ret = plugin_write_data(plugin, data, (*pos), bvec->bv_len);
 	if(ret == 0)
 	{
 		(*pos) += bvec->bv_len;
@@ -107,12 +66,12 @@ inline static int plugin_write_bio_vec(const char *plugin, struct bio_vec *bvec,
 
 /**
   * This function reads the given bio_vec from
-  * plugin at the given position. It also measures the performance
+  * plugin at the given position.
  **/
-inline static int plugin_read_bio_vec(const char *plugin, struct bio_vec *bvec, loff_t *pos, struct device_performance *perf)
+inline static int plugin_read_bio_vec(const char *plugin, struct bio_vec *bvec, loff_t *pos)
 {
 	char *data = page_address(bvec->bv_page) + bvec->bv_offset;
-	int ret = plugin_read_data(plugin, data, (*pos), bvec->bv_len, perf);
+	int ret = plugin_read_data(plugin, data, (*pos), bvec->bv_len);
 	if(ret == 0)
 	{
 		(*pos) += bvec->bv_len;
@@ -125,90 +84,61 @@ struct aio_plugin_data
 {
 	void *private_data;
 	void (*callback)(void*,long);
-
-	int rw;
-	struct device_performance *perf;
-	struct timespec startTime;
 }; //end struct aio_plugin_data
 
 inline static void plugin_aio_complete(void *private_data, long ret)
 {
 	struct aio_plugin_data *data = private_data;
-
-#ifdef MEASURE_PERFORMANCE
-	struct timespec endTime;
-	getnstimeofday(&endTime);
-	update_performance(data->rw, &data->startTime, &endTime, data->perf);
-#else
-#pragma message "Performance measurement is disabled"
-#endif //MEASURE_PERFORMANCE
-
 	if(data->callback)data->callback(data->private_data, ret);
 	kfree(data);
 }
 
 /**
   * This function writes the given bytes to
-  * plugin at the given position. It also measures the performance
+  * plugin at the given position.
  **/
-inline static void plugin_write_data_async(const char *plugin, void *data, loff_t pos, unsigned int length, struct device_performance *perf, void *private_data, void (*callback)(void*,long))
+inline static void plugin_write_data_async(const char *plugin, void *data, loff_t pos, unsigned int length, void *private_data, void (*callback)(void*,long))
 {
 	struct aio_plugin_data *aio_data = kmalloc(sizeof(struct aio_plugin_data), GFP_KERNEL);
 
 	aio_data->callback = callback;
 	aio_data->private_data = private_data;
-	aio_data->perf = perf;
-	aio_data->rw = WRITE;
-
-#ifdef MEASURE_PERFORMANCE
-	getnstimeofday(&aio_data->startTime);
-#else
-#pragma message "Performance measurement is disabled"
-#endif //MEASURE_PERFORMANCE
 
 	nltd_write_async(plugin, pos, data, length, plugin_aio_complete, aio_data);
 }
 
 /**
   * This function reads the given bytes from
-  * plugin at the given position. It also measures the performance
+  * plugin at the given position.
  **/
-inline static void plugin_read_data_async(const char *plugin, void *data, loff_t pos, unsigned int length, struct device_performance *perf, void *private_data, void (*callback)(void*,long))
+inline static void plugin_read_data_async(const char *plugin, void *data, loff_t pos, unsigned int length, void *private_data, void (*callback)(void*,long))
 {
 	struct aio_plugin_data *aio_data = kmalloc(sizeof(struct aio_plugin_data), GFP_KERNEL);
 
 	aio_data->callback = callback;
 	aio_data->private_data = private_data;
-	aio_data->perf = perf;
-	aio_data->rw = WRITE;
-
-#ifdef MEASURE_PERFORMANCE
-	getnstimeofday(&aio_data->startTime);
-#else
-#pragma message "Performance measurement is disabled"
-#endif //MEASURE_PERFORMANCE
 
 	nltd_read_async(plugin, pos, data, length, plugin_aio_complete, aio_data);
 }
 
 /**
   * This function writes the given bio_vec to
-  * plugin at the given position. It also measures the performance
+  * plugin at the given position.
  **/
-inline static void plugin_write_bio_vec_async(const char *plugin, struct bio_vec *bvec, loff_t pos, struct device_performance *perf, void *private_data, void (*callback)(void*,long))
+inline static void plugin_write_bio_vec_async(const char *plugin, struct bio_vec *bvec, loff_t pos, void *private_data, void (*callback)(void*,long))
 {
 	char *data = page_address(bvec->bv_page) + bvec->bv_offset;
-	plugin_write_data_async(plugin, data, pos, bvec->bv_len, perf, private_data, callback);
+	plugin_write_data_async(plugin, data, pos, bvec->bv_len, private_data, callback);
 }
 
 /**
   * This function reads the given bio_vec from
-  * plugin at the given position. It also measures the performance
+  * plugin at the given position.
  **/
-inline static void plugin_read_bio_vec_async(const char *plugin, struct bio_vec *bvec, loff_t pos, struct device_performance *perf, void *private_data, void (*callback)(void*,long))
+inline static void plugin_read_bio_vec_async(const char *plugin, struct bio_vec *bvec, loff_t pos, void *private_data, void (*callback)(void*,long))
 {
 	char *data = page_address(bvec->bv_page) + bvec->bv_offset;
-	plugin_read_data_async(plugin, data, pos, bvec->bv_len, perf, private_data, callback);
+	plugin_read_data_async(plugin, data, pos, bvec->bv_len, private_data, callback);
 }
 
 /**

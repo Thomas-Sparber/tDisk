@@ -33,5 +33,6 @@ backend/tests/random-ios
 **/node_modules
 **/npm-debug.log
 backend/plugins/dropbox/dropbox
+backend/plugins/blackhole/blackhole
 backend/libs/*
 !backend/libs/clone.sh

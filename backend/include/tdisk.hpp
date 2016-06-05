@@ -124,7 +124,7 @@ public:
 			throw tDiskException("Invalid tDisk path ", name);
 
 		int number;
-		if(!utils::convertTo(name, number))
+		if(!utils::convertTo(name.substr(7), number))
 			throw tDiskException("Invalid tDisk ", name);
 
 		return number;

@@ -830,10 +830,6 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	a->sector = sector_b;
 	td_perform_index_operation(td, WRITE, logical_a, a, true, false);
 
-	//Make help_move_sector empty again
-	BUG_ON(unused_sector.disk != 0);
-	td_perform_index_operation(td, WRITE, td->internal_devices[disk_a-1].move_help_sector, &unused_sector, true, false);
-
  out:
 	vfree(buffer_a);
 	vfree(buffer_b);
@@ -1024,7 +1020,7 @@ static void td_assign_sectors(struct tdisk *td)
 
 		if(td->sorted_devices[sorted_disk-1].available_blocks != 0)
 		{
-			printk(KERN_ERR "tDisk: While assigning sectors: available_blocks (%lu) of disk %u is not 0 as it should\n", td->sorted_devices[sorted_disk-1].available_blocks, DEVICE_INDEX(td->sorted_devices[sorted_disk-1].dev, td->internal_devices)+1);
+			printk(KERN_ERR "tDisk: While assigning sectors: available_blocks (%lu) of disk %u is not 0 as it should be\n", td->sorted_devices[sorted_disk-1].available_blocks, DEVICE_INDEX(td->sorted_devices[sorted_disk-1].dev, td->internal_devices)+1);
 		}
 	}
 
@@ -1407,7 +1403,11 @@ static int td_read_header(struct tdisk *td, struct td_internal_device *device, s
 		else
 			(*index_operation_to_do) = COMPARE;
 
+#ifdef MEASURE_PERFORMANCE
 		device->performance = header->performance;
+#else
+#pragma message "Performance measurement is disabled"
+#endif //MEASURE_PERFORMANCE
 		break;
 	default:
 		//Bug

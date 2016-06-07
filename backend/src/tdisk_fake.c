@@ -56,10 +56,11 @@ int tdisk_remove(int device)
 	return 0;
 }
 
-int tdisk_add_disk(const char *device, const char *new_disk)
+int tdisk_add_disk(const char *device, const char *new_disk, int format)
 {
 	UNUSED(device);
 	UNUSED(new_disk);
+	UNUSED(format);
 
 	return 0;
 }

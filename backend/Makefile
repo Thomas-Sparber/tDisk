@@ -30,7 +30,7 @@ TARGETS=bin tdisk make_fileshare
 ifeq ($(OS),Windows_NT)
 else
 	LDFLAGS+= -lparted -lext2fs
-	TARGETS+= make_plugins make_tests
+	TARGETS+= make_plugins make_tests make_proxy
 endif
 
 all: $(TARGETS)
@@ -66,6 +66,9 @@ make_fileshare:
 	make -C share
 	cp share/fileshare fileshare
 
+make_proxy:
+	make -C proxy
+
 clean:
 	@echo "Cleaning"
 	@rm -rf bin/*.o bin/*.d tdisk libtd-backend.a
@@ -73,3 +76,4 @@ clean:
 	@make -C tests clean
 	@rm fileshare
 	@make -C share clean
+	@make -C proxy clean

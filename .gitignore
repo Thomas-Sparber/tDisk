@@ -2,6 +2,7 @@
 *.d
 *.so
 *.so.*
+*.dll
 *.a
 *.ko
 *.o.cmd
@@ -16,9 +17,6 @@ other_disk
 backend/tdisk
 backend/tdisk.exe
 backend/fileshare.exe
-backend/libgcc_s_seh-1.dll
-backend/libstdc++-6.dll
-backend/libwinpthread-1.dll
 backend/fileshare
 backend/share/fileshare
 backend/share/fileshare.exe

@@ -4,6 +4,7 @@ CFLAGS=-c -O3 -Wall -Wextra  -I./include -I../utils -I../include -Wdouble-promot
 CPPFLAGS=-std=c++11 -Weffc++
 LDFLAGS=
 SOURCES=
+DEPENDENCIES=
 
 CPP_SOURCES= \
 	src/serialport_linux.cpp \
@@ -18,14 +19,14 @@ all: bin serialport
 
 -include $(DEPS)
 
-serialport: $(OBJECTS)
-	@echo "Linking" $@
-	@$(CXX) -o $@ $(OBJECTS) $(LDFLAGS)
-
 ifeq ($(OS),Windows_NT)
-	serialport+= diaa_sami_comsupp.dll
+	DEPENDENCIES+= diaa_sami_comsupp.dll
 	LDFLAGS+= -lole32 -loleaut32 -lwbemuuid -L. -ldiaa_sami_comsupp
 endif
+
+serialport: $(OBJECTS) $(DEPENDENCIES)
+	@echo "Linking" $@
+	@$(CXX) -o $@ $(OBJECTS) $(LDFLAGS)
 
 bin/%.o: src/%.c
 	@echo "Compiling" $<
@@ -36,8 +37,7 @@ bin/%.o: src/%.cpp
 	@$(CXX) -MD $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 diaa_sami_comsupp.dll:
-	@make -C diaa_sami_comsupp
-	@cp diaa_sami_comsupp/diaa_sami_comsupp.dll diaa_sami_comsupp.dll
+	@ln -s ../libs/diaa_sami_comsupp/$@ .
 
 bin:
 	mkdir bin

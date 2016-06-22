@@ -1,8 +1,9 @@
 CC=gcc
 CXX=g++
-CFLAGS=-c -O3 -Wall -Wextra -I../kernel_module/include -I./include -I./utils -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast
+CFLAGS=-c -O3 -fPIC -Wall -Wextra -I../kernel_module/include -I./include -I./utils -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast
 CPPFLAGS=-std=c++11 -Weffc++
-LDFLAGS=-L. -ltd-backend
+LDFLAGS_SHARED=
+LDFLAGS=-Wl,-rpath '-Wl,$$ORIGIN' -L. -ltd-backend
 SOURCES= \
 	src/tdisk.c \
 	src/tdisk_fake.c \
@@ -15,21 +16,24 @@ CPP_SOURCES= \
 	src/extinodescan.cpp \
 	src/filesystem.cpp \
 	src/backend.cpp \
-	src/main.cpp \
 	src/option.cpp \
 	src/options.cpp \
 	src/shell.cpp \
 	src/tdisk_advice.cpp
 
+MAIN_SOURCE= \
+	src/main.cpp
+
 
 OBJECTS=$(SOURCES:src/%.c=bin/%.o) $(CPP_SOURCES:src/%.cpp=bin/%.o)
-DEPS=$(OBJECTS:bin/%.o=bin/%.d)
+MAIN_OBJECT=$(MAIN_SOURCE:src/%.cpp=bin/%.o)
+DEPS=$(OBJECTS:bin/%.o=bin/%.d) $(MAIN_OBJECT:bin/%.o=bin/%.d)
 
 TARGETS=bin tdisk make_fileshare make_serial
 
 ifeq ($(OS),Windows_NT)
 else
-	LDFLAGS+= -lparted -lext2fs
+	LDFLAGS_SHARED+= -lparted -lext2fs
 	TARGETS+= make_plugins make_tests make_proxy
 endif
 
@@ -37,13 +41,13 @@ all: $(TARGETS)
 
 -include $(DEPS)
 
-libtd-backend.a: $(OBJECTS)
+libtd-backend.so: $(OBJECTS)
 	@echo "Linking" $@
-	@ar rcs $@ $(OBJECTS)
+	@$(CXX) -shared -o $@ $(OBJECTS) $(LDFLAGS_SHARED)
 
-tdisk: libtd-backend.a
+tdisk: $(MAIN_OBJECT) libtd-backend.so
 	@echo "Linking" $@
-	@$(CXX) -o $@ $(LDFLAGS)
+	@$(CXX) -o $@ $(MAIN_OBJECT) $(LDFLAGS)
 
 bin/%.o: src/%.c
 	@echo "Compiling" $<
@@ -75,11 +79,9 @@ make_proxy:
 
 clean:
 	@echo "Cleaning"
-	@rm -rf bin/*.o bin/*.d tdisk libtd-backend.a
+	@rm -rf bin/*.o bin/*.d tdisk libtd-backend.so fileshare serialport
 	@make -C plugins clean
 	@make -C tests clean
-	@rm fileshare
 	@make -C share clean
 	@make -C proxy clean
-	@rm serialport
 	@make -C serial clean

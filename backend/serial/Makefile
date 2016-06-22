@@ -2,7 +2,7 @@ CC=gcc
 CXX=g++
 CFLAGS=-c -O3 -Wall -Wextra  -I./include -I../utils -I../include -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wunsafe-loop-optimizations -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast
 CPPFLAGS=-std=c++11 -Weffc++
-LDFLAGS=-lole32 -loleaut32 -lwbemuuid -L. -ldiaa_sami_comsupp -L../ -ltd-backend
+LDFLAGS=
 SOURCES=
 
 CPP_SOURCES= \
@@ -18,9 +18,14 @@ all: bin serialport
 
 -include $(DEPS)
 
-serialport: $(OBJECTS) diaa_sami_comsupp.dll
+serialport: $(OBJECTS)
 	@echo "Linking" $@
 	@$(CXX) -o $@ $(OBJECTS) $(LDFLAGS)
+
+ifeq ($(OS),Windows_NT)
+	serialport+= diaa_sami_comsupp.dll
+	LDFLAGS+= -lole32 -loleaut32 -lwbemuuid -L. -ldiaa_sami_comsupp
+endif
 
 bin/%.o: src/%.c
 	@echo "Compiling" $<

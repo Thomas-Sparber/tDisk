@@ -1,6 +1,7 @@
 *.o
 *.d
 *.so
+*.so.*
 *.a
 *.ko
 *.o.cmd
@@ -38,4 +39,8 @@ backend/libs/*
 !backend/libs/clone.sh
 backend/diaa_sami_comsupp.dll
 backend/serial/diaa_sami_comsupp.dll
+backend/serialport.exe
 backend/serial/serialport.exe
+backend/serialport
+backend/serial/serialport
+backend/proxy/proxy

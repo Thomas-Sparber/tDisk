@@ -2,7 +2,7 @@ CC=gcc
 CXX=g++
 CFLAGS=-c -O3 -Wall -Wextra  -I./include -I../../utils -I../base/include -isystem../../libs/liboauthcpp/include/ -isystem../../libs/jsoncpp/include -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wunsafe-loop-optimizations -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast
 CPPFLAGS=-std=c++11 -Weffc++
-LDFLAGS=-lcurl -L../../libs/liboauthcpp -loauthcpp -L../../libs/jsoncpp/src/lib_json -ljsoncpp -L../base -lplugin-base -L../../libs/libnl/lib/.libs -l:libnl-3.a -l:libnl-genl-3.a -lpthread
+LDFLAGS=-Wl,-rpath '-Wl,$$ORIGIN' -L. -lplugin-base -lnl-3 -lnl-genl-3 -lpthread
 SOURCES=
 
 CPP_SOURCES= \
@@ -15,7 +15,7 @@ all: bin blackhole
 
 -include $(DEPS)
 
-blackhole: $(OBJECTS)
+blackhole: $(OBJECTS) libplugin-base.so libnl-3.so libnl-genl-3.so
 	@echo "Linking" $@
 	@$(CXX) -o $@ $(OBJECTS) $(LDFLAGS)
 
@@ -28,8 +28,19 @@ bin/%.o: src/%.cpp
 	@$(CXX) -MD $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 bin:
-	mkdir bin
+	@mkdir bin
+
+libplugin-base.so:
+	@ln -s ../base/$@ .
+
+libnl-3.so:
+	@ln -s ../../libs/libnl/lib/.libs/libnl-3.so.200 .
+	@ln -s libnl-3.so.200 libnl-3.so
+
+libnl-genl-3.so:
+	@ln -s ../../libs/libnl/lib/.libs/libnl-genl-3.so.200 .
+	@ln -s libnl-genl-3.so.200 libnl-genl-3.so
 
 clean:
 	@echo "Cleaning"
-	@rm -rf bin/*.o bin/*.d blackhole
+	@rm -rf bin/*.o bin/*.d blackhole libplugin-base.so libnl-3.so libnl-3.so.200 libnl-genl-3.so libnl-genl-3.so.200

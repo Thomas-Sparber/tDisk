@@ -5,6 +5,8 @@
   *
  **/
 
+#ifndef __linux__
+
 #include <stdio.h>
 #include <comdef.h>
 #include <iostream>
@@ -20,8 +22,6 @@ using std::vector;
 using std::wstring;
 
 using namespace td;
-
-#ifndef __linux__
 
 struct Connection
 {

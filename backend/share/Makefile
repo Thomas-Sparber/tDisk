@@ -2,7 +2,7 @@ CC=gcc
 CXX=g++
 CFLAGS=-c -O3 -Wall -Wextra  -I./include -I../utils -I../include -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wunsafe-loop-optimizations -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast
 CPPFLAGS=-std=c++11 -Weffc++
-LDFLAGS=-L../ -ltd-backend
+LDFLAGS=-Wl,-rpath '-Wl,$$ORIGIN' -L../ -ltd-backend
 SOURCES=
 
 CPP_SOURCES= \

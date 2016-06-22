@@ -26,6 +26,12 @@ namespace td
 
 	namespace utils
 	{
+	
+		template <typename Arr, std::size_t length>
+		std::size_t arrayLength(const Arr(&)[length])
+		{
+			return length;
+		}
 
 		/**
 		  * Helper function to concat variables

@@ -25,7 +25,7 @@ CPP_SOURCES= \
 OBJECTS=$(SOURCES:src/%.c=bin/%.o) $(CPP_SOURCES:src/%.cpp=bin/%.o)
 DEPS=$(OBJECTS:bin/%.o=bin/%.d)
 
-TARGETS=bin tdisk make_fileshare
+TARGETS=bin tdisk make_fileshare make_serial
 
 ifeq ($(OS),Windows_NT)
 else
@@ -66,6 +66,10 @@ make_fileshare:
 	make -C share
 	cp share/fileshare fileshare
 
+make_serial:
+	make -C serial
+	cp serial/serialport serialport
+
 make_proxy:
 	make -C proxy
 
@@ -77,3 +81,5 @@ clean:
 	@rm fileshare
 	@make -C share clean
 	@make -C proxy clean
+	@rm serialport
+	@make -C serial clean

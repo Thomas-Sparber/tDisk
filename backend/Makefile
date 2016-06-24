@@ -33,7 +33,7 @@ TARGETS=bin tdisk make_fileshare make_serial
 
 ifeq ($(OS),Windows_NT)
 	LIB_NAME=libtd-backend.dll
-	TARGETS+= diaa_sami_comsupp.dll
+	TARGETS+= diaa_sami_comsupp.dll wmi.dll
 else
 	LIB_NAME=libtd-backend.so
 	CFLAGS=+= -fPIC
@@ -82,7 +82,10 @@ make_proxy:
 	@make -C proxy
 
 diaa_sami_comsupp.dll:
-	@cp libs/diaa_sami_comsupp/$@ .
+	@ln -s libs/wmi/diaa_sami_comsupp/$@ .
+
+wmi.dll:
+	@ln -s libs/wmi/$@ .
 
 clean:
 	@echo "Cleaning"

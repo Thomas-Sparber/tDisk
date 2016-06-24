@@ -14,12 +14,16 @@
 #include <windows.h>
 
 #include <serialport.hpp>
+#include <wmi.hpp>
+#include <wmiclasses.hpp>
 
 using std::cerr;
 using std::endl;
 using std::string;
 using std::vector;
 using std::wstring;
+using Wmi::Win32_SerialPort;
+using Wmi::WmiException;
 
 using namespace td;
 
@@ -42,197 +46,17 @@ inline const Connection& conn(const Serialport *ref)
 
 bool Serialport::listSerialports(vector<Serialport> &out)
 {
-	CoInitialize(nullptr);
-
-	//Create the WBEM locator
-	IWbemLocator *pLocator = NULL;
-	HRESULT hr = CoCreateInstance(CLSID_WbemLocator, NULL, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (void**)&pLocator);
-	if(FAILED(hr))
-	{
-		switch(hr)
+	try {
+		for(const Win32_SerialPort &port : Wmi::retrieveAllWmi<Win32_SerialPort>())
 		{
-			case REGDB_E_CLASSNOTREG:
-			cerr<<"Error initializing IWbemLocator: REGDB_E_CLASSNOTREG ("<<hr<<")"<<endl;
-			break;
-		case CLASS_E_NOAGGREGATION:
-			cerr<<"Error initializing IWbemLocator: CLASS_E_NOAGGREGATION ("<<hr<<")"<<endl;
-			break;
-		case E_NOINTERFACE:
-			cerr<<"Error initializing IWbemLocator: E_NOINTERFACE ("<<hr<<")"<<endl;
-			break;
-		case E_POINTER:
-			cerr<<"Error initializing IWbemLocator: E_POINTER ("<<hr<<")"<<endl;
-			break;
-		default:
-			cerr<<"Error initializing IWbemLocator: Unknown Error ("<<hr<<")"<<endl;
-			break;
+			Serialport temp(port.Name);
+			temp.friendlyName = port.Description;
+			out.push_back(std::move(temp));
 		}
-		CoUninitialize();
+	} catch (const WmiException &ex) {
+		cerr<<"Error listing serial ports: "<<ex.errorMessage<<" ("<<ex.hexErrorCode()<<")"<<endl;
 		return false;
 	}
-
-	//Open connection to local computer
-	IWbemServices *pServices = NULL;
-	hr = pLocator->ConnectServer(_bstr_t("\\\\.\\root\\cimv2"), NULL, NULL, NULL, 0, NULL, NULL, &pServices);
-	if(FAILED(hr))
-	{
-		switch(hr)
-		{
-		case WBEM_E_ACCESS_DENIED:
-			cerr<<"Error initializing IWbemServices: WBEM_E_ACCESS_DENIED ("<<hr<<")"<<endl;
-			break;
-		case WBEM_E_FAILED:
-			cerr<<"Error initializing IWbemServices: WBEM_E_FAILED ("<<hr<<")"<<endl;
-			break;
-		case WBEM_E_INVALID_NAMESPACE:
-			cerr<<"Error initializing IWbemServices: WBEM_E_INVALID_NAMESPACE ("<<hr<<")"<<endl;
-			break;
-		case WBEM_E_INVALID_PARAMETER:
-			cerr<<"Error initializing IWbemServices: WBEM_E_INVALID_PARAMETER ("<<hr<<")"<<endl;
-			break;
-		case WBEM_E_OUT_OF_MEMORY:
-			cerr<<"Error initializing IWbemServices: WBEM_E_OUT_OF_MEMORY ("<<hr<<")"<<endl;
-			break;
-		case WBEM_E_TRANSPORT_FAILURE:
-			cerr<<"Error initializing IWbemServices: WBEM_E_TRANSPORT_FAILURE ("<<hr<<")"<<endl;
-			break;
-		case WBEM_E_LOCAL_CREDENTIALS:
-			cerr<<"Error initializing IWbemServices: WBEM_E_LOCAL_CREDENTIALS ("<<hr<<")"<<endl;
-			break;
-		default:
-			cerr<<"Error initializing IWbemServices: Unknown Error ("<<hr<<")"<<endl;
-			break;
-		}
-		pLocator->Release(); 
-		CoUninitialize();
-		return false;
-	}
-
-	//Set authentication proxy
-	hr = CoSetProxyBlanket(pServices, 
-		RPC_C_AUTHN_DEFAULT, 
-		RPC_C_AUTHZ_NONE, 
-		COLE_DEFAULT_PRINCIPAL, 
-		RPC_C_AUTHN_LEVEL_DEFAULT, 
-		RPC_C_IMP_LEVEL_IMPERSONATE, 
-		nullptr, 
-		EOAC_NONE 
-	);
-	
-	if(FAILED(hr))
-	{
-		cerr<<"Coult not set proxy blanket. Error code: "<<hr<<endl;
-		pServices->Release();
-		pLocator->Release();
-		CoUninitialize();
-		return false;
-	}
-
-	//Execute the query
-	IEnumWbemClassObject *pClassObject = NULL;
-	hr = pServices->ExecQuery(_bstr_t("WQL"), _bstr_t("Select * From Win32_ParallelPort"), WBEM_FLAG_RETURN_IMMEDIATELY|WBEM_FLAG_FORWARD_ONLY, NULL, &pClassObject);
-	if(FAILED(hr))
-	{
-		switch(hr)
-		{
-			case WBEM_E_ACCESS_DENIED:
-			cerr<<"Error executing query: WBEM_E_ACCESS_DENIED ("<<hr<<")"<<endl;
-			break;
-		case WBEM_E_FAILED:
-			cerr<<"Error executing query: WBEM_E_FAILED ("<<hr<<")"<<endl;
-			break;
-		case WBEM_E_INVALID_CLASS:
-			cerr<<"Error executing query: WBEM_E_INVALID_CLASS ("<<hr<<")"<<endl;
-			break;
-		case WBEM_E_INVALID_PARAMETER:
-			cerr<<"Error executing query: WBEM_E_INVALID_PARAMETER ("<<hr<<")"<<endl;
-			break;
-		case WBEM_E_OUT_OF_MEMORY:
-			cerr<<"Error executing query: WBEM_E_OUT_OF_MEMORY ("<<hr<<")"<<endl;
-			break;
-		case WBEM_E_SHUTTING_DOWN:
-			cerr<<"Error executing query: WBEM_E_SHUTTING_DOWN ("<<hr<<")"<<endl;
-			break;
-		case WBEM_E_TRANSPORT_FAILURE:
-			cerr<<"Error executing query: WBEM_E_TRANSPORT_FAILURE ("<<hr<<")"<<endl;
-			break;
-		default:
-			cerr<<"Error executing query: Unknown Error ("<<hr<<")"<<endl;
-			break;
-		}
-		pServices->Release();
-		pLocator->Release(); 
-		CoUninitialize();
-		return false;
-	}
-
-	//Now enumerate all the ports
-	hr = WBEM_S_NO_ERROR;
-
-	//The final Next will return WBEM_S_FALSE
-	while(hr == WBEM_S_NO_ERROR)
-	{
-		ULONG uReturned = 0;
-		IWbemClassObject *apObj[10];
-		hr = pClassObject->Next(WBEM_INFINITE, 10, apObj, &uReturned);
-		if(SUCCEEDED(hr))
-		{
-			for (ULONG n = 0; n < uReturned; ++n)
-			{
-				VARIANT varProperty1;
-				HRESULT hrGet = apObj[n]->Get(L"DeviceID", 0, &varProperty1, NULL, NULL);
-				if(SUCCEEDED(hrGet) && varProperty1.vt == VT_BSTR && wcslen(varProperty1.bstrVal) > 3)
-				{
-					//if(_wcsnicmp(varProperty1.bstrVal, L"COM", 3) == 0 && isdigit(varProperty1.bstrVal[3]))
-					//{
-						wstring name(varProperty1.bstrVal);
-						Serialport port(string(name.cbegin(), name.cend()));
-
-						//Also get the friendly name of the port
-						VARIANT varProperty2;
-						if(SUCCEEDED(apObj[n]->Get(L"Name", 0, &varProperty2, NULL, NULL)) && varProperty2.vt == VT_BSTR)
-						{
-							wstring friendlyName(varProperty2.bstrVal);
-							port.setFriendlyName(string(friendlyName.cbegin(), friendlyName.cend()));
-						}
-
-						out.push_back(std::move(port));
-					//}
-				}
-			}
-		}
-		else
-		{
-			switch(hr)
-			{
-			case WBEM_E_INVALID_PARAMETER:
-				cerr<<"Error getting next element: WBEM_E_INVALID_PARAMETER ("<<hr<<")"<<endl;
-				break;
-			case WBEM_E_OUT_OF_MEMORY:
-				cerr<<"Error getting next element: WBEM_E_OUT_OF_MEMORY ("<<hr<<")"<<endl;
-				break;
-			case WBEM_E_UNEXPECTED:
-				cerr<<"Error getting next element: WBEM_E_UNEXPECTED ("<<hr<<")"<<endl;
-				break;
-			case WBEM_E_TRANSPORT_FAILURE:
-				cerr<<"Error getting next element: WBEM_E_TRANSPORT_FAILURE ("<<hr<<")"<<endl;
-				break;
-			case WBEM_S_FALSE:
-				cerr<<"Error getting next element: WBEM_S_FALSE ("<<hr<<")"<<endl;
-				break;
-			case WBEM_S_TIMEDOUT:
-				cerr<<"Error getting next element: WBEM_S_TIMEDOUT ("<<hr<<")"<<endl;
-				break;
-			default:
-				cerr<<"Error getting next element: Unknown Error ("<<hr<<")"<<endl;
-				break;
-			}
-		}
-	}
-
-	pServices->Release();
-	pLocator->Release(); 
-	CoUninitialize();
 
 	return true;
 }

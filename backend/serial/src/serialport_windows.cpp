@@ -9,7 +9,6 @@
 
 #include <stdio.h>
 #include <comdef.h>
-#include <iostream>
 #include <WbemCli.h>
 #include <windows.h>
 
@@ -61,19 +60,6 @@ bool Serialport::listSerialports(vector<Serialport> &out)
 	return true;
 }
 
-Serialport::Serialport(const string &str_name) :
-	name(str_name),
-	friendlyName(),
-	connection(nullptr)
-{
-
-}
-
-Serialport::~Serialport()
-{
-	closeConnection();
-}
-
 bool Serialport::closeConnection()
 {
 	bool success = true;
@@ -103,6 +89,8 @@ bool Serialport::openConnection()
 	if(conn(this).hSerial == INVALID_HANDLE_VALUE)
 	{
 		cerr<<"Error opening serial port "<<conn(this).hSerial<<endl;
+		delete (Connection*)connection;
+		connection = nullptr;
 		return false;
     }
 	
@@ -143,79 +131,16 @@ bool Serialport::openConnection()
 	return true;
 }
 
-bool Serialport::request(std::istream &in, std::ostream &out)
+bool Serialport::read(char *current_byte, std::size_t length)
 {
-	if(!openConnection())return false;
-	
-	char current_byte;
 	DWORD bytes_written;
-	std::size_t currentSequencePosition = 0;
-	
-	//Reading from input stream and writing to serial port
-	while(in.read(&current_byte, 1))
-	{
-		if(!WriteFile(conn(this).hSerial, &current_byte, 1, &bytes_written, nullptr))
-		{
-			cerr<<"Error writing to Serial port"<<endl;
-			closeConnection();
-			return false;
-		}
-		
-		if(current_byte == endSequence[currentSequencePosition])
-		{
-			currentSequencePosition++;
-			if(currentSequencePosition == sequenceLength())
-			{
-				//All data written
-				break;
-			}
-		}
-		else currentSequencePosition = 0;
-	}
-	
-	if(currentSequencePosition != sequenceLength())
-	{
-		if(!WriteFile(conn(this).hSerial, &endSequence, (DWORD)sequenceLength(), &bytes_written, nullptr))
-		{
-			cerr<<"Error writing end sequence to Serial port"<<endl;
-			closeConnection();
-			return false;
-		}
-	}
-	
-	//Now reading from serial port and writing to output stream
-	currentSequencePosition = 0;
-	
-	while(ReadFile(conn(this).hSerial, &current_byte, 1, &bytes_written, nullptr))
-	{
-		if(current_byte == endSequence[currentSequencePosition])
-		{
-			currentSequencePosition++;
-			if(currentSequencePosition == sequenceLength())
-			{
-				//All data written
-				break;
-			}
-			
-			//Not writing end sequence to out stream
-			continue;
-		}
-		else
-		{
-			out.write(endSequence, currentSequencePosition);
-		}
-		
-		out.write(&current_byte, 1);
-		
-		if(!out)
-		{
-			cerr<<"Error writing to output stream"<<endl;
-			closeConnection();
-			return false;
-		}
-	}
+	return ReadFile(conn(this).hSerial, &current_byte, length, &bytes_written, nullptr);
+}
 
-	return (currentSequencePosition == sequenceLength());
+bool Serialport::write(const char *current_byte, std::size_t length)
+{
+	DWORD bytes_written;
+	return WriteFile(conn(this).hSerial, &current_byte, length, &bytes_written, nullptr);
 }
 
 #endif //__linux__

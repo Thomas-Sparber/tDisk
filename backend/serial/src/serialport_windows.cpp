@@ -134,13 +134,13 @@ bool Serialport::openConnection()
 bool Serialport::read(char *current_byte, std::size_t length)
 {
 	DWORD bytes_written;
-	return ReadFile(conn(this).hSerial, &current_byte, length, &bytes_written, nullptr);
+	return ReadFile(conn(this).hSerial, &current_byte, (DWORD)length, &bytes_written, nullptr);
 }
 
 bool Serialport::write(const char *current_byte, std::size_t length)
 {
 	DWORD bytes_written;
-	return WriteFile(conn(this).hSerial, &current_byte, length, &bytes_written, nullptr);
+	return WriteFile(conn(this).hSerial, &current_byte, (DWORD)length, &bytes_written, nullptr);
 }
 
 #endif //__linux__

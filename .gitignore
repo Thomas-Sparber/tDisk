@@ -35,6 +35,7 @@ backend/plugins/dropbox/dropbox
 backend/plugins/blackhole/blackhole
 backend/libs/*
 !backend/libs/clone.sh
+!backend/libs/*.patch
 backend/diaa_sami_comsupp.dll
 backend/serial/diaa_sami_comsupp.dll
 backend/serialport.exe

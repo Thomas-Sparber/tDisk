@@ -1,0 +1,6 @@
+148,149c148,149
+<     const std::string mKey;
+<     const std::string mSecret;
+---
+>     std::string mKey;
+>     std::string mSecret;

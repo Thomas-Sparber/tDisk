@@ -1,0 +1,4 @@
+13c13
+< OPTION(BUILD_SHARED_LIBS "Build jsoncpp_lib as a shared library." OFF)
+---
+> OPTION(BUILD_SHARED_LIBS "Build jsoncpp_lib as a shared library." ON)

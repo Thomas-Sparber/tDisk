@@ -36,7 +36,7 @@ ifeq ($(OS),Windows_NT)
 	TARGETS+= diaa_sami_comsupp.dll wmi.dll
 else
 	LIB_NAME=libtd-backend.so
-	CFLAGS=+= -fPIC
+	CFLAGS+= -fPIC
 	LDFLAGS_SHARED+= -lparted -lext2fs
 	TARGETS+= make_plugins make_tests make_proxy
 endif

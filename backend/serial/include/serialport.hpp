@@ -10,8 +10,11 @@
 
 #include <iostream>
 #include <istream>
+#include <errno.h>
 #include <ostream>
+#include <poll.h>
 #include <string>
+#include <string.h>
 #include <vector>
 
 #include <utils.hpp>
@@ -33,7 +36,7 @@ public:
 	static bool listSerialports(std::vector<Serialport> &out);
 
 public:
-	
+
 	Serialport(const std::string &str_name) :
 		name(str_name),
 		friendlyName(),
@@ -93,7 +96,7 @@ public:
 		{
 			if(!write(&current_byte, 1))
 			{
-				std::cerr<<"Error writing to Serial port"<<std::endl;
+				std::cerr<<"Error writing to Serial port: "<<strerror(errno)<<std::endl;
 				closeConnection();
 				return false;
 			}
@@ -109,6 +112,8 @@ public:
 			}
 			else currentSequencePosition = 0;
 		}
+
+		std::cerr<<"EOF"<<std::endl;
 
 		if(currentSequencePosition != sequenceLength())
 		{

@@ -14,6 +14,7 @@
 #include <utils.hpp>
 
 using std::cerr;
+using std::cin;
 using std::cout;
 using std::endl;
 using std::find;
@@ -40,7 +41,7 @@ void listSerialPorts()
 	{
 		cerr<<"Error getting serial ports"<<endl;
 	}
-	
+
 	for(const Serialport &port : ports)
 	{
 		cout<<port.getName()<<endl;
@@ -49,9 +50,11 @@ void listSerialPorts()
 	}
 }
 
-void request(const string &port)
+void request(const string &p)
 {
+	Serialport port(p);
 
+	port.request(cin, cout);
 }
 
 int main(int argc, char *args[])
@@ -61,7 +64,7 @@ int main(int argc, char *args[])
 		printUsage(args[0]);
 		return 1;
 	}
-	
+
 	ci_string command(args[1]);
 	if(command == "list_serialports")
 	{

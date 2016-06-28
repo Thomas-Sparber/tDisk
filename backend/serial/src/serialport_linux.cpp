@@ -8,14 +8,13 @@
 #ifdef __linux__
 
 #include <dirent.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <linux/ioctl.h>
 #include <linux/serial.h>
+#include <poll.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <string.h>
 
 #include <serialport.hpp>
 
@@ -97,6 +96,7 @@ bool Serialport::openConnection()
 
 	if(*((int*)connection) <= 0)
 	{
+		cerr<<"Can't open connection: "<<path<<": "<<strerror(errno)<<endl;
 		delete (int*)connection;
 		connection = nullptr;
 		return false;
@@ -107,6 +107,9 @@ bool Serialport::openConnection()
 
 bool Serialport::read(char *current_byte, std::size_t length)
 {
+	struct pollfd pollfd;
+	pollfd.fd = *((int*)connection);
+
 	return (::read(*((int*)connection), current_byte, length) > 0);
 }
 

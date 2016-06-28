@@ -34,6 +34,12 @@ int main(int argc, char *args[])
 		return 1;
 	}
 
+	bool echo = false;
+	if(argc > 1 && string(args[1]) == "-e")
+	{
+		echo = true;
+	}
+
 	char c;
 	stringstream ss;
 	while(true)
@@ -49,9 +55,19 @@ int main(int argc, char *args[])
 			cout<<"New request: "<<request<<endl;
 			ss.str(string());
 
-			long code;
-			string contentType;
-			const string result = getSite(host+request, code, contentType);
+			string result;
+			if(echo)
+			{
+				cout<<"Echo"<<endl;
+				result = request;
+			}
+			else
+			{
+				long code;
+				string contentType;
+				result = getSite(host+request, code, contentType);
+			}
+
 			const string answer = result + endString;
 			cout<<"Result: "<<answer<<endl;
 

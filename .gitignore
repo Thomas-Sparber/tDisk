@@ -1,41 +1,54 @@
-*.o
+# .gitignore fily by tDisk
+
+# Common file types
+*.a
 *.d
-*.so
-*.so.*
 *.dll
 *.exe
-*.a
+*.o
+*.so
+*.so.*
+
+# Kernel module types
 *.ko
-*.o.cmd
 *.ko.cmd
 *.mod.c
+*.o.cmd
 .tmp_versions
 Module.symvers
 modules.order
-slow_disk
+
+# Test (fake) disks
 big_disk
 other_disk
-backend/tdisk
+slow_disk
+
+# Executables
 backend/fileshare
+backend/plugins/blackhole/blackhole
+backend/plugins/dropbox/dropbox
+backend/proxy/proxy
+backend/serial/serialport
+backend/serialport
 backend/share/fileshare
-web_interface/webinterface/app/*.js
-web_interface/webinterface/app/*.js.map
-web_interface/webinterface/typings/**
-web_interface/database.db
-documentation/kernel_module/doxygen_sqlite3.db
-documentation/backend/doxygen_sqlite3.db
+backend/tdisk
 backend/tests/io-verify
 backend/tests/io-verify-files
 backend/tests/random-ios
+
+# Node.js & angualar types
 **/node_modules
 **/npm-debug.log
-backend/plugins/dropbox/dropbox
-backend/plugins/blackhole/blackhole
+web_interface/webinterface/app/*.js
+web_interface/webinterface/app/*.js.map
+web_interface/webinterface/typings/**
+
+# Libs
 backend/libs/*
-!backend/libs/clone.sh
 !backend/libs/*.patch
-backend/diaa_sami_comsupp.dll
-backend/serial/diaa_sami_comsupp.dll
-backend/serialport
-backend/serial/serialport
-backend/proxy/proxy
+!backend/libs/clone.sh
+
+# Other types
+documentation/backend/doxygen_sqlite3.db
+documentation/kernel_module/doxygen_sqlite3.db
+web_interface/database.db

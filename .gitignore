@@ -3,6 +3,7 @@
 *.so
 *.so.*
 *.dll
+*.exe
 *.a
 *.ko
 *.o.cmd
@@ -15,11 +16,8 @@ slow_disk
 big_disk
 other_disk
 backend/tdisk
-backend/tdisk.exe
-backend/fileshare.exe
 backend/fileshare
 backend/share/fileshare
-backend/share/fileshare.exe
 web_interface/webinterface/app/*.js
 web_interface/webinterface/app/*.js.map
 web_interface/webinterface/typings/**
@@ -38,8 +36,6 @@ backend/libs/*
 !backend/libs/*.patch
 backend/diaa_sami_comsupp.dll
 backend/serial/diaa_sami_comsupp.dll
-backend/serialport.exe
-backend/serial/serialport.exe
 backend/serialport
 backend/serial/serialport
 backend/proxy/proxy

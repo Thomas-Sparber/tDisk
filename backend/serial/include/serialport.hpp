@@ -26,7 +26,7 @@ static constexpr const char endSequence[] = "<[[[[end-of-serial-request]]]]>\n";
 
 inline static std::size_t sequenceLength()
 {
-	return utils::arrayLength(endSequence);
+	return utils::arrayLength(endSequence) - 1;		//exclude \0
 }
 
 class Serialport
@@ -37,10 +37,11 @@ public:
 
 public:
 
-	Serialport(const std::string &str_name) :
+	Serialport(const std::string &str_name, int i_timeout=10000) :
 		name(str_name),
 		friendlyName(),
-		connection(nullptr)
+		connection(nullptr),
+		timeout(i_timeout)
 	{}
 
 	Serialport(const Serialport &other) = delete;
@@ -109,11 +110,12 @@ public:
 					//All data written
 					break;
 				}
+				//std::cerr<<currentSequencePosition<<"/"<<sequenceLength()<<": "<<current_byte<<std::endl;
 			}
 			else currentSequencePosition = 0;
 		}
 
-		std::cerr<<"EOF"<<std::endl;
+		//std::cerr<<"EOF"<<std::endl;
 
 		if(currentSequencePosition != sequenceLength())
 		{
@@ -145,6 +147,7 @@ public:
 			else
 			{
 				out.write(endSequence, currentSequencePosition);
+				currentSequencePosition = 0;
 			}
 
 			out.write(&current_byte, 1);
@@ -170,12 +173,24 @@ public:
 		return connection;
 	}
 
+	void setTimeout(int i_timeout)
+	{
+		this->timeout = i_timeout;
+	}
+
+	int getTimeout() const
+	{
+		return timeout;
+	}
+
 private:
 	std::string name;
 	
 	std::string friendlyName;
 	
 	void *connection;
+
+	int timeout;
 
 }; //end class Serialport
 

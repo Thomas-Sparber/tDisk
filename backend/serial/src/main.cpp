@@ -55,6 +55,7 @@ void request(const string &p)
 	Serialport port(p);
 
 	port.request(cin, cout);
+	cout.flush();
 }
 
 int main(int argc, char *args[])

@@ -7,9 +7,13 @@
 
 #include <errno.h>
 #include <error.h>
+#include <fcntl.h>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include <curldefinitions.hpp>
@@ -20,17 +24,18 @@ using std::string;
 using std::stringstream;
 
 const string endString("<[[[[end-of-serial-request]]]]>\n");
-const string tty("/dev/ttyGS0");
+//const string tty("/dev/ttyGS0");
+const string tty("/dev/ttyS0");
 const string host("http://localhost:8080");
 
 int main(int argc, char *args[])
 {
 	initCurl();
 
-	FILE *fd = fopen(tty.c_str(), "r+");
-	if(!fd)
+	int fd = open(tty.c_str(), O_RDWR | /*O_NONBLOCK | */O_NOCTTY);
+	if(fd <= 0)
 	{
-		cout<<"Can't open tty "<<tty<<endl;
+		cout<<"Can't open tty "<<tty<<": "<<strerror(errno)<<endl;
 		return 1;
 	}
 
@@ -44,7 +49,7 @@ int main(int argc, char *args[])
 	stringstream ss;
 	while(true)
 	{
-		fread(&c, 1, 1, fd);
+		read(fd, &c, 1);
 		//if(!fs)cout<<"Error reading from tty "<<tty<<endl;
 
 		ss.write(&c, 1);
@@ -71,7 +76,7 @@ int main(int argc, char *args[])
 			const string answer = result + endString;
 			cout<<"Result: "<<answer<<endl;
 
-			int res = fwrite(answer.c_str(), 1, answer.length(), fd);
+			int res = write(fd, answer.c_str(), answer.length());
 			if(res <= 0)cout<<"Error writing to tty "<<tty<<": "<<strerror(errno)<<endl;
 		}
 	}

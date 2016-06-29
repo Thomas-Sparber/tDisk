@@ -7,6 +7,7 @@ SOURCES=
 DEPENDENCIES=
 
 CPP_SOURCES= \
+	src/serialport.cpp \
 	src/serialport_linux.cpp \
 	src/serialport_windows.cpp \
 	src/main.cpp

@@ -26,13 +26,13 @@ class Plugin
 public:
 	Plugin(const std::string &name="", unsigned long long maxWriteBytesJoin=0, unsigned int writeQueues=1, unsigned int maxHistoryBuffer=0, bool registerInKernel=false);
 
-	Plugin(Plugin &&other) = default;
+	Plugin(Plugin &&other) = delete;
 
 	Plugin(const Plugin &other) = delete;
 
 	virtual ~Plugin();
 
-	Plugin& operator= (Plugin &&other) = default;
+	Plugin& operator= (Plugin &&other) = delete;
 
 	Plugin& operator= (const Plugin &other) = delete;
 

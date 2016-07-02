@@ -1,8 +1,8 @@
 CC=gcc
 CXX=g++
-CFLAGS=-c -O3 -Wall -Wextra  -I./include -I../utils -I../include -I../libs/wmi/include -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wunsafe-loop-optimizations -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast
+CFLAGS=-c -g -Wall -Wextra  -I./include -I../utils -I../include -I../libs/wmi/include -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wunsafe-loop-optimizations -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast -Wno-strict-aliasing
 CPPFLAGS=-std=c++11 -Weffc++
-LDFLAGS=
+LDFLAGS=-lsqlite3
 SOURCES=
 DEPENDENCIES=
 

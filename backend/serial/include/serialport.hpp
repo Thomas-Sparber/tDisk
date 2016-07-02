@@ -24,9 +24,23 @@ namespace td
 
 static constexpr const char endSequence[] = "<[[[[end-of-serial-request]]]]>\n";
 
-inline static std::size_t sequenceLength()
+static constexpr const char hashSequence[] = "<[[[[serial-request-hash]]]]>\n";
+
+static constexpr const char hashMatchesSequence[] = "<[[[[serial-request-hash-matches]]]]>\n";
+
+inline static std::size_t endSequenceLength()
 {
 	return utils::arrayLength(endSequence) - 1;		//exclude \0
+}
+
+inline static std::size_t hashSequenceLength()
+{
+	return utils::arrayLength(hashSequence) - 1;		//exclude \0
+}
+
+inline static std::size_t hashSequenceMatchesLength()
+{
+	return utils::arrayLength(hashSequence) - 1;		//exclude \0
 }
 
 class Serialport
@@ -46,7 +60,14 @@ public:
 
 	Serialport(const Serialport &other) = delete;
 
-	Serialport(Serialport &&other) = default;
+	Serialport(Serialport &&other) :
+		name(other.name),
+		friendlyName(other.friendlyName),
+		connection(other.connection),
+		timeout(other.timeout)
+	{
+		other.connection = nullptr;
+	}
 
 	~Serialport()
 	{
@@ -55,7 +76,17 @@ public:
 
 	Serialport& operator=(const Serialport &other) = delete;
 
-	Serialport& operator=(Serialport &&other) = default;
+	Serialport& operator=(Serialport &&other)
+	{
+		closeConnection();
+
+		name = other.name;
+		friendlyName = other.friendlyName;
+		connection = other.connection;
+		timeout = other.timeout;
+
+		return (*this);
+	}
 
 	void setName(const std::string &str_name)
 	{

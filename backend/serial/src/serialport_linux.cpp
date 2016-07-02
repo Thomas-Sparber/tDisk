@@ -170,6 +170,7 @@ bool Serialport::read(char *current_byte, std::size_t length)
 {
 	struct pollfd pollfd;
 	pollfd.fd = *((int*)connection);
+	pollfd.events = POLLIN;
 
 	if(!poll(&pollfd, 1, timeout))
 	{

@@ -19,6 +19,8 @@
 #include <unistd.h>
 
 #include <curldefinitions.hpp>
+#include <md5.hpp>
+#include <serialport.hpp>
 
 using std::cerr;
 using std::cout;
@@ -27,9 +29,8 @@ using std::min;
 using std::string;
 using std::stringstream;
 
-const string endString("<[[[[end-of-serial-request]]]]>\n");
-//const string tty("/dev/ttyGS0");
-const string tty("/dev/ttyS1");
+//const string ttyFile("/dev/ttyGS0");
+const string ttyFile("/dev/ttyS1");
 const string host("http://localhost:8080");
 
 int set_interface_attribs(int fd, int speed, int parity)
@@ -72,7 +73,7 @@ int set_interface_attribs(int fd, int speed, int parity)
 	return 0;
 }
 
-void set_blocking (int fd, int should_block)
+void set_blocking(int fd, int should_block)
 {
 	struct termios tty;
 	memset (&tty, 0, sizeof tty);
@@ -93,10 +94,10 @@ int main(int argc, char *args[])
 {
 	initCurl();
 
-	int fd = open(tty.c_str(), O_RDWR | O_SYNC /*| O_NONBLOCK */| O_NOCTTY);
+	int fd = open(ttyFile.c_str(), O_RDWR | O_SYNC /*| O_NONBLOCK */| O_NOCTTY);
 	if(fd <= 0)
 	{
-		cerr<<"Can't open tty "<<tty<<": "<<strerror(errno)<<endl;
+		cerr<<"Can't open tty "<<ttyFile<<": "<<strerror(errno)<<endl;
 		return 1;
 	}
 
@@ -121,11 +122,25 @@ int main(int argc, char *args[])
 
 		ss.write(&c, 1);
 
-		if(ss.str().length() >= endString.length() && ss.str().compare(ss.str().length() - endString.length(), endString.length(), endString) == 0)
+		if(ss.str().length() >= td::endSequenceLength() && ss.str().compare(ss.str().length() - td::endSequenceLength(), td::endSequenceLength(), td::endSequence) == 0)
 		{
-			const string request = ss.str().substr(0, ss.str().length() - endString.length());
-			cerr<<"New request: "<<request<<endl;
+			const string str = ss.str().substr(0, ss.str().length() - td::endSequenceLength());
 			ss.str(string());
+
+			string hash;
+			string request;
+
+			std::size_t pos = str.find(td::hashSequence);
+			if(pos == string::npos)
+			{
+				request = str;
+			}
+			else
+			{
+				hash = str.substr(0, pos);
+				request = str.substr(pos + td::hashSequenceLength());
+			}
+			cerr<<"New request: "<<request<<endl;
 
 			string result;
 			if(echo)
@@ -140,16 +155,20 @@ int main(int argc, char *args[])
 				result = getSite(host+request, code, contentType);
 			}
 
-			const string answer = result + endString;
-			//cout<<"Result: "<<result<<endl;
-			//cout<<result<<endl;
-
-//			for(std::size_t i = 0; i < answer.length(); i += 1024)
-//			{
-				int res = write(fd, answer.c_str()/* + i*/, /*min(*/answer.length()/*-i, std::size_t(1024))*/);
-//				syncfs(fd);
-				if(res <= 0)cerr<<"Error writing to tty "<<tty<<": "<<strerror(errno)<<endl;
-//			}
+			const string md5Hash = md5::getMD5(result);
+			string answer;
+			if((md5Hash == hash))
+			{
+				cerr<<"Hashes match"<<endl;
+				answer = string(td::hashMatchesSequence) + td::endSequence;
+			}
+			else
+			{
+				answer = result + td::endSequence;
+			}
+			
+			int res = write(fd, answer.c_str(), answer.length());
+			if(res <= 0)cerr<<"Error writing to tty "<<ttyFile<<": "<<strerror(errno)<<endl;
 		}
 	}
 }

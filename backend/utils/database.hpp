@@ -8,7 +8,6 @@
 #ifndef DATABASE_HPP
 #define DATABASE_HPP
 
-#include <iostream>
 #include <map>
 #include <sqlite3.h>
 #include <sstream>
@@ -277,7 +276,6 @@ public:
 
 		for(std::size_t i = 0; i < parameters.size(); ++i)
 		{
-			std::cerr<<"Binding"<<i<<std::endl;
 			sqlite3_bind_text(statement, (int)(i+1), parameters[i].c_str(), (int)parameters[i].length(), /*SQLITE_TRANSIENT*/SQLITE_STATIC);
 		}
 

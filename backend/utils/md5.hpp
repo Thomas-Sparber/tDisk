@@ -9,6 +9,7 @@
 #define MD5_HPP
 
 #include <fstream>
+#include <sstream>
 #include <string>
 
 namespace md5
@@ -27,7 +28,11 @@ namespace md5
 		MD5Update(&md5c, str.c_str(), str.length());
 		MD5Final(signature, &md5c);
 
-		return std::string((const char*)signature, 16);
+		std::stringstream ss;
+		for(int i = 0; i < 16; ++i)
+			ss<<std::hex<<(int)signature[i];
+
+		return ss.str();
 	}
 
 	std::string getFileMD5(const std::string &file)
@@ -44,7 +49,11 @@ namespace md5
 		}
 		MD5Final(signature, &md5c);
 
-		return std::string((const char*)signature, 16);
+		std::stringstream ss;
+		for(int i = 0; i < 16; ++i)
+			ss<<std::hex<<(int)signature[i];
+
+		return ss.str();
 	}
 
 }

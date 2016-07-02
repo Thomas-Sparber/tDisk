@@ -18,6 +18,7 @@
 #include <termios.h>
 #include <unistd.h>
 
+#include <base64.h>
 #include <curldefinitions.hpp>
 #include <md5.hpp>
 #include <serialport.hpp>
@@ -155,6 +156,7 @@ int main(int argc, char *args[])
 				result = getSite(host+request, code, contentType);
 			}
 
+			result = base64_encode((const unsigned char*)result.c_str(), result.length());
 			const string md5Hash = md5::getMD5(result);
 			string answer;
 			if((md5Hash == hash))

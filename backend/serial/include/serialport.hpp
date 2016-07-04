@@ -12,7 +12,6 @@
 #include <istream>
 #include <errno.h>
 #include <ostream>
-#include <poll.h>
 #include <string>
 #include <string.h>
 #include <vector>
@@ -49,29 +48,29 @@ class Serialport
 public:
 	enum Baud
 	{
-		BAUD_110,
-		BAUD_300,
-		BAUD_600,
-		BAUD_1200,
-		BAUD_2400,
-		BAUD_4800,
-		BAUD_9600,
-		//BAUD_14400,
-		BAUD_19200,
-		BAUD_38400,
-		BAUD_57600,
-		BAUD_115200,
-		//BAUD_128000,
-		//BAUD_256000
+		Baud_110,
+		Baud_300,
+		Baud_600,
+		Baud_1200,
+		Baud_2400,
+		Baud_4800,
+		Baud_9600,
+		//Baud_14400,
+		Baud_19200,
+		Baud_38400,
+		Baud_57600,
+		Baud_115200,
+		//Baud_128000,
+		//Baud_256000
 	}; //end enum Baud
 
 	enum Parity
 	{
-		EVENPARITY,
-		MARKPARITY,
-		NOPARITY,
-		ODDPARITY,
-		SPACEPARITY
+		EvenParity,
+		MarkParity,
+		NoParity,
+		OddParity,
+		SpaceParity
 	}; //end enum Parity
 
 	static bool listSerialports(std::vector<Serialport> &out);
@@ -83,8 +82,8 @@ public:
 		friendlyName(),
 		connection(nullptr),
 		timeout(i_timeout),
-		baud(BAUD_1200),
-		parity(NOPARITY)
+		baud(Baud_1200),
+		parity(NoParity)
 	{}
 
 	Serialport(const Serialport &other) = delete;

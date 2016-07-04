@@ -294,7 +294,7 @@ public:
 
 		sqlite3_stmt *statement;
 
-		int result = sqlite3_prepare(handle, query.c_str(), query.length(), &statement, nullptr);
+		int result = sqlite3_prepare(handle, query.c_str(), (int)query.length(), &statement, nullptr);
 		if(result != SQLITE_OK)return false;
 
 		for(std::size_t i = 0; i < parameters.size(); ++i)

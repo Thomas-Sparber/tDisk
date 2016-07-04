@@ -25,7 +25,7 @@ namespace md5
 		unsigned char signature[16];
 
 		MD5Init(&md5c);
-		MD5Update(&md5c, str.c_str(), str.length());
+		MD5Update(&md5c, str.c_str(), (int)str.length());
 		MD5Final(signature, &md5c);
 
 		std::stringstream ss;
@@ -45,7 +45,7 @@ namespace md5
 		MD5Init(&md5c);
 		while(in.read(buffer, sizeof(buffer)))
 		{
-			MD5Update(&md5c, buffer, in.gcount());
+			MD5Update(&md5c, buffer, (int)in.gcount());
 		}
 		MD5Final(signature, &md5c);
 

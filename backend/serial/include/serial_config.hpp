@@ -6,9 +6,9 @@
 namespace td
 {
 
-	constexpr Serialport::Baud default_baud = Serialport::BAUD_9600;
+	constexpr Serialport::Baud default_baud = Serialport::Baud_9600;
 
-	constexpr Serialport::Parity default_parity = Serialport::NOPARITY;
+	constexpr Serialport::Parity default_parity = Serialport::NoParity;
 
 } //end namespace td
 

@@ -112,7 +112,7 @@ inline int getLinuxParity(Serialport::Parity parity)
 	switch(parity)
 	{
 		case Serialport::EvenParity: return PARENB;
-		case Serialport::Markparity: return PARENB|PARODD|CMSPAR;
+		case Serialport::MarkParity: return PARENB|PARODD|CMSPAR;
 		case Serialport::NoParity: return 0;
 		case Serialport::OddParity: return PARENB|PARODD;
 		case Serialport::SpaceParity: return PARENB|CMSPAR;

@@ -21,6 +21,7 @@
 #include <base64.h>
 #include <curldefinitions.hpp>
 #include <md5.hpp>
+#include <serial_config.hpp>
 #include <serialport.hpp>
 
 using std::cerr;
@@ -29,6 +30,8 @@ using std::endl;
 using std::min;
 using std::string;
 using std::stringstream;
+
+using namespace td;
 
 //const string ttyFile("/dev/ttyGS0");
 const string ttyFile("/dev/ttyS1");
@@ -91,6 +94,45 @@ void set_blocking(int fd, int should_block)
 		cerr<<"error setting term attributes"<<strerror(errno)<<endl;
 }
 
+inline int getLinuxBaud(Serialport::Baud baud)
+{
+	switch(baud)
+	{
+		case Serialport::BAUD_110: return B110;
+		case Serialport::BAUD_300: return B300;
+		case Serialport::BAUD_600: return B600;
+		case Serialport::BAUD_1200: return B1200;
+		case Serialport::BAUD_2400: return B2400;
+		case Serialport::BAUD_4800: return B4800;
+		case Serialport::BAUD_9600: return B9600;
+		//case Serialport::BAUD_14400: return B14400;
+		case Serialport::BAUD_19200: return B19200;
+		case Serialport::BAUD_38400: return B38400;
+		case Serialport::BAUD_57600: return B57600;
+		case Serialport::BAUD_115200: return B115200;
+		//case Serialport::BAUD_128000: return B128000;
+		//case Serialport::BAUD_256000: return B256000;
+		default:
+			cerr<<"Warning invalid baud value: "<<baud<<endl;
+			return baud;
+	}
+}
+
+inline int getLinuxParity(Serialport::Parity parity)
+{
+	switch(parity)
+	{
+		case Serialport::EVENPARITY: return PARENB;
+		case Serialport::MARKPARITY: return PARENB|PARODD|CMSPAR;
+		case Serialport::NOPARITY: return 0;
+		case Serialport::ODDPARITY: return PARENB|PARODD;
+		case Serialport::SPACEPARITY: return PARENB|CMSPAR;
+		default:
+			cerr<<"Warning invalid parity "<<parity<<endl;
+			return 0;
+	}
+}
+
 int main(int argc, char *args[])
 {
 	initCurl();
@@ -102,7 +144,7 @@ int main(int argc, char *args[])
 		return 1;
 	}
 
-	set_interface_attribs (fd, B1200/*B230400*/, 0);
+	set_interface_attribs (fd, getLinuxBaud(default_baud)/*B1200 B230400*/, getLinuxParity(default_parity));
 	set_blocking (fd, 0);
 
 	bool echo = false;
@@ -141,7 +183,9 @@ int main(int argc, char *args[])
 				hash = str.substr(0, pos);
 				request = str.substr(pos + td::hashSequenceLength());
 			}
-			cerr<<"New request: "<<request<<endl;
+			cerr<<"New request: "<<request;
+			if(hash != "")cerr<<" ("<<hash<<")";
+			cerr<<endl;
 
 			string result;
 			if(echo)
@@ -159,13 +203,14 @@ int main(int argc, char *args[])
 			result = base64_encode((const unsigned char*)result.c_str(), result.length());
 			const string md5Hash = md5::getMD5(result);
 			string answer;
-			if((md5Hash == hash))
+			if(md5Hash == hash)
 			{
 				cerr<<"Hashes match"<<endl;
 				answer = string(td::hashMatchesSequence) + td::endSequence;
 			}
 			else
 			{
+				cerr<<"Transferring"<<endl;
 				answer = result + td::endSequence;
 			}
 			

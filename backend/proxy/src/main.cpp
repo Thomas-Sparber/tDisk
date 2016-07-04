@@ -98,20 +98,20 @@ inline int getLinuxBaud(Serialport::Baud baud)
 {
 	switch(baud)
 	{
-		case Serialport::BAUD_110: return B110;
-		case Serialport::BAUD_300: return B300;
-		case Serialport::BAUD_600: return B600;
-		case Serialport::BAUD_1200: return B1200;
-		case Serialport::BAUD_2400: return B2400;
-		case Serialport::BAUD_4800: return B4800;
-		case Serialport::BAUD_9600: return B9600;
-		//case Serialport::BAUD_14400: return B14400;
-		case Serialport::BAUD_19200: return B19200;
-		case Serialport::BAUD_38400: return B38400;
-		case Serialport::BAUD_57600: return B57600;
-		case Serialport::BAUD_115200: return B115200;
-		//case Serialport::BAUD_128000: return B128000;
-		//case Serialport::BAUD_256000: return B256000;
+		case Serialport::Baud_110: return B110;
+		case Serialport::Baud_300: return B300;
+		case Serialport::Baud_600: return B600;
+		case Serialport::Baud_1200: return B1200;
+		case Serialport::Baud_2400: return B2400;
+		case Serialport::Baud_4800: return B4800;
+		case Serialport::Baud_9600: return B9600;
+		//case Serialport::Baud_14400: return B14400;
+		case Serialport::Baud_19200: return B19200;
+		case Serialport::Baud_38400: return B38400;
+		case Serialport::Baud_57600: return B57600;
+		case Serialport::Baud_115200: return B115200;
+		//case Serialport::Baud_128000: return B128000;
+		//case Serialport::Baud_256000: return B256000;
 		default:
 			cerr<<"Warning invalid baud value: "<<baud<<endl;
 			return baud;
@@ -122,11 +122,11 @@ inline int getLinuxParity(Serialport::Parity parity)
 {
 	switch(parity)
 	{
-		case Serialport::EVENPARITY: return PARENB;
-		case Serialport::MARKPARITY: return PARENB|PARODD|CMSPAR;
-		case Serialport::NOPARITY: return 0;
-		case Serialport::ODDPARITY: return PARENB|PARODD;
-		case Serialport::SPACEPARITY: return PARENB|CMSPAR;
+		case Serialport::EvenParity: return PARENB;
+		case Serialport::MarkParity: return PARENB|PARODD|CMSPAR;
+		case Serialport::NoParity: return 0;
+		case Serialport::OddParity: return PARENB|PARODD;
+		case Serialport::SpaceParity: return PARENB|CMSPAR;
 		default:
 			cerr<<"Warning invalid parity "<<parity<<endl;
 			return 0;

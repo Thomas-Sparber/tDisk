@@ -11,6 +11,7 @@
 
 #include <ci_string.hpp>
 #include <convert.hpp>
+#include <serial_config.hpp>
 #include <serialport.hpp>
 #include <utils.hpp>
 
@@ -54,6 +55,9 @@ void listSerialPorts()
 void request(const string &p, int timeout)
 {
 	Serialport port(p, timeout);
+
+	port.setBaud(default_baud);
+	port.setParity(default_parity);
 
 	port.request(cin, cout);
 	cout.flush();

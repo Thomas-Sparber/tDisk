@@ -43,6 +43,45 @@ inline const Connection& conn(const Serialport *ref)
 	return *(const Connection*)ref->getConnection();
 }
 
+inline DWORD getWindowsBaud(Serialport::Baud baud)
+{
+	switch(baud)
+	{
+		case Serialport::BAUD_110: return CBR_110;
+		case Serialport::BAUD_300: return CBR_300;
+		case Serialport::BAUD_600: return CBR_600;
+		case Serialport::BAUD_1200: return CBR_1200;
+		case Serialport::BAUD_2400: return CBR_2400;
+		case Serialport::BAUD_4800: return CBR_4800;
+		case Serialport::BAUD_9600: return CBR_9600;
+		//case Serialport::BAUD_14400: return CBR_14400;
+		case Serialport::BAUD_19200: return CBR_19200;
+		case Serialport::BAUD_38400: return CBR_38400;
+		case Serialport::BAUD_57600: return CBR_57600;
+		case Serialport::BAUD_115200: return CBR_115200;
+		//case Serialport::BAUD_128000: return CBR_128000;
+		//case Serialport::BAUD_256000: return CBR_256000;
+		default:
+			cerr<<"Warning invalid baud value: "<<baud<<endl;
+			return baud;
+	}
+}
+
+inline DWORD getWindowsParity(Serialport::Parity parity)
+{
+	switch(parity)
+	{
+		case Serialport::EVENPARITY: return EVENPARITY;
+		case Serialport::MARKPARITY: return MARKPARITY;
+		case Serialport::NOPARITY: return NOPARITY;
+		case Serialport::ODDPARITY: return ODDPARITY;
+		case Serialport::SPACEPARITY: return SPACEPARITY;
+		default:
+			cerr<<"Warning invalid parity "<<parity<<endl;
+			return 0;
+	}
+}
+
 bool Serialport::listSerialports(vector<Serialport> &out)
 {
 	try {
@@ -104,10 +143,10 @@ bool Serialport::openConnection()
 		return false;
 	}
      
-	conn(this).dcbSerialParams.BaudRate = CBR_38400;
+	conn(this).dcbSerialParams.BaudRate = getWindowsBaud(baud);
 	conn(this).dcbSerialParams.ByteSize = 8;
 	conn(this).dcbSerialParams.StopBits = ONESTOPBIT;
-	conn(this).dcbSerialParams.Parity = NOPARITY;
+	conn(this).dcbSerialParams.Parity = getWindowsParity(parity);
 	if(SetCommState(conn(this).hSerial, &conn(this).dcbSerialParams) == 0)
 	{
 		cerr<<"Error setting device parameters"<<endl;

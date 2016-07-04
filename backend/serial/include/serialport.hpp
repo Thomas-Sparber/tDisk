@@ -47,6 +47,33 @@ class Serialport
 {
 
 public:
+	enum Baud
+	{
+		BAUD_110,
+		BAUD_300,
+		BAUD_600,
+		BAUD_1200,
+		BAUD_2400,
+		BAUD_4800,
+		BAUD_9600,
+		//BAUD_14400,
+		BAUD_19200,
+		BAUD_38400,
+		BAUD_57600,
+		BAUD_115200,
+		//BAUD_128000,
+		//BAUD_256000
+	}; //end enum Baud
+
+	enum Parity
+	{
+		EVENPARITY,
+		MARKPARITY,
+		NOPARITY,
+		ODDPARITY,
+		SPACEPARITY
+	}; //end enum Parity
+
 	static bool listSerialports(std::vector<Serialport> &out);
 
 public:
@@ -55,7 +82,9 @@ public:
 		name(str_name),
 		friendlyName(),
 		connection(nullptr),
-		timeout(i_timeout)
+		timeout(i_timeout),
+		baud(BAUD_1200),
+		parity(NOPARITY)
 	{}
 
 	Serialport(const Serialport &other) = delete;
@@ -64,7 +93,9 @@ public:
 		name(other.name),
 		friendlyName(other.friendlyName),
 		connection(other.connection),
-		timeout(other.timeout)
+		timeout(other.timeout),
+		baud(other.baud),
+		parity(other.parity)
 	{
 		other.connection = nullptr;
 	}
@@ -108,6 +139,26 @@ public:
 		return friendlyName;
 	}
 
+	Baud getBaud() const
+	{
+		return baud;
+	}
+
+	void setBaud(Baud b_baud)
+	{
+		this->baud = b_baud;
+	}
+
+	Parity getParity() const
+	{
+		return parity;
+	}
+
+	void setParity(Parity p_parity)
+	{
+		this->parity = p_parity;
+	}
+
 	bool openConnection();
 
 	bool closeConnection();
@@ -146,6 +197,10 @@ private:
 	void *connection;
 
 	int timeout;
+
+	Baud baud;
+
+	Parity parity;
 
 }; //end class Serialport
 

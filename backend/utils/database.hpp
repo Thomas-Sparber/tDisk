@@ -207,13 +207,36 @@ public:
 			}
 			else ss<<" AND ";
 
-			//ss<<where.first<<"="<<where.second;
 			parameters.push_back(where.second);
 			ss<<where.first<<"=?";
 		}
 
 		execute(ss.str(), parameters, &result);
 		return std::move(result);
+	}
+
+	bool remove(const std::string &table, const std::map<std::string,std::string> &filter=std::map<std::string,std::string>())
+	{
+		std::vector<std::string> parameters;
+		std::stringstream ss;
+
+		ss<<"DELETE FROM "<<table;
+
+		bool first = true;
+		for(const std::pair<std::string,std::string> &where : filter)
+		{
+			if(first)
+			{
+				first = false;
+				ss<<" WHERE ";
+			}
+			else ss<<" AND ";
+
+			parameters.push_back(where.second);
+			ss<<where.first<<"=?";
+		}
+
+		return execute(ss.str(), parameters);
 	}
 
 	QueryResult select(const Table &t, const std::map<std::string,std::string> &filter=std::map<std::string,std::string>())
@@ -226,7 +249,7 @@ public:
 		std::vector<std::string> parameters;
 		std::stringstream ss;
 
-		ss<<"INSERT INTO "<<table<<"(";
+		ss<<"INSERT OR REPLACE INTO "<<table<<"(";
 
 		bool first = true;
 		for(const std::pair<std::string,std::string> &column : columns)

@@ -10,6 +10,7 @@
 #include <vector>
 
 #include <ci_string.hpp>
+#include <convert.hpp>
 #include <serialport.hpp>
 #include <utils.hpp>
 
@@ -50,9 +51,9 @@ void listSerialPorts()
 	}
 }
 
-void request(const string &p)
+void request(const string &p, int timeout)
 {
-	Serialport port(p);
+	Serialport port(p, timeout);
 
 	port.request(cin, cout);
 	cout.flush();
@@ -60,6 +61,35 @@ void request(const string &p)
 
 int main(int argc, char *args[])
 {
+	if(argc < 2)
+	{
+		printUsage(args[0]);
+		return 1;
+	}
+
+	int timeout = 10000;
+
+	ci_string option(args[1]);
+	while(option.substr(0, 2) == "--")
+	{
+		if(option.substr(0, 10) == "--timeout=")
+		{
+			if(!utils::convertTo(option.substr(10), timeout))
+			{
+				cerr<<"Invalid timeout: "<<option.substr(10)<<endl;
+				return 1;
+			}
+		}
+		else
+		{
+			cerr<<"Invalid option "<<option<<endl;
+		}
+
+		argc--;
+		args++;
+		option = args[1];
+	}
+
 	if(argc < 2)
 	{
 		printUsage(args[0]);
@@ -80,7 +110,7 @@ int main(int argc, char *args[])
 			return 1;
 		}
 		
-		request(args[2]);
+		request(args[2], timeout);
 	}
 	else
 	{

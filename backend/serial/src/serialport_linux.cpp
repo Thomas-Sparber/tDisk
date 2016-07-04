@@ -174,7 +174,7 @@ bool Serialport::read(char *current_byte, std::size_t length)
 
 	if(!poll(&pollfd, 1, timeout))
 	{
-		cerr<<"Read timeout"<<endl;
+		cerr<<"Read timeout of "<<timeout<<" reached"<<endl;
 		return false;
 	}
 	

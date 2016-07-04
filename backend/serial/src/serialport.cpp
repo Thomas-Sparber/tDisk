@@ -9,6 +9,7 @@
 #include <string.h>
 #include <vector>
 
+#include <base64.h>
 #include <database.hpp>
 #include <md5.hpp>
 #include <serialport.hpp>
@@ -143,14 +144,20 @@ bool Serialport::request(istream &in, ostream &out)
 	}
 	else
 	{
-		bool success = db.save("request", { { "request", requestStr }, { "hash", md5::getMD5(resultStr) }, { "data", resultStr } });
+		bool success = db.remove("request", { { "request", requestStr} } );
+		if(!success)
+		{
+			cerr<<db.getError()<<endl;
+		}
 
+		success = db.save("request", { { "request", requestStr }, { "hash", md5::getMD5(resultStr) }, { "data", resultStr } });
 		if(!success)
 		{
 			cerr<<db.getError()<<endl;
 		}
 	}
 
+	resultStr = base64_decode(resultStr);
 	out.write(resultStr.c_str(), resultStr.length());
 	if(!out)
 	{

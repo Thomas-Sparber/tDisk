@@ -53,3 +53,4 @@ backend/libs/*
 documentation/backend/doxygen_sqlite3.db
 documentation/kernel_module/doxygen_sqlite3.db
 web_interface/database.db
+client-gui/requests.db

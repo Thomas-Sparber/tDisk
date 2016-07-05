@@ -37,7 +37,7 @@ inline static std::size_t hashSequenceLength()
 	return utils::arrayLength(hashSequence) - 1;		//exclude \0
 }
 
-inline static std::size_t hashSequenceMatchesLength()
+inline static std::size_t hashMatchesSequenceLength()
 {
 	return utils::arrayLength(hashSequence) - 1;		//exclude \0
 }

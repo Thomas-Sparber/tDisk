@@ -17,8 +17,10 @@
 #include <sys/stat.h>
 #include <termios.h>
 #include <unistd.h>
+#include <vector>
 
 #include <base64.h>
+#include <compress.hpp>
 #include <curldefinitions.hpp>
 #include <md5.hpp>
 #include <serial_config.hpp>
@@ -30,6 +32,7 @@ using std::endl;
 using std::min;
 using std::string;
 using std::stringstream;
+using std::vector;
 
 using namespace td;
 
@@ -200,22 +203,31 @@ int main(int argc, char *args[])
 				result = getSite(host+request, code, contentType);
 			}
 
-			result = base64_encode((const unsigned char*)result.c_str(), result.length());
+			//result = base64_encode((const unsigned char*)result.c_str(), result.length());
 			const string md5Hash = md5::getMD5(result);
 			string answer;
 			if(md5Hash == hash)
 			{
 				cerr<<"Hashes match"<<endl;
-				answer = string(td::hashMatchesSequence) + td::endSequence;
+				answer = /*vector<char>(*/td::hashMatchesSequence;//, td::hashMatchesSequence + td::hashMatchesSequenceLength());
 			}
 			else
 			{
-				cerr<<"Transferring"<<endl;
-				answer = result + td::endSequence;
+				if(!result.empty())
+				{
+					vector<char> temp = compress(result);
+					answer = base64_encode((unsigned char*)temp.data(), temp.size());
+					cerr<<"Transferring "<<answer.size()*100/result.length()<<"%"<<endl;
+				}
 			}
 			
 			int res = write(fd, answer.c_str(), answer.length());
 			if(res <= 0)cerr<<"Error writing to tty "<<ttyFile<<": "<<strerror(errno)<<endl;
+
+			res = write(fd, td::endSequence, td::endSequenceLength());
+			if(res <= 0)cerr<<"Error writing to tty "<<ttyFile<<": "<<strerror(errno)<<endl;
+
+			cerr<<"Request finished"<<endl;
 		}
 	}
 }

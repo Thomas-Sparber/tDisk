@@ -52,6 +52,16 @@ namespace td
 		return true;
 	}
 
+	inline bool compress(const std::string &in, std::vector<char> &out, int level=Z_BEST_COMPRESSION, std::size_t resize=1024)
+	{
+		return compress(in.c_str(), in.length(), out, level, resize);
+	}
+
+	inline bool compress(const std::vector<char> &in, std::vector<char> &out, int level=Z_BEST_COMPRESSION, std::size_t resize=1024)
+	{
+		return compress(&in[0], in.size(), out, level, resize);
+	}
+
 	inline std::vector<char> compress(const char *in, std::size_t length, int level=Z_BEST_COMPRESSION, std::size_t resize=1024)
 	{
 		std::vector<char> ret;

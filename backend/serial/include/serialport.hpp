@@ -39,7 +39,7 @@ inline static std::size_t hashSequenceLength()
 
 inline static std::size_t hashMatchesSequenceLength()
 {
-	return utils::arrayLength(hashSequence) - 1;		//exclude \0
+	return utils::arrayLength(hashMatchesSequence) - 1;		//exclude \0
 }
 
 class Serialport

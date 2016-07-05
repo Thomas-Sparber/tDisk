@@ -9,7 +9,8 @@
 #include <string.h>
 #include <vector>
 
-#include <base64.h>
+//#include <base64.h>
+#include <compress.hpp>
 #include <database.hpp>
 #include <md5.hpp>
 #include <serialport.hpp>
@@ -144,6 +145,8 @@ bool Serialport::request(istream &in, ostream &out)
 	}
 	else
 	{
+		resultStr = decompress(resultStr).data();
+
 		bool success = db.remove("request", { { "request", requestStr} } );
 		if(!success)
 		{
@@ -157,7 +160,7 @@ bool Serialport::request(istream &in, ostream &out)
 		}
 	}
 
-	resultStr = base64_decode(resultStr);
+	//resultStr = base64_decode(resultStr);
 	out.write(resultStr.c_str(), resultStr.length());
 	if(!out)
 	{

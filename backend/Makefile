@@ -89,7 +89,7 @@ wmi.dll:
 
 clean:
 	@echo "Cleaning"
-	@rm -rf bin/*.o bin/*.d tdisk $(LIB_NAME) fileshare serialport diaa_sami_comsupp.dll
+	@rm -rf bin/*.o bin/*.d tdisk $(LIB_NAME) fileshare serialport diaa_sami_comsupp.dll wmi.dll 
 	@make -C plugins clean
 	@make -C tests clean
 	@make -C share clean

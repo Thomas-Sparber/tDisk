@@ -1,6 +1,6 @@
 CC=gcc
 CXX=g++
-CFLAGS=-c -g -Wall -Wextra  -I./include -I../utils -I../include -I../libs/wmi/include -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wunsafe-loop-optimizations -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast -Wno-strict-aliasing
+CFLAGS=-c -O3 -Wall -Wextra  -I./include -I../utils -I../include -I../libs/wmi/include -Wdouble-promotion -Wuninitialized -fipa-pure-const -Wtrampolines -Wfloat-equal  -Wunsafe-loop-optimizations -Wcast-qual -Wcast-align -Wconversion -Wlogical-op -Wredundant-decls -Wshadow -Wint-to-pointer-cast -Wno-strict-aliasing
 CPPFLAGS=-std=c++11 -Weffc++
 LDFLAGS=-lsqlite3 -lz
 SOURCES=
@@ -48,4 +48,4 @@ bin:
 
 clean:
 	@echo "Cleaning"
-	@rm -rf bin/*.o bin/*.d serialport diaa_sami_comsupp.dll
+	@rm -rf bin/*.o bin/*.d serialport diaa_sami_comsupp.dll wmi.dll

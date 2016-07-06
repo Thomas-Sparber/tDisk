@@ -6,6 +6,7 @@
 *.dll
 *.exe
 *.o
+*.res
 *.so
 *.so.*
 

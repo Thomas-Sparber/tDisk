@@ -29,7 +29,7 @@ namespace td
 		ret = deflateInit(&strm, level);
 		if(ret != Z_OK)return false;
 
-		strm.avail_in = length;
+		strm.avail_in = (uInt)length;
 		strm.next_in = (Bytef*)const_cast<char*>(in);
 
 		/* run deflate() on input until output buffer not full, finish
@@ -38,7 +38,7 @@ namespace td
 		{
 			out.resize(out.size() + resize);
 
-			strm.avail_out = resize;
+			strm.avail_out = (uInt)resize;
 			strm.next_out = (Bytef*)&out[out.size() - resize];
 
 			ret = deflate(&strm, Z_FINISH);    /* no bad return value */
@@ -99,7 +99,7 @@ namespace td
 		ret = inflateInit(&strm);
 		if(ret != Z_OK)return false;
 
-		strm.avail_in = length;
+		strm.avail_in = (uInt)length;
 		strm.next_in = (Bytef*)const_cast<char*>(in);
 
 		/* run inflate() on input until output buffer not full */
@@ -107,7 +107,7 @@ namespace td
 		{
 			out.resize(out.size() + resize);
 
-			strm.avail_out = resize;
+			strm.avail_out = (uInt)resize;
 			strm.next_out = (Bytef*)&out[out.size() - resize];
 
 			ret = inflate(&strm, Z_NO_FLUSH);

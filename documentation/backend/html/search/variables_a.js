@@ -2,7 +2,7 @@ var searchData=
 [
   ['maxbytes',['maxBytes',['../classtd_1_1WriteBuffer.html#a136817204b1b103c8d5948f9f9b77200',1,'td::WriteBuffer']]],
   ['maxhistory',['maxHistory',['../classtd_1_1HistoryBuffer.html#a8bcb1fcfa5320097faab20a37706c8bc',1,'td::HistoryBuffer']]],
-  ['message',['message',['../structtd_1_1IndividualResult.html#a7ec3311e18691e68134ac5915a2f8323',1,'td::IndividualResult']]],
+  ['message',['message',['../structtd_1_1IndividualResult.html#a7ec3311e18691e68134ac5915a2f8323',1,'td::IndividualResult::message()'],['../structInputException.html#a1af430bfa0b7b3702a3e4b18ab432ac7',1,'InputException::message()']]],
   ['mime_5ftype',['mime_type',['../structtd_1_1FileMetadata.html#accc980428967bec6e5a8d95cb18b805c',1,'td::FileMetadata::mime_type()'],['../structtd_1_1LinkMetadata.html#a21743b52c3e97ee5543965f2a4fd646d',1,'td::LinkMetadata::mime_type()']]],
   ['minornumber',['minornumber',['../structtd_1_1configuration_1_1tdisk__config.html#ac02c82d06082dcaa8e4027d64dea6c2f',1,'td::configuration::tdisk_config::minornumber()'],['../classtd_1_1tDisk.html#ac18788504f3bba14ad7a85ae06470e51',1,'td::tDisk::minornumber()']]],
   ['mod_5favg_5fread',['mod_avg_read',['../tdisk_8h.html#a94ffd68e954ba128d0a4d8b09b5eb55d',1,'f_device_performance::mod_avg_read()'],['../namespacetd_1_1c.html#a5a222b7aee7b122c9058292d602d1d0c',1,'td::c::f_device_performance::mod_avg_read()']]],

@@ -5,5 +5,6 @@ var searchData=
   ['file_5fpart',['file_part',['../structtd_1_1fs_1_1device__type.html#a4143f98903d6b3227cea374e36a6fb82',1,'td::fs::device_type']]],
   ['filename',['filename',['../structtd_1_1FileAssignment.html#afe96a400a80c654533732a4276aeb737',1,'td::FileAssignment']]],
   ['files',['files',['../structtd_1_1tDiskPerformanceImprovement.html#a489f5e2c6663041308e091524d97210a',1,'td::tDiskPerformanceImprovement']]],
-  ['func',['func',['../structCommand.html#af84f34294a66db3957e780acf416f3aa',1,'Command']]]
+  ['friendlyname',['friendlyName',['../classtd_1_1Serialport.html#ad9fb153356bc69bc9e27e4779d8817fc',1,'td::Serialport']]],
+  ['func',['func',['../structCommand.html#a90850764ddd2f39427999103ec977128',1,'Command']]]
 ];

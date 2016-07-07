@@ -86,7 +86,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">td Namespace Reference</div>  </div>
 </div><!--header-->
@@ -155,6 +156,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtd_1_1FilePerformanceImprovement.html">FilePerformanceImprovement</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This struct represents the performance improvement of a file in percent of using a <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> instead of a normal disk.  <a href="structtd_1_1FilePerformanceImprovement.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Fileshare.html">Fileshare</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This class represents a samba fileshare.  <a href="classtd_1_1Fileshare.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtd_1_1FormatException.html">FormatException</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A FormanException is thrown whenever an error occurred while formatting an object.  <a href="structtd_1_1FormatException.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -192,6 +196,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Plugin.html">Plugin</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtd_1_1PluginException.html">PluginException</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Serialport.html">Serialport</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This class represents a serialport and provides the functionality to lista all available serialports and to send and receive requests.  <a href="classtd_1_1Serialport.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html">tDisk</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the C++ interface to manage tDisks.  <a href="classtd_1_1tDisk.html#details">More...</a><br /></td></tr>
@@ -245,67 +252,67 @@ Functions</h2></td></tr>
 <tr class="memitem:a9fa30a8bfe17cbfd18c4b7be2f644332"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1Options.html">Options</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a9fa30a8bfe17cbfd18c4b7be2f644332">getDefaultOptions</a> ()</td></tr>
 <tr class="memdesc:a9fa30a8bfe17cbfd18c4b7be2f644332"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the default options for the backend functions.  <a href="#a9fa30a8bfe17cbfd18c4b7be2f644332">More...</a><br /></td></tr>
 <tr class="separator:a9fa30a8bfe17cbfd18c4b7be2f644332"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8285dae0a1e8eb2a2253c24fdbb79fba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a8285dae0a1e8eb2a2253c24fdbb79fba">get_tDisks</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:a8285dae0a1e8eb2a2253c24fdbb79fba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a8285dae0a1e8eb2a2253c24fdbb79fba">get_tDisks</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:a8285dae0a1e8eb2a2253c24fdbb79fba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets all currently loaded tDisks of the system.  <a href="#a8285dae0a1e8eb2a2253c24fdbb79fba">More...</a><br /></td></tr>
 <tr class="separator:a8285dae0a1e8eb2a2253c24fdbb79fba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab7da80b564753a646f6c23053715bbd7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#ab7da80b564753a646f6c23053715bbd7">get_tDisk</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:ab7da80b564753a646f6c23053715bbd7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#ab7da80b564753a646f6c23053715bbd7">get_tDisk</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:ab7da80b564753a646f6c23053715bbd7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets information about the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#ab7da80b564753a646f6c23053715bbd7">More...</a><br /></td></tr>
 <tr class="separator:ab7da80b564753a646f6c23053715bbd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa3a26f2629c36f7a853516ef3bc2ad5d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#aa3a26f2629c36f7a853516ef3bc2ad5d">get_devices</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:aa3a26f2629c36f7a853516ef3bc2ad5d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#aa3a26f2629c36f7a853516ef3bc2ad5d">get_devices</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:aa3a26f2629c36f7a853516ef3bc2ad5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets all available devices which could be used for a <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#aa3a26f2629c36f7a853516ef3bc2ad5d">More...</a><br /></td></tr>
 <tr class="separator:aa3a26f2629c36f7a853516ef3bc2ad5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:addf66141f7b0e51a5a1e60fe9abf26b6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#addf66141f7b0e51a5a1e60fe9abf26b6">create_tDisk</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:addf66141f7b0e51a5a1e60fe9abf26b6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#addf66141f7b0e51a5a1e60fe9abf26b6">create_tDisk</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:addf66141f7b0e51a5a1e60fe9abf26b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a new <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#addf66141f7b0e51a5a1e60fe9abf26b6">More...</a><br /></td></tr>
 <tr class="separator:addf66141f7b0e51a5a1e60fe9abf26b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a48ae6a60a07158ae02ebd45222ba16ab"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a48ae6a60a07158ae02ebd45222ba16ab">add_tDisk</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:a48ae6a60a07158ae02ebd45222ba16ab"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a48ae6a60a07158ae02ebd45222ba16ab">add_tDisk</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:a48ae6a60a07158ae02ebd45222ba16ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a new <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> to the system.  <a href="#a48ae6a60a07158ae02ebd45222ba16ab">More...</a><br /></td></tr>
 <tr class="separator:a48ae6a60a07158ae02ebd45222ba16ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad4ef114ab126eb2b015f4c9979d84a61"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#ad4ef114ab126eb2b015f4c9979d84a61">remove_tDisk</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:ad4ef114ab126eb2b015f4c9979d84a61"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#ad4ef114ab126eb2b015f4c9979d84a61">remove_tDisk</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:ad4ef114ab126eb2b015f4c9979d84a61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes a <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> from the system.  <a href="#ad4ef114ab126eb2b015f4c9979d84a61">More...</a><br /></td></tr>
 <tr class="separator:ad4ef114ab126eb2b015f4c9979d84a61"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad776c479b83ccf76631dd80c6061eddc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#ad776c479b83ccf76631dd80c6061eddc">add_disk</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:ad776c479b83ccf76631dd80c6061eddc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#ad776c479b83ccf76631dd80c6061eddc">add_disk</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:ad776c479b83ccf76631dd80c6061eddc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds one or more nacking files to a <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#ad776c479b83ccf76631dd80c6061eddc">More...</a><br /></td></tr>
 <tr class="separator:ad776c479b83ccf76631dd80c6061eddc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acba4437ef471be05dd3508151192d0a0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#acba4437ef471be05dd3508151192d0a0">get_max_sectors</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:acba4437ef471be05dd3508151192d0a0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#acba4437ef471be05dd3508151192d0a0">get_max_sectors</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:acba4437ef471be05dd3508151192d0a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the current maximum amount of sectors (defined by the blocksize and header) for the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#acba4437ef471be05dd3508151192d0a0">More...</a><br /></td></tr>
 <tr class="separator:acba4437ef471be05dd3508151192d0a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7da2c926e957f1e6a30e42f4def6ffb4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a7da2c926e957f1e6a30e42f4def6ffb4">get_size_bytes</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:a7da2c926e957f1e6a30e42f4def6ffb4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a7da2c926e957f1e6a30e42f4def6ffb4">get_size_bytes</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:a7da2c926e957f1e6a30e42f4def6ffb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the current size in bytes (defined by size_blocks and blocksize) for the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#a7da2c926e957f1e6a30e42f4def6ffb4">More...</a><br /></td></tr>
 <tr class="separator:a7da2c926e957f1e6a30e42f4def6ffb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaaea852cf315eeb6f557a561e6e42ab0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#aaaea852cf315eeb6f557a561e6e42ab0">get_sector_index</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:aaaea852cf315eeb6f557a561e6e42ab0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#aaaea852cf315eeb6f557a561e6e42ab0">get_sector_index</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:aaaea852cf315eeb6f557a561e6e42ab0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the sector information for the given logical sector of the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#aaaea852cf315eeb6f557a561e6e42ab0">More...</a><br /></td></tr>
 <tr class="separator:aaaea852cf315eeb6f557a561e6e42ab0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a14d7f70dc4b7009d6ff0e755ce1ea095"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a14d7f70dc4b7009d6ff0e755ce1ea095">get_all_sector_indices</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:a14d7f70dc4b7009d6ff0e755ce1ea095"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a14d7f70dc4b7009d6ff0e755ce1ea095">get_all_sector_indices</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:a14d7f70dc4b7009d6ff0e755ce1ea095"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the sector information of all sectors of the give <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#a14d7f70dc4b7009d6ff0e755ce1ea095">More...</a><br /></td></tr>
 <tr class="separator:a14d7f70dc4b7009d6ff0e755ce1ea095"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4242ba7e1b5c1c57d1dd6ab5096562d6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a4242ba7e1b5c1c57d1dd6ab5096562d6">clear_access_count</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:a4242ba7e1b5c1c57d1dd6ab5096562d6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a4242ba7e1b5c1c57d1dd6ab5096562d6">clear_access_count</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:a4242ba7e1b5c1c57d1dd6ab5096562d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the access count for all sectors of the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> to 0.  <a href="#a4242ba7e1b5c1c57d1dd6ab5096562d6">More...</a><br /></td></tr>
 <tr class="separator:a4242ba7e1b5c1c57d1dd6ab5096562d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a69315cbfd3d52a8ba93e690ea7be9566"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a69315cbfd3d52a8ba93e690ea7be9566">get_internal_devices_count</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:a69315cbfd3d52a8ba93e690ea7be9566"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a69315cbfd3d52a8ba93e690ea7be9566">get_internal_devices_count</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:a69315cbfd3d52a8ba93e690ea7be9566"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the current number of internal devices of the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#a69315cbfd3d52a8ba93e690ea7be9566">More...</a><br /></td></tr>
 <tr class="separator:a69315cbfd3d52a8ba93e690ea7be9566"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afca1b356e08b3b148700f6a6a376f75d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#afca1b356e08b3b148700f6a6a376f75d">get_device_info</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:afca1b356e08b3b148700f6a6a376f75d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#afca1b356e08b3b148700f6a6a376f75d">get_device_info</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:afca1b356e08b3b148700f6a6a376f75d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns information about the internal device with the given index number of the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#afca1b356e08b3b148700f6a6a376f75d">More...</a><br /></td></tr>
 <tr class="separator:afca1b356e08b3b148700f6a6a376f75d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf2b9beb3d929f848b7cde2be69146d4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#adf2b9beb3d929f848b7cde2be69146d4">load_config_file</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:adf2b9beb3d929f848b7cde2be69146d4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#adf2b9beb3d929f848b7cde2be69146d4">load_config_file</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:adf2b9beb3d929f848b7cde2be69146d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the given config file.  <a href="#adf2b9beb3d929f848b7cde2be69146d4">More...</a><br /></td></tr>
 <tr class="separator:adf2b9beb3d929f848b7cde2be69146d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a80f16241a6d3c08257a7c517d01eca5c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a80f16241a6d3c08257a7c517d01eca5c">get_device_advice</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:a80f16241a6d3c08257a7c517d01eca5c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a80f16241a6d3c08257a7c517d01eca5c">get_device_advice</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:a80f16241a6d3c08257a7c517d01eca5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a device on how to configure a given list of devices optimally.  <a href="#a80f16241a6d3c08257a7c517d01eca5c">More...</a><br /></td></tr>
 <tr class="separator:a80f16241a6d3c08257a7c517d01eca5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a369caf0e4d6d0ffa7677e1bee7e615fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a369caf0e4d6d0ffa7677e1bee7e615fc">get_files_at</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:a369caf0e4d6d0ffa7677e1bee7e615fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a369caf0e4d6d0ffa7677e1bee7e615fc">get_files_at</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:a369caf0e4d6d0ffa7677e1bee7e615fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns all files which are located on the given disk at the given position.  <a href="#a369caf0e4d6d0ffa7677e1bee7e615fc">More...</a><br /></td></tr>
 <tr class="separator:a369caf0e4d6d0ffa7677e1bee7e615fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8b3e8764b9a3115eacaf3e48b84eda8b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a8b3e8764b9a3115eacaf3e48b84eda8b">get_files_on_disk</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:a8b3e8764b9a3115eacaf3e48b84eda8b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a8b3e8764b9a3115eacaf3e48b84eda8b">get_files_on_disk</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:a8b3e8764b9a3115eacaf3e48b84eda8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns all files which are located on the given internal device of the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#a8b3e8764b9a3115eacaf3e48b84eda8b">More...</a><br /></td></tr>
 <tr class="separator:a8b3e8764b9a3115eacaf3e48b84eda8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a469a3fcaa601c69b38ce7452b11fcb95"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a469a3fcaa601c69b38ce7452b11fcb95">tdisk_post_create</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:a469a3fcaa601c69b38ce7452b11fcb95"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a469a3fcaa601c69b38ce7452b11fcb95">tdisk_post_create</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:a469a3fcaa601c69b38ce7452b11fcb95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runs the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> post create script which creates a filesystem, mounts it, creates a data folder (to hide lost+found) and returns the mount point.  <a href="#a469a3fcaa601c69b38ce7452b11fcb95">More...</a><br /></td></tr>
 <tr class="separator:a469a3fcaa601c69b38ce7452b11fcb95"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a422afafdf067a6c8b5c449b8062b66f2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a422afafdf067a6c8b5c449b8062b66f2">tdisk_pre_remove</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:a422afafdf067a6c8b5c449b8062b66f2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a422afafdf067a6c8b5c449b8062b66f2">tdisk_pre_remove</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:a422afafdf067a6c8b5c449b8062b66f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runs the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> pre remove script which just unmounts the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#a422afafdf067a6c8b5c449b8062b66f2">More...</a><br /></td></tr>
 <tr class="separator:a422afafdf067a6c8b5c449b8062b66f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7c72735345146dbc4180722ab3a577bf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a7c72735345146dbc4180722ab3a577bf">performance_improvement</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memitem:a7c72735345146dbc4180722ab3a577bf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a7c72735345146dbc4180722ab3a577bf">performance_improvement</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:a7c72735345146dbc4180722ab3a577bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the performance improvement in percent of the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> and lists the top 20 files with the highest performance improvement.  <a href="#a7c72735345146dbc4180722ab3a577bf">More...</a><br /></td></tr>
 <tr class="separator:a7c72735345146dbc4180722ab3a577bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a56173f63bab94b55847d97d5a805b869"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
@@ -587,9 +594,52 @@ Functions</h2></td></tr>
 <tr class="separator:afc2c685073017972854e7d65a8af794b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1e75f0becef00a320674d84d1b697bc0"><td class="memItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a1e75f0becef00a320674d84d1b697bc0">operator&lt;&lt;</a> (std::ostream &amp;out, const <a class="el" href="structtd_1_1LinkMetadata.html">LinkMetadata</a> &amp;file)</td></tr>
 <tr class="separator:a1e75f0becef00a320674d84d1b697bc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c012d964647005d4324bdf7c236aef6"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:a2c012d964647005d4324bdf7c236aef6"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a2c012d964647005d4324bdf7c236aef6">createResultString</a> (std::ostream &amp;ss, const <a class="el" href="classtd_1_1Fileshare.html">Fileshare</a> &amp;share, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a2c012d964647005d4324bdf7c236aef6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given <a class="el" href="classtd_1_1Fileshare.html" title="This class represents a samba fileshare. ">Fileshare</a> using the given format.  <a href="#a2c012d964647005d4324bdf7c236aef6">More...</a><br /></td></tr>
+<tr class="separator:a2c012d964647005d4324bdf7c236aef6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:accfbba3a4d5fd84b83a73f0c50efdd1a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1Options.html">Options</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#accfbba3a4d5fd84b83a73f0c50efdd1a">getDefaultFileshareOptions</a> ()</td></tr>
+<tr class="separator:accfbba3a4d5fd84b83a73f0c50efdd1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae2172d7f84fff3424cd5407dd3e1f2b2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#ae2172d7f84fff3424cd5407dd3e1f2b2">list_fileshares</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="separator:ae2172d7f84fff3424cd5407dd3e1f2b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1de615e42a54a6fea65bd020b6aa25a2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a1de615e42a54a6fea65bd020b6aa25a2">list_fileshare</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="separator:a1de615e42a54a6fea65bd020b6aa25a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa28c0a6342ff63c26f7f0eede25b9403"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#aa28c0a6342ff63c26f7f0eede25b9403">create</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="separator:aa28c0a6342ff63c26f7f0eede25b9403"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8136b03932e0a1e55088ef735e48fd89"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a8136b03932e0a1e55088ef735e48fd89">remove_fileshare</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="separator:a8136b03932e0a1e55088ef735e48fd89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad87f4ac2076ce21a59e148f614d51930"><td class="memItemLeft" align="right" valign="top">static std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#ad87f4ac2076ce21a59e148f614d51930">endSequenceLength</a> ()</td></tr>
+<tr class="memdesc:ad87f4ac2076ce21a59e148f614d51930"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the length of the end sequence.  <a href="#ad87f4ac2076ce21a59e148f614d51930">More...</a><br /></td></tr>
+<tr class="separator:ad87f4ac2076ce21a59e148f614d51930"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92fede7de02570e5d7fdd2d5b4f7935d"><td class="memItemLeft" align="right" valign="top">static std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a92fede7de02570e5d7fdd2d5b4f7935d">hashSequenceLength</a> ()</td></tr>
+<tr class="memdesc:a92fede7de02570e5d7fdd2d5b4f7935d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the length of the hash sequence.  <a href="#a92fede7de02570e5d7fdd2d5b4f7935d">More...</a><br /></td></tr>
+<tr class="separator:a92fede7de02570e5d7fdd2d5b4f7935d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af48295ffa4f7b6a3e2be834c82c64a97"><td class="memItemLeft" align="right" valign="top">static std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#af48295ffa4f7b6a3e2be834c82c64a97">hashMatchesSequenceLength</a> ()</td></tr>
+<tr class="memdesc:af48295ffa4f7b6a3e2be834c82c64a97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the length of the hash matches sequence.  <a href="#af48295ffa4f7b6a3e2be834c82c64a97">More...</a><br /></td></tr>
+<tr class="separator:af48295ffa4f7b6a3e2be834c82c64a97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a158b8cac49abeedc3bf81afc491b75fe"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="classtd_1_1Serialport.html#a84535a180500799d9fb11176a2972505">Serialport::Baud</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a158b8cac49abeedc3bf81afc491b75fe">default_baud</a> = <a class="el" href="classtd_1_1Serialport.html#a84535a180500799d9fb11176a2972505ac6489bbe11486d6aad1042189e7e2685">Serialport::Baud_2400</a></td></tr>
+<tr class="memdesc:a158b8cac49abeedc3bf81afc491b75fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">The default baud rate which is used for serial port communication.  <a href="#a158b8cac49abeedc3bf81afc491b75fe">More...</a><br /></td></tr>
+<tr class="separator:a158b8cac49abeedc3bf81afc491b75fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afbd3fb3d993728df2551893c876ee10b"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="classtd_1_1Serialport.html#a328e62d3e556e11eb030428d22d8d2c5">Serialport::Parity</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#afbd3fb3d993728df2551893c876ee10b">default_parity</a> = <a class="el" href="classtd_1_1Serialport.html#a328e62d3e556e11eb030428d22d8d2c5a9256c08e7ceff81863c9fd6b8eb44d22">Serialport::EvenParity</a></td></tr>
+<tr class="memdesc:afbd3fb3d993728df2551893c876ee10b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The default parity which is used for serial port communication.  <a href="#afbd3fb3d993728df2551893c876ee10b">More...</a><br /></td></tr>
+<tr class="separator:afbd3fb3d993728df2551893c876ee10b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9b784f3e9a02a5317bf5859cc2d3df0"><td class="memItemLeft" align="right" valign="top">static constexpr const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#ac9b784f3e9a02a5317bf5859cc2d3df0">endSequence</a> [] = &quot;&lt;[[[[end-of-serial-<a class="el" href="backend_2serial_2src_2main_8cpp.html#ac0986528ca5e5b4e8c5383fe5c3d4bee">request</a>]]]]&gt;\n&quot;</td></tr>
+<tr class="memdesc:ac9b784f3e9a02a5317bf5859cc2d3df0"><td class="mdescLeft">&#160;</td><td class="mdescRight">The char secuence which is used to mark the end of a serial port communication.  <a href="#ac9b784f3e9a02a5317bf5859cc2d3df0">More...</a><br /></td></tr>
+<tr class="separator:ac9b784f3e9a02a5317bf5859cc2d3df0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa0a8a191b811007427a13f57d9c7012"><td class="memItemLeft" align="right" valign="top">static constexpr const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#aaa0a8a191b811007427a13f57d9c7012">hashSequence</a> [] = &quot;&lt;[[[[serial-<a class="el" href="backend_2serial_2src_2main_8cpp.html#ac0986528ca5e5b4e8c5383fe5c3d4bee">request</a>-hash]]]]&gt;\n&quot;</td></tr>
+<tr class="memdesc:aaa0a8a191b811007427a13f57d9c7012"><td class="mdescLeft">&#160;</td><td class="mdescRight">This char sequence is used as a delimiter to signal the end of the hash sequence and the beginning of the request.  <a href="#aaa0a8a191b811007427a13f57d9c7012">More...</a><br /></td></tr>
+<tr class="separator:aaa0a8a191b811007427a13f57d9c7012"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86076608bf6665bf56352ee5ef69fc06"><td class="memItemLeft" align="right" valign="top">static constexpr const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a86076608bf6665bf56352ee5ef69fc06">hashMatchesSequence</a> [] = &quot;&lt;[[[[serial-<a class="el" href="backend_2serial_2src_2main_8cpp.html#ac0986528ca5e5b4e8c5383fe5c3d4bee">request</a>-hash-matches]]]]&gt;\n&quot;</td></tr>
+<tr class="memdesc:a86076608bf6665bf56352ee5ef69fc06"><td class="mdescLeft">&#160;</td><td class="mdescRight">This char sequence is used to signal that the hashes match.  <a href="#a86076608bf6665bf56352ee5ef69fc06">More...</a><br /></td></tr>
+<tr class="separator:a86076608bf6665bf56352ee5ef69fc06"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p><a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> backend </p>
+<p><a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> backend serial</p>
+<p><a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> backend share</p>
 <dl class="section author"><dt>Author</dt><dd>Thomas Sparber (2015-2016)</dd></dl>
 <p>This file contains the interface definitions for the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> backend. It is possible to perform all major <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> tasks using the following functions</p>
 <dl class="section author"><dt>Author</dt><dd>Thomas Sparber (2015-2016) </dd></dl>
@@ -1380,6 +1430,32 @@ template&lt;c::nl_tdisk_attr type, class T , class... Args&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="aa28c0a6342ff63c26f7f0eede25b9403"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a> td::create </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>args</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtd_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="addf66141f7b0e51a5a1e60fe9abf26b6"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1747,6 +1823,56 @@ template&lt;&gt; </div>
 </div><div class="memdoc">
 
 <p>Stringifies a <a class="el" href="structtd_1_1fs_1_1Device.html" title="This struct is used by the DeviceAdvisor to create device advices. ">td::fs::Device</a> with the given format. </p>
+
+</div>
+</div>
+<a class="anchor" id="a2c012d964647005d4324bdf7c236aef6"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void td::createResultString </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>ss</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classtd_1_1Fileshare.html">Fileshare</a> &amp;&#160;</td>
+          <td class="paramname"><em>share</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>hierarchy</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const utils::ci_string &amp;&#160;</td>
+          <td class="paramname"><em>outputFormat</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Stringifies the given <a class="el" href="classtd_1_1Fileshare.html" title="This class represents a samba fileshare. ">Fileshare</a> using the given format. </p>
 
 </div>
 </div>
@@ -3714,6 +3840,31 @@ template&lt;class... T&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="ad87f4ac2076ce21a59e148f614d51930"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static std::size_t td::endSequenceLength </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the length of the end sequence. </p>
+
+</div>
+</div>
 <a class="anchor" id="a5487839ede66160cab94cbe56e5a47c6"></a>
 <div class="memitem">
 <div class="memproto">
@@ -4559,6 +4710,21 @@ template&lt;class T , class... V&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="accfbba3a4d5fd84b83a73f0c50efdd1a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtd_1_1Options.html">Options</a> td::getDefaultFileshareOptions </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a9fa30a8bfe17cbfd18c4b7be2f644332"></a>
 <div class="memitem">
 <div class="memproto">
@@ -4818,6 +4984,56 @@ template&lt;c::nl_tdisk_attr type, class T , class... Args&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="af48295ffa4f7b6a3e2be834c82c64a97"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static std::size_t td::hashMatchesSequenceLength </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the length of the hash matches sequence. </p>
+
+</div>
+</div>
+<a class="anchor" id="a92fede7de02570e5d7fdd2d5b4f7935d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static std::size_t td::hashSequenceLength </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the length of the hash sequence. </p>
+
+</div>
+</div>
 <a class="anchor" id="aab6195e30aa1ff85344d59f4f5b8c8ff"></a>
 <div class="memitem">
 <div class="memproto">
@@ -4851,6 +5067,58 @@ template&lt;c::nl_tdisk_attr type, class T , class... Args&gt; </div>
 </div><div class="memdoc">
 
 <p>Writes count-amount tabs to the ostream. </p>
+
+</div>
+</div>
+<a class="anchor" id="a1de615e42a54a6fea65bd020b6aa25a2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a> td::list_fileshare </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>args</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtd_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ae2172d7f84fff3424cd5407dd3e1f2b2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a> td::list_fileshares </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>args</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtd_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -5083,6 +5351,32 @@ template&lt;c::nl_tdisk_attr type, class T , class... Args&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The performance imrpovement of the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8136b03932e0a1e55088ef735e48fd89"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a> td::remove_fileshare </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>args</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtd_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -5324,10 +5618,105 @@ template&lt;class... Args&gt; </div>
 
 </div>
 </div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a class="anchor" id="a158b8cac49abeedc3bf81afc491b75fe"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="classtd_1_1Serialport.html#a84535a180500799d9fb11176a2972505">Serialport::Baud</a> td::default_baud = <a class="el" href="classtd_1_1Serialport.html#a84535a180500799d9fb11176a2972505ac6489bbe11486d6aad1042189e7e2685">Serialport::Baud_2400</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The default baud rate which is used for serial port communication. </p>
+
+</div>
+</div>
+<a class="anchor" id="afbd3fb3d993728df2551893c876ee10b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="classtd_1_1Serialport.html#a328e62d3e556e11eb030428d22d8d2c5">Serialport::Parity</a> td::default_parity = <a class="el" href="classtd_1_1Serialport.html#a328e62d3e556e11eb030428d22d8d2c5a9256c08e7ceff81863c9fd6b8eb44d22">Serialport::EvenParity</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The default parity which is used for serial port communication. </p>
+
+</div>
+</div>
+<a class="anchor" id="ac9b784f3e9a02a5317bf5859cc2d3df0"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr const char td::endSequence[] = &quot;&lt;[[[[end-of-serial-<a class="el" href="backend_2serial_2src_2main_8cpp.html#ac0986528ca5e5b4e8c5383fe5c3d4bee">request</a>]]]]&gt;\n&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The char secuence which is used to mark the end of a serial port communication. </p>
+
+</div>
+</div>
+<a class="anchor" id="a86076608bf6665bf56352ee5ef69fc06"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr const char td::hashMatchesSequence[] = &quot;&lt;[[[[serial-<a class="el" href="backend_2serial_2src_2main_8cpp.html#ac0986528ca5e5b4e8c5383fe5c3d4bee">request</a>-hash-matches]]]]&gt;\n&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>This char sequence is used to signal that the hashes match. </p>
+
+</div>
+</div>
+<a class="anchor" id="aaa0a8a191b811007427a13f57d9c7012"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr const char td::hashSequence[] = &quot;&lt;[[[[serial-<a class="el" href="backend_2serial_2src_2main_8cpp.html#ac0986528ca5e5b4e8c5383fe5c3d4bee">request</a>-hash]]]]&gt;\n&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>This char sequence is used as a delimiter to signal the end of the hash sequence and the beginning of the request. </p>
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jul 7 2016 17:07:37 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jul 7 2016 17:20:38 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

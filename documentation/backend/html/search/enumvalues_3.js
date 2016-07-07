@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['f_5finternal_5fdevice_5ftype_5ffile',['f_internal_device_type_file',['../tdisk_8h.html#ad7dd78dd16267ddee8d0dfd653efd7faa859d2e7df17bbf279c14541eabf97069',1,'f_internal_device_type_file():&#160;tdisk.h'],['../namespacetd_1_1c.html#a0595c5df146e74a280b863ead5823300ac4f56648f5a518b282408054e25a9ed6',1,'td::c::f_internal_device_type_file()']]],
-  ['f_5finternal_5fdevice_5ftype_5fplugin',['f_internal_device_type_plugin',['../tdisk_8h.html#ad7dd78dd16267ddee8d0dfd653efd7faa14d5efa37decc8df2e437fb30e5ac1e2',1,'f_internal_device_type_plugin():&#160;tdisk.h'],['../namespacetd_1_1c.html#a0595c5df146e74a280b863ead5823300af433c6d7700dbc02d0beb63e1b64e68c',1,'td::c::f_internal_device_type_plugin()']]]
+  ['error',['Error',['../namespacetd.html#ad4f9fce860c758179b4ac9795bc61785a902b0d55fddef6f8d651fe1035b7d4bd',1,'td::Error()'],['../namespacetd.html#ab6d56c57b1af7153726f089ae7de6c1aacb5e100e5a9a3e7f6d1fd97512215282',1,'td::error()']]],
+  ['evenparity',['EvenParity',['../classtd_1_1Serialport.html#a328e62d3e556e11eb030428d22d8d2c5a9256c08e7ceff81863c9fd6b8eb44d22',1,'td::Serialport']]]
 ];

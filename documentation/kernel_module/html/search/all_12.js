@@ -45,7 +45,6 @@ var searchData=
   ['tdisk',['tdisk',['../tdisk_8h.html#structtdisk',1,'']]],
   ['tdisk_2ec',['tdisk.c',['../tdisk_8c.html',1,'']]],
   ['tdisk_2eh',['tdisk.h',['../tdisk_8h.html',1,'']]],
-  ['tdisk_2emod_2ec',['tdisk.mod.c',['../tdisk_8mod_8c.html',1,'']]],
   ['tdisk_5fadd',['tdisk_add',['../tdisk_8c.html#ac5a1a034d21544116d4c09c993462376',1,'tdisk_add(struct tdisk **t, int i, unsigned int blocksize):&#160;tdisk.c'],['../tdisk_8h.html#a1948aee6b84a82a54fabc7d83af6d278',1,'tdisk_add(struct tdisk **td, int i, unsigned int blocksize):&#160;tdisk.c']]],
   ['tdisk_5fadd_5fdisk',['TDISK_ADD_DISK',['../interface_8h.html#a84ac29bd7c2a6ebf2af67331caf4ffa7',1,'interface.h']]],
   ['tdisk_5fadd_5fparameters',['tdisk_add_parameters',['../interface_8h.html#structtdisk__add__parameters',1,'']]],

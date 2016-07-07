@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['baud',['baud',['../classtd_1_1Serialport.html#af8ce7e85b220bb931f319c187f3a6c3c',1,'td::Serialport']]],
   ['blockdevice',['blockdevice',['../structtd_1_1fs_1_1device__type.html#a5e3ef6a201883e14dcc2b74cd44b996d',1,'td::fs::device_type']]],
   ['blockdevice_5fpart',['blockdevice_part',['../structtd_1_1fs_1_1device__type.html#ab93087eff2848b6d001ee9b8114d5112',1,'td::fs::device_type']]],
   ['blocksize',['blocksize',['../structtd_1_1configuration_1_1tdisk__config.html#a0f6edff08349ae5c630aa516a2b5e022',1,'td::configuration::tdisk_config::blocksize()'],['../classtd_1_1DropboxTDisk.html#ad5a51ca95192d4b97a7fbf0e09fbefc5',1,'td::DropboxTDisk::blocksize()']]],

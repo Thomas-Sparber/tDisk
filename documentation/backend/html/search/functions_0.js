@@ -15,6 +15,8 @@ var searchData=
   ['age',['age',['../classtd_1_1WriteBuffer.html#adec480355be7e79d21fa94456f4ba9a5',1,'td::WriteBuffer']]],
   ['append',['append',['../classtd_1_1WriteBuffer.html#a3575ac443bf95257df77a9d1e6265cf6',1,'td::WriteBuffer']]],
   ['arg',['Arg',['../structtd_1_1Arg.html#a6a9149bd1a4d1592ebca3fac64aec049',1,'td::Arg']]],
+  ['askinputquestion',['askInputQuestion',['../input__processor_8hpp.html#a809f920152780c26ff8f7c46ac3423b8',1,'input_processor.hpp']]],
+  ['askremaininginputquestions',['askRemainingInputQuestions',['../input__processor_8hpp.html#a73feb6b4cbf3d4e783134e94ce545e95',1,'input_processor.hpp']]],
   ['asstring',['asString',['../structtd_1_1IndividualResult.html#ad5cdc4e5da7ad7faccd71986eeb2ed89',1,'td::IndividualResult']]],
   ['authorize_5furl',['authorize_url',['../dropbox_8cpp.html#a48414010cb3dc24175c39719e1e0a564',1,'dropbox.cpp']]]
 ];

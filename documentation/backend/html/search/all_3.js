@@ -1,8 +1,13 @@
 var searchData=
 [
   ['data',['data',['../structtd_1_1HistoryElement.html#a02b5880af8a56e99dce6907de9064180',1,'td::HistoryElement']]],
+  ['dbtables',['dbTables',['../serialport_8cpp.html#ac5c057744388d0ce5647b5c1a61b141c',1,'serialport.cpp']]],
+  ['dcbserialparams',['dcbSerialParams',['../serialport__windows_8cpp.html#a6ed0b6e3b9f641f351e69b38fa475506',1,'Connection']]],
   ['debug',['debug',['../namespacetd.html#ab6d56c57b1af7153726f089ae7de6c1aaad42f6697b035b7580e4fef93be20b4d',1,'td']]],
-  ['description',['description',['../structCommand.html#a886370aa7aa05e7afcd3a4a33fffa4f6',1,'Command::description()'],['../classtd_1_1Option.html#a3a3adb85aabe3d4b69ff55c094499a48',1,'td::Option::description()']]],
+  ['default_5fbaud',['default_baud',['../namespacetd.html#a158b8cac49abeedc3bf81afc491b75fe',1,'td']]],
+  ['default_5fparity',['default_parity',['../namespacetd.html#afbd3fb3d993728df2551893c876ee10b',1,'td']]],
+  ['defaultvalue',['defaultValue',['../structInputDefinition.html#a19473c4cdaa591e4c94707fb6d001f11',1,'InputDefinition']]],
+  ['description',['description',['../structCommand.html#a886370aa7aa05e7afcd3a4a33fffa4f6',1,'Command::description()'],['../classtd_1_1Option.html#a3a3adb85aabe3d4b69ff55c094499a48',1,'td::Option::description()'],['../classtd_1_1Fileshare.html#a351a0a42b7e16b7f1f4715723a0a3f66',1,'td::Fileshare::description()']]],
   ['device',['Device',['../structtd_1_1fs_1_1Device.html',1,'td::fs']]],
   ['device',['Device',['../structtd_1_1fs_1_1Device.html#a64ba12dcc5f4267486c5d545d04dcf68',1,'td::fs::Device']]],
   ['device_2ecpp',['device.cpp',['../device_8cpp.html',1,'']]],
@@ -19,6 +24,7 @@ var searchData=
   ['diskfreespaceresult',['DiskFreeSpaceResult',['../namespacetd_1_1shell.html#a4618bf7f26a7588f70dc80c67b39aff5',1,'td::shell']]],
   ['display_5fname',['display_name',['../structtd_1_1AccountInfo.html#a9870468985784318fc162cc01c1b4783',1,'td::AccountInfo']]],
   ['dolog',['doLog',['../namespacetd.html#a18d7676c529cf4d85efde56ee5a06b71',1,'td']]],
+  ['dotests',['doTests',['../io-verify-files_8cpp.html#a7fdcd414fd7fde06d24233e7414d615e',1,'doTests():&#160;io-verify-files.cpp'],['../io-verify_8cpp.html#a7fdcd414fd7fde06d24233e7414d615e',1,'doTests():&#160;io-verify.cpp'],['../random-ios_8cpp.html#a7fdcd414fd7fde06d24233e7414d615e',1,'doTests():&#160;random-ios.cpp']]],
   ['downloadfile',['downloadFile',['../classtd_1_1Dropbox.html#a048dab182b6a02e161e535f4796aca1d',1,'td::Dropbox']]],
   ['driver',['driver',['../namespacetd.html#a237f2606ff159d0ea9eb909245b6ccb6ae2d45d57c7e2941b65c6ccd64af4223e',1,'td']]],
   ['dropbox',['Dropbox',['../classtd_1_1Dropbox.html',1,'td']]],
@@ -26,14 +32,13 @@ var searchData=
   ['dropbox_2ecpp',['dropbox.cpp',['../dropbox_8cpp.html',1,'']]],
   ['dropbox_2ed',['dropbox.d',['../dropbox_8d.html',1,'']]],
   ['dropbox_2ehpp',['dropbox.hpp',['../dropbox_8hpp.html',1,'']]],
-  ['dropboxexception',['DropboxException',['../structtd_1_1DropboxException.html#a1f2458a8c647da0cdb8b0e5b95033910',1,'td::DropboxException']]],
   ['dropboxexception',['DropboxException',['../structtd_1_1DropboxException.html',1,'td']]],
+  ['dropboxexception',['DropboxException',['../structtd_1_1DropboxException.html#a1f2458a8c647da0cdb8b0e5b95033910',1,'td::DropboxException']]],
   ['dropboxexception_2ehpp',['dropboxexception.hpp',['../dropboxexception_8hpp.html',1,'']]],
   ['dropboxhistory',['dropboxHistory',['../classtd_1_1DropboxTDisk.html#a9f2e103888b10d9f04ed20e8a3e2b6fa',1,'td::DropboxTDisk']]],
   ['dropboxtdisk',['DropboxTDisk',['../classtd_1_1DropboxTDisk.html#a8b8a503e43c3d376ebce9a3d8cd068d2',1,'td::DropboxTDisk::DropboxTDisk(const std::string &amp;tDiskPath, unsigned int blocksize, unsigned long long size, unsigned int maxHistoryBuffer=10)'],['../classtd_1_1DropboxTDisk.html#ac8e0cb6c2387e401299ce2ea4a3a3421',1,'td::DropboxTDisk::DropboxTDisk(const std::string &amp;accessToken, const std::string &amp;tDiskPath, unsigned int blocksize, unsigned long long size, unsigned int maxHistoryBuffer=10)']]],
   ['dropboxtdisk',['DropboxTDisk',['../classtd_1_1DropboxTDisk.html',1,'td']]],
   ['dropboxtdisk_2ecpp',['dropboxtdisk.cpp',['../dropboxtdisk_8cpp.html',1,'']]],
   ['dropboxtdisk_2ed',['dropboxtdisk.d',['../dropboxtdisk_8d.html',1,'']]],
-  ['dropboxtdisk_2ehpp',['dropboxtdisk.hpp',['../dropboxtdisk_8hpp.html',1,'']]],
-  ['main_2ed',['main.d',['../dropbox_2bin_2main_8d.html',1,'']]]
+  ['dropboxtdisk_2ehpp',['dropboxtdisk.hpp',['../dropboxtdisk_8hpp.html',1,'']]]
 ];

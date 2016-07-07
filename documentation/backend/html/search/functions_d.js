@@ -8,7 +8,8 @@ var searchData=
   ['pluginexception',['PluginException',['../structtd_1_1PluginException.html#ae5a843a8c0ab2cb3e330dd663cab63a8',1,'td::PluginException']]],
   ['poll',['poll',['../classtd_1_1Plugin.html#a8eb09f94e4ec659633d6bdc6f91b9bb7',1,'td::Plugin']]],
   ['postdropboxsite',['postDropboxSite',['../classtd_1_1Dropbox.html#a211b723953d921b9622a00969f1ea016',1,'td::Dropbox']]],
-  ['printhelp',['printHelp',['../src_2main_8cpp.html#a0d20b69b0ad703df78459e1033d5c1d4',1,'main.cpp']]],
+  ['printhelp',['printHelp',['../backend_2src_2main_8cpp.html#a0d20b69b0ad703df78459e1033d5c1d4',1,'printHelp():&#160;main.cpp'],['../backend_2share_2src_2main_8cpp.html#a0d20b69b0ad703df78459e1033d5c1d4',1,'printHelp():&#160;main.cpp']]],
+  ['printusage',['printUsage',['../backend_2serial_2src_2main_8cpp.html#a4622bfe969a0480a36085565ee595996',1,'main.cpp']]],
   ['process',['process',['../classtd_1_1configuration.html#a44ed68ceb2d0122612fcc543c7556741',1,'td::configuration']]],
   ['putdropboxsite',['putDropboxSite',['../classtd_1_1Dropbox.html#a47bd0c773e4ce46031ba481ae2c32b78',1,'td::Dropbox']]]
 ];

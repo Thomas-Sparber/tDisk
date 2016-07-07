@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['error',['Error',['../namespacetd.html#ad4f9fce860c758179b4ac9795bc61785a902b0d55fddef6f8d651fe1035b7d4bd',1,'td::Error()'],['../namespacetd.html#ab6d56c57b1af7153726f089ae7de6c1aacb5e100e5a9a3e7f6d1fd97512215282',1,'td::error()']]]
+  ['debug',['debug',['../namespacetd.html#ab6d56c57b1af7153726f089ae7de6c1aaad42f6697b035b7580e4fef93be20b4d',1,'td']]],
+  ['driver',['driver',['../namespacetd.html#a237f2606ff159d0ea9eb909245b6ccb6ae2d45d57c7e2941b65c6ccd64af4223e',1,'td']]]
 ];

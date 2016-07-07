@@ -2,6 +2,7 @@ var searchData=
 [
   ['empty',['empty',['../classtd_1_1shell_1_1ShellResult.html#a67da1bb04bd40440d8deab7d10da951e',1,'td::shell::ShellResult::empty()'],['../classtd_1_1WriteBuffer.html#a71a91cb80a2efbac83ecdec6f9744160',1,'td::WriteBuffer::empty()']]],
   ['end',['end',['../classtd_1_1shell_1_1ShellResult.html#a267b9a2d5e0e8383d9f83f0cea7c0b82',1,'td::shell::ShellResult']]],
+  ['endsequencelength',['endSequenceLength',['../namespacetd.html#ad87f4ac2076ce21a59e148f614d51930',1,'td']]],
   ['error',['error',['../classtd_1_1BackendResult.html#a1b90477bc30e8ad881c7f9d741b70bfa',1,'td::BackendResult::error(BackendResultType type, const std::string &amp;e)'],['../classtd_1_1BackendResult.html#a145612138e98b8e3ab40fa4582a75f72',1,'td::BackendResult::error(BackendResultType type) const ']]],
   ['errorcode',['errorCode',['../classtd_1_1BackendResult.html#a1c1341c093805782e8e646b9e4ff24f6',1,'td::BackendResult::errorCode() const '],['../classtd_1_1BackendResult.html#aa4c2ce2a51b61544fb83c54335f27fde',1,'td::BackendResult::errorCode(BackendResultType type) const ']]],
   ['errors',['errors',['../classtd_1_1BackendResult.html#ae647235c9fac23cf3b89c4b21f4e2b27',1,'td::BackendResult']]],

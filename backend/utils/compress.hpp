@@ -15,6 +15,9 @@
 namespace td
 {
 
+	/**
+	  * Compresses the given string using the zlib algorithm
+	 **/
 	inline bool compress(const char *in, std::size_t length, std::vector<char> &out, int level=Z_BEST_COMPRESSION, std::size_t resize=1024)
 	{
 		out = std::vector<char>(0);
@@ -52,16 +55,25 @@ namespace td
 		return true;
 	}
 
+	/**
+	  * Compresses the given string using the zlib algorithm
+	 **/
 	inline bool compress(const std::string &in, std::vector<char> &out, int level=Z_BEST_COMPRESSION, std::size_t resize=1024)
 	{
 		return compress(in.c_str(), in.length(), out, level, resize);
 	}
 
+	/**
+	  * Compresses the given string using the zlib algorithm
+	 **/
 	inline bool compress(const std::vector<char> &in, std::vector<char> &out, int level=Z_BEST_COMPRESSION, std::size_t resize=1024)
 	{
 		return compress(&in[0], in.size(), out, level, resize);
 	}
 
+	/**
+	  * Compresses the given string using the zlib algorithm
+	 **/
 	inline std::vector<char> compress(const char *in, std::size_t length, int level=Z_BEST_COMPRESSION, std::size_t resize=1024)
 	{
 		std::vector<char> ret;
@@ -69,6 +81,9 @@ namespace td
 		return std::move(ret);
 	}
 
+	/**
+	  * Compresses the given string using the zlib algorithm
+	 **/
 	inline std::vector<char> compress(const std::string &in, int level=Z_BEST_COMPRESSION, std::size_t resize=1024)
 	{
 		std::vector<char> ret;
@@ -76,6 +91,9 @@ namespace td
 		return std::move(ret);
 	}
 
+	/**
+	  * Compresses the given string using the zlib algorithm
+	 **/
 	inline std::vector<char> compress(const std::vector<char> &in, int level=Z_BEST_COMPRESSION, std::size_t resize=1024)
 	{
 		std::vector<char> ret;
@@ -83,6 +101,9 @@ namespace td
 		return std::move(ret);
 	}
 
+	/**
+	  * Decompresses the given string using the zlib algorithm
+	 **/
 	inline bool decompress(const char *in, std::size_t length, std::vector<char> &out, std::size_t resize=1024)
 	{
 		out = std::vector<char>(0);
@@ -130,6 +151,9 @@ namespace td
 		return (ret == Z_STREAM_END);
 	}
 
+	/**
+	  * Decompresses the given string using the zlib algorithm
+	 **/
 	inline std::vector<char> decompress(const char *in, std::size_t length, std::size_t resize=1024)
 	{
 		std::vector<char> ret;
@@ -137,6 +161,9 @@ namespace td
 		return std::move(ret);
 	}
 
+	/**
+	  * Decompresses the given string using the zlib algorithm
+	 **/
 	inline std::vector<char> decompress(const std::string &in, std::size_t resize=1024)
 	{
 		std::vector<char> ret;
@@ -144,6 +171,9 @@ namespace td
 		return std::move(ret);
 	}
 
+	/**
+	  * Decompresses the given string using the zlib algorithm
+	 **/
 	inline std::vector<char> decompress(const std::vector<char> &in, std::size_t resize=1024)
 	{
 		std::vector<char> ret;

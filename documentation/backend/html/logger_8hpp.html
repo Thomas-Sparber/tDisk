@@ -108,6 +108,7 @@ Namespaces</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
 <tr class="memitem:acaa1c3fa56061380a29889d703236251"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="logger_8hpp.html#acaa1c3fa56061380a29889d703236251">LOG</a>(level, ...)&#160;&#160;&#160;doLog(__FILE__, __LINE__, level, __VA_ARGS__)</td></tr>
+<tr class="memdesc:acaa1c3fa56061380a29889d703236251"><td class="mdescLeft">&#160;</td><td class="mdescRight">This macro shluld be the main function for logging.  <a href="#acaa1c3fa56061380a29889d703236251">More...</a><br /></td></tr>
 <tr class="separator:acaa1c3fa56061380a29889d703236251"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
@@ -116,19 +117,24 @@ Enumerations</h2></td></tr>
 <a class="el" href="namespacetd.html#ab6d56c57b1af7153726f089ae7de6c1aacaf9b6b99962bf5c2264824231d7a40c">td::LogLevel::info</a> = 2, 
 <a class="el" href="namespacetd.html#ab6d56c57b1af7153726f089ae7de6c1aa1ea4c3ab05ee0c6d4de30740443769cb">td::LogLevel::warn</a> = 3, 
 <a class="el" href="namespacetd.html#ab6d56c57b1af7153726f089ae7de6c1aacb5e100e5a9a3e7f6d1fd97512215282">td::LogLevel::error</a> = 4
- }</td></tr>
+ }<tr class="memdesc:ab6d56c57b1af7153726f089ae7de6c1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">This enum defines the different log levels.  <a href="namespacetd.html#ab6d56c57b1af7153726f089ae7de6c1a">More...</a><br /></td></tr>
+</td></tr>
 <tr class="separator:ab6d56c57b1af7153726f089ae7de6c1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a17f0005e023c923ec7350800a5dba9c2"><td class="memItemLeft" align="right" valign="top">LogLevel &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a17f0005e023c923ec7350800a5dba9c2">td::logLevel</a> ()</td></tr>
+<tr class="memdesc:a17f0005e023c923ec7350800a5dba9c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the current log level.  <a href="namespacetd.html#a17f0005e023c923ec7350800a5dba9c2">More...</a><br /></td></tr>
 <tr class="separator:a17f0005e023c923ec7350800a5dba9c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a48db95bf42ee6d682a27dea33463b5cd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a48db95bf42ee6d682a27dea33463b5cd">td::setLogLevel</a> (LogLevel level)</td></tr>
+<tr class="memdesc:a48db95bf42ee6d682a27dea33463b5cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the current log level.  <a href="namespacetd.html#a48db95bf42ee6d682a27dea33463b5cd">More...</a><br /></td></tr>
 <tr class="separator:a48db95bf42ee6d682a27dea33463b5cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f1d81b056a68e755f3c9a950682001f"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a6f1d81b056a68e755f3c9a950682001f">td::logLevelString</a> (LogLevel level)</td></tr>
+<tr class="memdesc:a6f1d81b056a68e755f3c9a950682001f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the string representation of the given loglevel.  <a href="namespacetd.html#a6f1d81b056a68e755f3c9a950682001f">More...</a><br /></td></tr>
 <tr class="separator:a6f1d81b056a68e755f3c9a950682001f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a18d7676c529cf4d85efde56ee5a06b71"><td class="memTemplParams" colspan="2">template&lt;class... T&gt; </td></tr>
 <tr class="memitem:a18d7676c529cf4d85efde56ee5a06b71"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a18d7676c529cf4d85efde56ee5a06b71">td::doLog</a> (const char *file, int line, LogLevel level, const T &amp;...t)</td></tr>
+<tr class="memdesc:a18d7676c529cf4d85efde56ee5a06b71"><td class="mdescLeft">&#160;</td><td class="mdescRight">This variadic function does the actual logging to std::cerr.  <a href="namespacetd.html#a18d7676c529cf4d85efde56ee5a06b71">More...</a><br /></td></tr>
 <tr class="separator:a18d7676c529cf4d85efde56ee5a06b71"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
@@ -156,12 +162,15 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>This macro shluld be the main function for logging. </p>
+<p>it calls doLog with the correct filename and line number </p>
+
 </div>
 </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jul 7 2016 17:06:03 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jul 7 2016 17:07:36 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

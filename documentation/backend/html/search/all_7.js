@@ -1,7 +1,7 @@
 var searchData=
 [
   ['handlecommand',['handleCommand',['../src_2main_8cpp.html#ae7b60687f9a56b930da6bde0c1d77813',1,'main.cpp']]],
-  ['handleerror',['handleError',['../classtd_1_1tDisk.html#a3ad31b40c6ff1bde28344feef63de522',1,'td::tDisk::handleError()'],['../classtd_1_1Dropbox.html#a5e529d9d73b4353fc31da8b215303a07',1,'td::Dropbox::handleError()']]],
+  ['handleerror',['handleError',['../classtd_1_1Dropbox.html#a5e529d9d73b4353fc31da8b215303a07',1,'td::Dropbox::handleError()'],['../tdisk_8cpp.html#ae99e8814d5c3fe4bb9342b4ac7dca8c8',1,'handleError():&#160;tdisk.cpp']]],
   ['hash',['hash',['../structtd_1_1FileMetadata.html#a1bb8de3ed66351f7340deca7fea66791',1,'td::FileMetadata::hash()'],['../structtd_1_1LinkMetadata.html#adb48ca079e1dfc57cb37e9019a324e38',1,'td::LinkMetadata::hash()']]],
   ['haspredefinedvalues',['hasPredefinedValues',['../classtd_1_1Option.html#ae44d4bd4878da4141edf0714f6ac99a0',1,'td::Option']]],
   ['history',['history',['../classtd_1_1HistoryBuffer.html#a7e6e5bf0beba1ee97648cc8e4ed77091',1,'td::HistoryBuffer::history()'],['../classtd_1_1Plugin.html#a03725de5fcc8f606158177a5dfc02e1e',1,'td::Plugin::history()']]],

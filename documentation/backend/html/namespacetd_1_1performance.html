@@ -92,26 +92,37 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">td::performance Namespace Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>This namespace contains data structures and functions to measure the performance of some parts of the code.  
+<a href="#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtd_1_1performance_1_1PerformanceIndex.html">PerformanceIndex</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The <a class="el" href="structtd_1_1performance_1_1PerformanceIndex.html" title="The PerformanceIndex is identified by a section name and the thread id and is used to match performan...">PerformanceIndex</a> is identified by a section name and the thread id and is used to match performance measure points.  <a href="structtd_1_1performance_1_1PerformanceIndex.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a2b86af9c16b1d4cf36a66ba52623b466"><td class="memItemLeft" align="right" valign="top">bool &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1performance.html#a2b86af9c16b1d4cf36a66ba52623b466">measurePerformance</a> ()</td></tr>
+<tr class="memdesc:a2b86af9c16b1d4cf36a66ba52623b466"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks whether performance measures are enabled or not.  <a href="#a2b86af9c16b1d4cf36a66ba52623b466">More...</a><br /></td></tr>
 <tr class="separator:a2b86af9c16b1d4cf36a66ba52623b466"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a29f81fefcc12726b9c1862381e1a9298"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1performance.html#a29f81fefcc12726b9c1862381e1a9298">setMeasurePerformance</a> (bool measure)</td></tr>
+<tr class="memdesc:a29f81fefcc12726b9c1862381e1a9298"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enables of disables performance measurement.  <a href="#a29f81fefcc12726b9c1862381e1a9298">More...</a><br /></td></tr>
 <tr class="separator:a29f81fefcc12726b9c1862381e1a9298"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae0f93ac8b253a4b0739a393cccc81e83"><td class="memItemLeft" align="right" valign="top">std::map&lt; <a class="el" href="structtd_1_1performance_1_1PerformanceIndex.html">PerformanceIndex</a>, std::chrono::high_resolution_clock::time_point &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1performance.html#ae0f93ac8b253a4b0739a393cccc81e83">currentMeasures</a> ()</td></tr>
+<tr class="memdesc:ae0f93ac8b253a4b0739a393cccc81e83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a map of all currently running measures.  <a href="#ae0f93ac8b253a4b0739a393cccc81e83">More...</a><br /></td></tr>
 <tr class="separator:ae0f93ac8b253a4b0739a393cccc81e83"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad8612792df60916da087050d4b8b199b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1performance.html#ad8612792df60916da087050d4b8b199b">start</a> (const std::string &amp;what)</td></tr>
+<tr class="memdesc:ad8612792df60916da087050d4b8b199b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Startes a named performance measure.  <a href="#ad8612792df60916da087050d4b8b199b">More...</a><br /></td></tr>
 <tr class="separator:ad8612792df60916da087050d4b8b199b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afd96b6ee099596227a90b26a2d011d0c"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1performance.html#afd96b6ee099596227a90b26a2d011d0c">stop</a> (const std::string &amp;what)</td></tr>
+<tr class="memdesc:afd96b6ee099596227a90b26a2d011d0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stops the performance measure with the given name.  <a href="#afd96b6ee099596227a90b26a2d011d0c">More...</a><br /></td></tr>
 <tr class="separator:afd96b6ee099596227a90b26a2d011d0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Function Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This namespace contains data structures and functions to measure the performance of some parts of the code. </p>
+</div><h2 class="groupheader">Function Documentation</h2>
 <a class="anchor" id="ae0f93ac8b253a4b0739a393cccc81e83"></a>
 <div class="memitem">
 <div class="memproto">
@@ -132,6 +143,8 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Retrieves a map of all currently running measures. </p>
 
 </div>
 </div>
@@ -155,6 +168,8 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Checks whether performance measures are enabled or not. </p>
 
 </div>
 </div>
@@ -180,6 +195,8 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Enables of disables performance measurement. </p>
+
 </div>
 </div>
 <a class="anchor" id="ad8612792df60916da087050d4b8b199b"></a>
@@ -203,6 +220,8 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Startes a named performance measure. </p>
 
 </div>
 </div>
@@ -228,12 +247,15 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Stops the performance measure with the given name. </p>
+<p>The time in seconds is logged </p>
+
 </div>
 </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jul 7 2016 17:06:05 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jul 7 2016 17:07:38 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

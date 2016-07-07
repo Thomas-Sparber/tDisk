@@ -95,6 +95,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
+<p>This class represents an inode of an abstract filesystem.  
+ <a href="classtd_1_1Inode.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="inode_8hpp_source.html">inode.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for td::Inode:</div>
@@ -102,36 +105,49 @@ Inheritance diagram for td::Inode:</div>
  <div class="center">
   <img src="classtd_1_1Inode.png" usemap="#td::Inode_map" alt=""/>
   <map id="td::Inode_map" name="td::Inode_map">
-<area href="classtd_1_1InodeFake.html" alt="td::InodeFake" shape="rect" coords="0,56,87,80"/>
+<area href="classtd_1_1InodeFake.html" title="This class represents a fake Inode (random data) on a fake filesystem. " alt="td::InodeFake" shape="rect" coords="0,56,87,80"/>
 </map>
  </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:ae6731a65424be906df3303704c58fd37"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Inode.html#ae6731a65424be906df3303704c58fd37">Inode</a> ()</td></tr>
+<tr class="memdesc:ae6731a65424be906df3303704c58fd37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default constructor.  <a href="#ae6731a65424be906df3303704c58fd37">More...</a><br /></td></tr>
 <tr class="separator:ae6731a65424be906df3303704c58fd37"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afe7a988c31b7751696b39619bfaf477d"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Inode.html#afe7a988c31b7751696b39619bfaf477d">~Inode</a> ()</td></tr>
+<tr class="memdesc:afe7a988c31b7751696b39619bfaf477d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default destructor.  <a href="#afe7a988c31b7751696b39619bfaf477d">More...</a><br /></td></tr>
 <tr class="separator:afe7a988c31b7751696b39619bfaf477d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acf47d20378f0e9b2f53f856801ce7acf"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classtd_1_1Inode.html">Inode</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Inode.html#acf47d20378f0e9b2f53f856801ce7acf">clone</a> ()=0</td></tr>
+<tr class="memdesc:acf47d20378f0e9b2f53f856801ce7acf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a copy of the inode.  <a href="#acf47d20378f0e9b2f53f856801ce7acf">More...</a><br /></td></tr>
 <tr class="separator:acf47d20378f0e9b2f53f856801ce7acf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2d9b2be1b5a13c0e45209322f6d47d78"><td class="memItemLeft" align="right" valign="top">virtual unsigned long long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Inode.html#a2d9b2be1b5a13c0e45209322f6d47d78">getInodeBlock</a> () const =0</td></tr>
+<tr class="memdesc:a2d9b2be1b5a13c0e45209322f6d47d78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the physical block where the inode data is stored on disk.  <a href="#a2d9b2be1b5a13c0e45209322f6d47d78">More...</a><br /></td></tr>
 <tr class="separator:a2d9b2be1b5a13c0e45209322f6d47d78"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb4dd069da78cfe4f946b284fe898ae1"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Inode.html#aeb4dd069da78cfe4f946b284fe898ae1">getDataBlocks</a> (std::vector&lt; unsigned long long &gt; &amp;out) const =0</td></tr>
+<tr class="memdesc:aeb4dd069da78cfe4f946b284fe898ae1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the physical blocks where the data of the inode are stored.  <a href="#aeb4dd069da78cfe4f946b284fe898ae1">More...</a><br /></td></tr>
 <tr class="separator:aeb4dd069da78cfe4f946b284fe898ae1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2c5d32ecd209cb4c1a9237d7995caa41"><td class="memItemLeft" align="right" valign="top">std::vector&lt; unsigned long long &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Inode.html#a2c5d32ecd209cb4c1a9237d7995caa41">getDataBlocks</a> () const </td></tr>
+<tr class="memdesc:a2c5d32ecd209cb4c1a9237d7995caa41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the physical blocks where the data of the inode are stored.  <a href="#a2c5d32ecd209cb4c1a9237d7995caa41">More...</a><br /></td></tr>
 <tr class="separator:a2c5d32ecd209cb4c1a9237d7995caa41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a224a703265b2b396161ce55740ab171b"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Inode.html#a224a703265b2b396161ce55740ab171b">getPath</a> (const <a class="el" href="classtd_1_1Inode.html">Inode</a> *parent) const =0</td></tr>
+<tr class="memdesc:a224a703265b2b396161ce55740ab171b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the foll path of the inode.  <a href="#a224a703265b2b396161ce55740ab171b">More...</a><br /></td></tr>
 <tr class="separator:a224a703265b2b396161ce55740ab171b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a644e1e8a301be1a5bcedc2c79d027f7c"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Inode.html#a644e1e8a301be1a5bcedc2c79d027f7c">isDirectory</a> () const =0</td></tr>
+<tr class="memdesc:a644e1e8a301be1a5bcedc2c79d027f7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns whether the inode is a directory or not.  <a href="#a644e1e8a301be1a5bcedc2c79d027f7c">More...</a><br /></td></tr>
 <tr class="separator:a644e1e8a301be1a5bcedc2c79d027f7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a09a1d3eeda5e03a6811b5893dd0112b6"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Inode.html#a09a1d3eeda5e03a6811b5893dd0112b6">contains</a> (const <a class="el" href="classtd_1_1Inode.html">Inode</a> *inode) const =0</td></tr>
+<tr class="memdesc:a09a1d3eeda5e03a6811b5893dd0112b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks whether the inode (if directory) contains the given inode.  <a href="#a09a1d3eeda5e03a6811b5893dd0112b6">More...</a><br /></td></tr>
 <tr class="separator:a09a1d3eeda5e03a6811b5893dd0112b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa4217fa6b4a4c652c8c176d0974d76c3"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::unique_ptr&lt; <a class="el" href="classtd_1_1Inode.html">Inode</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Inode.html#aa4217fa6b4a4c652c8c176d0974d76c3">getContent</a> () const </td></tr>
+<tr class="memdesc:aa4217fa6b4a4c652c8c176d0974d76c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the inode content (if inode is directory)  <a href="#aa4217fa6b4a4c652c8c176d0974d76c3">More...</a><br /></td></tr>
 <tr class="separator:aa4217fa6b4a4c652c8c176d0974d76c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad6c7cf2f22e7618b2d9e0f8767d0aa08"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1Inode.html#ad6c7cf2f22e7618b2d9e0f8767d0aa08">getContent</a> (std::vector&lt; std::unique_ptr&lt; <a class="el" href="classtd_1_1Inode.html">Inode</a> &gt; &gt; &amp;out) const =0</td></tr>
+<tr class="memdesc:ad6c7cf2f22e7618b2d9e0f8767d0aa08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the inode content (if inode is directory)  <a href="#ad6c7cf2f22e7618b2d9e0f8767d0aa08">More...</a><br /></td></tr>
 <tr class="separator:ad6c7cf2f22e7618b2d9e0f8767d0aa08"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This class represents an inode of an abstract filesystem. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="ae6731a65424be906df3303704c58fd37"></a>
 <div class="memitem">
 <div class="memproto">
@@ -152,6 +168,8 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Default constructor. </p>
 
 </div>
 </div>
@@ -176,6 +194,8 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Default destructor. </p>
+
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
@@ -199,6 +219,8 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Creates a copy of the inode. </p>
 
 <p>Implemented in <a class="el" href="classtd_1_1InodeFake.html#a4c8946e4c4b3a9870372d0b88664be09">td::InodeFake</a>.</p>
 
@@ -226,6 +248,8 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Checks whether the inode (if directory) contains the given inode. </p>
+
 <p>Implemented in <a class="el" href="classtd_1_1InodeFake.html#acec255af15780e53efe60018a5e958c7">td::InodeFake</a>.</p>
 
 </div>
@@ -251,6 +275,8 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Returns the inode content (if inode is directory) </p>
+
 </div>
 </div>
 <a class="anchor" id="ad6c7cf2f22e7618b2d9e0f8767d0aa08"></a>
@@ -274,6 +300,8 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Returns the inode content (if inode is directory) </p>
 
 <p>Implemented in <a class="el" href="classtd_1_1InodeFake.html#af93e24a62334bd37f8a09815844e6abf">td::InodeFake</a>.</p>
 
@@ -301,6 +329,8 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Returns the physical blocks where the data of the inode are stored. </p>
+
 <p>Implemented in <a class="el" href="classtd_1_1InodeFake.html#a6e423c4693abcd985527e2fcb6cfd9d3">td::InodeFake</a>.</p>
 
 </div>
@@ -326,6 +356,8 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Returns the physical blocks where the data of the inode are stored. </p>
+
 </div>
 </div>
 <a class="anchor" id="a2d9b2be1b5a13c0e45209322f6d47d78"></a>
@@ -348,6 +380,8 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Returns the physical block where the inode data is stored on disk. </p>
 
 <p>Implemented in <a class="el" href="classtd_1_1InodeFake.html#aca20e674b35472bae2e634537e5360ed">td::InodeFake</a>.</p>
 
@@ -375,6 +409,9 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Returns the foll path of the inode. </p>
+<p>The parent inode is needed to calculate the path </p>
+
 <p>Implemented in <a class="el" href="classtd_1_1InodeFake.html#a6a36dc900f7af330bad507840306ee5b">td::InodeFake</a>.</p>
 
 </div>
@@ -400,6 +437,8 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Returns whether the inode is a directory or not. </p>
+
 <p>Implemented in <a class="el" href="classtd_1_1InodeFake.html#ae23bf775b525b1a40067260b50ff49c5">td::InodeFake</a>.</p>
 
 </div>
@@ -410,7 +449,7 @@ Public Member Functions</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jul 7 2016 17:06:05 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jul 7 2016 17:07:38 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

@@ -16,31 +16,58 @@
 namespace td
 {
 
+/**
+  * This struct represents the performance improvement of a file in
+  * percent of using a tDisk instead of a normal disk
+ **/
 struct FilePerformanceImprovement
 {
+	/**
+	  * Default constructor
+	 **/
 	FilePerformanceImprovement(const std::string &str_path, double d_performance) :
 		path(str_path),
 		performance(d_performance)
 	{}
 
+	/** The path of the file **/
 	std::string path;
+
+	/** The performance improvmenet int percentage **/
 	double performance;
+
 }; //end struct PilePerformanceImprovement
 
+/**
+  * This struct represents the performance improvement in
+  * percent of using a tDisk instead of a normal disk
+ **/
 struct tDiskPerformanceImprovement
 {
+	/**
+	  * Default constructor
+	 **/
 	tDiskPerformanceImprovement(double d_percentage) :
 		percentage(d_percentage),
 		files()
 	{}
 
+	/**
+	  * Adds the file to the performance improvement
+	 **/
 	void addFile(const std::string &path, double performanceImprovement)
 	{
 		files.emplace_back(path, performanceImprovement);
 	}
 
+	/** The performance improvmenet int percentage **/
 	double percentage;
+
+	/**
+	  * Contains all files which are involved in the performance improvement
+	 **/
 	std::vector<FilePerformanceImprovement> files;
+
 }; //end struct tDiskPerformanceImprovement
 
 /**

@@ -41,6 +41,9 @@ namespace td
 	 **/
 	#define CREATE_RESULT_STRING_NONMEMBER_TEXT(ss, var, hierarchy, outputFormat) ss<<#var<<" = "; createResultString(ss, var, hierarchy, outputFormat)
 
+	/**
+	  * Writes count-amount tabs to the ostream
+	 **/
 	inline void insertTab(std::ostream &ss, unsigned int count)
 	{
 		for(unsigned int i = 0; i < count; ++i)

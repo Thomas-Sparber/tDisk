@@ -23,7 +23,7 @@ namespace advisor
 {
 
 	/**
-	  * Creates all possible disk combination using the given
+	  * Creates all possible disk combinations using the given
 	  * devices and sorts them accoring to their rank
 	 **/
 	std::vector<tdisk_advice> getTDiskAdvices(const std::vector<std::string> &files);

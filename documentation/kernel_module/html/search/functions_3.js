@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['kthread_5fflush_5fwork_5ffn_5ftimeout',['kthread_flush_work_fn_timeout',['../worker__timeout_8c.html#a9cb5d7f5650cedfe0249a116d574ed76',1,'worker_timeout.c']]],
-  ['kthread_5fworker_5ffn_5ftimeout',['kthread_worker_fn_timeout',['../worker__timeout_8c.html#aeeaf145beeced418bedd6922339af97c',1,'kthread_worker_fn_timeout(void *worker_ptr):&#160;worker_timeout.c'],['../worker__timeout_8h.html#aeeaf145beeced418bedd6922339af97c',1,'kthread_worker_fn_timeout(void *worker_ptr):&#160;worker_timeout.c']]]
+  ['find_5fmove_5fhelp_5fsector',['find_move_help_sector',['../tdisk_8c.html#a55115d4e1ad049651e2eb378bdbeb715',1,'tdisk.c']]],
+  ['flush_5fdevice',['flush_device',['../tdisk_8c.html#a0637c1cf3cedbdcd2dfeb4c93907cf14',1,'tdisk.c']]],
+  ['flush_5fkthread_5fworker_5ftimeout',['flush_kthread_worker_timeout',['../worker__timeout_8c.html#acdf7d2e8ff5e302d8f0b19d5c0e92058',1,'flush_kthread_worker_timeout(struct kthread_worker *worker):&#160;worker_timeout.c'],['../worker__timeout_8h.html#acdf7d2e8ff5e302d8f0b19d5c0e92058',1,'flush_kthread_worker_timeout(struct kthread_worker *worker):&#160;worker_timeout.c']]]
 ];

@@ -5,6 +5,7 @@ var searchData=
   ['td_5fmajor',['TD_MAJOR',['../tdisk_8c.html#a3ab416cb2b57e1ce4580511e115898e1',1,'tdisk.c']]],
   ['td_5fwork',['td_work',['../tdisk_8h.html#a7a2ad3aeacc6549962d4868591fbdfdb',1,'td_command']]],
   ['tdisk_5fctl_5ffops',['tdisk_ctl_fops',['../tdisk__control_8c.html#ad71894ae66cd434f4eae52b9a258197d',1,'tdisk_control.c']]],
+  ['tdisk_5flock',['tdisk_lock',['../tdisk_8h.html#adfdc65585257b05ce418fb90d6866239',1,'tdisk']]],
   ['tdisk_5fmisc',['tdisk_misc',['../tdisk__control_8c.html#a2386d45668f945ed446144ae76215e8c',1,'tdisk_control.c']]],
   ['tdisk_5fmq_5fops',['tdisk_mq_ops',['../tdisk_8c.html#a6a43f0b91f8791d051f93a01c1c1d06c',1,'tdisk.c']]],
   ['timeout',['timeout',['../structworker__timeout__data.html#a70433e8dd140c0f8c60afb21ef1d9576',1,'worker_timeout_data']]],

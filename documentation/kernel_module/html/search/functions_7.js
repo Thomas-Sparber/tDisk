@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['unregister_5ftdisk_5fcontrol',['unregister_tdisk_control',['../tdisk__control_8c.html#aecd351f37cbaf1d7f2bdaa12caaadb50',1,'unregister_tdisk_control(void):&#160;tdisk_control.c'],['../tdisk__control_8h.html#aecd351f37cbaf1d7f2bdaa12caaadb50',1,'unregister_tdisk_control(void):&#160;tdisk_control.c']]]
+  ['set_5fdevice_5fparameters',['set_device_parameters',['../tdisk_8c.html#ab2105ec12af66e7675e9b6c81391eec1',1,'tdisk.c']]]
 ];

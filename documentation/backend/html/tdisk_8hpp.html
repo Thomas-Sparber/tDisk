@@ -94,14 +94,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">tdisk.hpp File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;errno.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;algorithm&gt;</code><br />
+<code>#include &lt;errno.h&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;string.h&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
-<code>#include &lt;utils.hpp&gt;</code><br />
+<code>#include &lt;convert.hpp&gt;</code><br />
+<code>#include &lt;<a class="el" href="filesystem_8hpp_source.html">filesystem.hpp</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="logger_8hpp_source.html">logger.hpp</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="performance_8hpp_source.html">performance.hpp</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="performanceimprovement_8hpp_source.html">performanceimprovement.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="resultformatter_8hpp_source.html">resultformatter.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="tdiskexception_8hpp_source.html">tdiskexception.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="tdiskofflineexception_8hpp_source.html">tdiskofflineexception.hpp</a>&gt;</code><br />
+<code>#include &lt;utils.hpp&gt;</code><br />
 <code>#include &quot;<a class="el" href="tdisk_8h_source.html">tdisk.h</a>&quot;</code><br />
 </div>
 <p><a href="tdisk_8hpp_source.html">Go to the source code of this file.</a></p>
@@ -109,7 +115,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:structtd_1_1c_1_1f__device__performance"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1c.html#structtd_1_1c_1_1f__device__performance">td::c::f_device_performance</a></td></tr>
-<tr class="memdesc:structtd_1_1c_1_1f__device__performance"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frontend version This struct is used for the "ADD_DISK" ioctl to add a specific device to a <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="namespacetd_1_1c.html#structtd_1_1c_1_1f__device__performance">More...</a><br /></td></tr>
+<tr class="memdesc:structtd_1_1c_1_1f__device__performance"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frontend version This struct represents performance indicators of a physical disk.  <a href="namespacetd_1_1c.html#structtd_1_1c_1_1f__device__performance">More...</a><br /></td></tr>
 <tr class="separator:structtd_1_1c_1_1f__device__performance"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:structtd_1_1c_1_1f__internal__device__info"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1c.html#structtd_1_1c_1_1f__internal__device__info">td::c::f_internal_device_info</a></td></tr>
 <tr class="memdesc:structtd_1_1c_1_1f__internal__device__info"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frontend version This struct is used to transfer internal device specific information to user space.  <a href="namespacetd_1_1c.html#structtd_1_1c_1_1f__internal__device__info">More...</a><br /></td></tr>
@@ -157,15 +163,18 @@ Functions</h2></td></tr>
 <tr class="memitem:a0ca92767b7a6e9ebd626d79702cfa40d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1c.html#a0ca92767b7a6e9ebd626d79702cfa40d">td::c::tdisk_remove</a> (int device)</td></tr>
 <tr class="memdesc:a0ca92767b7a6e9ebd626d79702cfa40d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the device with the given minor number from the system.  <a href="namespacetd_1_1c.html#a0ca92767b7a6e9ebd626d79702cfa40d">More...</a><br /></td></tr>
 <tr class="separator:a0ca92767b7a6e9ebd626d79702cfa40d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8dc1db99ebca1f2184c0f6bfc98fab6f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1c.html#a8dc1db99ebca1f2184c0f6bfc98fab6f">td::c::tdisk_add_disk</a> (const char *device, const char *new_disk)</td></tr>
-<tr class="memdesc:a8dc1db99ebca1f2184c0f6bfc98fab6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a new internal device to the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="namespacetd_1_1c.html#a8dc1db99ebca1f2184c0f6bfc98fab6f">More...</a><br /></td></tr>
-<tr class="separator:a8dc1db99ebca1f2184c0f6bfc98fab6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a169028f01aa64eda887c1a690f9e6112"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1c.html#a169028f01aa64eda887c1a690f9e6112">td::c::tdisk_add_disk</a> (const char *device, const char *new_disk, int format)</td></tr>
+<tr class="memdesc:a169028f01aa64eda887c1a690f9e6112"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a new internal device to the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="namespacetd_1_1c.html#a169028f01aa64eda887c1a690f9e6112">More...</a><br /></td></tr>
+<tr class="separator:a169028f01aa64eda887c1a690f9e6112"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c794a168021a62b17d1b44e5ebdb142"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1c.html#a3c794a168021a62b17d1b44e5ebdb142">td::c::tdisk_get_max_sectors</a> (const char *device, uint64_t *out)</td></tr>
 <tr class="memdesc:a3c794a168021a62b17d1b44e5ebdb142"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the current maximum amount of sectors for the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="namespacetd_1_1c.html#a3c794a168021a62b17d1b44e5ebdb142">More...</a><br /></td></tr>
 <tr class="separator:a3c794a168021a62b17d1b44e5ebdb142"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac762a785e3114abb26eb9311be35ec35"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1c.html#ac762a785e3114abb26eb9311be35ec35">td::c::tdisk_get_size_bytes</a> (const char *device, uint64_t *out)</td></tr>
 <tr class="memdesc:ac762a785e3114abb26eb9311be35ec35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the current size in bytes for the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="namespacetd_1_1c.html#ac762a785e3114abb26eb9311be35ec35">More...</a><br /></td></tr>
 <tr class="separator:ac762a785e3114abb26eb9311be35ec35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5dfc561bdd9cbad72276f81f2fd21f45"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1c.html#a5dfc561bdd9cbad72276f81f2fd21f45">td::c::tdisk_get_blocksize</a> (const char *device, uint32_t *out)</td></tr>
+<tr class="memdesc:a5dfc561bdd9cbad72276f81f2fd21f45"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the blocksize for the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="namespacetd_1_1c.html#a5dfc561bdd9cbad72276f81f2fd21f45">More...</a><br /></td></tr>
+<tr class="separator:a5dfc561bdd9cbad72276f81f2fd21f45"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9272c88ff24dbeea7445c0af0b21b979"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1c.html#a9272c88ff24dbeea7445c0af0b21b979">td::c::tdisk_get_sector_index</a> (const char *device, uint64_t logical_sector, struct <a class="el" href="tdisk_8h.html#structf__sector__index">f_sector_index</a> *out)</td></tr>
 <tr class="memdesc:a9272c88ff24dbeea7445c0af0b21b979"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets information about the given sector index.  <a href="namespacetd_1_1c.html#a9272c88ff24dbeea7445c0af0b21b979">More...</a><br /></td></tr>
 <tr class="separator:a9272c88ff24dbeea7445c0af0b21b979"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -190,30 +199,30 @@ Functions</h2></td></tr>
 <tr class="memitem:adf67ea07c67dadd595bd714059c86ed2"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1c.html#adf67ea07c67dadd595bd714059c86ed2">td::c::get_tdisk_max_physical_disks</a> ()</td></tr>
 <tr class="memdesc:adf67ea07c67dadd595bd714059c86ed2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the number of max supported internal disks.  <a href="namespacetd_1_1c.html#adf67ea07c67dadd595bd714059c86ed2">More...</a><br /></td></tr>
 <tr class="separator:adf67ea07c67dadd595bd714059c86ed2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a129436ef74750371c59c268a3207a29e"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:a129436ef74750371c59c268a3207a29e"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a129436ef74750371c59c268a3207a29e">td::createResultString</a> (const <a class="el" href="tdisk_8h.html#structf__sector__index">f_sector_index</a> &amp;index, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a129436ef74750371c59c268a3207a29e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given <a class="el" href="tdisk_8h.html#structf__sector__index" title="Frontend version A index represents the physical location of a logical sector. ">f_sector_index</a> using the given format.  <a href="namespacetd.html#a129436ef74750371c59c268a3207a29e">More...</a><br /></td></tr>
-<tr class="separator:a129436ef74750371c59c268a3207a29e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8f48eb3d2e8e410161d19b292ec7da78"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:a8f48eb3d2e8e410161d19b292ec7da78"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a8f48eb3d2e8e410161d19b292ec7da78">td::createResultString</a> (const <a class="el" href="tdisk_8h.html#structf__sector__info">f_sector_info</a> &amp;info, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a8f48eb3d2e8e410161d19b292ec7da78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given <a class="el" href="tdisk_8h.html#structf__sector__info" title="Frontend version This struct is used to transfer sector specific information to user space...">f_sector_info</a> using the given format.  <a href="namespacetd.html#a8f48eb3d2e8e410161d19b292ec7da78">More...</a><br /></td></tr>
-<tr class="separator:a8f48eb3d2e8e410161d19b292ec7da78"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a83a46dab8b75bc997dfbbc3f3131bf5c"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:a83a46dab8b75bc997dfbbc3f3131bf5c"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a83a46dab8b75bc997dfbbc3f3131bf5c">td::createResultString</a> (const <a class="el" href="tdisk_8h.html#structf__device__performance">f_device_performance</a> &amp;perf, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a83a46dab8b75bc997dfbbc3f3131bf5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given <a class="el" href="tdisk_8h.html#structf__device__performance" title="Frontend version This struct is used for the &quot;ADD_DISK&quot; ioctl to add a specific device to a tDisk...">f_device_performance</a> using the given format.  <a href="namespacetd.html#a83a46dab8b75bc997dfbbc3f3131bf5c">More...</a><br /></td></tr>
-<tr class="separator:a83a46dab8b75bc997dfbbc3f3131bf5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa36f23254dfbc01b25779c9eba50300"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:afa36f23254dfbc01b25779c9eba50300"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#afa36f23254dfbc01b25779c9eba50300">td::createResultString</a> (const enum <a class="el" href="tdisk_8h.html#ad7dd78dd16267ddee8d0dfd653efd7fa">f_internal_device_type</a> &amp;type, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:afa36f23254dfbc01b25779c9eba50300"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given <a class="el" href="tdisk_8h.html#structf__internal__device__info" title="Frontend version This struct is used to transfer internal device specific information to user space...">f_internal_device_info</a> using the given format.  <a href="namespacetd.html#afa36f23254dfbc01b25779c9eba50300">More...</a><br /></td></tr>
-<tr class="separator:afa36f23254dfbc01b25779c9eba50300"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af606eaab6bbfba1f92e6685b79240af6"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:af606eaab6bbfba1f92e6685b79240af6"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#af606eaab6bbfba1f92e6685b79240af6">td::createResultString</a> (const <a class="el" href="tdisk_8h.html#structf__internal__device__info">f_internal_device_info</a> &amp;info, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:af606eaab6bbfba1f92e6685b79240af6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given <a class="el" href="tdisk_8h.html#structf__internal__device__info" title="Frontend version This struct is used to transfer internal device specific information to user space...">f_internal_device_info</a> using the given format.  <a href="namespacetd.html#af606eaab6bbfba1f92e6685b79240af6">More...</a><br /></td></tr>
-<tr class="separator:af606eaab6bbfba1f92e6685b79240af6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc4df52b3e9527c81f5c235ca74c4b19"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:adc4df52b3e9527c81f5c235ca74c4b19"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#adc4df52b3e9527c81f5c235ca74c4b19">td::createResultString</a> (const tDisk &amp;disk, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:adc4df52b3e9527c81f5c235ca74c4b19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> using the given format.  <a href="namespacetd.html#adc4df52b3e9527c81f5c235ca74c4b19">More...</a><br /></td></tr>
-<tr class="separator:adc4df52b3e9527c81f5c235ca74c4b19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab58e8d9772dfc5be530dd02462cc8aad"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:ab58e8d9772dfc5be530dd02462cc8aad"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#ab58e8d9772dfc5be530dd02462cc8aad">td::createResultString</a> (std::ostream &amp;ss, const <a class="el" href="tdisk_8h.html#structf__sector__index">f_sector_index</a> &amp;index, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:ab58e8d9772dfc5be530dd02462cc8aad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given <a class="el" href="tdisk_8h.html#structf__sector__index" title="Frontend version A index represents the physical location of a logical sector. ">f_sector_index</a> using the given format.  <a href="namespacetd.html#ab58e8d9772dfc5be530dd02462cc8aad">More...</a><br /></td></tr>
+<tr class="separator:ab58e8d9772dfc5be530dd02462cc8aad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6063560f2cc517acd19e725e3d7e41d0"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:a6063560f2cc517acd19e725e3d7e41d0"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a6063560f2cc517acd19e725e3d7e41d0">td::createResultString</a> (std::ostream &amp;ss, const <a class="el" href="tdisk_8h.html#structf__sector__info">f_sector_info</a> &amp;info, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a6063560f2cc517acd19e725e3d7e41d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given <a class="el" href="tdisk_8h.html#structf__sector__info" title="Frontend version This struct is used to transfer sector specific information to user space...">f_sector_info</a> using the given format.  <a href="namespacetd.html#a6063560f2cc517acd19e725e3d7e41d0">More...</a><br /></td></tr>
+<tr class="separator:a6063560f2cc517acd19e725e3d7e41d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad9b0a78f9eec489e4255c67183e7f55"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:aad9b0a78f9eec489e4255c67183e7f55"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#aad9b0a78f9eec489e4255c67183e7f55">td::createResultString</a> (std::ostream &amp;ss, const <a class="el" href="tdisk_8h.html#structf__device__performance">f_device_performance</a> &amp;perf, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:aad9b0a78f9eec489e4255c67183e7f55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given <a class="el" href="tdisk_8h.html#structf__device__performance" title="Frontend version This struct represents performance indicators of a physical disk. ">f_device_performance</a> using the given format.  <a href="namespacetd.html#aad9b0a78f9eec489e4255c67183e7f55">More...</a><br /></td></tr>
+<tr class="separator:aad9b0a78f9eec489e4255c67183e7f55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe537198f7e59d8823e5c328c67db532"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:abe537198f7e59d8823e5c328c67db532"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#abe537198f7e59d8823e5c328c67db532">td::createResultString</a> (std::ostream &amp;ss, const enum <a class="el" href="tdisk_8h.html#ad7dd78dd16267ddee8d0dfd653efd7fa">f_internal_device_type</a> &amp;type, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:abe537198f7e59d8823e5c328c67db532"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given <a class="el" href="tdisk_8h.html#structf__internal__device__info" title="Frontend version This struct is used to transfer internal device specific information to user space...">f_internal_device_info</a> using the given format.  <a href="namespacetd.html#abe537198f7e59d8823e5c328c67db532">More...</a><br /></td></tr>
+<tr class="separator:abe537198f7e59d8823e5c328c67db532"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4996747371ca2064349d93ba7f1a5b67"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:a4996747371ca2064349d93ba7f1a5b67"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a4996747371ca2064349d93ba7f1a5b67">td::createResultString</a> (std::ostream &amp;ss, const <a class="el" href="tdisk_8h.html#structf__internal__device__info">f_internal_device_info</a> &amp;info, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a4996747371ca2064349d93ba7f1a5b67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given <a class="el" href="tdisk_8h.html#structf__internal__device__info" title="Frontend version This struct is used to transfer internal device specific information to user space...">f_internal_device_info</a> using the given format.  <a href="namespacetd.html#a4996747371ca2064349d93ba7f1a5b67">More...</a><br /></td></tr>
+<tr class="separator:a4996747371ca2064349d93ba7f1a5b67"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af4d2cb1983587835ffa59f10da80a3c6"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:af4d2cb1983587835ffa59f10da80a3c6"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#af4d2cb1983587835ffa59f10da80a3c6">td::createResultString</a> (std::ostream &amp;ss, const tDisk &amp;disk, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:af4d2cb1983587835ffa59f10da80a3c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> using the given format.  <a href="namespacetd.html#af4d2cb1983587835ffa59f10da80a3c6">More...</a><br /></td></tr>
+<tr class="separator:af4d2cb1983587835ffa59f10da80a3c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/><h2 class="groupheader">Class Documentation</h2>
 <a name="structtd_1_1c_1_1f__device__performance" id="structtd_1_1c_1_1f__device__performance"></a>
@@ -225,8 +234,8 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="textblock"><p>Frontend version This struct is used for the "ADD_DISK" ioctl to add a specific device to a <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>. </p>
-<p>Frontend version This struct represents performance indicators of a physical disk. It contains the average and standard deviation values in processor cycles of read and write operations. Additionally, the residue of the averaging operations is stored to be able to use fixed point numbers instead of floating point. </p>
+<div class="textblock"><p>Frontend version This struct represents performance indicators of a physical disk. </p>
+<p>It contains the average and standard deviation values in processor cycles of read and write operations. Additionally, the residue of the averaging operations is stored to be able to use fixed point numbers instead of floating point. </p>
 </div><table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
 <tr><td class="fieldtype">
@@ -363,6 +372,12 @@ disk</td>
 sector</td>
 <td class="fielddoc">
 </td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a53ffbaa8d730f8a494321bdc025dab4c"></a>uint8_t</td>
+<td class="fieldname">
+used</td>
+<td class="fielddoc">
+</td></tr>
 </table>
 
 </div>
@@ -404,7 +419,7 @@ physical_sector</td>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed May 4 2016 14:23:12 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jul 7 2016 17:06:04 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

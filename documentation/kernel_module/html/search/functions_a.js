@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['read_5fbio_5fvec',['read_bio_vec',['../tdisk_8c.html#a1efd2d4f27fce5d5f531ca6740da6421',1,'tdisk.c']]],
-  ['read_5fdata',['read_data',['../tdisk_8c.html#aef5a276b75fc3125ea4ba57e59031cf0',1,'tdisk.c']]],
-  ['register_5ftdisk_5fcontrol',['register_tdisk_control',['../tdisk__control_8c.html#a3390bb9a6c7b60e83d3b037d13837077',1,'register_tdisk_control(void):&#160;tdisk_control.c'],['../tdisk__control_8h.html#a3390bb9a6c7b60e83d3b037d13837077',1,'register_tdisk_control(void):&#160;tdisk_control.c']]]
+  ['write_5fbio_5fvec',['write_bio_vec',['../tdisk_8c.html#a29930d5031aca4da37a5d1bf41a7e55f',1,'tdisk.c']]],
+  ['write_5fbio_5fvec_5fasync',['write_bio_vec_async',['../tdisk_8c.html#a127ecafc977eb70f6aee698eac1d4332',1,'tdisk.c']]],
+  ['write_5fdata',['write_data',['../tdisk_8c.html#a7416ee55b81815dc405f452977f280f1',1,'tdisk.c']]],
+  ['write_5fdata_5fasync',['write_data_async',['../tdisk_8c.html#ad0f4e8c574f4a5e59ee4dba8f7d561dc',1,'tdisk.c']]]
 ];

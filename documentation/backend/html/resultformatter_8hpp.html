@@ -94,6 +94,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;map&gt;</code><br />
+<code>#include &lt;sstream&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;typeinfo&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
@@ -111,126 +112,134 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a7632e08ff76af84afa0b79fa6afe432f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="resultformatter_8hpp.html#a7632e08ff76af84afa0b79fa6afe432f">CREATE_RESULT_STRING_MEMBER_JSON</a>(object,  member,  hierarchy,  outputFormat)&#160;&#160;&#160;&quot;\&quot;&quot;, #member, &quot;\&quot;: &quot;, createResultString(object.member, hierarchy, outputFormat)</td></tr>
-<tr class="memdesc:a7632e08ff76af84afa0b79fa6afe432f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a Json result string for an object member.  <a href="#a7632e08ff76af84afa0b79fa6afe432f">More...</a><br /></td></tr>
-<tr class="separator:a7632e08ff76af84afa0b79fa6afe432f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a60575dee0a19ab6698dbc0ca9c7819c6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="resultformatter_8hpp.html#a60575dee0a19ab6698dbc0ca9c7819c6">CREATE_RESULT_STRING_MEMBER_TEXT</a>(object,  member,  hierarchy,  outputFormat)&#160;&#160;&#160;#member, &quot; = &quot;, createResultString(object.member, hierarchy, outputFormat)</td></tr>
-<tr class="memdesc:a60575dee0a19ab6698dbc0ca9c7819c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a text result string for an object member.  <a href="#a60575dee0a19ab6698dbc0ca9c7819c6">More...</a><br /></td></tr>
-<tr class="separator:a60575dee0a19ab6698dbc0ca9c7819c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a295fee61bae9b7841616247d226f1652"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="resultformatter_8hpp.html#a295fee61bae9b7841616247d226f1652">CREATE_RESULT_STRING_NONMEMBER_JSON</a>(var,  hierarchy,  outputFormat)&#160;&#160;&#160;&quot;\&quot;&quot;, #var, &quot;\&quot;: &quot;, createResultString(var, hierarchy, outputFormat)</td></tr>
-<tr class="memdesc:a295fee61bae9b7841616247d226f1652"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a Json result string for a non object member.  <a href="#a295fee61bae9b7841616247d226f1652">More...</a><br /></td></tr>
-<tr class="separator:a295fee61bae9b7841616247d226f1652"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acc01faec1c835c30505fa46e50a2ca99"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="resultformatter_8hpp.html#acc01faec1c835c30505fa46e50a2ca99">CREATE_RESULT_STRING_NONMEMBER_TEXT</a>(var,  hierarchy,  outputFormat)&#160;&#160;&#160;#var, &quot; = &quot;, createResultString(var, hierarchy, outputFormat)</td></tr>
-<tr class="memdesc:acc01faec1c835c30505fa46e50a2ca99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a text result string for a non object member.  <a href="#acc01faec1c835c30505fa46e50a2ca99">More...</a><br /></td></tr>
-<tr class="separator:acc01faec1c835c30505fa46e50a2ca99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4303217cf1d912e0cf9f092a7b3c4067"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="resultformatter_8hpp.html#a4303217cf1d912e0cf9f092a7b3c4067">CREATE_RESULT_STRING_MEMBER_JSON</a>(ss,  object,  member,  hierarchy,  outputFormat)&#160;&#160;&#160;ss&lt;&lt;&quot;\&quot;&quot;&lt;&lt;#member&lt;&lt;&quot;\&quot;: &quot;; createResultString(ss, object.member, hierarchy, outputFormat)</td></tr>
+<tr class="memdesc:a4303217cf1d912e0cf9f092a7b3c4067"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a Json result string for an object member.  <a href="#a4303217cf1d912e0cf9f092a7b3c4067">More...</a><br /></td></tr>
+<tr class="separator:a4303217cf1d912e0cf9f092a7b3c4067"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6fefaafd66dac09701b2b44d8889c2e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="resultformatter_8hpp.html#af6fefaafd66dac09701b2b44d8889c2e">CREATE_RESULT_STRING_MEMBER_TEXT</a>(ss,  object,  member,  hierarchy,  outputFormat)&#160;&#160;&#160;ss&lt;&lt;#member&lt;&lt;&quot; = &quot;; createResultString(ss, object.member, hierarchy, outputFormat)</td></tr>
+<tr class="memdesc:af6fefaafd66dac09701b2b44d8889c2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a text result string for an object member.  <a href="#af6fefaafd66dac09701b2b44d8889c2e">More...</a><br /></td></tr>
+<tr class="separator:af6fefaafd66dac09701b2b44d8889c2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b163b2edf40a9b85a41d5f415dda5d4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="resultformatter_8hpp.html#a6b163b2edf40a9b85a41d5f415dda5d4">CREATE_RESULT_STRING_NONMEMBER_JSON</a>(ss,  var,  hierarchy,  outputFormat)&#160;&#160;&#160;ss&lt;&lt;&quot;\&quot;&quot;&lt;&lt;#var&lt;&lt;&quot;\&quot;: &quot;; createResultString(ss, var, hierarchy, outputFormat)</td></tr>
+<tr class="memdesc:a6b163b2edf40a9b85a41d5f415dda5d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a Json result string for a non object member.  <a href="#a6b163b2edf40a9b85a41d5f415dda5d4">More...</a><br /></td></tr>
+<tr class="separator:a6b163b2edf40a9b85a41d5f415dda5d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa34559ce1f999363e3d976509bde49bb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="resultformatter_8hpp.html#aa34559ce1f999363e3d976509bde49bb">CREATE_RESULT_STRING_NONMEMBER_TEXT</a>(ss,  var,  hierarchy,  outputFormat)&#160;&#160;&#160;ss&lt;&lt;#var&lt;&lt;&quot; = &quot;; createResultString(ss, var, hierarchy, outputFormat)</td></tr>
+<tr class="memdesc:aa34559ce1f999363e3d976509bde49bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a text result string for a non object member.  <a href="#aa34559ce1f999363e3d976509bde49bb">More...</a><br /></td></tr>
+<tr class="separator:aa34559ce1f999363e3d976509bde49bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a909386e5aed2314e5fcb62f9f0a4bd57"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
-<tr class="memitem:a909386e5aed2314e5fcb62f9f0a4bd57"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a909386e5aed2314e5fcb62f9f0a4bd57">td::createResultString</a> (const T &amp;t, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a909386e5aed2314e5fcb62f9f0a4bd57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given object using the given format and data hierarchy.  <a href="namespacetd.html#a909386e5aed2314e5fcb62f9f0a4bd57">More...</a><br /></td></tr>
-<tr class="separator:a909386e5aed2314e5fcb62f9f0a4bd57"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae17bee8cb790afba0e7a406f4c099d1"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
-<tr class="memitem:aae17bee8cb790afba0e7a406f4c099d1"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#aae17bee8cb790afba0e7a406f4c099d1">td::createResultString_bool</a> (const T &amp;s, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:aae17bee8cb790afba0e7a406f4c099d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given object using the given format and data hierarchy.  <a href="namespacetd.html#aae17bee8cb790afba0e7a406f4c099d1">More...</a><br /></td></tr>
-<tr class="separator:aae17bee8cb790afba0e7a406f4c099d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a06f6fb893f89d87f12df1ae6c7bd583d"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
-<tr class="memitem:a06f6fb893f89d87f12df1ae6c7bd583d"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a06f6fb893f89d87f12df1ae6c7bd583d">td::createResultString_string</a> (const T &amp;s, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a06f6fb893f89d87f12df1ae6c7bd583d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given object using the given format and data hierarchy.  <a href="namespacetd.html#a06f6fb893f89d87f12df1ae6c7bd583d">More...</a><br /></td></tr>
-<tr class="separator:a06f6fb893f89d87f12df1ae6c7bd583d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac77a9d4d31e154fd6225aa090343d90d"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
-<tr class="memitem:ac77a9d4d31e154fd6225aa090343d90d"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#ac77a9d4d31e154fd6225aa090343d90d">td::createResultString_number</a> (const T &amp;i, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:ac77a9d4d31e154fd6225aa090343d90d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given object using the given format and data hierarchy.  <a href="namespacetd.html#ac77a9d4d31e154fd6225aa090343d90d">More...</a><br /></td></tr>
-<tr class="separator:ac77a9d4d31e154fd6225aa090343d90d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0b404d16f51c92bec85daf83ac15943a"><td class="memTemplParams" colspan="2">template&lt;class T , template&lt; class... &gt; class container&gt; </td></tr>
-<tr class="memitem:a0b404d16f51c92bec85daf83ac15943a"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a0b404d16f51c92bec85daf83ac15943a">td::createResultString_array</a> (const container&lt; T &gt; &amp;v, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a0b404d16f51c92bec85daf83ac15943a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given array object using the given format and data hierarchy.  <a href="namespacetd.html#a0b404d16f51c92bec85daf83ac15943a">More...</a><br /></td></tr>
-<tr class="separator:a0b404d16f51c92bec85daf83ac15943a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa6cf666f9f003bc5055d7f6e50b03d92"><td class="memTemplParams" colspan="2">template&lt;class S , class T &gt; </td></tr>
-<tr class="memitem:aa6cf666f9f003bc5055d7f6e50b03d92"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#aa6cf666f9f003bc5055d7f6e50b03d92">td::createResultString_map</a> (const std::map&lt; S, T &gt; &amp;m, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:aa6cf666f9f003bc5055d7f6e50b03d92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given map using the given format and data hierarchy.  <a href="namespacetd.html#aa6cf666f9f003bc5055d7f6e50b03d92">More...</a><br /></td></tr>
-<tr class="separator:aa6cf666f9f003bc5055d7f6e50b03d92"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3b7575846ef82577687417b7a0e47307"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:a3b7575846ef82577687417b7a0e47307"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a3b7575846ef82577687417b7a0e47307">td::createResultString</a> (const bool &amp;b, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a3b7575846ef82577687417b7a0e47307"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given bool using the given format and data hierarchy.  <a href="namespacetd.html#a3b7575846ef82577687417b7a0e47307">More...</a><br /></td></tr>
-<tr class="separator:a3b7575846ef82577687417b7a0e47307"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0f1fabfc5057fbb1fcc2da696e68b25f"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:a0f1fabfc5057fbb1fcc2da696e68b25f"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a0f1fabfc5057fbb1fcc2da696e68b25f">td::createResultString</a> (const std::string &amp;s, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a0f1fabfc5057fbb1fcc2da696e68b25f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given string using the given format and data hierarchy.  <a href="namespacetd.html#a0f1fabfc5057fbb1fcc2da696e68b25f">More...</a><br /></td></tr>
-<tr class="separator:a0f1fabfc5057fbb1fcc2da696e68b25f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29e63f7c3f4e1513d4c31eed245f9112"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:a29e63f7c3f4e1513d4c31eed245f9112"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a29e63f7c3f4e1513d4c31eed245f9112">td::createResultString</a> (const utils::ci_string &amp;s, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a29e63f7c3f4e1513d4c31eed245f9112"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given string using the given format and data hierarchy.  <a href="namespacetd.html#a29e63f7c3f4e1513d4c31eed245f9112">More...</a><br /></td></tr>
-<tr class="separator:a29e63f7c3f4e1513d4c31eed245f9112"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e812ad48c29d2abcbba2d4744d759e0"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:a1e812ad48c29d2abcbba2d4744d759e0"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a1e812ad48c29d2abcbba2d4744d759e0">td::createResultString</a> (const char &amp;s, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a1e812ad48c29d2abcbba2d4744d759e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given char using the given format and data hierarchy.  <a href="namespacetd.html#a1e812ad48c29d2abcbba2d4744d759e0">More...</a><br /></td></tr>
-<tr class="separator:a1e812ad48c29d2abcbba2d4744d759e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a17aaac50b694d7711ec1df0c4637e869"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:a17aaac50b694d7711ec1df0c4637e869"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a17aaac50b694d7711ec1df0c4637e869">td::createResultString</a> (const char *const &amp;s, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a17aaac50b694d7711ec1df0c4637e869"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given char array using the given format and data hierarchy.  <a href="namespacetd.html#a17aaac50b694d7711ec1df0c4637e869">More...</a><br /></td></tr>
-<tr class="separator:a17aaac50b694d7711ec1df0c4637e869"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0f996e6a3626b04eb81858e5152892a3"><td class="memTemplParams" colspan="2">template&lt;std::size_t i&gt; </td></tr>
-<tr class="memitem:a0f996e6a3626b04eb81858e5152892a3"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a0f996e6a3626b04eb81858e5152892a3">td::createResultString</a> (const char(&amp;s)[i], unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a0f996e6a3626b04eb81858e5152892a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given char array using the given format and data hierarchy.  <a href="namespacetd.html#a0f996e6a3626b04eb81858e5152892a3">More...</a><br /></td></tr>
-<tr class="separator:a0f996e6a3626b04eb81858e5152892a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3fd5b2efc90506a14d5803cffceca853"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:a3fd5b2efc90506a14d5803cffceca853"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a3fd5b2efc90506a14d5803cffceca853">td::createResultString</a> (const uint8_t &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a3fd5b2efc90506a14d5803cffceca853"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given uint8_t using the given format and data hierarchy.  <a href="namespacetd.html#a3fd5b2efc90506a14d5803cffceca853">More...</a><br /></td></tr>
-<tr class="separator:a3fd5b2efc90506a14d5803cffceca853"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef9b514bc52375c19b7fce399bd2cc61"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:aef9b514bc52375c19b7fce399bd2cc61"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#aef9b514bc52375c19b7fce399bd2cc61">td::createResultString</a> (const uint16_t &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:aef9b514bc52375c19b7fce399bd2cc61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given uint16_t using the given format and data hierarchy.  <a href="namespacetd.html#aef9b514bc52375c19b7fce399bd2cc61">More...</a><br /></td></tr>
-<tr class="separator:aef9b514bc52375c19b7fce399bd2cc61"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a20d59d93b128801749029489f23fa1a8"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:a20d59d93b128801749029489f23fa1a8"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a20d59d93b128801749029489f23fa1a8">td::createResultString</a> (const int &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a20d59d93b128801749029489f23fa1a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given int using the given format and data hierarchy.  <a href="namespacetd.html#a20d59d93b128801749029489f23fa1a8">More...</a><br /></td></tr>
-<tr class="separator:a20d59d93b128801749029489f23fa1a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a97bd89ccd6a6323a2f3b7d708cc41c"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:a3a97bd89ccd6a6323a2f3b7d708cc41c"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a3a97bd89ccd6a6323a2f3b7d708cc41c">td::createResultString</a> (const unsigned int &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a3a97bd89ccd6a6323a2f3b7d708cc41c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given unsigned int using the given format and data hierarchy.  <a href="namespacetd.html#a3a97bd89ccd6a6323a2f3b7d708cc41c">More...</a><br /></td></tr>
-<tr class="separator:a3a97bd89ccd6a6323a2f3b7d708cc41c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1fd3b33862629d0245a7b1a0456c5920"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:a1fd3b33862629d0245a7b1a0456c5920"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a1fd3b33862629d0245a7b1a0456c5920">td::createResultString</a> (const long &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a1fd3b33862629d0245a7b1a0456c5920"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given long using the given format and data hierarchy.  <a href="namespacetd.html#a1fd3b33862629d0245a7b1a0456c5920">More...</a><br /></td></tr>
-<tr class="separator:a1fd3b33862629d0245a7b1a0456c5920"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae41446b22eea1fdeec2038227640ba56"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:ae41446b22eea1fdeec2038227640ba56"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#ae41446b22eea1fdeec2038227640ba56">td::createResultString</a> (const unsigned long &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:ae41446b22eea1fdeec2038227640ba56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given unsigned long using the given format and data hierarchy.  <a href="namespacetd.html#ae41446b22eea1fdeec2038227640ba56">More...</a><br /></td></tr>
-<tr class="separator:ae41446b22eea1fdeec2038227640ba56"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a611417a6eb6d9d0b43167b9dec7479de"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:a611417a6eb6d9d0b43167b9dec7479de"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a611417a6eb6d9d0b43167b9dec7479de">td::createResultString</a> (const long long &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a611417a6eb6d9d0b43167b9dec7479de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given long long using the given format and data hierarchy.  <a href="namespacetd.html#a611417a6eb6d9d0b43167b9dec7479de">More...</a><br /></td></tr>
-<tr class="separator:a611417a6eb6d9d0b43167b9dec7479de"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a51d1a4045d8a81a09d5943b0b1075aff"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:a51d1a4045d8a81a09d5943b0b1075aff"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a51d1a4045d8a81a09d5943b0b1075aff">td::createResultString</a> (const unsigned long long &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a51d1a4045d8a81a09d5943b0b1075aff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given unsigned long long using the given format and data hierarchy.  <a href="namespacetd.html#a51d1a4045d8a81a09d5943b0b1075aff">More...</a><br /></td></tr>
-<tr class="separator:a51d1a4045d8a81a09d5943b0b1075aff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf9db8131dfb1358961a144e061c4287"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:abf9db8131dfb1358961a144e061c4287"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#abf9db8131dfb1358961a144e061c4287">td::createResultString</a> (const float &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:abf9db8131dfb1358961a144e061c4287"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given float using the given format and data hierarchy.  <a href="namespacetd.html#abf9db8131dfb1358961a144e061c4287">More...</a><br /></td></tr>
-<tr class="separator:abf9db8131dfb1358961a144e061c4287"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adb83da334aea423710eaa06ed2914e15"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:adb83da334aea423710eaa06ed2914e15"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#adb83da334aea423710eaa06ed2914e15">td::createResultString</a> (const double &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:adb83da334aea423710eaa06ed2914e15"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given double using the given format and data hierarchy.  <a href="namespacetd.html#adb83da334aea423710eaa06ed2914e15">More...</a><br /></td></tr>
-<tr class="separator:adb83da334aea423710eaa06ed2914e15"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae1295b8a2cecc5e9b0a2518f5e81bc56"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
-<tr class="memitem:ae1295b8a2cecc5e9b0a2518f5e81bc56"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#ae1295b8a2cecc5e9b0a2518f5e81bc56">td::createResultString</a> (const long double &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:ae1295b8a2cecc5e9b0a2518f5e81bc56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given long double using the given format and data hierarchy.  <a href="namespacetd.html#ae1295b8a2cecc5e9b0a2518f5e81bc56">More...</a><br /></td></tr>
-<tr class="separator:ae1295b8a2cecc5e9b0a2518f5e81bc56"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a37ea8e8b4b61b4e188c0a90a716bbe7c"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
-<tr class="memitem:a37ea8e8b4b61b4e188c0a90a716bbe7c"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a37ea8e8b4b61b4e188c0a90a716bbe7c">td::createResultString</a> (const std::vector&lt; T &gt; &amp;v, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
-<tr class="memdesc:a37ea8e8b4b61b4e188c0a90a716bbe7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given vector using the given format and data hierarchy.  <a href="namespacetd.html#a37ea8e8b4b61b4e188c0a90a716bbe7c">More...</a><br /></td></tr>
-<tr class="separator:a37ea8e8b4b61b4e188c0a90a716bbe7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab6195e30aa1ff85344d59f4f5b8c8ff"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#aab6195e30aa1ff85344d59f4f5b8c8ff">td::insertTab</a> (std::ostream &amp;ss, unsigned int count)</td></tr>
+<tr class="separator:aab6195e30aa1ff85344d59f4f5b8c8ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14bbaa38cf89cb717bd67fd666235a72"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
+<tr class="memitem:a14bbaa38cf89cb717bd67fd666235a72"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a14bbaa38cf89cb717bd67fd666235a72">td::createResultString</a> (std::ostream &amp;ss, const T &amp;t, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a14bbaa38cf89cb717bd67fd666235a72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given object using the given format and data hierarchy.  <a href="namespacetd.html#a14bbaa38cf89cb717bd67fd666235a72">More...</a><br /></td></tr>
+<tr class="separator:a14bbaa38cf89cb717bd67fd666235a72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad73818e3b4b568d36aad255e01f86b9b"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
+<tr class="memitem:ad73818e3b4b568d36aad255e01f86b9b"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#ad73818e3b4b568d36aad255e01f86b9b">td::createResultString_bool</a> (std::ostream &amp;ss, const T &amp;s, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:ad73818e3b4b568d36aad255e01f86b9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given object using the given format and data hierarchy.  <a href="namespacetd.html#ad73818e3b4b568d36aad255e01f86b9b">More...</a><br /></td></tr>
+<tr class="separator:ad73818e3b4b568d36aad255e01f86b9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f99f01ea8452e2029421a196cdad18f"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
+<tr class="memitem:a3f99f01ea8452e2029421a196cdad18f"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a3f99f01ea8452e2029421a196cdad18f">td::createResultString_string</a> (std::ostream &amp;ss, const T &amp;s, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a3f99f01ea8452e2029421a196cdad18f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given object using the given format and data hierarchy.  <a href="namespacetd.html#a3f99f01ea8452e2029421a196cdad18f">More...</a><br /></td></tr>
+<tr class="separator:a3f99f01ea8452e2029421a196cdad18f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe2c2c9e67c0640b0849ac118fbbcea3"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
+<tr class="memitem:abe2c2c9e67c0640b0849ac118fbbcea3"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#abe2c2c9e67c0640b0849ac118fbbcea3">td::createResultString_number</a> (std::ostream &amp;ss, const T &amp;i, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:abe2c2c9e67c0640b0849ac118fbbcea3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given object using the given format and data hierarchy.  <a href="namespacetd.html#abe2c2c9e67c0640b0849ac118fbbcea3">More...</a><br /></td></tr>
+<tr class="separator:abe2c2c9e67c0640b0849ac118fbbcea3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a146436d3fcf0a5d9c9415d379c860589"><td class="memTemplParams" colspan="2">template&lt;class T , template&lt; class... &gt; class container&gt; </td></tr>
+<tr class="memitem:a146436d3fcf0a5d9c9415d379c860589"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a146436d3fcf0a5d9c9415d379c860589">td::createResultString_array</a> (std::ostream &amp;ss, const container&lt; T &gt; &amp;v, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a146436d3fcf0a5d9c9415d379c860589"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given array object using the given format and data hierarchy.  <a href="namespacetd.html#a146436d3fcf0a5d9c9415d379c860589">More...</a><br /></td></tr>
+<tr class="separator:a146436d3fcf0a5d9c9415d379c860589"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca4ffdcf594b35dfd6ecfaadf215ca9c"><td class="memTemplParams" colspan="2">template&lt;class S , class T &gt; </td></tr>
+<tr class="memitem:aca4ffdcf594b35dfd6ecfaadf215ca9c"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#aca4ffdcf594b35dfd6ecfaadf215ca9c">td::createResultString_map</a> (std::ostream &amp;ss, const std::map&lt; S, T &gt; &amp;m, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:aca4ffdcf594b35dfd6ecfaadf215ca9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given map using the given format and data hierarchy.  <a href="namespacetd.html#aca4ffdcf594b35dfd6ecfaadf215ca9c">More...</a><br /></td></tr>
+<tr class="separator:aca4ffdcf594b35dfd6ecfaadf215ca9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a516b26a81d89a75061287795605f698d"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:a516b26a81d89a75061287795605f698d"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a516b26a81d89a75061287795605f698d">td::createResultString</a> (std::ostream &amp;ss, const bool &amp;b, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a516b26a81d89a75061287795605f698d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given bool using the given format and data hierarchy.  <a href="namespacetd.html#a516b26a81d89a75061287795605f698d">More...</a><br /></td></tr>
+<tr class="separator:a516b26a81d89a75061287795605f698d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13a3525a5aaa041c4522387e376104e7"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:a13a3525a5aaa041c4522387e376104e7"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a13a3525a5aaa041c4522387e376104e7">td::createResultString</a> (std::ostream &amp;ss, const std::string &amp;s, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a13a3525a5aaa041c4522387e376104e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given string using the given format and data hierarchy.  <a href="namespacetd.html#a13a3525a5aaa041c4522387e376104e7">More...</a><br /></td></tr>
+<tr class="separator:a13a3525a5aaa041c4522387e376104e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7eded2965c8b88a7e55c41a32ad2dd90"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:a7eded2965c8b88a7e55c41a32ad2dd90"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a7eded2965c8b88a7e55c41a32ad2dd90">td::createResultString</a> (std::ostream &amp;ss, const utils::ci_string &amp;s, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a7eded2965c8b88a7e55c41a32ad2dd90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given string using the given format and data hierarchy.  <a href="namespacetd.html#a7eded2965c8b88a7e55c41a32ad2dd90">More...</a><br /></td></tr>
+<tr class="separator:a7eded2965c8b88a7e55c41a32ad2dd90"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb5f81de4c987a049c420339eeeab59c"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:adb5f81de4c987a049c420339eeeab59c"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#adb5f81de4c987a049c420339eeeab59c">td::createResultString</a> (std::ostream &amp;ss, const char &amp;s, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:adb5f81de4c987a049c420339eeeab59c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given char using the given format and data hierarchy.  <a href="namespacetd.html#adb5f81de4c987a049c420339eeeab59c">More...</a><br /></td></tr>
+<tr class="separator:adb5f81de4c987a049c420339eeeab59c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98a66fff8b00e95742eeceaebadad2f0"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:a98a66fff8b00e95742eeceaebadad2f0"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a98a66fff8b00e95742eeceaebadad2f0">td::createResultString</a> (std::ostream &amp;ss, const char *const &amp;s, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a98a66fff8b00e95742eeceaebadad2f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given char array using the given format and data hierarchy.  <a href="namespacetd.html#a98a66fff8b00e95742eeceaebadad2f0">More...</a><br /></td></tr>
+<tr class="separator:a98a66fff8b00e95742eeceaebadad2f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2a20d7c73907ff589fda870a94f13fd"><td class="memTemplParams" colspan="2">template&lt;std::size_t i&gt; </td></tr>
+<tr class="memitem:aa2a20d7c73907ff589fda870a94f13fd"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#aa2a20d7c73907ff589fda870a94f13fd">td::createResultString</a> (std::ostream &amp;ss, const char(&amp;s)[i], unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:aa2a20d7c73907ff589fda870a94f13fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given char array using the given format and data hierarchy.  <a href="namespacetd.html#aa2a20d7c73907ff589fda870a94f13fd">More...</a><br /></td></tr>
+<tr class="separator:aa2a20d7c73907ff589fda870a94f13fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7a66817b214839d5157ca547de186c9"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:ad7a66817b214839d5157ca547de186c9"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#ad7a66817b214839d5157ca547de186c9">td::createResultString</a> (std::ostream &amp;ss, const uint8_t &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:ad7a66817b214839d5157ca547de186c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given uint8_t using the given format and data hierarchy.  <a href="namespacetd.html#ad7a66817b214839d5157ca547de186c9">More...</a><br /></td></tr>
+<tr class="separator:ad7a66817b214839d5157ca547de186c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0e4f44843a1da2505e1557335a75beb"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:ab0e4f44843a1da2505e1557335a75beb"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#ab0e4f44843a1da2505e1557335a75beb">td::createResultString</a> (std::ostream &amp;ss, const uint16_t &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:ab0e4f44843a1da2505e1557335a75beb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given uint16_t using the given format and data hierarchy.  <a href="namespacetd.html#ab0e4f44843a1da2505e1557335a75beb">More...</a><br /></td></tr>
+<tr class="separator:ab0e4f44843a1da2505e1557335a75beb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a473af34a81459d8382839e4924d951af"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:a473af34a81459d8382839e4924d951af"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a473af34a81459d8382839e4924d951af">td::createResultString</a> (std::ostream &amp;ss, const int &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a473af34a81459d8382839e4924d951af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given int using the given format and data hierarchy.  <a href="namespacetd.html#a473af34a81459d8382839e4924d951af">More...</a><br /></td></tr>
+<tr class="separator:a473af34a81459d8382839e4924d951af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa273b1f29c6c243a18ed016923c4a9df"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:aa273b1f29c6c243a18ed016923c4a9df"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#aa273b1f29c6c243a18ed016923c4a9df">td::createResultString</a> (std::ostream &amp;ss, const unsigned int &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:aa273b1f29c6c243a18ed016923c4a9df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given unsigned int using the given format and data hierarchy.  <a href="namespacetd.html#aa273b1f29c6c243a18ed016923c4a9df">More...</a><br /></td></tr>
+<tr class="separator:aa273b1f29c6c243a18ed016923c4a9df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a484633b5e6e2851edd5611dcf3a2b27e"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:a484633b5e6e2851edd5611dcf3a2b27e"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a484633b5e6e2851edd5611dcf3a2b27e">td::createResultString</a> (std::ostream &amp;ss, const long &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a484633b5e6e2851edd5611dcf3a2b27e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given long using the given format and data hierarchy.  <a href="namespacetd.html#a484633b5e6e2851edd5611dcf3a2b27e">More...</a><br /></td></tr>
+<tr class="separator:a484633b5e6e2851edd5611dcf3a2b27e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3e05f5ac0d418611d52046fb0751185"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:ae3e05f5ac0d418611d52046fb0751185"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#ae3e05f5ac0d418611d52046fb0751185">td::createResultString</a> (std::ostream &amp;ss, const unsigned long &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:ae3e05f5ac0d418611d52046fb0751185"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given unsigned long using the given format and data hierarchy.  <a href="namespacetd.html#ae3e05f5ac0d418611d52046fb0751185">More...</a><br /></td></tr>
+<tr class="separator:ae3e05f5ac0d418611d52046fb0751185"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13fe6a2a87536aa15368d8d122003c59"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:a13fe6a2a87536aa15368d8d122003c59"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a13fe6a2a87536aa15368d8d122003c59">td::createResultString</a> (std::ostream &amp;ss, const long long &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a13fe6a2a87536aa15368d8d122003c59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given long long using the given format and data hierarchy.  <a href="namespacetd.html#a13fe6a2a87536aa15368d8d122003c59">More...</a><br /></td></tr>
+<tr class="separator:a13fe6a2a87536aa15368d8d122003c59"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ac54b83df30ee76a0a8faffa0bd75ba"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:a4ac54b83df30ee76a0a8faffa0bd75ba"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a4ac54b83df30ee76a0a8faffa0bd75ba">td::createResultString</a> (std::ostream &amp;ss, const unsigned long long &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a4ac54b83df30ee76a0a8faffa0bd75ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given unsigned long long using the given format and data hierarchy.  <a href="namespacetd.html#a4ac54b83df30ee76a0a8faffa0bd75ba">More...</a><br /></td></tr>
+<tr class="separator:a4ac54b83df30ee76a0a8faffa0bd75ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a469f026b5cbf01ec642ece05f6b0372b"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:a469f026b5cbf01ec642ece05f6b0372b"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a469f026b5cbf01ec642ece05f6b0372b">td::createResultString</a> (std::ostream &amp;ss, const float &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a469f026b5cbf01ec642ece05f6b0372b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given float using the given format and data hierarchy.  <a href="namespacetd.html#a469f026b5cbf01ec642ece05f6b0372b">More...</a><br /></td></tr>
+<tr class="separator:a469f026b5cbf01ec642ece05f6b0372b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b3a1f6e14e6a9e946335297f7650695"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:a5b3a1f6e14e6a9e946335297f7650695"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a5b3a1f6e14e6a9e946335297f7650695">td::createResultString</a> (std::ostream &amp;ss, const double &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a5b3a1f6e14e6a9e946335297f7650695"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given double using the given format and data hierarchy.  <a href="namespacetd.html#a5b3a1f6e14e6a9e946335297f7650695">More...</a><br /></td></tr>
+<tr class="separator:a5b3a1f6e14e6a9e946335297f7650695"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1809d3b57cc949c17ff5b795b3bcb35"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:af1809d3b57cc949c17ff5b795b3bcb35"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#af1809d3b57cc949c17ff5b795b3bcb35">td::createResultString</a> (std::ostream &amp;ss, const long double &amp;i, unsigned int, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:af1809d3b57cc949c17ff5b795b3bcb35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given long double using the given format and data hierarchy.  <a href="namespacetd.html#af1809d3b57cc949c17ff5b795b3bcb35">More...</a><br /></td></tr>
+<tr class="separator:af1809d3b57cc949c17ff5b795b3bcb35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4b6ac62646680a7158d1177d1cd33da"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
+<tr class="memitem:ac4b6ac62646680a7158d1177d1cd33da"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#ac4b6ac62646680a7158d1177d1cd33da">td::createResultString</a> (std::ostream &amp;ss, const std::vector&lt; T &gt; &amp;v, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:ac4b6ac62646680a7158d1177d1cd33da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given vector using the given format and data hierarchy.  <a href="namespacetd.html#ac4b6ac62646680a7158d1177d1cd33da">More...</a><br /></td></tr>
+<tr class="separator:ac4b6ac62646680a7158d1177d1cd33da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
-<a class="anchor" id="a7632e08ff76af84afa0b79fa6afe432f"></a>
+<a class="anchor" id="a4303217cf1d912e0cf9f092a7b3c4067"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">#define CREATE_RESULT_STRING_MEMBER_JSON</td>
           <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ss, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">object, </td>
         </tr>
@@ -255,7 +264,7 @@ Functions</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td>&#160;&#160;&#160;&quot;\&quot;&quot;, #member, &quot;\&quot;: &quot;, createResultString(object.member, hierarchy, outputFormat)</td>
+          <td></td><td>&#160;&#160;&#160;ss&lt;&lt;&quot;\&quot;&quot;&lt;&lt;#member&lt;&lt;&quot;\&quot;: &quot;; createResultString(ss, object.member, hierarchy, outputFormat)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -264,13 +273,19 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a60575dee0a19ab6698dbc0ca9c7819c6"></a>
+<a class="anchor" id="af6fefaafd66dac09701b2b44d8889c2e"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">#define CREATE_RESULT_STRING_MEMBER_TEXT</td>
           <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ss, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">object, </td>
         </tr>
@@ -295,7 +310,7 @@ Functions</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td>&#160;&#160;&#160;#member, &quot; = &quot;, createResultString(object.member, hierarchy, outputFormat)</td>
+          <td></td><td>&#160;&#160;&#160;ss&lt;&lt;#member&lt;&lt;&quot; = &quot;; createResultString(ss, object.member, hierarchy, outputFormat)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -304,13 +319,19 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a295fee61bae9b7841616247d226f1652"></a>
+<a class="anchor" id="a6b163b2edf40a9b85a41d5f415dda5d4"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">#define CREATE_RESULT_STRING_NONMEMBER_JSON</td>
           <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ss, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">var, </td>
         </tr>
@@ -329,7 +350,7 @@ Functions</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td>&#160;&#160;&#160;&quot;\&quot;&quot;, #var, &quot;\&quot;: &quot;, createResultString(var, hierarchy, outputFormat)</td>
+          <td></td><td>&#160;&#160;&#160;ss&lt;&lt;&quot;\&quot;&quot;&lt;&lt;#var&lt;&lt;&quot;\&quot;: &quot;; createResultString(ss, var, hierarchy, outputFormat)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -338,13 +359,19 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="acc01faec1c835c30505fa46e50a2ca99"></a>
+<a class="anchor" id="aa34559ce1f999363e3d976509bde49bb"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">#define CREATE_RESULT_STRING_NONMEMBER_TEXT</td>
           <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ss, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">var, </td>
         </tr>
@@ -363,7 +390,7 @@ Functions</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td>&#160;&#160;&#160;#var, &quot; = &quot;, createResultString(var, hierarchy, outputFormat)</td>
+          <td></td><td>&#160;&#160;&#160;ss&lt;&lt;#var&lt;&lt;&quot; = &quot;; createResultString(ss, var, hierarchy, outputFormat)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -375,7 +402,7 @@ Functions</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed May 4 2016 14:23:12 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jul 7 2016 17:06:04 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

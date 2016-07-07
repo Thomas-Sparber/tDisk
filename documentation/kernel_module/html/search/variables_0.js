@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['access_5fcount',['access_count',['../interface_8h.html#aa7285f69330698bd4f24f28d10015cf6',1,'sector_index']]],
+  ['access_5fcount',['access_count',['../interface_8h.html#a98aef8b828795d754a556ed5e83c2e2a',1,'physical_sector_index']]],
   ['access_5fcount_5fresort',['access_count_resort',['../tdisk_8h.html#ac9c724a662414f3c8334a1c4bb001772',1,'tdisk']]],
   ['access_5fsorted_5findex',['access_sorted_index',['../interface_8h.html#a09cddcc261e74287f34dc2910c0c9d2e',1,'sector_info']]],
   ['amount_5fblocks',['amount_blocks',['../tdisk_8h.html#a2652902da07e65d66c398d92aafac28d',1,'sorted_internal_device']]],

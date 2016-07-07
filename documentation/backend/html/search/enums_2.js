@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['pluginoperation',['PluginOperation',['../namespacetd.html#a872c271dde0c70c91a06999e260ee2ec',1,'td']]]
+  ['loglevel',['LogLevel',['../namespacetd.html#ab6d56c57b1af7153726f089ae7de6c1a',1,'td']]]
 ];

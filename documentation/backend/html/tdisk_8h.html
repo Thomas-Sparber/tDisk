@@ -101,7 +101,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:structf__device__performance"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#structf__device__performance">f_device_performance</a></td></tr>
-<tr class="memdesc:structf__device__performance"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frontend version This struct is used for the "ADD_DISK" ioctl to add a specific device to a tDisk.  <a href="tdisk_8h.html#structf__device__performance">More...</a><br /></td></tr>
+<tr class="memdesc:structf__device__performance"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frontend version This struct represents performance indicators of a physical disk.  <a href="tdisk_8h.html#structf__device__performance">More...</a><br /></td></tr>
 <tr class="separator:structf__device__performance"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:structf__internal__device__info"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#structf__internal__device__info">f_internal_device_info</a></td></tr>
 <tr class="memdesc:structf__internal__device__info"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frontend version This struct is used to transfer internal device specific information to user space.  <a href="tdisk_8h.html#structf__internal__device__info">More...</a><br /></td></tr>
@@ -149,15 +149,18 @@ Functions</h2></td></tr>
 <tr class="memitem:acca57af6bc1ae02fd40f91bfe8c34577"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#acca57af6bc1ae02fd40f91bfe8c34577">tdisk_remove</a> (int device)</td></tr>
 <tr class="memdesc:acca57af6bc1ae02fd40f91bfe8c34577"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the device with the given minor number from the system.  <a href="#acca57af6bc1ae02fd40f91bfe8c34577">More...</a><br /></td></tr>
 <tr class="separator:acca57af6bc1ae02fd40f91bfe8c34577"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab1c1e5f63261b4e0790e44f76d49217d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#ab1c1e5f63261b4e0790e44f76d49217d">tdisk_add_disk</a> (const char *device, const char *new_disk)</td></tr>
-<tr class="memdesc:ab1c1e5f63261b4e0790e44f76d49217d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a new internal device to the tDisk.  <a href="#ab1c1e5f63261b4e0790e44f76d49217d">More...</a><br /></td></tr>
-<tr class="separator:ab1c1e5f63261b4e0790e44f76d49217d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeefce20b8c902c1e179c9125bf1e8a75"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#aeefce20b8c902c1e179c9125bf1e8a75">tdisk_add_disk</a> (const char *device, const char *new_disk, int format)</td></tr>
+<tr class="memdesc:aeefce20b8c902c1e179c9125bf1e8a75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a new internal device to the tDisk.  <a href="#aeefce20b8c902c1e179c9125bf1e8a75">More...</a><br /></td></tr>
+<tr class="separator:aeefce20b8c902c1e179c9125bf1e8a75"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3aa58e062a2b6868332192860503b56b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#a3aa58e062a2b6868332192860503b56b">tdisk_get_max_sectors</a> (const char *device, uint64_t *out)</td></tr>
 <tr class="memdesc:a3aa58e062a2b6868332192860503b56b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the current maximum amount of sectors for the given tDisk.  <a href="#a3aa58e062a2b6868332192860503b56b">More...</a><br /></td></tr>
 <tr class="separator:a3aa58e062a2b6868332192860503b56b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8ac3b61a4850ab3ff9322fd3dbc9561d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#a8ac3b61a4850ab3ff9322fd3dbc9561d">tdisk_get_size_bytes</a> (const char *device, uint64_t *out)</td></tr>
 <tr class="memdesc:a8ac3b61a4850ab3ff9322fd3dbc9561d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the current size in bytes for the given tDisk.  <a href="#a8ac3b61a4850ab3ff9322fd3dbc9561d">More...</a><br /></td></tr>
 <tr class="separator:a8ac3b61a4850ab3ff9322fd3dbc9561d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80adc61aaf14870e8f988fbc8133c471"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#a80adc61aaf14870e8f988fbc8133c471">tdisk_get_blocksize</a> (const char *device, uint32_t *out)</td></tr>
+<tr class="memdesc:a80adc61aaf14870e8f988fbc8133c471"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the blocksize for the given tDisk.  <a href="#a80adc61aaf14870e8f988fbc8133c471">More...</a><br /></td></tr>
+<tr class="separator:a80adc61aaf14870e8f988fbc8133c471"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9bc1de98f50aaf0f52b104a4eb9c2cd"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#ae9bc1de98f50aaf0f52b104a4eb9c2cd">tdisk_get_sector_index</a> (const char *device, uint64_t logical_sector, struct <a class="el" href="tdisk_8h.html#structf__sector__index">f_sector_index</a> *out)</td></tr>
 <tr class="memdesc:ae9bc1de98f50aaf0f52b104a4eb9c2cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets information about the given sector index.  <a href="#ae9bc1de98f50aaf0f52b104a4eb9c2cd">More...</a><br /></td></tr>
 <tr class="separator:ae9bc1de98f50aaf0f52b104a4eb9c2cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -193,8 +196,8 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="textblock"><p>Frontend version This struct is used for the "ADD_DISK" ioctl to add a specific device to a tDisk. </p>
-<p>Frontend version This struct represents performance indicators of a physical disk. It contains the average and standard deviation values in processor cycles of read and write operations. Additionally, the residue of the averaging operations is stored to be able to use fixed point numbers instead of floating point. </p>
+<div class="textblock"><p>Frontend version This struct represents performance indicators of a physical disk. </p>
+<p>It contains the average and standard deviation values in processor cycles of read and write operations. Additionally, the residue of the averaging operations is stored to be able to use fixed point numbers instead of floating point. </p>
 </div><table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
 <tr><td class="fieldtype">
@@ -329,6 +332,12 @@ disk</td>
 <a class="anchor" id="ab39ab1f8bf925362a5788d64ef0bbf69"></a>uint64_t</td>
 <td class="fieldname">
 sector</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a2f8f89e91ad3dcbebb360781dcd1dfde"></a>uint8_t</td>
+<td class="fieldname">
+used</td>
 <td class="fielddoc">
 </td></tr>
 </table>
@@ -528,7 +537,7 @@ physical_sector</td>
 
 </div>
 </div>
-<a class="anchor" id="ab1c1e5f63261b4e0790e44f76d49217d"></a>
+<a class="anchor" id="aeefce20b8c902c1e179c9125bf1e8a75"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -542,7 +551,13 @@ physical_sector</td>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>new_disk</em>&#160;</td>
+          <td class="paramname"><em>new_disk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>format</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -556,7 +571,8 @@ physical_sector</td>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">device</td><td>The tDisk where to add the new internal device </td></tr>
-    <tr><td class="paramname">new_disk</td><td>The new internal device to be added to the tDisk. If it is a file path it is added as file. If not it is added as a plugin. </td></tr>
+    <tr><td class="paramname">new_disk</td><td>The new internal device to be added to the tDisk. </td></tr>
+    <tr><td class="paramname">format</td><td>Defines whether the disk should be formatted If it is a file path it is added as file. If not it is added as a plugin. </td></tr>
   </table>
   </dd>
 </dl>
@@ -663,6 +679,34 @@ physical_sector</td>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="a80adc61aaf14870e8f988fbc8133c471"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tdisk_get_blocksize </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>device</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t *&#160;</td>
+          <td class="paramname"><em>out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Gets the blocksize for the given tDisk. </p>
 
 </div>
 </div>
@@ -899,7 +943,7 @@ physical_sector</td>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed May 4 2016 14:23:12 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jul 7 2016 17:06:04 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

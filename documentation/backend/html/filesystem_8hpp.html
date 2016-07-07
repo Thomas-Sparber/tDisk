@@ -93,9 +93,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;algorithm&gt;</code><br />
+<code>#include &lt;functional&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 <code>#include &lt;<a class="el" href="device_8hpp_source.html">device.hpp</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="fileassignment_8hpp_source.html">fileassignment.hpp</a>&gt;</code><br />
 </div>
 <p><a href="filesystem_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -115,11 +117,17 @@ Functions</h2></td></tr>
 <tr class="memitem:a4c017571562719940fba84d97233e2e0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1fs.html#a4c017571562719940fba84d97233e2e0">td::fs::getDevices</a> (std::vector&lt; Device &gt; &amp;out)</td></tr>
 <tr class="memdesc:a4c017571562719940fba84d97233e2e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets all available blockdevices including its partitions.  <a href="namespacetd_1_1fs.html#a4c017571562719940fba84d97233e2e0">More...</a><br /></td></tr>
 <tr class="separator:a4c017571562719940fba84d97233e2e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57f47eb854bbe655e0b0b241c990d134"><td class="memItemLeft" align="right" valign="top">std::vector&lt; FileAssignment &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1fs.html#a57f47eb854bbe655e0b0b241c990d134">td::fs::getFilesOnDisk</a> (const std::string &amp;disk, std::vector&lt; std::pair&lt; unsigned long long, unsigned long long &gt; &gt; positions, bool calculatePercentage, bool filesOnly)</td></tr>
+<tr class="memdesc:a57f47eb854bbe655e0b0b241c990d134"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of files which are stored on the given disk at the given position.  <a href="namespacetd_1_1fs.html#a57f47eb854bbe655e0b0b241c990d134">More...</a><br /></td></tr>
+<tr class="separator:a57f47eb854bbe655e0b0b241c990d134"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8405ab4412e40cf21b44664912c4d19"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd_1_1fs.html#af8405ab4412e40cf21b44664912c4d19">td::fs::iterateFiles</a> (const std::string &amp;disk, bool filesOnly, std::function&lt; bool(unsigned int, const std::string &amp;, unsigned long long, const std::vector&lt; unsigned long long &gt; &amp;)&gt; callback)</td></tr>
+<tr class="memdesc:af8405ab4412e40cf21b44664912c4d19"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function iterates over all files on the given filesystem and calls callback for every file.  <a href="namespacetd_1_1fs.html#af8405ab4412e40cf21b44664912c4d19">More...</a><br /></td></tr>
+<tr class="separator:af8405ab4412e40cf21b44664912c4d19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed May 4 2016 14:23:12 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jul 7 2016 17:06:03 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

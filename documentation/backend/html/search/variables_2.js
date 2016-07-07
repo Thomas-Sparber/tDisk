@@ -1,6 +1,7 @@
 var searchData=
 [
   ['client_5fmtime',['client_mtime',['../structtd_1_1FileMetadata.html#a284bcce7b919a757190d062f046e833b',1,'td::FileMetadata::client_mtime()'],['../structtd_1_1LinkMetadata.html#a1b65c77b1fe7ba5ce25335e1cf7cdd0c',1,'td::LinkMetadata::client_mtime()']]],
+  ['command',['command',['../structtd_1_1shell_1_1ShellCommand.html#ad51b4c7bdc3afb05aba9a8395675533a',1,'td::shell::ShellCommand']]],
   ['commands',['commands',['../src_2main_8cpp.html#ae0dc253b3cd38e2505592ce11e527232',1,'main.cpp']]],
   ['configfiles',['configfiles',['../src_2main_8cpp.html#a9dcb6298590c25aaff295c913f9fb1ba',1,'main.cpp']]],
   ['consumer',['consumer',['../classtd_1_1Dropbox.html#a2fe850c21bec0af9fdbbae7638860cec',1,'td::Dropbox']]],

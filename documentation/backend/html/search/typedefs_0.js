@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['writebufferelement',['WriteBufferElement',['../namespacetd.html#a570c18f34cd2c03e1a4e9cbb2600a416',1,'td']]]
+  ['diskfreespaceresult',['DiskFreeSpaceResult',['../namespacetd_1_1shell.html#a4618bf7f26a7588f70dc80c67b39aff5',1,'td::shell']]]
 ];

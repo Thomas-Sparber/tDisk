@@ -110,9 +110,12 @@ Macros</h2></td></tr>
 <tr class="memitem:a89fdb164fcc14dc8a28a47baae0ccbcd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config_8h.html#a89fdb164fcc14dc8a28a47baae0ccbcd">AUTO_RESET_ACCESS_COUNT</a></td></tr>
 <tr class="memdesc:a89fdb164fcc14dc8a28a47baae0ccbcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines whether automatic reset of sector access count should be enabled.  <a href="#a89fdb164fcc14dc8a28a47baae0ccbcd">More...</a><br /></td></tr>
 <tr class="separator:a89fdb164fcc14dc8a28a47baae0ccbcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a551ed68f23db044bd7501459315eb967"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config_8h.html#a551ed68f23db044bd7501459315eb967">MEASURE_PERFORMANCE</a></td></tr>
-<tr class="memdesc:a551ed68f23db044bd7501459315eb967"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines whether the performance of the devices should be measured.  <a href="#a551ed68f23db044bd7501459315eb967">More...</a><br /></td></tr>
-<tr class="separator:a551ed68f23db044bd7501459315eb967"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af840d0f794874a940456937535977222"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config_8h.html#af840d0f794874a940456937535977222">MEASURE_PING_PERFORMANCE</a></td></tr>
+<tr class="memdesc:af840d0f794874a940456937535977222"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines whether the performance of the devices should be measured.  <a href="#af840d0f794874a940456937535977222">More...</a><br /></td></tr>
+<tr class="separator:af840d0f794874a940456937535977222"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afcacf5b107b235db2966dd58b48319f3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config_8h.html#afcacf5b107b235db2966dd58b48319f3">USE_INITIAL_OPTIMIZATION</a></td></tr>
+<tr class="memdesc:afcacf5b107b235db2966dd58b48319f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines whether the driver should already try to optimize operations when they are performed.  <a href="#afcacf5b107b235db2966dd58b48319f3">More...</a><br /></td></tr>
+<tr class="separator:afcacf5b107b235db2966dd58b48319f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a class="anchor" id="a89fdb164fcc14dc8a28a47baae0ccbcd"></a>
@@ -130,12 +133,12 @@ Macros</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a551ed68f23db044bd7501459315eb967"></a>
+<a class="anchor" id="af840d0f794874a940456937535977222"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define MEASURE_PERFORMANCE</td>
+          <td class="memname">#define MEASURE_PING_PERFORMANCE</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -172,6 +175,21 @@ Macros</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="afcacf5b107b235db2966dd58b48319f3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define USE_INITIAL_OPTIMIZATION</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Defines whether the driver should already try to optimize operations when they are performed. </p>
+<p>This is possible for sectors which are not yet used </p>
+
+</div>
+</div>
 <a class="anchor" id="affe30d6c9b368e56b4da4fee39242007"></a>
 <div class="memitem">
 <div class="memproto">
@@ -205,7 +223,7 @@ Macros</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed May 4 2016 14:23:06 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jul 7 2016 17:05:58 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

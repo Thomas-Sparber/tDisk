@@ -112,9 +112,9 @@ Classes</h2></td></tr>
 <tr class="memitem:structinternal__device__info"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#structinternal__device__info">internal_device_info</a></td></tr>
 <tr class="memdesc:structinternal__device__info"><td class="mdescLeft">&#160;</td><td class="mdescRight">This struct is used to transfer internal device specific information to user space.  <a href="interface_8h.html#structinternal__device__info">More...</a><br /></td></tr>
 <tr class="separator:structinternal__device__info"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:structsector__index"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#structsector__index">sector_index</a></td></tr>
-<tr class="memdesc:structsector__index"><td class="mdescLeft">&#160;</td><td class="mdescRight">A index represents the physical location of a logical sector.  <a href="interface_8h.html#structsector__index">More...</a><br /></td></tr>
-<tr class="separator:structsector__index"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:structphysical__sector__index"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#structphysical__sector__index">physical_sector_index</a></td></tr>
+<tr class="memdesc:structphysical__sector__index"><td class="mdescLeft">&#160;</td><td class="mdescRight">A index represents the physical location of a logical sector.  <a href="interface_8h.html#structphysical__sector__index">More...</a><br /></td></tr>
+<tr class="separator:structphysical__sector__index"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:structsector__info"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#structsector__info">sector_info</a></td></tr>
 <tr class="memdesc:structsector__info"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thsi struct is used to transfer sector specific information to user space.  <a href="interface_8h.html#structsector__info">More...</a><br /></td></tr>
 <tr class="separator:structsector__info"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -131,7 +131,7 @@ Macros</h2></td></tr>
 <tr class="separator:ad8b564add4ed906d28e266f9486fd43b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae2e8c786ddce3df9c7e15062ecc34210"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#ae2e8c786ddce3df9c7e15062ecc34210">DRIVER_MINOR_VERSION</a>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:ae2e8c786ddce3df9c7e15062ecc34210"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4e73efcdf86ccce6dfd20dd25eb008ac"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a4e73efcdf86ccce6dfd20dd25eb008ac">MEASURE_RECORDS_SHIFT</a>&#160;&#160;&#160;16</td></tr>
+<tr class="memitem:a4e73efcdf86ccce6dfd20dd25eb008ac"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a4e73efcdf86ccce6dfd20dd25eb008ac">MEASURE_RECORDS_SHIFT</a>&#160;&#160;&#160;12</td></tr>
 <tr class="memdesc:a4e73efcdf86ccce6dfd20dd25eb008ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Amount of past operations which are averaged over the time to measure the performance of a device this value must be seen as a bit shift value.  <a href="#a4e73efcdf86ccce6dfd20dd25eb008ac">More...</a><br /></td></tr>
 <tr class="separator:a4e73efcdf86ccce6dfd20dd25eb008ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2e1461db800ca49f5286ec41c432aa43"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a2e1461db800ca49f5286ec41c432aa43">TDISK_BLOCKSIZE_MOD</a>&#160;&#160;&#160;4096</td></tr>
@@ -258,6 +258,12 @@ minornumber</td>
 <a class="anchor" id="a3451f4542be97c3245ce650aff70780c"></a>unsigned int</td>
 <td class="fieldname">
 fd</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a60f84b8024ff7342c055e1eff33910ec"></a>int</td>
+<td class="fieldname">
+format</td>
 <td class="fielddoc">
 </td></tr>
 <tr><td class="fieldtype">
@@ -399,12 +405,12 @@ type</td>
 
 </div>
 </div>
-<a name="structsector__index" id="structsector__index"></a>
+<a name="structphysical__sector__index" id="structphysical__sector__index"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">struct sector_index</td>
+          <td class="memname">struct physical_sector_index</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -412,21 +418,27 @@ type</td>
 </div><table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
 <tr><td class="fieldtype">
-<a class="anchor" id="aa7285f69330698bd4f24f28d10015cf6"></a>__u16</td>
+<a class="anchor" id="a98aef8b828795d754a556ed5e83c2e2a"></a>__u16</td>
 <td class="fieldname">
 access_count</td>
 <td class="fielddoc">
 </td></tr>
 <tr><td class="fieldtype">
-<a class="anchor" id="a5a58c40278c381d46d45129f11e2d447"></a><a class="el" href="interface_8h.html#affd8cffebb9bfeaab075a6d080bbc085">tdisk_index</a></td>
+<a class="anchor" id="a070e96ee70de073249366005259fde70"></a><a class="el" href="interface_8h.html#affd8cffebb9bfeaab075a6d080bbc085">tdisk_index</a></td>
 <td class="fieldname">
 disk</td>
 <td class="fielddoc">
 </td></tr>
 <tr><td class="fieldtype">
-<a class="anchor" id="a1654a2e64dbbc62e55ebad995ee3a877"></a>__u64</td>
+<a class="anchor" id="a6656d3f8567adb9b4364071a8df15c93"></a>__u64</td>
 <td class="fieldname">
 sector</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a14e5d8481727ed1b30e8a8225d4c1dc4"></a>__u8</td>
+<td class="fieldname">
+used</td>
 <td class="fielddoc">
 </td></tr>
 </table>
@@ -458,7 +470,7 @@ logical_sector</td>
 <td class="fielddoc">
 </td></tr>
 <tr><td class="fieldtype">
-<a class="anchor" id="abe3341679c0b430296471f657250f228"></a>struct <a class="el" href="interface_8h.html#structsector__index">sector_index</a></td>
+<a class="anchor" id="ad9d8e5ed488d2bc4df3bd68911fc0972"></a>struct <a class="el" href="interface_8h.html#structphysical__sector__index">physical_sector_index</a></td>
 <td class="fieldname">
 physical_sector</td>
 <td class="fielddoc">
@@ -564,7 +576,7 @@ size_blocks</td>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define MEASURE_RECORDS_SHIFT&#160;&#160;&#160;16</td>
+          <td class="memname">#define MEASURE_RECORDS_SHIFT&#160;&#160;&#160;12</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -790,7 +802,7 @@ size_blocks</td>
 </div><div class="memdoc">
 
 <p>The data type which is used to store the disk indices. </p>
-<p>This is very important because it is also stored on the disks itself (</p><dl class="section see"><dt>See also</dt><dd>struct <a class="el" href="interface_8h.html#structsector__index" title="A index represents the physical location of a logical sector. ">sector_index</a>) A tDisk can only have as much disks as this data type supports. BUT larger data type means more overhead. </dd></dl>
+<p>This is very important because it is also stored on the disks itself (</p><dl class="section see"><dt>See also</dt><dd>struct sector_index) A tDisk can only have as much disks as this data type supports. BUT larger data type means more overhead. </dd></dl>
 
 </div>
 </div>
@@ -894,7 +906,7 @@ size_blocks</td>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed May 4 2016 14:23:06 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jul 7 2016 17:05:58 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

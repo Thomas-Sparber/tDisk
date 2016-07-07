@@ -8,5 +8,7 @@ var searchData=
   ['loadoauthtoken',['loadOAuthToken',['../classtd_1_1Dropbox.html#a817c64b7b148730058f88ac63382d992',1,'td::Dropbox']]],
   ['loadoption',['loadOption',['../configfile_8cpp.html#acd941e78b8ef5fbf79d08471711bccb7',1,'configfile.cpp']]],
   ['loadsize',['loadSize',['../classtd_1_1tDisk.html#a987cd13163fdf78ed7a2f1907f7fd77a',1,'td::tDisk']]],
-  ['loadtdisk',['loadTDisk',['../configfile_8cpp.html#ad6e7914f3c8a8496d7deb692c502e9c3',1,'configfile.cpp']]]
+  ['loadtdisk',['loadTDisk',['../configfile_8cpp.html#ad6e7914f3c8a8496d7deb692c502e9c3',1,'configfile.cpp']]],
+  ['loglevel',['logLevel',['../namespacetd.html#a17f0005e023c923ec7350800a5dba9c2',1,'td']]],
+  ['loglevelstring',['logLevelString',['../namespacetd.html#a6f1d81b056a68e755f3c9a950682001f',1,'td']]]
 ];

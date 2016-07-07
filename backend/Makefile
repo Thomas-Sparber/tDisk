@@ -6,27 +6,28 @@ LDFLAGS_SHARED=
 LDFLAGS=-Wl,-rpath '-Wl,$$ORIGIN' -L. -ltd-backend
 SOURCES= \
 	src/tdisk.c \
-	src/tdisk_fake.c \
-	src/backend_c.c
+	src/tdisk_fake.c
 
 CPP_SOURCES= \
+	src/backend.cpp \
+	src/backend_c.cpp \
 	src/configfile.cpp \
 	src/device.cpp \
 	src/deviceadvisor.cpp \
 	src/extinodescan.cpp \
 	src/filesystem.cpp \
-	src/backend.cpp \
 	src/option.cpp \
 	src/options.cpp \
 	src/shell.cpp \
+	src/tdisk.cpp \
 	src/tdisk_advice.cpp
 
 MAIN_SOURCE= \
 	src/main.cpp
 
 
-OBJECTS=$(SOURCES:src/%.c=bin/%.o) $(CPP_SOURCES:src/%.cpp=bin/%.o)
-MAIN_OBJECT=$(MAIN_SOURCE:src/%.cpp=bin/%.o)
+OBJECTS=$(SOURCES:src/%.c=bin/%.c.o) $(CPP_SOURCES:src/%.cpp=bin/%.cpp.o)
+MAIN_OBJECT=$(MAIN_SOURCE:src/%.cpp=bin/%.cpp.o)
 DEPS=$(OBJECTS:bin/%.o=bin/%.d) $(MAIN_OBJECT:bin/%.o=bin/%.d)
 
 TARGETS=bin tdisk make_fileshare make_serial
@@ -53,11 +54,11 @@ tdisk: $(MAIN_OBJECT) $(LIB_NAME)
 	@echo "Linking" $@
 	@$(CXX) -o $@ $(MAIN_OBJECT) $(LDFLAGS)
 
-bin/%.o: src/%.c
+bin/%.c.o: src/%.c
 	@echo "Compiling" $<
 	@$(CC) -MD $(CFLAGS) -o $@ $<
 
-bin/%.o: src/%.cpp
+bin/%.cpp.o: src/%.cpp
 	@echo "Compiling" $<
 	@$(CXX) -MD $(CFLAGS) $(CPPFLAGS) -o $@ $<
 

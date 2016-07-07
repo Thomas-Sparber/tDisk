@@ -81,11 +81,17 @@ namespace shell
 			return line;
 		}
 
+		/**
+		  * Gets the string value
+		 **/
 		virtual const std::string& getValue() const
 		{
 			return value;
 		}
 
+		/**
+		  * Sets the string value
+		 **/
 		virtual void setValue(const std::string &v)
 		{
 			this->value = v;

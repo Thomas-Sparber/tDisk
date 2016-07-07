@@ -136,16 +136,25 @@ namespace shell
 			retValues()
 		{}
 
+		/**
+		  * Returns the value of the ShellObject
+		 **/
 		virtual const std::string& getValue(const char *name) const
 		{
 			return getRetValue(name, retValues).getValue();
 		}
 
+		/**
+		  * Clones the ShellObject
+		 **/
 		virtual ShellObjectBase* clone() const
 		{
 			return new ShellObject<RetValues...>(*this);
 		}
 
+		/**
+		  * Parses the string and fills the arguments
+		 **/
 		virtual void parseArguments(const std::string &r)
 		{
 			std::vector<std::string> splitted;

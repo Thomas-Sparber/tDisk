@@ -13,8 +13,14 @@
 namespace td
 {
 
+	/**
+	  * The default baud rate which is used for serial port communication
+	 **/
 	constexpr Serialport::Baud default_baud = Serialport::Baud_2400;
 
+	/**
+	  * The default parity which is used for serial port communication
+	 **/
 	constexpr Serialport::Parity default_parity = Serialport::EvenParity;
 
 } //end namespace td

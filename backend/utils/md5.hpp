@@ -19,6 +19,9 @@ namespace md5
 		#include "md5.h"
 	}
 
+	/**
+	  * Calculates the md5 hash of the given string
+	 **/
 	std::string getMD5(const std::string &str)
 	{
 		struct MD5Context md5c;
@@ -35,6 +38,9 @@ namespace md5
 		return ss.str();
 	}
 
+	/**
+	  * Calculates the md5 hash of the given file
+	 **/
 	std::string getFileMD5(const std::string &file)
 	{
 		char buffer[1024];

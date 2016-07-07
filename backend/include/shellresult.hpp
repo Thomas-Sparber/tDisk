@@ -176,6 +176,7 @@ public:
 	}
 
 private:
+
 	/**
 	  * The internal container where the result objects are stored
 	 **/

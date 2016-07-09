@@ -7,6 +7,7 @@ fi
 
 #Load gadget driver
 modprobe libcomposite
+sleep 2
 
 #Create gadget directory
 cd /sys/kernel/config/usb_gadget/

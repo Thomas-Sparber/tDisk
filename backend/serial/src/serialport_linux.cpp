@@ -128,7 +128,9 @@ bool Serialport::listSerialports(vector<Serialport> &out)
 	{
 		while(dirent *ent = readdir(dir))
 		{
-			if(strncmp(ent->d_name, "ttyS", 4) != 0)continue;
+			if(strncmp(ent->d_name, "ttyS", 4) != 0 &&
+				strncmp(ent->d_name, "ttyACM", 6) != 0 &&
+				strncmp(ent->d_name, "ttyGS", 5) != 0)continue;
 
 			const string path = string("/dev/") + ent->d_name;
 			int fd = open(path.c_str(), O_RDWR | O_NONBLOCK | O_SYNC);

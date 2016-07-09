@@ -21,7 +21,7 @@ namespace td
 	/**
 	  * The default parity which is used for serial port communication
 	 **/
-	constexpr Serialport::Parity default_parity = Serialport::EvenParity;
+	constexpr Serialport::Parity default_parity = Serialport::NoParity;
 
 } //end namespace td
 

@@ -36,8 +36,6 @@ using std::vector;
 
 using namespace td;
 
-//const string ttyFile("/dev/ttyGS0");
-const string ttyFile("/dev/ttyS1");
 const string host("http://localhost:8080");
 
 int set_interface_attribs(int fd, int speed, int parity)
@@ -138,6 +136,22 @@ inline int getLinuxParity(Serialport::Parity parity)
 
 int main(int argc, char *args[])
 {
+	bool echo = false;
+	if(argc > 1 && string(args[1]) == "-e")
+	{
+		echo = true;
+		args++;
+		argc--;
+	}
+
+	if(argc <= 1)
+	{
+		cerr<<"Please provide a tty device (e.g. ttyGS0"<<endl;
+		return 1;
+	}
+
+	const string ttyFile = args[1];
+
 	initCurl();
 
 	int fd = open(ttyFile.c_str(), O_RDWR | O_SYNC /*| O_NONBLOCK */| O_NOCTTY);
@@ -149,12 +163,6 @@ int main(int argc, char *args[])
 
 	set_interface_attribs (fd, getLinuxBaud(default_baud)/*B1200 B230400*/, getLinuxParity(default_parity));
 	set_blocking (fd, 0);
-
-	bool echo = false;
-	if(argc > 1 && string(args[1]) == "-e")
-	{
-		echo = true;
-	}
 
 //	struct pollfd pollfd;
 //	pollfd.fd = fd;

@@ -87,7 +87,7 @@ bool Serialport::listSerialports(vector<Serialport> &out)
 	try {
 		for(const Win32_SerialPort &port : Wmi::retrieveAllWmi<Win32_SerialPort>())
 		{
-			Serialport temp(port.Name);
+			Serialport temp(port.DeviceID);
 			temp.friendlyName = port.Description;
 			out.push_back(std::move(temp));
 		}
@@ -127,7 +127,7 @@ bool Serialport::openConnection()
 	conn(this).hSerial = CreateFile(path.c_str(), GENERIC_READ|GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if(conn(this).hSerial == INVALID_HANDLE_VALUE)
 	{
-		cerr<<"Error opening serial port "<<conn(this).hSerial<<endl;
+		cerr<<"Error opening serial port "<<GetLastError()<<endl;
 		delete (Connection*)connection;
 		connection = nullptr;
 		return false;

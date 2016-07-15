@@ -162,6 +162,35 @@ struct tdisk_info {
 };
 
 
+/****************** tDisk debugging *****************/
+
+/**
+  * This struct is used to store information about the current
+  * operations of a tdisk
+ **/
+struct tdisk_debug_info
+{
+	/** The id of the debug info **/
+	__u64 id;
+
+	/** The current source file **/
+	char file[256];
+
+	/** The current line in the file **/
+	int line;
+
+	/** The current function **/
+	char function[256];
+
+	/** A custom message **/
+	char message[256];
+
+	/** The time of the debugging info **/
+	__u64 time;
+
+}; //end struct tdisk_debug_info
+
+
 /****************** IOCTL commands ******************/
 
 #define TDISK_ADD_DISK			0x4C00

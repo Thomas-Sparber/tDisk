@@ -29,6 +29,7 @@ ccflags-y := -O3 -I$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/inc
 tdisk-objs := \
 	src/tdisk.o \
 	src/tdisk_control.o \
+	src/tdisk_debug.o \
 	src/tdisk_nl.o \
 	src/worker_timeout.o
 

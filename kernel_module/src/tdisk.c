@@ -2505,6 +2505,8 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	err = td_set_max_sectors(td, 0);
 	if(err < 0)goto out_free_queue;
 
+	init_debug_struct(&td->debug);
+
 	disk->flags |= GENHD_FL_EXT_DEVT;
 	mutex_init(&td->ctl_mutex);
 	atomic_set(&td->refcount, 0); 
@@ -2520,7 +2522,7 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	add_disk(disk);
 	*t = td;
 
-	printk(KERN_DEBUG "tDisk: new disk %s: blocksize: %u, header size: %u sec\n", disk->disk_name, blocksize, td->header_size);
+	DEBUG_POINT(&td->debug, "tDisk: new disk %s: blocksize: %u, header size: %u sec\n", disk->disk_name, blocksize, td->header_size);
 
 	return td->number;
 

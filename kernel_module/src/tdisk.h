@@ -11,6 +11,7 @@
 #include <tdisk/config.h>
 #include <tdisk/interface.h>
 #include "worker_timeout.h"
+#include "tdisk_debug.h"
 
 #pragma GCC system_header
 #include <linux/atomic.h>
@@ -178,6 +179,8 @@ struct tdisk {
 	struct sorted_sector_index *sorted_sectors;	//The sectors sorted according to their access count;
 
 	int access_count_resort;		//Keeps track if the access_count was updated during a file request and needs to be resorted
+
+	struct debug_struct debug;	//Used to save debugging info
 };
 
 /**

@@ -2125,6 +2125,24 @@ static int td_clear_access_count(struct tdisk *td)
 }
 
 /**
+  * This function retrieves the next debug info
+ **/
+static int td_get_debug(struct tdisk *td, struct tdisk_debug_info __user *arg)
+{
+	struct tdisk_debug_info info;
+
+	if(copy_from_user(&info, arg, sizeof(struct tdisk_debug_info)) != 0)
+		return -EFAULT;
+
+	get_next_debug_point(&td->debug, info.id, &info);
+
+	if(copy_to_user(arg, &info, sizeof(struct tdisk_debug_info)) != 0)
+		return -EFAULT;
+
+	return 0;
+}
+
+/**
   * This function handles all ioctl coming from userspace
  **/
 static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, unsigned long arg)
@@ -2153,6 +2171,8 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 	case TDISK_CLEAR_ACCESS_COUNT:
 		err = td_clear_access_count(td);
 		break;
+	case TDISK_GET_DEBUG:
+		err = td_get_debug(td, (struct tdisk_debug_info __user *) arg);
 	default:
 		err = -EINVAL;
 	}

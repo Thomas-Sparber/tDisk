@@ -193,14 +193,13 @@ struct tdisk_debug_info
 
 /****************** IOCTL commands ******************/
 
-#define TDISK_ADD_DISK			0x4C00
-//#define TDISK_SET_STATUS		0x4C04
-#define TDISK_GET_STATUS		0x4C05
-#define TDISK_GET_DEVICE_INFO	0x4C06
-#define TDISK_GET_SECTOR_INDEX	0x4C07
-#define TDISK_GET_ALL_SECTOR_INDICES 0x4C08
-#define TDISK_CLEAR_ACCESS_COUNT 0x4C09
-//#define TDISK_SET_CAPACITY		0x4C09
+#define TDISK_ADD_DISK					0x4C00
+#define TDISK_GET_STATUS				0x4C01
+#define TDISK_GET_DEVICE_INFO			0x4C02
+#define TDISK_GET_SECTOR_INDEX			0x4C03
+#define TDISK_GET_ALL_SECTOR_INDICES	0x4C04
+#define TDISK_CLEAR_ACCESS_COUNT		0x4C05
+#define TDISK_GET_DEBUG					0x4C06
 
 // /dev/td-control interface
 #define TDISK_CTL_ADD			0x4C80

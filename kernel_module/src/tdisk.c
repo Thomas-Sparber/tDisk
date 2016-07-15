@@ -292,12 +292,6 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	u8 *buffer_a;
 	u8 *buffer_b;
 
-	struct sector_index unused_sector = {
-		.sector = 0,
-		.access_count = 0,
-		.disk = 0
-	};
-
 	//Swap sectors in case disk b is better. This speeds up the swapping process
 	if(td_get_device_performance(&td->internal_devices[a->disk-1]) > td_get_device_performance(&td->internal_devices[b->disk-1]))
 	{
@@ -956,7 +950,7 @@ static int td_read_header(struct tdisk *td, struct td_internal_device *device, s
 #ifdef MEASURE_PERFORMANCE
 		device->performance = header->performance;
 #else
-#pragma message "Performance measurement is disabled"
+//#pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
 		break;
 	default:
@@ -1188,7 +1182,13 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 #endif //USE_INITIAL_OPTIMIZATION
 
 		//Fetch physical index
-		td_perform_index_operation(td, READ, sector, &physical_sector, true, true);
+		ret = td_perform_index_operation(td, READ, sector, &physical_sector, true, true);
+		if(ret != 0)
+		{
+			printk_ratelimited(KERN_ERR "tDisk: Error reading logical sector index: %llu\n", sector);
+			ret = -EIO;
+			continue;
+		}
 
 		//Calculate actual position in the physical disk
 		actual_pos_byte = (loff_t)physical_sector.sector*td->blocksize + offset;
@@ -2461,7 +2461,7 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	td->state = state_unbound;
 	td->size_blocks = 0;
 
-	//allocate id, if @id >= 0, we're requesting that specific id
+	//allocate id, if id >= 0, we're requesting that specific id
 	if(i >= 0)
 	{
 		err = idr_alloc(&td_index_idr, td, i, i + 1, GFP_KERNEL);

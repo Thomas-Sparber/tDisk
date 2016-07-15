@@ -26,7 +26,7 @@ inline static int write_data(struct td_internal_device *device, void *data, loff
 
 	getnstimeofday(&startTime);
 #else
-#pragma message "Performance measurement is disabled"
+//#pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
 
 	switch(device->type)
@@ -59,7 +59,7 @@ inline static int write_data(struct td_internal_device *device, void *data, loff
 	getnstimeofday(&endTime);
 	update_performance(WRITE, &startTime, &endTime, length, &device->performance);
 #else
-#pragma message "Performance measurement is disabled"
+//#pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
 
 	return ret;
@@ -79,7 +79,7 @@ inline static int read_data(struct td_internal_device *device, void *data, loff_
 
 	getnstimeofday(&startTime);
 #else
-#pragma message "Performance measurement is disabled"
+//#pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
 
 	switch(device->type)
@@ -112,7 +112,7 @@ inline static int read_data(struct td_internal_device *device, void *data, loff_
 	getnstimeofday(&endTime);
 	update_performance(READ, &startTime, &endTime, length, &device->performance);
 #else
-#pragma message "Performance measurement is disabled"
+//#pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
 
 	return ret;
@@ -132,7 +132,7 @@ inline static int write_bio_vec(struct td_internal_device *device, struct bio_ve
 
 	getnstimeofday(&startTime);
 #else
-#pragma message "Performance measurement is disabled"
+//#pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
 
 	switch(device->type)
@@ -165,7 +165,7 @@ inline static int write_bio_vec(struct td_internal_device *device, struct bio_ve
 	getnstimeofday(&endTime);
 	update_performance(WRITE, &startTime, &endTime, bvec->bv_len, &device->performance);
 #else
-#pragma message "Performance measurement is disabled"
+//#pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
 
 	return ret;
@@ -185,7 +185,7 @@ inline static int read_bio_vec(struct td_internal_device *device, struct bio_vec
 
 	getnstimeofday(&startTime);
 #else
-#pragma message "Performance measurement is disabled"
+//#pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
 
 	switch(device->type)
@@ -218,7 +218,7 @@ inline static int read_bio_vec(struct td_internal_device *device, struct bio_vec
 	getnstimeofday(&endTime);
 	update_performance(READ, &startTime, &endTime, bvec->bv_len, &device->performance);
 #else
-#pragma message "Performance measurement is disabled"
+//#pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
 
 	return ret;

@@ -185,8 +185,11 @@ struct tdisk_debug_info
 	/** A custom message **/
 	char message[256];
 
-	/** The time of the debugging info **/
+	/** The time of the debugging info in jiffies **/
 	__u64 time;
+
+	/** The value of HZ (x HZ = 1 sec) **/
+	int hz;
 
 }; //end struct tdisk_debug_info
 
@@ -199,7 +202,7 @@ struct tdisk_debug_info
 #define TDISK_GET_SECTOR_INDEX			0x4C03
 #define TDISK_GET_ALL_SECTOR_INDICES	0x4C04
 #define TDISK_CLEAR_ACCESS_COUNT		0x4C05
-#define TDISK_GET_DEBUG					0x4C06
+#define TDISK_GET_DEBUG_INFO			0x4C06
 
 // /dev/td-control interface
 #define TDISK_CTL_ADD			0x4C80

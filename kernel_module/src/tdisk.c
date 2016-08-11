@@ -1677,6 +1677,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	{
 #ifdef USE_FILES
 	case internal_device_type_file:
+		DEBUG_POINT(&td->debug, "tDisk: Adding new internal device file: %s (Path: %s)\n", new_device.name, new_device.path);
 		printk(KERN_INFO "tDisk: Adding new internal device file: %s (Path: %s)\n", new_device.name, new_device.path);
 		error = -EBADF;
 		if(!new_device.file)goto out;
@@ -1697,6 +1698,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 
 #ifdef USE_PLUGINS
 	case internal_device_type_plugin:
+		DEBUG_POINT(&td->debug, "tDisk: Adding new internal device plugin: %s (Path: %s)\n", new_device.name, new_device.path);
 		printk(KERN_INFO "tDisk: Adding new internal device plugin: %s (Path: %s)\n", new_device.name, new_device.path);
 
 		//Plugin size in bytes
@@ -2135,6 +2137,7 @@ static int td_get_debug(struct tdisk *td, struct tdisk_debug_info __user *arg)
 		return -EFAULT;
 
 	get_next_debug_point(&td->debug, info.id, &info);
+	info.hz = HZ;
 
 	if(copy_to_user(arg, &info, sizeof(struct tdisk_debug_info)) != 0)
 		return -EFAULT;
@@ -2171,9 +2174,11 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 	case TDISK_CLEAR_ACCESS_COUNT:
 		err = td_clear_access_count(td);
 		break;
-	case TDISK_GET_DEBUG:
+	case TDISK_GET_DEBUG_INFO:
 		err = td_get_debug(td, (struct tdisk_debug_info __user *) arg);
+		break;
 	default:
+		printk(KERN_WARNING "tDisk: Invalid IOCTL: %d\n", cmd);
 		err = -EINVAL;
 	}
 	mutex_unlock(&td->ctl_mutex);
@@ -2543,6 +2548,7 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	*t = td;
 
 	DEBUG_POINT(&td->debug, "tDisk: new disk %s: blocksize: %u, header size: %u sec\n", disk->disk_name, blocksize, td->header_size);
+	printk(KERN_DEBUG "tDisk: new disk %s: blocksize: %u, header size: %u sec\n", disk->disk_name, blocksize, td->header_size);
 
 	return td->number;
 

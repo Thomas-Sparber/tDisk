@@ -83,7 +83,7 @@ struct debug_struct
  **/
 inline static void init_debug_struct(struct debug_struct *ds)
 {
-	ds->id_counter = 0;
+	ds->id_counter = 1;
 	spin_lock_init(&ds->counter_lock);
 	memset(ds->info, 0, sizeof(ds->info));
 	ds->current_debug_info = 0;

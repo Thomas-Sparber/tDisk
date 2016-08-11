@@ -15,7 +15,7 @@ void debug_point(struct debug_struct *ds, const char *file, int line, const char
 
 	//Find new debug_info
 	spin_lock(&ds->counter_lock);
-	if(ds->current_debug_info == AMOUNT_MEASURE_POINTS)
+	if(ds->current_debug_info >= AMOUNT_MEASURE_POINTS)
 		ds->current_debug_info = 0;
 	info = &ds->info[ds->current_debug_info];
 	info->id = ds->id_counter++;
@@ -30,7 +30,7 @@ void debug_point(struct debug_struct *ds, const char *file, int line, const char
 
 	//Save custom message
 	va_start(args, message);
-	snprintf(info->message, sizeof(info->message), message, args);
+	vsnprintf(info->message, sizeof(info->message), message, args);
 	va_end(args);
 }
 
@@ -57,7 +57,7 @@ void get_next_debug_point(struct debug_struct *ds, u64 current_id, struct tdisk_
 	out->id = info.id;
 	strncpy(out->file, info.file, sizeof(out->file));
 	out->line = info.line;
-	strncpy(out->function, info.file, sizeof(out->function));
-	strncpy(out->message, info.file, sizeof(out->message));
+	strncpy(out->function, info.function, sizeof(out->function));
+	strncpy(out->message, info.message, sizeof(out->message));
 	out->time = info.time_jiffies;
 }

@@ -112,6 +112,11 @@ vector<Command> commands {
 		"Gets device information of the device with the given id. It needs\n"
 		"the tDisk minornumber/path and device id as argument"),
 	
+	Command("get_debug_info", get_debug_info,
+		"Gets debug information about the given tDisk. It needs the tDisk\n"
+		"minornumber/path and an optional current debug id to get the next\n"
+		"info"),
+	
 	Command("load_config_file", load_config_file,
 		"Loads the given config file. It needs the path to the config file as\n"
 		"argument"),

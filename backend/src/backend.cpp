@@ -620,6 +620,38 @@ BackendResult td::get_device_info(const vector<string> &args, Options &options)
 	return std::move(r);
 }
 
+BackendResult td::get_debug_info(const vector<string> &args, Options &options)
+{
+	BackendResult r;
+	if(args.size() < 1)
+	{
+		r.error(BackendResultType::general, "\"get_device_info\" needs the td device and and optional info id\n");
+		return std::move(r);
+	}
+
+	uint64_t id = 0;
+	if(args.size() > 1)
+	{
+		//Read debug id
+		if(!utils::convertTo(args[1], id))
+		{
+			r.error(BackendResultType::general, utils::concat("Invalid number ", args[1], " for debug id"));
+			return std::move(r);
+		}
+	}
+
+	try {
+		tDisk d = tDisk::get(args[0]);
+		f_tdisk_debug_info info = d.getDebugInfo(id);
+
+		r.result(info, options.getOptionValue("output-format"));
+	} catch (const tDiskException &e) {
+		r.error(BackendResultType::driver, e.what());
+	}
+	
+	return std::move(r);
+}
+
 BackendResult td::load_config_file(const vector<string> &args, Options &options)
 {
 	BackendResult r;

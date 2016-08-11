@@ -326,7 +326,24 @@ f_internal_device_info tDisk::getDeviceInfo(unsigned int device) const
 	}
 
 	online = true;
-	return info;
+	return std::move(info);
+}
+
+f_tdisk_debug_info tDisk::getDebugInfo(uint64_t currentId) const
+{
+	f_tdisk_debug_info info;
+	int ret = tdisk_get_debug_info(name.c_str(), currentId, &info);
+
+	try {
+		handleError(ret);
+	} catch (const tDiskOfflineException &e) {
+		throw tDiskOfflineException("Can't get debug info for tDisk ", name, ": ", e.what());
+	} catch (const tDiskException &e) {
+		throw tDiskException("Can't get debug info for tDisk ", name, ": ", e.what());
+	}
+
+	online = true;
+	return std::move(info);
 }
 
 vector<FileAssignment> tDisk::getFilesOnDevice(unsigned int device, bool getPercentages, bool filesOnly)
@@ -513,6 +530,32 @@ template <> void td::createResultString(ostream &ss, const f_internal_device_inf
 		CREATE_RESULT_STRING_MEMBER_TEXT(ss, info, size, hierarchy+1, outputFormat); ss<<"\n";
 		CREATE_RESULT_STRING_MEMBER_TEXT(ss, info, type, hierarchy+1, outputFormat); ss<<"\n";
 		createResultString(ss, info.performance, hierarchy+1, outputFormat); ss<<"\n";
+	}
+	else
+		throw FormatException("Invalid output-format ", outputFormat);
+}
+
+template <> void td::createResultString(ostream &ss, const f_tdisk_debug_info &info, unsigned int hierarchy, const utils::ci_string &outputFormat)
+{
+	if(outputFormat == "json")
+	{
+		ss<<"{\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, info, id, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, info, file, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, info, line, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, info, function, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, info, message, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, info, time, hierarchy+1, outputFormat); ss<<"\n";
+		insertTab(ss, hierarchy); ss<<"}";
+	}
+	else if(outputFormat == "text")
+	{
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, info, id, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, info, file, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, info, line, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, info, function, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, info, message, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, info, time, hierarchy+1, outputFormat); ss<<"\n";
 	}
 	else
 		throw FormatException("Invalid output-format ", outputFormat);

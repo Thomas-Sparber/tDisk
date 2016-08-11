@@ -161,6 +161,16 @@ namespace td
 	BackendResult get_device_info(const std::vector<std::string> &args, Options &options);
 
 	/**
+	  * Returns debug information about the tdisk. When the current
+	  * debug id is given, then the next debug info is returned
+	  * @param args:
+	  *  - tDisk minor number (e.g. 0) or path (e.g. /dev/td0)
+	  *  - (Optional: The current debug id)
+	  * @param options: The command options (e.g. output-format)
+	 **/
+	BackendResult get_debug_info(const std::vector<std::string> &args, Options &options);
+
+	/**
 	  * Loads the given config file @see ConfigFile
 	  * @param args:
 	  *  - Path to the config file to be loaded

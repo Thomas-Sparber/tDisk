@@ -104,6 +104,32 @@ struct f_sector_info
 	struct f_sector_index physical_sector;
 }; //end struct f_sector_info
 
+/**
+  * Frontend version
+  * This struct is used to retrieve debug information from a tdisk
+ **/
+struct f_tdisk_debug_info
+{
+	/** The id of the debug info **/
+	uint64_t id;
+
+	/** The current source file **/
+	char file[256];
+
+	/** The current line in the file **/
+	int line;
+
+	/** The current function **/
+	char function[256];
+
+	/** A custom message **/
+	char message[256];
+
+	/** The time of the debugging info **/
+	double time;
+
+}; //end struct tdisk_debug_info
+
 
 /**
   * Returns the current amount of registered tDisks
@@ -194,6 +220,11 @@ int tdisk_get_internal_devices_count(const char *device, unsigned int *out);
   * Gets device information of the device with the given id
  **/
 int tdisk_get_device_info(const char *device, unsigned int disk, struct f_internal_device_info *out);
+
+/**
+  * Gets debug information about the given tDisk
+ **/
+int tdisk_get_debug_info(const char *device, uint64_t current_id, struct f_tdisk_debug_info *out);
 
 /**
   * Gets the measure shift.

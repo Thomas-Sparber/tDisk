@@ -68,6 +68,16 @@ inline static void set_internal_device_info(struct f_internal_device_info *targe
 	set_device_performance(&target->performance, &source->performance);
 }
 
+inline static void set_tdisk_debug_info(struct f_tdisk_debug_info *target, const struct tdisk_debug_info *source)
+{
+	target->id = source->id;
+	strncpy(target->file, source->file, sizeof(target->file));
+	target->line = source->line;
+	strncpy(target->function, source->function, sizeof(target->function));
+	strncpy(target->message, source->message, sizeof(target->message));
+	target->time = (double)((long double)source->time / source->hz);
+}
+
 int check_td_control()
 {
 	return (access(CONTROL_FILE, F_OK) != -1);
@@ -401,6 +411,26 @@ int tdisk_get_device_info(const char *device, unsigned int disk, struct f_intern
 	temp.disk = (tdisk_index)disk;
 	ret = ioctl(dev, TDISK_GET_DEVICE_INFO, &temp);
 	set_internal_device_info(out, &temp);
+
+	close(dev);
+
+	return ret;
+}
+
+int tdisk_get_debug_info(const char *device, uint64_t current_id, struct f_tdisk_debug_info *out)
+{
+	int dev;
+	int ret;
+	struct tdisk_debug_info temp;
+
+	if(!check_td_control())return -ENODEV;
+
+	dev = open(device, O_RDWR);
+	if(dev < 0)return -EACCES;
+
+	temp.id = current_id;
+	ret = ioctl(dev, TDISK_GET_DEBUG_INFO, &temp);
+	set_tdisk_debug_info(out, &temp);
 
 	close(dev);
 

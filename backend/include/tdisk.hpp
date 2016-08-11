@@ -37,6 +37,7 @@ namespace c
 
 using c::f_device_performance;
 using c::f_internal_device_info;
+using c::f_tdisk_debug_info;
 using c::f_internal_device_type;
 using c::f_sector_index;
 using c::f_sector_info;
@@ -288,6 +289,11 @@ public:
 	f_internal_device_info getDeviceInfo(unsigned int device) const;
 
 	/**
+	  * Returns the (next) debug info for the tDisk
+	 **/
+	f_tdisk_debug_info getDebugInfo(uint64_t currentId=0) const;
+
+	/**
 	  * Returns all files which are stored on the given internal device
 	 **/
 	std::vector<FileAssignment> getFilesOnDevice(unsigned int device, bool getPercentages, bool filesOnly);
@@ -348,6 +354,11 @@ template <> void createResultString(std::ostream &ss, const enum f_internal_devi
   * Stringifies the given f_internal_device_info using the given format
  **/
 template <> void createResultString(std::ostream &ss, const f_internal_device_info &info, unsigned int hierarchy, const utils::ci_string &outputFormat);
+
+/**
+  * Stringifies the given f_tdisk_debug_info using the given format
+ **/
+template <> void createResultString(std::ostream &ss, const f_tdisk_debug_info &info, unsigned int hierarchy, const utils::ci_string &outputFormat);
 
 /**
   * Stringifies the given tDisk using the given format

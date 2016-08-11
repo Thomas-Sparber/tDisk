@@ -86,6 +86,11 @@ struct BackendResult* get_internal_devices_count(int argc, char *args[], struct 
 struct BackendResult* get_device_info(int argc, char *args[], struct Options *options);
 
 /**
+  * C version of get_debug_info. Look at the C++ version for more details.
+ **/
+struct BackendResult* get_debug_info(int argc, char *args[], struct Options *options);
+
+/**
   * C version of load_config_file. Look at the C++ version for more details.
  **/
 struct BackendResult* load_config_file(int argc, char *args[], struct Options *options);

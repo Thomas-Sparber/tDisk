@@ -115,9 +115,9 @@ namespace td
 	inline void createResultString_number(std::ostream &ss, const T &i, const utils::ci_string &outputFormat)
 	{
 		if(outputFormat == "json")
-			ss<<i;
+			ss<<std::fixed<<i;
 		else if(outputFormat == "text")
-			ss<<i;
+			ss<<std::fixed<<i;
 		else
 			throw FormatException("Invalid output-format ", outputFormat);
 	}

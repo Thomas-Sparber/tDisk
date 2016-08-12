@@ -1092,44 +1092,6 @@ sector_t td_find_sector_for_better_performance(struct tdisk *td, sector_t sector
 #endif //USE_INITIAL_OPTIMIZATION
 
 /**
-  * This callback is used for async file operations
- **/
-static void async_request_callback(void *private_data, long ret)
-{
-	struct request *rq = private_data;
-	printk(KERN_DEBUG "tDisk: request finished, ret: %ld\n", ret);
-	if(ret > 0)
-	{
-		//Handle partial reads
-		if(!(rq->cmd_flags & REQ_WRITE))
-		{
-			if(unlikely((size_t)ret < blk_rq_bytes(rq)))
-			{
-				struct bio *bio = rq->bio;
-
-				bio_advance(bio, (unsigned int)ret);
-				zero_fill_bio(bio);
-			}
-		}
-
-		ret = 0;
-	}
-	else
-	{
-		printk(KERN_ERR "tDisk: Async disk error\n");
-		ret = -EIO;
-	}
-	
-
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
-	rq->errors = ret;
-	blk_mq_complete_request(rq);
-#else
-	blk_mq_complete_request(rq, ret);
-#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
-}
-
-/**
   * This function does the actual device operations. It extracts
   * the logical sector and the data from the request. Then it
   * searches for the corresponding disk and physical sector and
@@ -1265,6 +1227,46 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 	return ret;
 }
 
+#ifdef ASYNC_OPERATIONS
+
+/**
+  * This callback is used for async file operations
+ **/
+static void async_request_callback(void *private_data, long ret)
+{
+	struct request *rq = private_data;
+	printk(KERN_DEBUG "tDisk: request finished, ret: %ld\n", ret);
+	if(ret > 0)
+	{
+		//Handle partial reads
+		if(!(rq->cmd_flags & REQ_WRITE))
+		{
+			if(unlikely((size_t)ret < blk_rq_bytes(rq)))
+			{
+				struct bio *bio = rq->bio;
+
+				bio_advance(bio, (unsigned int)ret);
+				zero_fill_bio(bio);
+			}
+		}
+
+		ret = 0;
+	}
+	else
+	{
+		printk(KERN_ERR "tDisk: Async disk error\n");
+		ret = -EIO;
+	}
+	
+
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+	rq->errors = ret;
+	blk_mq_complete_request(rq);
+#else
+	blk_mq_complete_request(rq, ret);
+#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+}
+
 /**
   * This function does the actual device operations. It extracts
   * the logical sector and the data from the request. Then it
@@ -1390,6 +1392,7 @@ static int td_do_disk_operation_async(struct tdisk *td, struct request *rq)
 	file_multi_aio_complete(multi_data, 0);
 	return ret;
 }
+#endif //ASYNC_OPERATIONS
 
 /**
   * Read the partition table of the tDisk

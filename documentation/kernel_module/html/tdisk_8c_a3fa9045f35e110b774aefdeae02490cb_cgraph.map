@@ -1,0 +1,11 @@
+<map id="tdisk_exit_callback" name="tdisk_exit_callback">
+<area shape="rect" id="node2" href="$tdisk_8c.html#acd5e2f82be480bdbf9f7495bc9263ca9" title="This function is called to remove a tDisk. " alt="" coords="193,63,301,90"/>
+<area shape="rect" id="node3" href="$tdisk_8c.html#a28059be4f864c9f6afaaebb5143b29a6" title="Stops the worker thread. " alt="" coords="349,13,517,39"/>
+<area shape="rect" id="node6" href="$tdisk_8c.html#a3bf9aa5806e550a172fad50351f00d43" title="Writes the td header to the given device and measures the disk performance if perf != NULL..." alt="" coords="371,63,495,90"/>
+<area shape="rect" id="node10" href="$tdisk_8c.html#a3d3def15917c648547ea4e4ab3394317" title="Writes all the sector indices to the device. " alt="" coords="361,114,505,141"/>
+<area shape="rect" id="node4" href="$worker__timeout_8c.html#acdf7d2e8ff5e302d8f0b19d5c0e92058" title="Flushes the given worker thread. " alt="" coords="565,5,723,47"/>
+<area shape="rect" id="node5" href="$worker__timeout_8c.html#a9cb5d7f5650cedfe0249a116d574ed76" title="This function is called for the flush work. " alt="" coords="777,5,921,47"/>
+<area shape="rect" id="node7" href="$tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="600,93,688,119"/>
+<area shape="rect" id="node8" href="$tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="771,93,927,119"/>
+<area shape="rect" id="node9" href="$helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="975,93,1068,119"/>
+</map>

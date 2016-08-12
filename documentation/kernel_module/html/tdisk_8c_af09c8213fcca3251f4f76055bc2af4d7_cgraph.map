@@ -1,0 +1,6 @@
+<map id="td_read_header" name="td_read_header">
+<area shape="rect" id="node2" href="$tdisk__device__operations_8h.html#aef5a276b75fc3125ea4ba57e59031cf0" title="Generic function that reads data from a device. " alt="" coords="224,5,311,32"/>
+<area shape="rect" id="node5" href="$tdisk_8c.html#abbe3ef44bd53b6ced274645aa161cc88" title="Checks if the given disk header is compatible with the current driver. " alt="" coords="176,56,359,83"/>
+<area shape="rect" id="node3" href="$tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="407,5,563,32"/>
+<area shape="rect" id="node4" href="$helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="611,5,704,32"/>
+</map>

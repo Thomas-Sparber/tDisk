@@ -1,6 +1,7 @@
 var searchData=
 [
   ['lastaccesstime',['lastAccessTime',['../classtd_1_1WriteBuffer.html#a4f44c984ebdac034c427f61746766c62',1,'td::WriteBuffer']]],
+  ['line',['line',['../tdisk_8h.html#a9fddaec0185ba255fea4a1101aefbd71',1,'f_tdisk_debug_info::line()'],['../namespacetd_1_1c.html#a22498c183827bea04695a68bc901df62',1,'td::c::f_tdisk_debug_info::line()']]],
   ['link',['link',['../structtd_1_1LinkMetadata.html#a718010f58ade025f1ee4911667b781d0',1,'td::LinkMetadata']]],
   ['linkmetadata',['LinkMetadata',['../structtd_1_1LinkMetadata.html#a144f0171ee31b7f1c7c6f4316530b85f',1,'td::LinkMetadata']]],
   ['linkmetadata',['LinkMetadata',['../structtd_1_1LinkMetadata.html',1,'td']]],
@@ -22,6 +23,6 @@ var searchData=
   ['log',['LOG',['../logger_8hpp.html#acaa1c3fa56061380a29889d703236251',1,'logger.hpp']]],
   ['logger_2ehpp',['logger.hpp',['../logger_8hpp.html',1,'']]],
   ['logical_5fsector',['logical_sector',['../tdisk_8h.html#a2bd521016c497110df2dcc24b287b946',1,'f_sector_info::logical_sector()'],['../namespacetd_1_1c.html#aca7f7e2328e68ca89e060f10ebd8a11b',1,'td::c::f_sector_info::logical_sector()']]],
-  ['loglevel',['logLevel',['../namespacetd.html#a17f0005e023c923ec7350800a5dba9c2',1,'td::logLevel()'],['../namespacetd.html#ab6d56c57b1af7153726f089ae7de6c1a',1,'td::LogLevel()']]],
+  ['loglevel',['LogLevel',['../namespacetd.html#ab6d56c57b1af7153726f089ae7de6c1a',1,'td::LogLevel()'],['../namespacetd.html#a17f0005e023c923ec7350800a5dba9c2',1,'td::logLevel()']]],
   ['loglevelstring',['logLevelString',['../namespacetd.html#a6f1d81b056a68e755f3c9a950682001f',1,'td']]]
 ];

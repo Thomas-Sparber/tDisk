@@ -1,0 +1,4 @@
+<map id="init_debug_struct" name="init_debug_struct">
+<area shape="rect" id="node2" href="$tdisk__debug_8h.html#a5826094d489fbe2ae739a8d271bdf62a" title="This function is called by the DEBUG_POINT macro. " alt="" coords="217,5,318,32"/>
+<area shape="rect" id="node3" href="$tdisk__debug_8h.html#a6d486f45c45f8974a643d740ffee05ed" title="Retrieves the next debug info. " alt="" coords="185,56,349,83"/>
+</map>

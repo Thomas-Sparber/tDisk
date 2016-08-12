@@ -1,0 +1,4 @@
+<map id="td_set_max_sectors" name="td_set_max_sectors">
+<area shape="rect" id="node2" href="$helpers_8h.html#a30e8683972fa03c8b2d7293f277f7b67" title="This function simply returns the division result of the numbers and omits the mod. " alt="" coords="204,5,349,32"/>
+<area shape="rect" id="node3" href="$helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="397,5,491,32"/>
+</map>

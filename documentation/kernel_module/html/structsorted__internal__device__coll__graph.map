@@ -1,0 +1,4 @@
+<map id="sorted_internal_device" name="sorted_internal_device">
+<area shape="rect" id="node2" href="$tdisk_8h.html#structtd__internal__device" title="A td_internal_device represents an underlying physical device of a tDisk. " alt="" coords="19,95,158,121"/>
+<area shape="rect" id="node3" href="$interface_8h.html#structdevice__performance" title="This struct represents performance indicators of a physical disk. " alt="" coords="13,5,165,32"/>
+</map>

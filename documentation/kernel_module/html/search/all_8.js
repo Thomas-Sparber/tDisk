@@ -1,8 +1,12 @@
 var searchData=
 [
+  ['id',['id',['../interface_8h.html#a89521eaa0c88da94b2870aedcc2adb53',1,'tdisk_debug_info::id()'],['../tdisk__debug_8h.html#a1faac59bb3b56053de625604bbd78bcd',1,'debug_info::id()']]],
+  ['id_5fcounter',['id_counter',['../tdisk__debug_8h.html#af7e20bde9b96a578133e27d6eae0c2f1',1,'debug_struct']]],
   ['inc_5faccess_5fcount',['INC_ACCESS_COUNT',['../tdisk_8c.html#ab55c9b7ee852b21b12da6fbfdb388b92',1,'tdisk.c']]],
   ['index_5foffset_5fbyte',['index_offset_byte',['../tdisk_8h.html#ab7f024600229969b5115e24e037edf63',1,'tdisk']]],
   ['indices',['indices',['../tdisk_8h.html#a537c3ed2c50530a8f6d9d69ea4906238',1,'tdisk']]],
+  ['info',['info',['../tdisk__debug_8h.html#a30eac4187b4803aecd12ae0d9869ed4f',1,'debug_struct']]],
+  ['init_5fdebug_5fstruct',['init_debug_struct',['../tdisk__debug_8h.html#a9c90c413b7c60e2b2604351efadf7d7f',1,'tdisk_debug.h']]],
   ['init_5fthread_5fwork_5ftimeout',['init_thread_work_timeout',['../worker__timeout_8h.html#a3a36c6a312bc40fbc0c4e811a20049d0',1,'worker_timeout.h']]],
   ['interface_2eh',['interface.h',['../interface_8h.html',1,'']]],
   ['internal_5fdevice_5fadd_5fparameters',['internal_device_add_parameters',['../interface_8h.html#structinternal__device__add__parameters',1,'']]],

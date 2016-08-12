@@ -1,0 +1,6 @@
+<map id="td_read_all_indices" name="td_read_all_indices">
+<area shape="rect" id="node2" href="$tdisk__device__operations_8h.html#aef5a276b75fc3125ea4ba57e59031cf0" title="Generic function that reads data from a device. " alt="" coords="253,5,339,32"/>
+<area shape="rect" id="node5" href="$tdisk_8c.html#ad0f70cbc430d47e38c5ea47fbfb15471" title="This is the heuristic function that calculates the speed of a device. " alt="" coords="196,56,396,83"/>
+<area shape="rect" id="node3" href="$tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="444,5,600,32"/>
+<area shape="rect" id="node4" href="$helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="648,5,741,32"/>
+</map>

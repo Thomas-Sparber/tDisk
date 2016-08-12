@@ -1,0 +1,8 @@
+<map id="tdisk_add" name="tdisk_add">
+<area shape="rect" id="node2" href="$tdisk_8c.html#ae660b62d97f779b17ec9cf9341f99aa2" title="This function is used to resize the sector indices. " alt="" coords="136,5,287,32"/>
+<area shape="rect" id="node5" href="$tdisk__debug_8h.html#a9c90c413b7c60e2b2604351efadf7d7f" title="Initializes a debug struct. " alt="" coords="145,56,277,83"/>
+<area shape="rect" id="node3" href="$helpers_8h.html#a30e8683972fa03c8b2d7293f277f7b67" title="This function simply returns the division result of the numbers and omits the mod. " alt="" coords="344,5,489,32"/>
+<area shape="rect" id="node4" href="$helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="547,5,640,32"/>
+<area shape="rect" id="node6" href="$tdisk__debug_8h.html#a5826094d489fbe2ae739a8d271bdf62a" title="This function is called by the DEBUG_POINT macro. " alt="" coords="366,56,467,83"/>
+<area shape="rect" id="node7" href="$tdisk__debug_8h.html#a6d486f45c45f8974a643d740ffee05ed" title="Retrieves the next debug info. " alt="" coords="335,107,499,133"/>
+</map>

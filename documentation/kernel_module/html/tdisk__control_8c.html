@@ -94,6 +94,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="textblock"><code>#include &lt;<a class="el" href="config_8h_source.html">tdisk/config.h</a>&gt;</code><br />
 <code>#include &quot;<a class="el" href="tdisk__control_8h_source.html">tdisk_control.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="tdisk_8h_source.html">tdisk.h</a>&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Include dependency graph for tdisk_control.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk__control_8c__incl.png" border="0" usemap="#tdisk__control_8c" alt=""/></div>
+<map name="tdisk__control_8c" id="tdisk__control_8c">
+<area shape="rect" id="node2" href="config_8h.html" title="tdisk/config.h" alt="" coords="225,304,331,331"/>
+<area shape="rect" id="node3" href="tdisk__control_8h.html" title="tdisk_control.h" alt="" coords="91,80,206,107"/>
+<area shape="rect" id="node5" href="tdisk_8h.html" title="tdisk.h" alt="" coords="1079,80,1143,107"/>
+<area shape="rect" id="node6" href="interface_8h.html" title="tdisk/interface.h" alt="" coords="2024,229,2148,256"/>
+<area shape="rect" id="node8" href="worker__timeout_8h.html" title="worker_timeout.h" alt="" coords="290,155,423,181"/>
+<area shape="rect" id="node11" href="tdisk__debug_8h.html" title="tdisk_debug.h" alt="" coords="1963,155,2073,181"/>
+</map>
+</div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -234,6 +247,32 @@ Variables</h2></td></tr>
 
 <p>This function handles the ioctl calls of the td-control device. </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk__control_8c_a22bf4ed010596733550f05638629fa43_cgraph.png" border="0" usemap="#tdisk__control_8c_a22bf4ed010596733550f05638629fa43_cgraph" alt=""/></div>
+<map name="tdisk__control_8c_a22bf4ed010596733550f05638629fa43_cgraph" id="tdisk__control_8c_a22bf4ed010596733550f05638629fa43_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#a78c187c25686e89762a64ab261230582" title="This function returns the tDisk for the given minor number. " alt="" coords="193,30,294,57"/>
+<area shape="rect" id="node4" href="tdisk_8c.html#ac5a1a034d21544116d4c09c993462376" title="This function creates a new tDisk with the given minor number, and blocksize. " alt="" coords="202,110,285,137"/>
+<area shape="rect" id="node11" href="tdisk_8c.html#acd5e2f82be480bdbf9f7495bc9263ca9" title="This function is called to remove a tDisk. " alt="" coords="189,186,297,213"/>
+<area shape="rect" id="node3" href="tdisk_8c.html#a318b6ad0da3f9469036fa9d493cf556e" title="This function is used to find the next free minor number in the idr. " alt="" coords="348,5,511,47"/>
+<area shape="rect" id="node5" href="tdisk_8c.html#ae660b62d97f779b17ec9cf9341f99aa2" title="This function is used to resize the sector indices. " alt="" coords="354,71,505,98"/>
+<area shape="rect" id="node8" href="tdisk__debug_8h.html#a9c90c413b7c60e2b2604351efadf7d7f" title="Initializes a debug struct. " alt="" coords="363,122,495,149"/>
+<area shape="rect" id="node6" href="helpers_8h.html#a30e8683972fa03c8b2d7293f277f7b67" title="This function simply returns the division result of the numbers and omits the mod. " alt="" coords="779,89,924,115"/>
+<area shape="rect" id="node7" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="977,173,1071,199"/>
+<area shape="rect" id="node9" href="tdisk__debug_8h.html#a5826094d489fbe2ae739a8d271bdf62a" title="This function is called by the DEBUG_POINT macro. " alt="" coords="593,89,694,115"/>
+<area shape="rect" id="node10" href="tdisk__debug_8h.html#a6d486f45c45f8974a643d740ffee05ed" title="Retrieves the next debug info. " alt="" coords="561,139,725,166"/>
+<area shape="rect" id="node12" href="tdisk_8c.html#a28059be4f864c9f6afaaebb5143b29a6" title="Stops the worker thread. " alt="" coords="345,173,513,199"/>
+<area shape="rect" id="node15" href="tdisk_8c.html#a3bf9aa5806e550a172fad50351f00d43" title="Writes the td header to the given device and measures the disk performance if perf != NULL..." alt="" coords="367,223,491,250"/>
+<area shape="rect" id="node18" href="tdisk_8c.html#a3d3def15917c648547ea4e4ab3394317" title="Writes all the sector indices to the device. " alt="" coords="357,274,501,301"/>
+<area shape="rect" id="node13" href="worker__timeout_8c.html#acdf7d2e8ff5e302d8f0b19d5c0e92058" title="Flushes the given worker thread. " alt="" coords="565,191,722,232"/>
+<area shape="rect" id="node14" href="worker__timeout_8c.html#a9cb5d7f5650cedfe0249a116d574ed76" title="This function is called for the flush work. " alt="" coords="779,191,923,232"/>
+<area shape="rect" id="node16" href="tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="599,257,687,283"/>
+<area shape="rect" id="node17" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="773,257,929,283"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="aecd351f37cbaf1d7f2bdaa12caaadb50"></a>
@@ -304,7 +343,7 @@ Variables</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jul 7 2016 17:20:36 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Aug 12 2016 11:16:36 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

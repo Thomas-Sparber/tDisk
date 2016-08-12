@@ -1,0 +1,10 @@
+<map id="td_swap_sectors" name="td_swap_sectors">
+<area shape="rect" id="node2" href="$tdisk_8c.html#ad0f70cbc430d47e38c5ea47fbfb15471" title="This is the heuristic function that calculates the speed of a device. " alt="" coords="183,5,383,32"/>
+<area shape="rect" id="node3" href="$tdisk__device__operations_8h.html#aef5a276b75fc3125ea4ba57e59031cf0" title="Generic function that reads data from a device. " alt="" coords="471,56,558,83"/>
+<area shape="rect" id="node4" href="$tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="781,107,937,133"/>
+<area shape="rect" id="node6" href="$tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="645,157,733,184"/>
+<area shape="rect" id="node7" href="$tdisk_8c.html#a1050db79753eb77efec01765efd1e66f" title="Performs the given index operation. " alt="" coords="181,208,384,235"/>
+<area shape="rect" id="node9" href="$tdisk__device__operations_8h.html#a6634c65571b6a9594cb1dad4fd62d95e" title="Generic function that checks if a device is ready or not. " alt="" coords="221,259,344,285"/>
+<area shape="rect" id="node5" href="$helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="985,107,1079,133"/>
+<area shape="rect" id="node8" href="$tdisk_8c.html#a97861b5c4ef4f2807d29ef1f1c74fe64" title="Writes the given sector index to the given internal device. " alt="" coords="432,208,597,235"/>
+</map>

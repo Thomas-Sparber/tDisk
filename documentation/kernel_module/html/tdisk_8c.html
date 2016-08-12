@@ -96,9 +96,27 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <code>#include &quot;<a class="el" href="helpers_8h_source.html">helpers.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="tdisk_8h_source.html">tdisk.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="tdisk__control_8h_source.html">tdisk_control.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="tdisk__file_8h_source.html">tdisk_file.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="tdisk__device__operations_8h_source.html">tdisk_device_operations.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="tdisk__performance_8h_source.html">tdisk_performance.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="tdisk__plugin_8h_source.html">tdisk_plugin.h</a>&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Include dependency graph for tdisk.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c__incl.png" border="0" usemap="#tdisk_8c" alt=""/></div>
+<map name="tdisk_8c" id="tdisk_8c">
+<area shape="rect" id="node2" href="config_8h.html" title="tdisk/config.h" alt="" coords="1883,379,1990,405"/>
+<area shape="rect" id="node3" href="helpers_8h.html" title="helpers.h" alt="" coords="2196,155,2277,181"/>
+<area shape="rect" id="node5" href="tdisk_8h.html" title="tdisk.h" alt="" coords="1025,155,1089,181"/>
+<area shape="rect" id="node24" href="tdisk__control_8h.html" title="tdisk_control.h" alt="" coords="3215,80,3330,107"/>
+<area shape="rect" id="node26" href="tdisk__device__operations_8h.html" title="tdisk_device_operations.h" alt="" coords="2385,80,2571,107"/>
+<area shape="rect" id="node37" href="tdisk__performance_8h.html" title="tdisk_performance.h" alt="" coords="2877,80,3031,107"/>
+<area shape="rect" id="node6" href="interface_8h.html" title="tdisk/interface.h" alt="" coords="1673,304,1797,331"/>
+<area shape="rect" id="node8" href="worker__timeout_8h.html" title="worker_timeout.h" alt="" coords="990,229,1123,256"/>
+<area shape="rect" id="node11" href="tdisk__debug_8h.html" title="tdisk_debug.h" alt="" coords="1536,229,1647,256"/>
+<area shape="rect" id="node27" href="tdisk__file_8h.html" title="tdisk_file.h" alt="" coords="1933,229,2023,256"/>
+<area shape="rect" id="node28" href="tdisk__plugin_8h.html" title="tdisk_plugin.h" alt="" coords="2353,155,2462,181"/>
+<area shape="rect" id="node29" href="tdisk__nl_8h.html" title="tdisk_nl.h" alt="" coords="2295,229,2378,256"/>
+</map>
+</div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
@@ -151,39 +169,6 @@ Functions</h2></td></tr>
 <tr class="separator:abe0e26a8351543bdb2138bd0786a698c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada4a132e3d25b63733c8e0edfa5e3ad5"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#ada4a132e3d25b63733c8e0edfa5e3ad5">td_flush</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td)</td></tr>
 <tr class="separator:ada4a132e3d25b63733c8e0edfa5e3ad5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7416ee55b81815dc405f452977f280f1"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a7416ee55b81815dc405f452977f280f1">write_data</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, void *data, loff_t position, unsigned int length)</td></tr>
-<tr class="memdesc:a7416ee55b81815dc405f452977f280f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that writes data to a device.  <a href="#a7416ee55b81815dc405f452977f280f1">More...</a><br /></td></tr>
-<tr class="separator:a7416ee55b81815dc405f452977f280f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef5a276b75fc3125ea4ba57e59031cf0"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#aef5a276b75fc3125ea4ba57e59031cf0">read_data</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, void *data, loff_t position, unsigned int length)</td></tr>
-<tr class="memdesc:aef5a276b75fc3125ea4ba57e59031cf0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that reads data from a device.  <a href="#aef5a276b75fc3125ea4ba57e59031cf0">More...</a><br /></td></tr>
-<tr class="separator:aef5a276b75fc3125ea4ba57e59031cf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29930d5031aca4da37a5d1bf41a7e55f"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a29930d5031aca4da37a5d1bf41a7e55f">write_bio_vec</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, struct bio_vec *bvec, loff_t *position)</td></tr>
-<tr class="memdesc:a29930d5031aca4da37a5d1bf41a7e55f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that writes a bio_vec to a device.  <a href="#a29930d5031aca4da37a5d1bf41a7e55f">More...</a><br /></td></tr>
-<tr class="separator:a29930d5031aca4da37a5d1bf41a7e55f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1efd2d4f27fce5d5f531ca6740da6421"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a1efd2d4f27fce5d5f531ca6740da6421">read_bio_vec</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, struct bio_vec *bvec, loff_t *position)</td></tr>
-<tr class="memdesc:a1efd2d4f27fce5d5f531ca6740da6421"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that reads a bio_vec from a device.  <a href="#a1efd2d4f27fce5d5f531ca6740da6421">More...</a><br /></td></tr>
-<tr class="separator:a1efd2d4f27fce5d5f531ca6740da6421"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad0f4e8c574f4a5e59ee4dba8f7d561dc"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#ad0f4e8c574f4a5e59ee4dba8f7d561dc">write_data_async</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, void *data, loff_t position, unsigned int length, void *private_data, void(*callback)(void *, long))</td></tr>
-<tr class="memdesc:ad0f4e8c574f4a5e59ee4dba8f7d561dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that writes data to a device.  <a href="#ad0f4e8c574f4a5e59ee4dba8f7d561dc">More...</a><br /></td></tr>
-<tr class="separator:ad0f4e8c574f4a5e59ee4dba8f7d561dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a41b66505044191954e2506b5a89aea5c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a41b66505044191954e2506b5a89aea5c">read_data_async</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, void *data, loff_t position, unsigned int length, void *private_data, void(*callback)(void *, long))</td></tr>
-<tr class="memdesc:a41b66505044191954e2506b5a89aea5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that reads data from a device.  <a href="#a41b66505044191954e2506b5a89aea5c">More...</a><br /></td></tr>
-<tr class="separator:a41b66505044191954e2506b5a89aea5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a127ecafc977eb70f6aee698eac1d4332"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a127ecafc977eb70f6aee698eac1d4332">write_bio_vec_async</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, struct bio_vec *bvec, loff_t position, void *private_data, void(*callback)(void *, long))</td></tr>
-<tr class="memdesc:a127ecafc977eb70f6aee698eac1d4332"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that writes a bio_vec to a device.  <a href="#a127ecafc977eb70f6aee698eac1d4332">More...</a><br /></td></tr>
-<tr class="separator:a127ecafc977eb70f6aee698eac1d4332"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac380edd0d3a35291b5d428e215e5ee09"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#ac380edd0d3a35291b5d428e215e5ee09">read_bio_vec_async</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, struct bio_vec *bvec, loff_t position, void *private_data, void(*callback)(void *, long))</td></tr>
-<tr class="memdesc:ac380edd0d3a35291b5d428e215e5ee09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that reads a bio_vec from a device.  <a href="#ac380edd0d3a35291b5d428e215e5ee09">More...</a><br /></td></tr>
-<tr class="separator:ac380edd0d3a35291b5d428e215e5ee09"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0637c1cf3cedbdcd2dfeb4c93907cf14"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a0637c1cf3cedbdcd2dfeb4c93907cf14">flush_device</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device)</td></tr>
-<tr class="memdesc:a0637c1cf3cedbdcd2dfeb4c93907cf14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that flushes a device.  <a href="#a0637c1cf3cedbdcd2dfeb4c93907cf14">More...</a><br /></td></tr>
-<tr class="separator:a0637c1cf3cedbdcd2dfeb4c93907cf14"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd71ce89b7266b5ec95db67cca456e70"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#afd71ce89b7266b5ec95db67cca456e70">device_alloc</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, loff_t position, unsigned int length)</td></tr>
-<tr class="memdesc:afd71ce89b7266b5ec95db67cca456e70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that allocs space on a device.  <a href="#afd71ce89b7266b5ec95db67cca456e70">More...</a><br /></td></tr>
-<tr class="separator:afd71ce89b7266b5ec95db67cca456e70"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6634c65571b6a9594cb1dad4fd62d95e"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a6634c65571b6a9594cb1dad4fd62d95e">device_is_ready</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device)</td></tr>
-<tr class="memdesc:a6634c65571b6a9594cb1dad4fd62d95e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that checks if a device is ready or not.  <a href="#a6634c65571b6a9594cb1dad4fd62d95e">More...</a><br /></td></tr>
-<tr class="separator:a6634c65571b6a9594cb1dad4fd62d95e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab2ac2de6430027382248318b34364d2b"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#ab2ac2de6430027382248318b34364d2b">td_flush_devices</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td)</td></tr>
 <tr class="memdesc:ab2ac2de6430027382248318b34364d2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flushes the underlying devices of the tDisk.  <a href="#ab2ac2de6430027382248318b34364d2b">More...</a><br /></td></tr>
 <tr class="separator:ab2ac2de6430027382248318b34364d2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -214,24 +199,18 @@ Functions</h2></td></tr>
 <tr class="memitem:abbe3ef44bd53b6ced274645aa161cc88"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#abbe3ef44bd53b6ced274645aa161cc88">td_is_compatible_header</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, struct tdisk_header *header)</td></tr>
 <tr class="memdesc:abbe3ef44bd53b6ced274645aa161cc88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the given disk header is compatible with the current driver.  <a href="#abbe3ef44bd53b6ced274645aa161cc88">More...</a><br /></td></tr>
 <tr class="separator:abbe3ef44bd53b6ced274645aa161cc88"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af1d09b8f3bf325ef0708b310cf980ca3"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#af1d09b8f3bf325ef0708b310cf980ca3">td_read_header</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, struct tdisk_header *header, bool first_device, int *index_operation_to_do)</td></tr>
-<tr class="memdesc:af1d09b8f3bf325ef0708b310cf980ca3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads the td header from the given device and measures the disk performance if perf != NULL.  <a href="#af1d09b8f3bf325ef0708b310cf980ca3">More...</a><br /></td></tr>
-<tr class="separator:af1d09b8f3bf325ef0708b310cf980ca3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af09c8213fcca3251f4f76055bc2af4d7"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#af09c8213fcca3251f4f76055bc2af4d7">td_read_header</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, struct tdisk_header *header, bool first_device, int *index_operation_to_do, bool format)</td></tr>
+<tr class="memdesc:af09c8213fcca3251f4f76055bc2af4d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads the td header from the given device and measures the disk performance if perf != NULL.  <a href="#af09c8213fcca3251f4f76055bc2af4d7">More...</a><br /></td></tr>
+<tr class="separator:af09c8213fcca3251f4f76055bc2af4d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3bf9aa5806e550a172fad50351f00d43"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a3bf9aa5806e550a172fad50351f00d43">td_write_header</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, struct tdisk_header *header)</td></tr>
 <tr class="memdesc:a3bf9aa5806e550a172fad50351f00d43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes the td header to the given device and measures the disk performance if perf != NULL.  <a href="#a3bf9aa5806e550a172fad50351f00d43">More...</a><br /></td></tr>
 <tr class="separator:a3bf9aa5806e550a172fad50351f00d43"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2257008d123cf68b79268d8d4fef4081"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a2257008d123cf68b79268d8d4fef4081">td_read_all_indices</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, u8 *data)</td></tr>
 <tr class="memdesc:a2257008d123cf68b79268d8d4fef4081"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads all the sector indices from the device and stores them in data.  <a href="#a2257008d123cf68b79268d8d4fef4081">More...</a><br /></td></tr>
 <tr class="separator:a2257008d123cf68b79268d8d4fef4081"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad269eeb4a7ec54792f7b658253fa62e3"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#ad269eeb4a7ec54792f7b658253fa62e3">async_request_callback</a> (void *private_data, long ret)</td></tr>
-<tr class="memdesc:ad269eeb4a7ec54792f7b658253fa62e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">This callback is used for async file operations.  <a href="#ad269eeb4a7ec54792f7b658253fa62e3">More...</a><br /></td></tr>
-<tr class="separator:ad269eeb4a7ec54792f7b658253fa62e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa3d78e85e0eb26deae43a19adc91413e"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#aa3d78e85e0eb26deae43a19adc91413e">td_do_disk_operation</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, struct request *rq)</td></tr>
 <tr class="memdesc:aa3d78e85e0eb26deae43a19adc91413e"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function does the actual device operations.  <a href="#aa3d78e85e0eb26deae43a19adc91413e">More...</a><br /></td></tr>
 <tr class="separator:aa3d78e85e0eb26deae43a19adc91413e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a63a83d5adb32dbea46667b8f981f2d05"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a63a83d5adb32dbea46667b8f981f2d05">td_do_disk_operation_async</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, struct request *rq)</td></tr>
-<tr class="memdesc:a63a83d5adb32dbea46667b8f981f2d05"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function does the actual device operations.  <a href="#a63a83d5adb32dbea46667b8f981f2d05">More...</a><br /></td></tr>
-<tr class="separator:a63a83d5adb32dbea46667b8f981f2d05"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac210c3bc41b97100a2175bf3f257bbe4"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#ac210c3bc41b97100a2175bf3f257bbe4">td_reread_partitions</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, struct block_device *bdev)</td></tr>
 <tr class="memdesc:ac210c3bc41b97100a2175bf3f257bbe4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read the partition table of the tDisk.  <a href="#ac210c3bc41b97100a2175bf3f257bbe4">More...</a><br /></td></tr>
 <tr class="separator:ac210c3bc41b97100a2175bf3f257bbe4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -270,6 +249,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a55b3fde333368f4869b5a58c56ee0301"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a55b3fde333368f4869b5a58c56ee0301">td_clear_access_count</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td)</td></tr>
 <tr class="memdesc:a55b3fde333368f4869b5a58c56ee0301"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function clears the access count of all sectors.  <a href="#a55b3fde333368f4869b5a58c56ee0301">More...</a><br /></td></tr>
 <tr class="separator:a55b3fde333368f4869b5a58c56ee0301"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea57e57c8d5f560ead412f8c02fce2e3"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#aea57e57c8d5f560ead412f8c02fce2e3">td_get_debug</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *td, struct <a class="el" href="interface_8h.html#structtdisk__debug__info">tdisk_debug_info</a> __user *arg)</td></tr>
+<tr class="memdesc:aea57e57c8d5f560ead412f8c02fce2e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function retrieves the next debug info.  <a href="#aea57e57c8d5f560ead412f8c02fce2e3">More...</a><br /></td></tr>
+<tr class="separator:aea57e57c8d5f560ead412f8c02fce2e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a503596ed44bb46b9b677cdcee315af2b"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8c.html#a503596ed44bb46b9b677cdcee315af2b">td_ioctl</a> (struct block_device *bdev, fmode_t mode, unsigned int cmd, unsigned long arg)</td></tr>
 <tr class="memdesc:a503596ed44bb46b9b677cdcee315af2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function handles all ioctl coming from userspace.  <a href="#a503596ed44bb46b9b677cdcee315af2b">More...</a><br /></td></tr>
 <tr class="separator:a503596ed44bb46b9b677cdcee315af2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -491,42 +473,6 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="ad269eeb4a7ec54792f7b658253fa62e3"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void async_request_callback </td>
-          <td>(</td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>private_data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">long&#160;</td>
-          <td class="paramname"><em>ret</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>This callback is used for async file operations. </p>
-
-</div>
-</div>
 <a class="anchor" id="abe0e26a8351543bdb2138bd0786a698c"></a>
 <div class="memitem">
 <div class="memproto">
@@ -540,76 +486,6 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="afd71ce89b7266b5ec95db67cca456e70"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static int device_alloc </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">loff_t&#160;</td>
-          <td class="paramname"><em>position</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>length</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Generic function that allocs space on a device. </p>
-<p>The device can be a file or a plugin. </p>
-
-</div>
-</div>
-<a class="anchor" id="a6634c65571b6a9594cb1dad4fd62d95e"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static bool device_is_ready </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Generic function that checks if a device is ready or not. </p>
-<p>The device can be a file or a plugin. </p>
 
 </div>
 </div>
@@ -676,33 +552,6 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a0637c1cf3cedbdcd2dfeb4c93907cf14"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static int flush_device </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Generic function that flushes a device. </p>
-<p>The device can be a file or a plugin. </p>
 
 </div>
 </div>
@@ -802,214 +651,6 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a1efd2d4f27fce5d5f531ca6740da6421"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static int read_bio_vec </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">struct bio_vec *&#160;</td>
-          <td class="paramname"><em>bvec</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">loff_t *&#160;</td>
-          <td class="paramname"><em>position</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Generic function that reads a bio_vec from a device. </p>
-<p>The device can be a file or a plugin. </p>
-
-</div>
-</div>
-<a class="anchor" id="ac380edd0d3a35291b5d428e215e5ee09"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void read_bio_vec_async </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">struct bio_vec *&#160;</td>
-          <td class="paramname"><em>bvec</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">loff_t&#160;</td>
-          <td class="paramname"><em>position</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>private_data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void(*)(void *, long)&#160;</td>
-          <td class="paramname"><em>callback</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Generic function that reads a bio_vec from a device. </p>
-<p>The device can be a file or a plugin. </p>
-
-</div>
-</div>
-<a class="anchor" id="aef5a276b75fc3125ea4ba57e59031cf0"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static int read_data </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">loff_t&#160;</td>
-          <td class="paramname"><em>position</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>length</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Generic function that reads data from a device. </p>
-<p>The device can be a file or a plugin. </p>
-
-</div>
-</div>
-<a class="anchor" id="a41b66505044191954e2506b5a89aea5c"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void read_data_async </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">loff_t&#160;</td>
-          <td class="paramname"><em>position</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>length</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>private_data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void(*)(void *, long)&#160;</td>
-          <td class="paramname"><em>callback</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Generic function that reads data from a device. </p>
-<p>The device can be a file or a plugin. </p>
-
-</div>
-</div>
 <a class="anchor" id="ab2105ec12af66e7675e9b6c81391eec1"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1093,6 +734,54 @@ Variables</h2></td></tr>
 <p>Adds the given internal device to the tDisk. </p>
 <p>This function reads the disk header, performs the correct index operation (WRITE, READ, COMPARE), adds it to the tDisk and informs user space about any changes (size, partitions...) </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_aa46e93482f86d50df7d6604547fe2502_cgraph.png" border="0" usemap="#tdisk_8c_aa46e93482f86d50df7d6604547fe2502_cgraph" alt=""/></div>
+<map name="tdisk_8c_aa46e93482f86d50df7d6604547fe2502_cgraph" id="tdisk_8c_aa46e93482f86d50df7d6604547fe2502_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#ab2105ec12af66e7675e9b6c81391eec1" title="Applies the internal_device_add_parameters to the actual new internal device. " alt="" coords="152,5,324,32"/>
+<area shape="rect" id="node3" href="tdisk_8c.html#a2e930709eb141176957d5989d7336872" title="Applies the internal_device_add_parameters to the actual new internal device. " alt="" coords="157,56,319,83"/>
+<area shape="rect" id="node4" href="tdisk_8c.html#af09c8213fcca3251f4f76055bc2af4d7" title="Reads the td header from the given device and measures the disk performance if perf != NULL..." alt="" coords="646,259,769,285"/>
+<area shape="rect" id="node7" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="1669,748,1763,775"/>
+<area shape="rect" id="node9" href="tdisk_8c.html#a73b4aaf19381e522e33cf9bd18458383" title="Returns how much MORE sectors would be needed to store the sector indices if the tDisk would be resiz..." alt="" coords="162,766,314,807"/>
+<area shape="rect" id="node10" href="tdisk__device__operations_8h.html#a6634c65571b6a9594cb1dad4fd62d95e" title="Generic function that checks if a device is ready or not. " alt="" coords="887,563,1009,589"/>
+<area shape="rect" id="node11" href="tdisk_8c.html#ae660b62d97f779b17ec9cf9341f99aa2" title="This function is used to resize the sector indices. " alt="" coords="163,715,313,741"/>
+<area shape="rect" id="node12" href="helpers_8h.html#a30e8683972fa03c8b2d7293f277f7b67" title="This function simply returns the division result of the numbers and omits the mod. " alt="" coords="397,731,543,757"/>
+<area shape="rect" id="node13" href="tdisk_8c.html#a3bf9aa5806e550a172fad50351f00d43" title="Writes the td header to the given device and measures the disk performance if perf != NULL..." alt="" coords="1118,195,1242,221"/>
+<area shape="rect" id="node15" href="tdisk_8c.html#a1050db79753eb77efec01765efd1e66f" title="Performs the given index operation. " alt="" coords="847,512,1049,539"/>
+<area shape="rect" id="node17" href="tdisk_8c.html#a3d3def15917c648547ea4e4ab3394317" title="Writes all the sector indices to the device. " alt="" coords="398,360,542,387"/>
+<area shape="rect" id="node18" href="tdisk_8c.html#a2257008d123cf68b79268d8d4fef4081" title="Reads all the sector indices from the device and stores them in data. " alt="" coords="636,309,779,336"/>
+<area shape="rect" id="node20" href="tdisk_8c.html#a55115d4e1ad049651e2eb378bdbeb715" title="find_move_help_sector" alt="" coords="153,832,323,859"/>
+<area shape="rect" id="node21" href="tdisk_8c.html#a28059be4f864c9f6afaaebb5143b29a6" title="Stops the worker thread. " alt="" coords="154,613,322,640"/>
+<area shape="rect" id="node24" href="tdisk_8c.html#a1c5c954468f58bbd3d83f1ac53fbe58d" title="This function physically swaps the two given sectors. " alt="" coords="643,411,771,437"/>
+<area shape="rect" id="node25" href="tdisk_8c.html#a024a1e7b7f78593a99cb43ce8d1402c8" title="This function starts the worker thread to handle the actual device operations. " alt="" coords="153,563,323,589"/>
+<area shape="rect" id="node39" href="tdisk_8c.html#ac210c3bc41b97100a2175bf3f257bbe4" title="Read the partition table of the tDisk. " alt="" coords="163,883,313,909"/>
+<area shape="rect" id="node40" href="tdisk_8c.html#a89edefac29fc4790b3c342c6b3aebb38" title="This function resets the already resized sector indices and sorted sectors if an error occurred while..." alt="" coords="173,933,303,960"/>
+<area shape="rect" id="node5" href="tdisk__device__operations_8h.html#aef5a276b75fc3125ea4ba57e59031cf0" title="Generic function that reads data from a device. " alt="" coords="905,259,991,285"/>
+<area shape="rect" id="node8" href="tdisk_8c.html#abbe3ef44bd53b6ced274645aa161cc88" title="Checks if the given disk header is compatible with the current driver. " alt="" coords="857,208,1039,235"/>
+<area shape="rect" id="node6" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="1465,512,1621,539"/>
+<area shape="rect" id="node14" href="tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="1320,411,1408,437"/>
+<area shape="rect" id="node16" href="tdisk_8c.html#a97861b5c4ef4f2807d29ef1f1c74fe64" title="Writes the given sector index to the given internal device. " alt="" coords="1097,512,1263,539"/>
+<area shape="rect" id="node19" href="tdisk_8c.html#ad0f70cbc430d47e38c5ea47fbfb15471" title="This is the heuristic function that calculates the speed of a device. " alt="" coords="848,309,1048,336"/>
+<area shape="rect" id="node22" href="worker__timeout_8c.html#acdf7d2e8ff5e302d8f0b19d5c0e92058" title="Flushes the given worker thread. " alt="" coords="391,665,549,706"/>
+<area shape="rect" id="node23" href="worker__timeout_8c.html#a9cb5d7f5650cedfe0249a116d574ed76" title="This function is called for the flush work. " alt="" coords="635,741,779,782"/>
+<area shape="rect" id="node26" href="tdisk_8c.html#a1ac1c2ec899d11e9f93e8d94ae33faff" title="This is the actual worker function which is called by the worker thread. " alt="" coords="411,563,529,589"/>
+<area shape="rect" id="node38" href="worker__timeout_8c.html#aeeaf145beeced418bedd6922339af97c" title="This function is more or less copied from the linux kernel version except that it is able to wake up ..." alt="" coords="372,613,568,640"/>
+<area shape="rect" id="node27" href="tdisk_8c.html#aa3d78e85e0eb26deae43a19adc91413e" title="This function does the actual device operations. " alt="" coords="628,689,787,716"/>
+<area shape="rect" id="node37" href="tdisk_8c.html#ac7c9f870d85abfae3b133fed4eca5de5" title="This function sorts all the sector indices This is useful at the loading time. " alt="" coords="616,563,799,589"/>
+<area shape="rect" id="node28" href="tdisk_8c.html#ab2ac2de6430027382248318b34364d2b" title="Flushes the underlying devices of the tDisk. " alt="" coords="885,867,1011,893"/>
+<area shape="rect" id="node30" href="tdisk__device__operations_8h.html#afd71ce89b7266b5ec95db67cca456e70" title="Generic function that allocs space on a device. " alt="" coords="899,816,997,843"/>
+<area shape="rect" id="node31" href="tdisk__device__operations_8h.html#a29930d5031aca4da37a5d1bf41a7e55f" title="Generic function that writes a bio_vec to a device. " alt="" coords="1311,563,1417,589"/>
+<area shape="rect" id="node32" href="tdisk__device__operations_8h.html#a1efd2d4f27fce5d5f531ca6740da6421" title="Generic function that reads a bio_vec from a device. " alt="" coords="1311,715,1417,741"/>
+<area shape="rect" id="node33" href="tdisk_8c.html#a065827e59437fce3cdf0603d56e5c3a8" title="Writes the given sector index to the given internal device aysnchronously. " alt="" coords="865,918,1031,959"/>
+<area shape="rect" id="node35" href="tdisk__device__operations_8h.html#a127ecafc977eb70f6aee698eac1d4332" title="Generic function that writes a bio_vec to a device. " alt="" coords="873,984,1023,1011"/>
+<area shape="rect" id="node36" href="tdisk__device__operations_8h.html#ac380edd0d3a35291b5d428e215e5ee09" title="Generic function that reads a bio_vec from a device. " alt="" coords="873,664,1023,691"/>
+<area shape="rect" id="node29" href="tdisk__device__operations_8h.html#a0637c1cf3cedbdcd2dfeb4c93907cf14" title="Generic function that flushes a device. " alt="" coords="1130,867,1230,893"/>
+<area shape="rect" id="node34" href="tdisk__device__operations_8h.html#ad0f4e8c574f4a5e59ee4dba8f7d561dc" title="Generic function that writes data to a device. " alt="" coords="1114,925,1246,952"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a55b3fde333368f4869b5a58c56ee0301"></a>
@@ -1157,42 +846,29 @@ Variables</h2></td></tr>
 <p>This function does the actual device operations. </p>
 <p>It extracts the logical sector and the data from the request. Then it searches for the corresponding disk and physical sector and does the actual device operation. Disk performances are also recorded. </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_aa3d78e85e0eb26deae43a19adc91413e_cgraph.png" border="0" usemap="#tdisk_8c_aa3d78e85e0eb26deae43a19adc91413e_cgraph" alt=""/></div>
+<map name="tdisk_8c_aa3d78e85e0eb26deae43a19adc91413e_cgraph" id="tdisk_8c_aa3d78e85e0eb26deae43a19adc91413e_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#ab2ac2de6430027382248318b34364d2b" title="Flushes the underlying devices of the tDisk. " alt="" coords="250,5,377,32"/>
+<area shape="rect" id="node4" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="1035,133,1128,160"/>
+<area shape="rect" id="node5" href="tdisk_8c.html#a97861b5c4ef4f2807d29ef1f1c74fe64" title="Writes the given sector index to the given internal device. " alt="" coords="463,157,628,184"/>
+<area shape="rect" id="node8" href="tdisk_8c.html#a1050db79753eb77efec01765efd1e66f" title="Performs the given index operation. " alt="" coords="212,157,415,184"/>
+<area shape="rect" id="node9" href="tdisk__device__operations_8h.html#a6634c65571b6a9594cb1dad4fd62d95e" title="Generic function that checks if a device is ready or not. " alt="" coords="252,208,375,235"/>
+<area shape="rect" id="node10" href="tdisk__device__operations_8h.html#afd71ce89b7266b5ec95db67cca456e70" title="Generic function that allocs space on a device. " alt="" coords="264,259,363,285"/>
+<area shape="rect" id="node11" href="tdisk__device__operations_8h.html#a29930d5031aca4da37a5d1bf41a7e55f" title="Generic function that writes a bio_vec to a device. " alt="" coords="676,284,783,311"/>
+<area shape="rect" id="node12" href="tdisk__device__operations_8h.html#a1efd2d4f27fce5d5f531ca6740da6421" title="Generic function that reads a bio_vec from a device. " alt="" coords="676,347,783,373"/>
+<area shape="rect" id="node13" href="tdisk_8c.html#a065827e59437fce3cdf0603d56e5c3a8" title="Writes the given sector index to the given internal device aysnchronously. " alt="" coords="231,411,396,453"/>
+<area shape="rect" id="node15" href="tdisk__device__operations_8h.html#a127ecafc977eb70f6aee698eac1d4332" title="Generic function that writes a bio_vec to a device. " alt="" coords="238,477,389,504"/>
+<area shape="rect" id="node16" href="tdisk__device__operations_8h.html#ac380edd0d3a35291b5d428e215e5ee09" title="Generic function that reads a bio_vec from a device. " alt="" coords="238,528,389,555"/>
+<area shape="rect" id="node3" href="tdisk__device__operations_8h.html#a0637c1cf3cedbdcd2dfeb4c93907cf14" title="Generic function that flushes a device. " alt="" coords="495,5,595,32"/>
+<area shape="rect" id="node6" href="tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="685,208,773,235"/>
+<area shape="rect" id="node7" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="831,247,987,273"/>
+<area shape="rect" id="node14" href="tdisk__device__operations_8h.html#ad0f4e8c574f4a5e59ee4dba8f7d561dc" title="Generic function that writes data to a device. " alt="" coords="479,419,611,445"/>
+</map>
 </div>
-</div>
-<a class="anchor" id="a63a83d5adb32dbea46667b8f981f2d05"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static int td_do_disk_operation_async </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *&#160;</td>
-          <td class="paramname"><em>td</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">struct request *&#160;</td>
-          <td class="paramname"><em>rq</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>This function does the actual device operations. </p>
-<p>It extracts the logical sector and the data from the request. Then it searches for the corresponding disk and physical sector and does the actual device operation. Disk performances are also recorded. </p>
+</p>
 
 </div>
 </div>
@@ -1244,6 +920,16 @@ Variables</h2></td></tr>
 
 <p>Flushes the underlying devices of the tDisk. </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_ab2ac2de6430027382248318b34364d2b_cgraph.png" border="0" usemap="#tdisk_8c_ab2ac2de6430027382248318b34364d2b_cgraph" alt=""/></div>
+<map name="tdisk_8c_ab2ac2de6430027382248318b34364d2b_cgraph" id="tdisk_8c_ab2ac2de6430027382248318b34364d2b_cgraph">
+<area shape="rect" id="node2" href="tdisk__device__operations_8h.html#a0637c1cf3cedbdcd2dfeb4c93907cf14" title="Generic function that flushes a device. " alt="" coords="180,5,280,32"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a98a7d278bed3e745b9fd23d4b9b7e5c3"></a>
@@ -1279,6 +965,52 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>This function transfers information about all logical sectors to user space. </p>
+
+</div>
+</div>
+<a class="anchor" id="aea57e57c8d5f560ead412f8c02fce2e3"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int td_get_debug </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> *&#160;</td>
+          <td class="paramname"><em>td</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="interface_8h.html#structtdisk__debug__info">tdisk_debug_info</a> __user *&#160;</td>
+          <td class="paramname"><em>arg</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>This function retrieves the next debug info. </p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_aea57e57c8d5f560ead412f8c02fce2e3_cgraph.png" border="0" usemap="#tdisk_8c_aea57e57c8d5f560ead412f8c02fce2e3_cgraph" alt=""/></div>
+<map name="tdisk_8c_aea57e57c8d5f560ead412f8c02fce2e3_cgraph" id="tdisk_8c_aea57e57c8d5f560ead412f8c02fce2e3_cgraph">
+<area shape="rect" id="node2" href="tdisk__debug_8c.html#a6d486f45c45f8974a643d740ffee05ed" title="Retrieves the next debug info. " alt="" coords="164,5,328,32"/>
+</map>
+</div>
+</p>
 
 </div>
 </div>
@@ -1545,6 +1277,62 @@ Variables</h2></td></tr>
 
 <p>This function handles all ioctl coming from userspace. </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_a503596ed44bb46b9b677cdcee315af2b_cgraph.png" border="0" usemap="#tdisk_8c_a503596ed44bb46b9b677cdcee315af2b_cgraph" alt=""/></div>
+<map name="tdisk_8c_a503596ed44bb46b9b677cdcee315af2b_cgraph" id="tdisk_8c_a503596ed44bb46b9b677cdcee315af2b_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#aa46e93482f86d50df7d6604547fe2502" title="Adds the given internal device to the tDisk. " alt="" coords="163,461,262,488"/>
+<area shape="rect" id="node42" href="tdisk_8c.html#ab6d2ead6729110ce1397f1ac4c882221" title="This function transfers device status information to user space. " alt="" coords="157,553,268,580"/>
+<area shape="rect" id="node43" href="tdisk_8c.html#ac722716bc8b96e8bd580cc4c0e31b595" title="This function transfers information about the internal devices to user space. " alt="" coords="142,604,283,631"/>
+<area shape="rect" id="node44" href="tdisk_8c.html#a1e2dde1cc828b0c1af07a524789b170e" title="This function transfers information about the given logical sector to user space. ..." alt="" coords="137,655,288,681"/>
+<area shape="rect" id="node45" href="tdisk_8c.html#a98a7d278bed3e745b9fd23d4b9b7e5c3" title="This function transfers information about all logical sectors to user space. " alt="" coords="121,705,304,732"/>
+<area shape="rect" id="node46" href="tdisk_8c.html#a55b3fde333368f4869b5a58c56ee0301" title="This function clears the access count of all sectors. " alt="" coords="129,756,296,783"/>
+<area shape="rect" id="node47" href="tdisk_8c.html#aea57e57c8d5f560ead412f8c02fce2e3" title="This function retrieves the next debug info. " alt="" coords="157,891,268,917"/>
+<area shape="rect" id="node3" href="tdisk_8c.html#ab2105ec12af66e7675e9b6c81391eec1" title="Applies the internal_device_add_parameters to the actual new internal device. " alt="" coords="352,107,524,133"/>
+<area shape="rect" id="node4" href="tdisk_8c.html#a2e930709eb141176957d5989d7336872" title="Applies the internal_device_add_parameters to the actual new internal device. " alt="" coords="357,157,519,184"/>
+<area shape="rect" id="node5" href="tdisk_8c.html#af09c8213fcca3251f4f76055bc2af4d7" title="Reads the td header from the given device and measures the disk performance if perf != NULL..." alt="" coords="846,208,969,235"/>
+<area shape="rect" id="node8" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="1869,740,1963,767"/>
+<area shape="rect" id="node10" href="tdisk_8c.html#a73b4aaf19381e522e33cf9bd18458383" title="Returns how much MORE sectors would be needed to store the sector indices if the tDisk would be resiz..." alt="" coords="362,817,514,858"/>
+<area shape="rect" id="node11" href="tdisk__device__operations_8h.html#a6634c65571b6a9594cb1dad4fd62d95e" title="Generic function that checks if a device is ready or not. " alt="" coords="1087,461,1209,488"/>
+<area shape="rect" id="node12" href="tdisk_8c.html#ae660b62d97f779b17ec9cf9341f99aa2" title="This function is used to resize the sector indices. " alt="" coords="363,765,513,792"/>
+<area shape="rect" id="node13" href="helpers_8h.html#a30e8683972fa03c8b2d7293f277f7b67" title="This function simply returns the division result of the numbers and omits the mod. " alt="" coords="597,807,743,833"/>
+<area shape="rect" id="node14" href="tdisk_8c.html#a3bf9aa5806e550a172fad50351f00d43" title="Writes the td header to the given device and measures the disk performance if perf != NULL..." alt="" coords="1318,436,1442,463"/>
+<area shape="rect" id="node16" href="tdisk_8c.html#a1050db79753eb77efec01765efd1e66f" title="Performs the given index operation. " alt="" coords="1047,563,1249,589"/>
+<area shape="rect" id="node18" href="tdisk_8c.html#a3d3def15917c648547ea4e4ab3394317" title="Writes all the sector indices to the device. " alt="" coords="598,512,742,539"/>
+<area shape="rect" id="node19" href="tdisk_8c.html#a2257008d123cf68b79268d8d4fef4081" title="Reads all the sector indices from the device and stores them in data. " alt="" coords="836,259,979,285"/>
+<area shape="rect" id="node21" href="tdisk_8c.html#a55115d4e1ad049651e2eb378bdbeb715" title="find_move_help_sector" alt="" coords="353,883,523,909"/>
+<area shape="rect" id="node22" href="tdisk_8c.html#a28059be4f864c9f6afaaebb5143b29a6" title="Stops the worker thread. " alt="" coords="354,664,522,691"/>
+<area shape="rect" id="node25" href="tdisk_8c.html#a1c5c954468f58bbd3d83f1ac53fbe58d" title="This function physically swaps the two given sectors. " alt="" coords="843,360,971,387"/>
+<area shape="rect" id="node26" href="tdisk_8c.html#a024a1e7b7f78593a99cb43ce8d1402c8" title="This function starts the worker thread to handle the actual device operations. " alt="" coords="353,613,523,640"/>
+<area shape="rect" id="node40" href="tdisk_8c.html#ac210c3bc41b97100a2175bf3f257bbe4" title="Read the partition table of the tDisk. " alt="" coords="363,5,513,32"/>
+<area shape="rect" id="node41" href="tdisk_8c.html#a89edefac29fc4790b3c342c6b3aebb38" title="This function resets the already resized sector indices and sorted sectors if an error occurred while..." alt="" coords="373,56,503,83"/>
+<area shape="rect" id="node6" href="tdisk__device__operations_8h.html#aef5a276b75fc3125ea4ba57e59031cf0" title="Generic function that reads data from a device. " alt="" coords="1105,208,1191,235"/>
+<area shape="rect" id="node9" href="tdisk_8c.html#abbe3ef44bd53b6ced274645aa161cc88" title="Checks if the given disk header is compatible with the current driver. " alt="" coords="1057,157,1239,184"/>
+<area shape="rect" id="node7" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="1665,563,1821,589"/>
+<area shape="rect" id="node15" href="tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="1520,512,1608,539"/>
+<area shape="rect" id="node17" href="tdisk_8c.html#a97861b5c4ef4f2807d29ef1f1c74fe64" title="Writes the given sector index to the given internal device. " alt="" coords="1297,563,1463,589"/>
+<area shape="rect" id="node20" href="tdisk_8c.html#ad0f70cbc430d47e38c5ea47fbfb15471" title="This is the heuristic function that calculates the speed of a device. " alt="" coords="1048,259,1248,285"/>
+<area shape="rect" id="node23" href="worker__timeout_8c.html#acdf7d2e8ff5e302d8f0b19d5c0e92058" title="Flushes the given worker thread. " alt="" coords="591,741,749,782"/>
+<area shape="rect" id="node24" href="worker__timeout_8c.html#a9cb5d7f5650cedfe0249a116d574ed76" title="This function is called for the flush work. " alt="" coords="835,766,979,807"/>
+<area shape="rect" id="node27" href="tdisk_8c.html#a1ac1c2ec899d11e9f93e8d94ae33faff" title="This is the actual worker function which is called by the worker thread. " alt="" coords="611,639,729,665"/>
+<area shape="rect" id="node39" href="worker__timeout_8c.html#aeeaf145beeced418bedd6922339af97c" title="This function is more or less copied from the linux kernel version except that it is able to wake up ..." alt="" coords="572,689,768,716"/>
+<area shape="rect" id="node28" href="tdisk_8c.html#aa3d78e85e0eb26deae43a19adc91413e" title="This function does the actual device operations. " alt="" coords="828,664,987,691"/>
+<area shape="rect" id="node38" href="tdisk_8c.html#ac7c9f870d85abfae3b133fed4eca5de5" title="This function sorts all the sector indices This is useful at the loading time. " alt="" coords="816,715,999,741"/>
+<area shape="rect" id="node29" href="tdisk_8c.html#ab2ac2de6430027382248318b34364d2b" title="Flushes the underlying devices of the tDisk. " alt="" coords="1085,968,1211,995"/>
+<area shape="rect" id="node31" href="tdisk__device__operations_8h.html#afd71ce89b7266b5ec95db67cca456e70" title="Generic function that allocs space on a device. " alt="" coords="1099,917,1197,944"/>
+<area shape="rect" id="node32" href="tdisk__device__operations_8h.html#a29930d5031aca4da37a5d1bf41a7e55f" title="Generic function that writes a bio_vec to a device. " alt="" coords="1511,613,1617,640"/>
+<area shape="rect" id="node33" href="tdisk__device__operations_8h.html#a1efd2d4f27fce5d5f531ca6740da6421" title="Generic function that reads a bio_vec from a device. " alt="" coords="1511,715,1617,741"/>
+<area shape="rect" id="node34" href="tdisk_8c.html#a065827e59437fce3cdf0603d56e5c3a8" title="Writes the given sector index to the given internal device aysnchronously. " alt="" coords="1065,1019,1231,1061"/>
+<area shape="rect" id="node36" href="tdisk__device__operations_8h.html#a127ecafc977eb70f6aee698eac1d4332" title="Generic function that writes a bio_vec to a device. " alt="" coords="1073,715,1223,741"/>
+<area shape="rect" id="node37" href="tdisk__device__operations_8h.html#ac380edd0d3a35291b5d428e215e5ee09" title="Generic function that reads a bio_vec from a device. " alt="" coords="1073,816,1223,843"/>
+<area shape="rect" id="node30" href="tdisk__device__operations_8h.html#a0637c1cf3cedbdcd2dfeb4c93907cf14" title="Generic function that flushes a device. " alt="" coords="1330,968,1430,995"/>
+<area shape="rect" id="node35" href="tdisk__device__operations_8h.html#ad0f4e8c574f4a5e59ee4dba8f7d561dc" title="Generic function that writes data to a device. " alt="" coords="1314,1027,1446,1053"/>
+<area shape="rect" id="node48" href="tdisk__debug_8c.html#a6d486f45c45f8974a643d740ffee05ed" title="Retrieves the next debug info. " alt="" coords="356,933,520,960"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="abbe3ef44bd53b6ced274645aa161cc88"></a>
@@ -1681,6 +1469,19 @@ Variables</h2></td></tr>
 <li>COMPARE: Compares the given physical sector index with the actual one. This is useful to compare individual disks for consistency. The flag do_disk_operation can be used to define whether the data should be written or not. Usually it is a good idea to write the data immediately to disk to prevent data loss, but in case there are multiple index operations to write it is better to write them all at once. The flag update_access_count can be used to define whether the access count of the specific sector should be updated. This is useful e.g. when sectors are moved - this shouldn't influence the access count variable. </li>
 </ul>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_a1050db79753eb77efec01765efd1e66f_cgraph.png" border="0" usemap="#tdisk_8c_a1050db79753eb77efec01765efd1e66f_cgraph" alt=""/></div>
+<map name="tdisk_8c_a1050db79753eb77efec01765efd1e66f_cgraph" id="tdisk_8c_a1050db79753eb77efec01765efd1e66f_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#a97861b5c4ef4f2807d29ef1f1c74fe64" title="Writes the given sector index to the given internal device. " alt="" coords="256,5,421,32"/>
+<area shape="rect" id="node3" href="tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="469,5,557,32"/>
+<area shape="rect" id="node4" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="605,5,761,32"/>
+<area shape="rect" id="node5" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="809,5,903,32"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="acacec26fa7ba78bdd565596ffcd44701"></a>
@@ -1755,6 +1556,32 @@ Variables</h2></td></tr>
 <p>This is the actual worker function which is called by the worker thread. </p>
 <p>It does the file operations and moves the sectors </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_a1ac1c2ec899d11e9f93e8d94ae33faff_cgraph.png" border="0" usemap="#tdisk_8c_a1ac1c2ec899d11e9f93e8d94ae33faff_cgraph" alt=""/></div>
+<map name="tdisk_8c_a1ac1c2ec899d11e9f93e8d94ae33faff_cgraph" id="tdisk_8c_a1ac1c2ec899d11e9f93e8d94ae33faff_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#aa3d78e85e0eb26deae43a19adc91413e" title="This function does the actual device operations. " alt="" coords="184,259,343,285"/>
+<area shape="rect" id="node18" href="tdisk_8c.html#ac7c9f870d85abfae3b133fed4eca5de5" title="This function sorts all the sector indices This is useful at the loading time. " alt="" coords="172,309,355,336"/>
+<area shape="rect" id="node3" href="tdisk_8c.html#ab2ac2de6430027382248318b34364d2b" title="Flushes the underlying devices of the tDisk. " alt="" coords="441,5,567,32"/>
+<area shape="rect" id="node5" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="1225,133,1319,160"/>
+<area shape="rect" id="node6" href="tdisk_8c.html#a97861b5c4ef4f2807d29ef1f1c74fe64" title="Writes the given sector index to the given internal device. " alt="" coords="653,157,819,184"/>
+<area shape="rect" id="node9" href="tdisk_8c.html#a1050db79753eb77efec01765efd1e66f" title="Performs the given index operation. " alt="" coords="403,157,605,184"/>
+<area shape="rect" id="node10" href="tdisk__device__operations_8h.html#a6634c65571b6a9594cb1dad4fd62d95e" title="Generic function that checks if a device is ready or not. " alt="" coords="443,208,565,235"/>
+<area shape="rect" id="node11" href="tdisk__device__operations_8h.html#afd71ce89b7266b5ec95db67cca456e70" title="Generic function that allocs space on a device. " alt="" coords="455,259,553,285"/>
+<area shape="rect" id="node12" href="tdisk__device__operations_8h.html#a29930d5031aca4da37a5d1bf41a7e55f" title="Generic function that writes a bio_vec to a device. " alt="" coords="867,284,973,311"/>
+<area shape="rect" id="node13" href="tdisk__device__operations_8h.html#a1efd2d4f27fce5d5f531ca6740da6421" title="Generic function that reads a bio_vec from a device. " alt="" coords="867,347,973,373"/>
+<area shape="rect" id="node14" href="tdisk_8c.html#a065827e59437fce3cdf0603d56e5c3a8" title="Writes the given sector index to the given internal device aysnchronously. " alt="" coords="421,411,587,453"/>
+<area shape="rect" id="node16" href="tdisk__device__operations_8h.html#a127ecafc977eb70f6aee698eac1d4332" title="Generic function that writes a bio_vec to a device. " alt="" coords="429,477,579,504"/>
+<area shape="rect" id="node17" href="tdisk__device__operations_8h.html#ac380edd0d3a35291b5d428e215e5ee09" title="Generic function that reads a bio_vec from a device. " alt="" coords="429,528,579,555"/>
+<area shape="rect" id="node4" href="tdisk__device__operations_8h.html#a0637c1cf3cedbdcd2dfeb4c93907cf14" title="Generic function that flushes a device. " alt="" coords="686,5,786,32"/>
+<area shape="rect" id="node7" href="tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="876,208,964,235"/>
+<area shape="rect" id="node8" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="1021,247,1177,273"/>
+<area shape="rect" id="node15" href="tdisk__device__operations_8h.html#ad0f4e8c574f4a5e59ee4dba8f7d561dc" title="Generic function that writes data to a device. " alt="" coords="670,419,802,445"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a2257008d123cf68b79268d8d4fef4081"></a>
@@ -1797,9 +1624,22 @@ Variables</h2></td></tr>
 
 <p>Reads all the sector indices from the device and stores them in data. </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_a2257008d123cf68b79268d8d4fef4081_cgraph.png" border="0" usemap="#tdisk_8c_a2257008d123cf68b79268d8d4fef4081_cgraph" alt=""/></div>
+<map name="tdisk_8c_a2257008d123cf68b79268d8d4fef4081_cgraph" id="tdisk_8c_a2257008d123cf68b79268d8d4fef4081_cgraph">
+<area shape="rect" id="node2" href="tdisk__device__operations_8h.html#aef5a276b75fc3125ea4ba57e59031cf0" title="Generic function that reads data from a device. " alt="" coords="253,5,339,32"/>
+<area shape="rect" id="node5" href="tdisk_8c.html#ad0f70cbc430d47e38c5ea47fbfb15471" title="This is the heuristic function that calculates the speed of a device. " alt="" coords="196,56,396,83"/>
+<area shape="rect" id="node3" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="444,5,600,32"/>
+<area shape="rect" id="node4" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="648,5,741,32"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
-<a class="anchor" id="af1d09b8f3bf325ef0708b310cf980ca3"></a>
+<a class="anchor" id="af09c8213fcca3251f4f76055bc2af4d7"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -1834,7 +1674,13 @@ Variables</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int *&#160;</td>
-          <td class="paramname"><em>index_operation_to_do</em>&#160;</td>
+          <td class="paramname"><em>index_operation_to_do</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>format</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1850,6 +1696,19 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Reads the td header from the given device and measures the disk performance if perf != NULL. </p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_af09c8213fcca3251f4f76055bc2af4d7_cgraph.png" border="0" usemap="#tdisk_8c_af09c8213fcca3251f4f76055bc2af4d7_cgraph" alt=""/></div>
+<map name="tdisk_8c_af09c8213fcca3251f4f76055bc2af4d7_cgraph" id="tdisk_8c_af09c8213fcca3251f4f76055bc2af4d7_cgraph">
+<area shape="rect" id="node2" href="tdisk__device__operations_8h.html#aef5a276b75fc3125ea4ba57e59031cf0" title="Generic function that reads data from a device. " alt="" coords="224,5,311,32"/>
+<area shape="rect" id="node5" href="tdisk_8c.html#abbe3ef44bd53b6ced274645aa161cc88" title="Checks if the given disk header is compatible with the current driver. " alt="" coords="176,56,359,83"/>
+<area shape="rect" id="node3" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="407,5,563,32"/>
+<area shape="rect" id="node4" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="611,5,704,32"/>
+</map>
+</div>
+</p>
 
 </div>
 </div>
@@ -1887,6 +1746,16 @@ Variables</h2></td></tr>
 
 <p>This function is called by the kernel whenever it doesn't need the device anymore. </p>
 <p>If we tried to clear the tDisk with an elevated reference count, we will clear it here once the reference count reaches 0. </p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_a3e5539a1a5601e4fe32720bdf1ace7fc_cgraph.png" border="0" usemap="#tdisk_8c_a3e5539a1a5601e4fe32720bdf1ace7fc_cgraph" alt=""/></div>
+<map name="tdisk_8c_a3e5539a1a5601e4fe32720bdf1ace7fc_cgraph" id="tdisk_8c_a3e5539a1a5601e4fe32720bdf1ace7fc_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#ada4a132e3d25b63733c8e0edfa5e3ad5" title="td_flush" alt="" coords="143,5,215,32"/>
+</map>
+</div>
+</p>
 
 </div>
 </div>
@@ -2023,6 +1892,17 @@ Variables</h2></td></tr>
 <p>This function is used to resize the sector indices. </p>
 <p>It also sets all the required parameters in the tDisk. The function returns the amount of additional blocks which are used to store the increased amount of sectors (can be 0) or a negative value when an error happened. </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_ae660b62d97f779b17ec9cf9341f99aa2_cgraph.png" border="0" usemap="#tdisk_8c_ae660b62d97f779b17ec9cf9341f99aa2_cgraph" alt=""/></div>
+<map name="tdisk_8c_ae660b62d97f779b17ec9cf9341f99aa2_cgraph" id="tdisk_8c_ae660b62d97f779b17ec9cf9341f99aa2_cgraph">
+<area shape="rect" id="node2" href="helpers_8h.html#a30e8683972fa03c8b2d7293f277f7b67" title="This function simply returns the division result of the numbers and omits the mod. " alt="" coords="204,5,349,32"/>
+<area shape="rect" id="node3" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="397,5,491,32"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a024a1e7b7f78593a99cb43ce8d1402c8"></a>
@@ -2049,6 +1929,35 @@ Variables</h2></td></tr>
 
 <p>This function starts the worker thread to handle the actual device operations. </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_a024a1e7b7f78593a99cb43ce8d1402c8_cgraph.png" border="0" usemap="#tdisk_8c_a024a1e7b7f78593a99cb43ce8d1402c8_cgraph" alt=""/></div>
+<map name="tdisk_8c_a024a1e7b7f78593a99cb43ce8d1402c8_cgraph" id="tdisk_8c_a024a1e7b7f78593a99cb43ce8d1402c8_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#a1ac1c2ec899d11e9f93e8d94ae33faff" title="This is the actual worker function which is called by the worker thread. " alt="" coords="263,309,381,336"/>
+<area shape="rect" id="node20" href="worker__timeout_8c.html#aeeaf145beeced418bedd6922339af97c" title="This function is more or less copied from the linux kernel version except that it is able to wake up ..." alt="" coords="224,364,420,391"/>
+<area shape="rect" id="node3" href="tdisk_8c.html#aa3d78e85e0eb26deae43a19adc91413e" title="This function does the actual device operations. " alt="" coords="480,259,639,285"/>
+<area shape="rect" id="node19" href="tdisk_8c.html#ac7c9f870d85abfae3b133fed4eca5de5" title="This function sorts all the sector indices This is useful at the loading time. " alt="" coords="468,309,651,336"/>
+<area shape="rect" id="node4" href="tdisk_8c.html#ab2ac2de6430027382248318b34364d2b" title="Flushes the underlying devices of the tDisk. " alt="" coords="737,5,863,32"/>
+<area shape="rect" id="node6" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="1521,133,1615,160"/>
+<area shape="rect" id="node7" href="tdisk_8c.html#a97861b5c4ef4f2807d29ef1f1c74fe64" title="Writes the given sector index to the given internal device. " alt="" coords="949,157,1115,184"/>
+<area shape="rect" id="node10" href="tdisk_8c.html#a1050db79753eb77efec01765efd1e66f" title="Performs the given index operation. " alt="" coords="699,157,901,184"/>
+<area shape="rect" id="node11" href="tdisk__device__operations_8h.html#a6634c65571b6a9594cb1dad4fd62d95e" title="Generic function that checks if a device is ready or not. " alt="" coords="739,208,861,235"/>
+<area shape="rect" id="node12" href="tdisk__device__operations_8h.html#afd71ce89b7266b5ec95db67cca456e70" title="Generic function that allocs space on a device. " alt="" coords="751,259,849,285"/>
+<area shape="rect" id="node13" href="tdisk__device__operations_8h.html#a29930d5031aca4da37a5d1bf41a7e55f" title="Generic function that writes a bio_vec to a device. " alt="" coords="1163,284,1269,311"/>
+<area shape="rect" id="node14" href="tdisk__device__operations_8h.html#a1efd2d4f27fce5d5f531ca6740da6421" title="Generic function that reads a bio_vec from a device. " alt="" coords="1163,347,1269,373"/>
+<area shape="rect" id="node15" href="tdisk_8c.html#a065827e59437fce3cdf0603d56e5c3a8" title="Writes the given sector index to the given internal device aysnchronously. " alt="" coords="717,411,883,453"/>
+<area shape="rect" id="node17" href="tdisk__device__operations_8h.html#a127ecafc977eb70f6aee698eac1d4332" title="Generic function that writes a bio_vec to a device. " alt="" coords="725,477,875,504"/>
+<area shape="rect" id="node18" href="tdisk__device__operations_8h.html#ac380edd0d3a35291b5d428e215e5ee09" title="Generic function that reads a bio_vec from a device. " alt="" coords="725,528,875,555"/>
+<area shape="rect" id="node5" href="tdisk__device__operations_8h.html#a0637c1cf3cedbdcd2dfeb4c93907cf14" title="Generic function that flushes a device. " alt="" coords="982,5,1082,32"/>
+<area shape="rect" id="node8" href="tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="1172,208,1260,235"/>
+<area shape="rect" id="node9" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="1317,247,1473,273"/>
+<area shape="rect" id="node16" href="tdisk__device__operations_8h.html#ad0f4e8c574f4a5e59ee4dba8f7d561dc" title="Generic function that writes data to a device. " alt="" coords="966,419,1098,445"/>
+<area shape="rect" id="node21" href="worker__timeout_8c.html#a9cb5d7f5650cedfe0249a116d574ed76" title="This function is called for the flush work. " alt="" coords="487,361,631,402"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a28059be4f864c9f6afaaebb5143b29a6"></a>
@@ -2074,6 +1983,17 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Stops the worker thread. </p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_a28059be4f864c9f6afaaebb5143b29a6_cgraph.png" border="0" usemap="#tdisk_8c_a28059be4f864c9f6afaaebb5143b29a6_cgraph" alt=""/></div>
+<map name="tdisk_8c_a28059be4f864c9f6afaaebb5143b29a6_cgraph" id="tdisk_8c_a28059be4f864c9f6afaaebb5143b29a6_cgraph">
+<area shape="rect" id="node2" href="worker__timeout_8c.html#acdf7d2e8ff5e302d8f0b19d5c0e92058" title="Flushes the given worker thread. " alt="" coords="221,5,379,47"/>
+<area shape="rect" id="node3" href="worker__timeout_8c.html#a9cb5d7f5650cedfe0249a116d574ed76" title="This function is called for the flush work. " alt="" coords="427,5,571,47"/>
+</map>
+</div>
+</p>
 
 </div>
 </div>
@@ -2130,6 +2050,23 @@ Variables</h2></td></tr>
 <p>This function physically swaps the two given sectors. </p>
 <p>This means it reads the data of both sectors, stores sector a in sector b and vice versa and updates the indices </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_a1c5c954468f58bbd3d83f1ac53fbe58d_cgraph.png" border="0" usemap="#tdisk_8c_a1c5c954468f58bbd3d83f1ac53fbe58d_cgraph" alt=""/></div>
+<map name="tdisk_8c_a1c5c954468f58bbd3d83f1ac53fbe58d_cgraph" id="tdisk_8c_a1c5c954468f58bbd3d83f1ac53fbe58d_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#ad0f70cbc430d47e38c5ea47fbfb15471" title="This is the heuristic function that calculates the speed of a device. " alt="" coords="183,5,383,32"/>
+<area shape="rect" id="node3" href="tdisk__device__operations_8h.html#aef5a276b75fc3125ea4ba57e59031cf0" title="Generic function that reads data from a device. " alt="" coords="471,56,558,83"/>
+<area shape="rect" id="node4" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="781,107,937,133"/>
+<area shape="rect" id="node6" href="tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="645,157,733,184"/>
+<area shape="rect" id="node7" href="tdisk_8c.html#a1050db79753eb77efec01765efd1e66f" title="Performs the given index operation. " alt="" coords="181,208,384,235"/>
+<area shape="rect" id="node9" href="tdisk__device__operations_8h.html#a6634c65571b6a9594cb1dad4fd62d95e" title="Generic function that checks if a device is ready or not. " alt="" coords="221,259,344,285"/>
+<area shape="rect" id="node5" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="985,107,1079,133"/>
+<area shape="rect" id="node8" href="tdisk_8c.html#a97861b5c4ef4f2807d29ef1f1c74fe64" title="Writes the given sector index to the given internal device. " alt="" coords="432,208,597,235"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a3d3def15917c648547ea4e4ab3394317"></a>
@@ -2165,6 +2102,18 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Writes all the sector indices to the device. </p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_a3d3def15917c648547ea4e4ab3394317_cgraph.png" border="0" usemap="#tdisk_8c_a3d3def15917c648547ea4e4ab3394317_cgraph" alt=""/></div>
+<map name="tdisk_8c_a3d3def15917c648547ea4e4ab3394317_cgraph" id="tdisk_8c_a3d3def15917c648547ea4e4ab3394317_cgraph">
+<area shape="rect" id="node2" href="tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="197,5,285,32"/>
+<area shape="rect" id="node3" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="333,5,489,32"/>
+<area shape="rect" id="node4" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="537,5,631,32"/>
+</map>
+</div>
+</p>
 
 </div>
 </div>
@@ -2202,6 +2151,18 @@ Variables</h2></td></tr>
 
 <p>Writes the td header to the given device and measures the disk performance if perf != NULL. </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_a3bf9aa5806e550a172fad50351f00d43_cgraph.png" border="0" usemap="#tdisk_8c_a3bf9aa5806e550a172fad50351f00d43_cgraph" alt=""/></div>
+<map name="tdisk_8c_a3bf9aa5806e550a172fad50351f00d43_cgraph" id="tdisk_8c_a3bf9aa5806e550a172fad50351f00d43_cgraph">
+<area shape="rect" id="node2" href="tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="177,5,265,32"/>
+<area shape="rect" id="node3" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="313,5,469,32"/>
+<area shape="rect" id="node4" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="517,5,611,32"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a97861b5c4ef4f2807d29ef1f1c74fe64"></a>
@@ -2235,6 +2196,18 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Writes the given sector index to the given internal device. </p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_a97861b5c4ef4f2807d29ef1f1c74fe64_cgraph.png" border="0" usemap="#tdisk_8c_a97861b5c4ef4f2807d29ef1f1c74fe64_cgraph" alt=""/></div>
+<map name="tdisk_8c_a97861b5c4ef4f2807d29ef1f1c74fe64_cgraph" id="tdisk_8c_a97861b5c4ef4f2807d29ef1f1c74fe64_cgraph">
+<area shape="rect" id="node2" href="tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="219,5,307,32"/>
+<area shape="rect" id="node3" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="355,5,511,32"/>
+<area shape="rect" id="node4" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="559,5,652,32"/>
+</map>
+</div>
+</p>
 
 </div>
 </div>
@@ -2282,6 +2255,16 @@ Variables</h2></td></tr>
 
 <p>Writes the given sector index to the given internal device aysnchronously. </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_a065827e59437fce3cdf0603d56e5c3a8_cgraph.png" border="0" usemap="#tdisk_8c_a065827e59437fce3cdf0603d56e5c3a8_cgraph" alt=""/></div>
+<map name="tdisk_8c_a065827e59437fce3cdf0603d56e5c3a8_cgraph" id="tdisk_8c_a065827e59437fce3cdf0603d56e5c3a8_cgraph">
+<area shape="rect" id="node2" href="tdisk__device__operations_8h.html#ad0f4e8c574f4a5e59ee4dba8f7d561dc" title="Generic function that writes data to a device. " alt="" coords="219,13,351,39"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="ac5a1a034d21544116d4c09c993462376"></a>
@@ -2317,6 +2300,21 @@ Variables</h2></td></tr>
 <p>This function creates a new tDisk with the given minor number, and blocksize. </p>
 <p>Adds a tDisk with the given minronumber and blocksize to the system. </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_ac5a1a034d21544116d4c09c993462376_cgraph.png" border="0" usemap="#tdisk_8c_ac5a1a034d21544116d4c09c993462376_cgraph" alt=""/></div>
+<map name="tdisk_8c_ac5a1a034d21544116d4c09c993462376_cgraph" id="tdisk_8c_ac5a1a034d21544116d4c09c993462376_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#ae660b62d97f779b17ec9cf9341f99aa2" title="This function is used to resize the sector indices. " alt="" coords="136,5,287,32"/>
+<area shape="rect" id="node5" href="tdisk__debug_8h.html#a9c90c413b7c60e2b2604351efadf7d7f" title="Initializes a debug struct. " alt="" coords="145,56,277,83"/>
+<area shape="rect" id="node3" href="helpers_8h.html#a30e8683972fa03c8b2d7293f277f7b67" title="This function simply returns the division result of the numbers and omits the mod. " alt="" coords="344,5,489,32"/>
+<area shape="rect" id="node4" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="547,5,640,32"/>
+<area shape="rect" id="node6" href="tdisk__debug_8h.html#a5826094d489fbe2ae739a8d271bdf62a" title="This function is called by the DEBUG_POINT macro. " alt="" coords="366,56,467,83"/>
+<area shape="rect" id="node7" href="tdisk__debug_8h.html#a6d486f45c45f8974a643d740ffee05ed" title="Retrieves the next debug info. " alt="" coords="335,107,499,133"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="af7e8ffe75328d489db81c216caa8fc21"></a>
@@ -2343,6 +2341,30 @@ Variables</h2></td></tr>
 
 <p>This is the exit function for the tDisk driver. </p>
 <p>It cleans up all remaining tDisks, unregisters the major number and unregisters the control device "td-control" </p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_af7e8ffe75328d489db81c216caa8fc21_cgraph.png" border="0" usemap="#tdisk_8c_af7e8ffe75328d489db81c216caa8fc21_cgraph" alt=""/></div>
+<map name="tdisk_8c_af7e8ffe75328d489db81c216caa8fc21_cgraph" id="tdisk_8c_af7e8ffe75328d489db81c216caa8fc21_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#a3fa9045f35e110b774aefdeae02490cb" title="This callback function is called for each tDisk at driver exit time to clean up all remaining devices..." alt="" coords="136,63,276,90"/>
+<area shape="rect" id="node12" href="tdisk__control_8c.html#aecd351f37cbaf1d7f2bdaa12caaadb50" title="Unregisters the td&#45;control device. " alt="" coords="324,139,499,166"/>
+<area shape="rect" id="node13" href="tdisk_8c.html#ab5e8d8a77992f966538e4a610d6ebbea" title="module_init" alt="" coords="158,165,254,191"/>
+<area shape="rect" id="node14" href="tdisk_8c.html#a11577c3ce164dc2e8c8b34ee0948a0fd" title="This funtction is the main entry point of the driver. " alt="" coords="167,215,245,242"/>
+<area shape="rect" id="node16" href="tdisk_8c.html#adaa08dff1b8c2e0427a7aa49690051b5" title="module_exit" alt="" coords="156,266,256,293"/>
+<area shape="rect" id="node3" href="tdisk_8c.html#acd5e2f82be480bdbf9f7495bc9263ca9" title="This function is called to remove a tDisk. " alt="" coords="357,63,465,90"/>
+<area shape="rect" id="node4" href="tdisk_8c.html#a28059be4f864c9f6afaaebb5143b29a6" title="Stops the worker thread. " alt="" coords="547,13,715,39"/>
+<area shape="rect" id="node7" href="tdisk_8c.html#a3bf9aa5806e550a172fad50351f00d43" title="Writes the td header to the given device and measures the disk performance if perf != NULL..." alt="" coords="569,63,693,90"/>
+<area shape="rect" id="node11" href="tdisk_8c.html#a3d3def15917c648547ea4e4ab3394317" title="Writes all the sector indices to the device. " alt="" coords="559,114,703,141"/>
+<area shape="rect" id="node5" href="worker__timeout_8c.html#acdf7d2e8ff5e302d8f0b19d5c0e92058" title="Flushes the given worker thread. " alt="" coords="763,5,920,47"/>
+<area shape="rect" id="node6" href="worker__timeout_8c.html#a9cb5d7f5650cedfe0249a116d574ed76" title="This function is called for the flush work. " alt="" coords="974,5,1118,47"/>
+<area shape="rect" id="node8" href="tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="797,93,885,119"/>
+<area shape="rect" id="node9" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="968,93,1124,119"/>
+<area shape="rect" id="node10" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="1172,93,1265,119"/>
+<area shape="rect" id="node15" href="tdisk__control_8c.html#a3390bb9a6c7b60e83d3b037d13837077" title="tDisk Driver " alt="" coords="332,215,491,242"/>
+</map>
+</div>
+</p>
 
 </div>
 </div>
@@ -2385,6 +2407,24 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>This callback function is called for each tDisk at driver exit time to clean up all remaining devices. </p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_a3fa9045f35e110b774aefdeae02490cb_cgraph.png" border="0" usemap="#tdisk_8c_a3fa9045f35e110b774aefdeae02490cb_cgraph" alt=""/></div>
+<map name="tdisk_8c_a3fa9045f35e110b774aefdeae02490cb_cgraph" id="tdisk_8c_a3fa9045f35e110b774aefdeae02490cb_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#acd5e2f82be480bdbf9f7495bc9263ca9" title="This function is called to remove a tDisk. " alt="" coords="193,63,301,90"/>
+<area shape="rect" id="node3" href="tdisk_8c.html#a28059be4f864c9f6afaaebb5143b29a6" title="Stops the worker thread. " alt="" coords="349,13,517,39"/>
+<area shape="rect" id="node6" href="tdisk_8c.html#a3bf9aa5806e550a172fad50351f00d43" title="Writes the td header to the given device and measures the disk performance if perf != NULL..." alt="" coords="371,63,495,90"/>
+<area shape="rect" id="node10" href="tdisk_8c.html#a3d3def15917c648547ea4e4ab3394317" title="Writes all the sector indices to the device. " alt="" coords="361,114,505,141"/>
+<area shape="rect" id="node4" href="worker__timeout_8c.html#acdf7d2e8ff5e302d8f0b19d5c0e92058" title="Flushes the given worker thread. " alt="" coords="565,5,723,47"/>
+<area shape="rect" id="node5" href="worker__timeout_8c.html#a9cb5d7f5650cedfe0249a116d574ed76" title="This function is called for the flush work. " alt="" coords="777,5,921,47"/>
+<area shape="rect" id="node7" href="tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="600,93,688,119"/>
+<area shape="rect" id="node8" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="771,93,927,119"/>
+<area shape="rect" id="node9" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="975,93,1068,119"/>
+</map>
+</div>
+</p>
 
 </div>
 </div>
@@ -2455,6 +2495,17 @@ Variables</h2></td></tr>
 <p>This funtction is the main entry point of the driver. </p>
 <p>It registers the major number and the control "td-control" device </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_a11577c3ce164dc2e8c8b34ee0948a0fd_cgraph.png" border="0" usemap="#tdisk_8c_a11577c3ce164dc2e8c8b34ee0948a0fd_cgraph" alt=""/></div>
+<map name="tdisk_8c_a11577c3ce164dc2e8c8b34ee0948a0fd_cgraph" id="tdisk_8c_a11577c3ce164dc2e8c8b34ee0948a0fd_cgraph">
+<area shape="rect" id="node2" href="tdisk__control_8c.html#a3390bb9a6c7b60e83d3b037d13837077" title="tDisk Driver " alt="" coords="140,5,299,32"/>
+<area shape="rect" id="node3" href="tdisk__control_8c.html#aecd351f37cbaf1d7f2bdaa12caaadb50" title="Unregisters the td&#45;control device. " alt="" coords="132,56,307,83"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a78c187c25686e89762a64ab261230582"></a>
@@ -2485,6 +2536,16 @@ Variables</h2></td></tr>
 <p>Finds the tDisk with the given minornumber.</p>
 <p>If the given minor number is &lt; 0, the minor number of an unbound tDisk is returned or -ENODEV if there is no unbound tDisk </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_a78c187c25686e89762a64ab261230582_cgraph.png" border="0" usemap="#tdisk_8c_a78c187c25686e89762a64ab261230582_cgraph" alt=""/></div>
+<map name="tdisk_8c_a78c187c25686e89762a64ab261230582_cgraph" id="tdisk_8c_a78c187c25686e89762a64ab261230582_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#a318b6ad0da3f9469036fa9d493cf556e" title="This function is used to find the next free minor number in the idr. " alt="" coords="155,5,317,47"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="acd5e2f82be480bdbf9f7495bc9263ca9"></a>
@@ -2505,213 +2566,22 @@ Variables</h2></td></tr>
 <p>Removes the given tDisk from the system.</p>
 <p>this frees all the resources </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8c_acd5e2f82be480bdbf9f7495bc9263ca9_cgraph.png" border="0" usemap="#tdisk_8c_acd5e2f82be480bdbf9f7495bc9263ca9_cgraph" alt=""/></div>
+<map name="tdisk_8c_acd5e2f82be480bdbf9f7495bc9263ca9_cgraph" id="tdisk_8c_acd5e2f82be480bdbf9f7495bc9263ca9_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#a28059be4f864c9f6afaaebb5143b29a6" title="Stops the worker thread. " alt="" coords="161,13,329,39"/>
+<area shape="rect" id="node5" href="tdisk_8c.html#a3bf9aa5806e550a172fad50351f00d43" title="Writes the td header to the given device and measures the disk performance if perf != NULL..." alt="" coords="183,63,307,90"/>
+<area shape="rect" id="node9" href="tdisk_8c.html#a3d3def15917c648547ea4e4ab3394317" title="Writes all the sector indices to the device. " alt="" coords="173,114,317,141"/>
+<area shape="rect" id="node3" href="worker__timeout_8c.html#acdf7d2e8ff5e302d8f0b19d5c0e92058" title="Flushes the given worker thread. " alt="" coords="377,5,535,47"/>
+<area shape="rect" id="node4" href="worker__timeout_8c.html#a9cb5d7f5650cedfe0249a116d574ed76" title="This function is called for the flush work. " alt="" coords="589,5,733,47"/>
+<area shape="rect" id="node6" href="tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="412,93,500,119"/>
+<area shape="rect" id="node7" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="583,93,739,119"/>
+<area shape="rect" id="node8" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="787,93,880,119"/>
+</map>
 </div>
-</div>
-<a class="anchor" id="a29930d5031aca4da37a5d1bf41a7e55f"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static int write_bio_vec </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">struct bio_vec *&#160;</td>
-          <td class="paramname"><em>bvec</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">loff_t *&#160;</td>
-          <td class="paramname"><em>position</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Generic function that writes a bio_vec to a device. </p>
-<p>The device can be a file or a plugin. </p>
-
-</div>
-</div>
-<a class="anchor" id="a127ecafc977eb70f6aee698eac1d4332"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void write_bio_vec_async </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">struct bio_vec *&#160;</td>
-          <td class="paramname"><em>bvec</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">loff_t&#160;</td>
-          <td class="paramname"><em>position</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>private_data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void(*)(void *, long)&#160;</td>
-          <td class="paramname"><em>callback</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Generic function that writes a bio_vec to a device. </p>
-<p>The device can be a file or a plugin. </p>
-
-</div>
-</div>
-<a class="anchor" id="a7416ee55b81815dc405f452977f280f1"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static int write_data </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">loff_t&#160;</td>
-          <td class="paramname"><em>position</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>length</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Generic function that writes data to a device. </p>
-<p>The device can be a file or a plugin. </p>
-
-</div>
-</div>
-<a class="anchor" id="ad0f4e8c574f4a5e59ee4dba8f7d561dc"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void write_data_async </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">loff_t&#160;</td>
-          <td class="paramname"><em>position</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>length</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>private_data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void(*)(void *, long)&#160;</td>
-          <td class="paramname"><em>callback</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Generic function that writes data to a device. </p>
-<p>The device can be a file or a plugin. </p>
+</p>
 
 </div>
 </div>
@@ -2733,9 +2603,9 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    .owner =    THIS_MODULE,</div><div class="line">    .open =     <a class="code" href="tdisk_8c.html#a4d2aad48720f719c7d748a78e6b23280">td_open</a>,</div><div class="line">    .release =  <a class="code" href="tdisk_8c.html#a3e5539a1a5601e4fe32720bdf1ace7fc">td_release</a>,</div><div class="line">    .ioctl =    <a class="code" href="tdisk_8c.html#a503596ed44bb46b9b677cdcee315af2b">td_ioctl</a>,</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">}</div><div class="ttc" id="tdisk_8c_html_a4d2aad48720f719c7d748a78e6b23280"><div class="ttname"><a href="tdisk_8c.html#a4d2aad48720f719c7d748a78e6b23280">td_open</a></div><div class="ttdeci">static int td_open(struct block_device *bdev, fmode_t mode)</div><div class="ttdoc">This function is called by the kernel whenever it it needs the device. </div><div class="ttdef"><b>Definition:</b> tdisk.c:2647</div></div>
-<div class="ttc" id="tdisk_8c_html_a3e5539a1a5601e4fe32720bdf1ace7fc"><div class="ttname"><a href="tdisk_8c.html#a3e5539a1a5601e4fe32720bdf1ace7fc">td_release</a></div><div class="ttdeci">static void td_release(struct gendisk *disk, fmode_t mode)</div><div class="ttdoc">This function is called by the kernel whenever it doesn&amp;#39;t need the device anymore. </div><div class="ttdef"><b>Definition:</b> tdisk.c:2663</div></div>
-<div class="ttc" id="tdisk_8c_html_a503596ed44bb46b9b677cdcee315af2b"><div class="ttname"><a href="tdisk_8c.html#a503596ed44bb46b9b677cdcee315af2b">td_ioctl</a></div><div class="ttdeci">static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, unsigned long arg)</div><div class="ttdoc">This function handles all ioctl coming from userspace. </div><div class="ttdef"><b>Definition:</b> tdisk.c:2580</div></div>
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    .owner =    THIS_MODULE,</div><div class="line">    .open =     <a class="code" href="tdisk_8c.html#a4d2aad48720f719c7d748a78e6b23280">td_open</a>,</div><div class="line">    .release =  <a class="code" href="tdisk_8c.html#a3e5539a1a5601e4fe32720bdf1ace7fc">td_release</a>,</div><div class="line">    .ioctl =    <a class="code" href="tdisk_8c.html#a503596ed44bb46b9b677cdcee315af2b">td_ioctl</a>,</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">}</div><div class="ttc" id="tdisk_8c_html_a4d2aad48720f719c7d748a78e6b23280"><div class="ttname"><a href="tdisk_8c.html#a4d2aad48720f719c7d748a78e6b23280">td_open</a></div><div class="ttdeci">static int td_open(struct block_device *bdev, fmode_t mode)</div><div class="ttdoc">This function is called by the kernel whenever it it needs the device. </div><div class="ttdef"><b>Definition:</b> tdisk.c:2224</div></div>
+<div class="ttc" id="tdisk_8c_html_a3e5539a1a5601e4fe32720bdf1ace7fc"><div class="ttname"><a href="tdisk_8c.html#a3e5539a1a5601e4fe32720bdf1ace7fc">td_release</a></div><div class="ttdeci">static void td_release(struct gendisk *disk, fmode_t mode)</div><div class="ttdoc">This function is called by the kernel whenever it doesn&amp;#39;t need the device anymore. </div><div class="ttdef"><b>Definition:</b> tdisk.c:2240</div></div>
+<div class="ttc" id="tdisk_8c_html_a503596ed44bb46b9b677cdcee315af2b"><div class="ttname"><a href="tdisk_8c.html#a503596ed44bb46b9b677cdcee315af2b">td_ioctl</a></div><div class="ttdeci">static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, unsigned long arg)</div><div class="ttdoc">This function handles all ioctl coming from userspace. </div><div class="ttdef"><b>Definition:</b> tdisk.c:2153</div></div>
 </div><!-- fragment -->
 <p>The block device operations which are presented to the kernel. </p>
 
@@ -2778,8 +2648,8 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    .queue_rq       = <a class="code" href="tdisk_8c.html#acacec26fa7ba78bdd565596ffcd44701">td_queue_rq</a>,</div><div class="line">    .map_queue      = blk_mq_map_queue,</div><div class="line">    .init_request   = <a class="code" href="tdisk_8c.html#ab5ab4b6ac9f074e0fdc8ca2ca5125a0c">td_init_request</a>,</div><div class="line">}</div><div class="ttc" id="tdisk_8c_html_ab5ab4b6ac9f074e0fdc8ca2ca5125a0c"><div class="ttname"><a href="tdisk_8c.html#ab5ab4b6ac9f074e0fdc8ca2ca5125a0c">td_init_request</a></div><div class="ttdeci">static int td_init_request(void *data, struct request *rq, unsigned int hctx_idx, unsigned int request_idx, unsigned int numa_node)</div><div class="ttdoc">This function is called for every request before it is given to the workr thread. ...</div><div class="ttdef"><b>Definition:</b> tdisk.c:2720</div></div>
-<div class="ttc" id="tdisk_8c_html_acacec26fa7ba78bdd565596ffcd44701"><div class="ttname"><a href="tdisk_8c.html#acacec26fa7ba78bdd565596ffcd44701">td_queue_rq</a></div><div class="ttdeci">static int td_queue_rq(struct blk_mq_hw_ctx *hctx, const struct blk_mq_queue_data *bd)</div><div class="ttdoc">This function is called by the kernel for each request it reqeives. </div><div class="ttdef"><b>Definition:</b> tdisk.c:2736</div></div>
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    .queue_rq       = <a class="code" href="tdisk_8c.html#acacec26fa7ba78bdd565596ffcd44701">td_queue_rq</a>,</div><div class="line">    .map_queue      = blk_mq_map_queue,</div><div class="line">    .init_request   = <a class="code" href="tdisk_8c.html#ab5ab4b6ac9f074e0fdc8ca2ca5125a0c">td_init_request</a>,</div><div class="line">}</div><div class="ttc" id="tdisk_8c_html_ab5ab4b6ac9f074e0fdc8ca2ca5125a0c"><div class="ttname"><a href="tdisk_8c.html#ab5ab4b6ac9f074e0fdc8ca2ca5125a0c">td_init_request</a></div><div class="ttdeci">static int td_init_request(void *data, struct request *rq, unsigned int hctx_idx, unsigned int request_idx, unsigned int numa_node)</div><div class="ttdoc">This function is called for every request before it is given to the workr thread. ...</div><div class="ttdef"><b>Definition:</b> tdisk.c:2297</div></div>
+<div class="ttc" id="tdisk_8c_html_acacec26fa7ba78bdd565596ffcd44701"><div class="ttname"><a href="tdisk_8c.html#acacec26fa7ba78bdd565596ffcd44701">td_queue_rq</a></div><div class="ttdeci">static int td_queue_rq(struct blk_mq_hw_ctx *hctx, const struct blk_mq_queue_data *bd)</div><div class="ttdoc">This function is called by the kernel for each request it reqeives. </div><div class="ttdef"><b>Definition:</b> tdisk.c:2313</div></div>
 </div><!-- fragment -->
 <p>This struct defines the functions to dispatch requests. </p>
 
@@ -2788,7 +2658,7 @@ Variables</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jul 7 2016 17:20:36 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Aug 12 2016 11:16:35 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

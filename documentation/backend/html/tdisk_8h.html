@@ -112,6 +112,9 @@ Classes</h2></td></tr>
 <tr class="memitem:structf__sector__info"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#structf__sector__info">f_sector_info</a></td></tr>
 <tr class="memdesc:structf__sector__info"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frontend version This struct is used to transfer sector specific information to user space.  <a href="tdisk_8h.html#structf__sector__info">More...</a><br /></td></tr>
 <tr class="separator:structf__sector__info"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:structf__tdisk__debug__info"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#structf__tdisk__debug__info">f_tdisk_debug_info</a></td></tr>
+<tr class="memdesc:structf__tdisk__debug__info"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frontend version This struct is used to retrieve debug information from a tdisk.  <a href="tdisk_8h.html#structf__tdisk__debug__info">More...</a><br /></td></tr>
+<tr class="separator:structf__tdisk__debug__info"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
@@ -176,6 +179,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a4aa850d78942df4f1ffda923f3e30992"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#a4aa850d78942df4f1ffda923f3e30992">tdisk_get_device_info</a> (const char *device, unsigned int disk, struct <a class="el" href="tdisk_8h.html#structf__internal__device__info">f_internal_device_info</a> *out)</td></tr>
 <tr class="memdesc:a4aa850d78942df4f1ffda923f3e30992"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets device information of the device with the given id.  <a href="#a4aa850d78942df4f1ffda923f3e30992">More...</a><br /></td></tr>
 <tr class="separator:a4aa850d78942df4f1ffda923f3e30992"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3472e5ec521a2c5781e670ecf8e915ae"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#a3472e5ec521a2c5781e670ecf8e915ae">tdisk_get_debug_info</a> (const char *device, uint64_t current_id, struct <a class="el" href="tdisk_8h.html#structf__tdisk__debug__info">f_tdisk_debug_info</a> *out)</td></tr>
+<tr class="memdesc:a3472e5ec521a2c5781e670ecf8e915ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets debug information about the given tDisk.  <a href="#a3472e5ec521a2c5781e670ecf8e915ae">More...</a><br /></td></tr>
+<tr class="separator:a3472e5ec521a2c5781e670ecf8e915ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af1ddceaf518428c08d332e1948bf7f75"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#af1ddceaf518428c08d332e1948bf7f75">get_measure_records_shift</a> ()</td></tr>
 <tr class="memdesc:af1ddceaf518428c08d332e1948bf7f75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the measure shift.  <a href="#af1ddceaf518428c08d332e1948bf7f75">More...</a><br /></td></tr>
 <tr class="separator:af1ddceaf518428c08d332e1948bf7f75"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -374,6 +380,58 @@ logical_sector</td>
 physical_sector</td>
 <td class="fielddoc">
 </td></tr>
+</table>
+
+</div>
+</div>
+<a name="structf__tdisk__debug__info" id="structf__tdisk__debug__info"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct f_tdisk_debug_info</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Frontend version This struct is used to retrieve debug information from a tdisk. </p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Class Members</th></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a0b628621e0c586163e1fcf122f6b0cb9"></a>char</td>
+<td class="fieldname">
+file[256]</td>
+<td class="fielddoc">
+The current source file. </td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="af86ec5eefaf9c9f506e55d3899d60076"></a>char</td>
+<td class="fieldname">
+function[256]</td>
+<td class="fielddoc">
+The current function. </td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a6db4758841243f0e4ab63e02b713b517"></a>uint64_t</td>
+<td class="fieldname">
+id</td>
+<td class="fielddoc">
+The id of the debug info. </td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a9fddaec0185ba255fea4a1101aefbd71"></a>int</td>
+<td class="fieldname">
+line</td>
+<td class="fielddoc">
+The current line in the file. </td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a2cd6430ea1b7c9f871f9b1091557d9d8"></a>char</td>
+<td class="fieldname">
+message[256]</td>
+<td class="fielddoc">
+A custom message. </td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="aacfde59bc497cf89839d2414b729e87c"></a>double</td>
+<td class="fieldname">
+time</td>
+<td class="fielddoc">
+The time of the debugging info. </td></tr>
 </table>
 
 </div>
@@ -710,6 +768,40 @@ physical_sector</td>
 
 </div>
 </div>
+<a class="anchor" id="a3472e5ec521a2c5781e670ecf8e915ae"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tdisk_get_debug_info </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>device</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>current_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structf__tdisk__debug__info">f_tdisk_debug_info</a> *&#160;</td>
+          <td class="paramname"><em>out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Gets debug information about the given tDisk. </p>
+
+</div>
+</div>
 <a class="anchor" id="a4aa850d78942df4f1ffda923f3e30992"></a>
 <div class="memitem">
 <div class="memproto">
@@ -943,7 +1035,7 @@ physical_sector</td>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jul 7 2016 17:20:38 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Aug 12 2016 11:17:32 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

@@ -1,0 +1,9 @@
+<map id="tdisk" name="tdisk">
+<area shape="rect" id="node2" href="$tdisk_8h.html#structsorted__internal__device" title="This struct represents an internal device but sorted accorting to its performance. " alt="" coords="507,68,673,95"/>
+<area shape="rect" id="node3" href="$tdisk_8h.html#structtd__internal__device" title="A td_internal_device represents an underlying physical device of a tDisk. " alt="" coords="292,24,431,51"/>
+<area shape="rect" id="node4" href="$interface_8h.html#structdevice__performance" title="This struct represents performance indicators of a physical disk. " alt="" coords="5,24,157,51"/>
+<area shape="rect" id="node5" href="$tdisk_8h.html#structsorted__sector__index" title="A sorted_sector_index represents a physical sector sorted according to the access_count. " alt="" coords="515,119,665,145"/>
+<area shape="rect" id="node6" href="$tdisk__debug_8h.html#structdebug__struct" title="This struct holds the data for saving debug info. " alt="" coords="537,169,643,196"/>
+<area shape="rect" id="node7" href="$tdisk__debug_8h.html#structdebug__info" title="This struct is used to store information about the current operations of a program. " alt="" coords="315,169,407,196"/>
+<area shape="rect" id="node8" href="$structworker__timeout__data.html" title="This data needs to be handed over by kthread_run to start the timeout worker thread. " alt="" coords="511,220,669,247"/>
+</map>

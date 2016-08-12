@@ -1,0 +1,17 @@
+<map id="tdisk_exit" name="tdisk_exit">
+<area shape="rect" id="node2" href="$tdisk_8c.html#a3fa9045f35e110b774aefdeae02490cb" title="This callback function is called for each tDisk at driver exit time to clean up all remaining devices..." alt="" coords="136,63,276,90"/>
+<area shape="rect" id="node12" href="$tdisk__control_8c.html#aecd351f37cbaf1d7f2bdaa12caaadb50" title="Unregisters the td&#45;control device. " alt="" coords="324,139,499,166"/>
+<area shape="rect" id="node13" href="$tdisk_8c.html#ab5e8d8a77992f966538e4a610d6ebbea" title="module_init" alt="" coords="158,165,254,191"/>
+<area shape="rect" id="node14" href="$tdisk_8c.html#a11577c3ce164dc2e8c8b34ee0948a0fd" title="This funtction is the main entry point of the driver. " alt="" coords="167,215,245,242"/>
+<area shape="rect" id="node16" href="$tdisk_8c.html#adaa08dff1b8c2e0427a7aa49690051b5" title="module_exit" alt="" coords="156,266,256,293"/>
+<area shape="rect" id="node3" href="$tdisk_8c.html#acd5e2f82be480bdbf9f7495bc9263ca9" title="This function is called to remove a tDisk. " alt="" coords="357,63,465,90"/>
+<area shape="rect" id="node4" href="$tdisk_8c.html#a28059be4f864c9f6afaaebb5143b29a6" title="Stops the worker thread. " alt="" coords="547,13,715,39"/>
+<area shape="rect" id="node7" href="$tdisk_8c.html#a3bf9aa5806e550a172fad50351f00d43" title="Writes the td header to the given device and measures the disk performance if perf != NULL..." alt="" coords="569,63,693,90"/>
+<area shape="rect" id="node11" href="$tdisk_8c.html#a3d3def15917c648547ea4e4ab3394317" title="Writes all the sector indices to the device. " alt="" coords="559,114,703,141"/>
+<area shape="rect" id="node5" href="$worker__timeout_8c.html#acdf7d2e8ff5e302d8f0b19d5c0e92058" title="Flushes the given worker thread. " alt="" coords="763,5,920,47"/>
+<area shape="rect" id="node6" href="$worker__timeout_8c.html#a9cb5d7f5650cedfe0249a116d574ed76" title="This function is called for the flush work. " alt="" coords="974,5,1118,47"/>
+<area shape="rect" id="node8" href="$tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="797,93,885,119"/>
+<area shape="rect" id="node9" href="$tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="968,93,1124,119"/>
+<area shape="rect" id="node10" href="$helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="1172,93,1265,119"/>
+<area shape="rect" id="node15" href="$tdisk__control_8c.html#a3390bb9a6c7b60e83d3b037d13837077" title="tDisk Driver " alt="" coords="332,215,491,242"/>
+</map>

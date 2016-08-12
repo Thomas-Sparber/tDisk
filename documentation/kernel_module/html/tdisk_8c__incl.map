@@ -1,0 +1,14 @@
+<map id="tdisk.c" name="tdisk.c">
+<area shape="rect" id="node2" href="$config_8h.html" title="tdisk/config.h" alt="" coords="1883,379,1990,405"/>
+<area shape="rect" id="node3" href="$helpers_8h.html" title="helpers.h" alt="" coords="2196,155,2277,181"/>
+<area shape="rect" id="node5" href="$tdisk_8h.html" title="tdisk.h" alt="" coords="1025,155,1089,181"/>
+<area shape="rect" id="node24" href="$tdisk__control_8h.html" title="tdisk_control.h" alt="" coords="3215,80,3330,107"/>
+<area shape="rect" id="node26" href="$tdisk__device__operations_8h.html" title="tdisk_device_operations.h" alt="" coords="2385,80,2571,107"/>
+<area shape="rect" id="node37" href="$tdisk__performance_8h.html" title="tdisk_performance.h" alt="" coords="2877,80,3031,107"/>
+<area shape="rect" id="node6" href="$interface_8h.html" title="tdisk/interface.h" alt="" coords="1673,304,1797,331"/>
+<area shape="rect" id="node8" href="$worker__timeout_8h.html" title="worker_timeout.h" alt="" coords="990,229,1123,256"/>
+<area shape="rect" id="node11" href="$tdisk__debug_8h.html" title="tdisk_debug.h" alt="" coords="1536,229,1647,256"/>
+<area shape="rect" id="node27" href="$tdisk__file_8h.html" title="tdisk_file.h" alt="" coords="1933,229,2023,256"/>
+<area shape="rect" id="node28" href="$tdisk__plugin_8h.html" title="tdisk_plugin.h" alt="" coords="2353,155,2462,181"/>
+<area shape="rect" id="node29" href="$tdisk__nl_8h.html" title="tdisk_nl.h" alt="" coords="2295,229,2378,256"/>
+</map>

@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['find_5fmove_5fhelp_5fsector',['find_move_help_sector',['../tdisk_8c.html#a55115d4e1ad049651e2eb378bdbeb715',1,'tdisk.c']]],
-  ['flush_5fdevice',['flush_device',['../tdisk_8c.html#a0637c1cf3cedbdcd2dfeb4c93907cf14',1,'tdisk.c']]],
-  ['flush_5fkthread_5fworker_5ftimeout',['flush_kthread_worker_timeout',['../worker__timeout_8c.html#acdf7d2e8ff5e302d8f0b19d5c0e92058',1,'flush_kthread_worker_timeout(struct kthread_worker *worker):&#160;worker_timeout.c'],['../worker__timeout_8h.html#acdf7d2e8ff5e302d8f0b19d5c0e92058',1,'flush_kthread_worker_timeout(struct kthread_worker *worker):&#160;worker_timeout.c']]]
+  ['get_5fnext_5fdebug_5fpoint',['get_next_debug_point',['../tdisk__debug_8c.html#a6d486f45c45f8974a643d740ffee05ed',1,'get_next_debug_point(struct debug_struct *ds, u64 current_id, struct tdisk_debug_info *out):&#160;tdisk_debug.c'],['../tdisk__debug_8h.html#a6d486f45c45f8974a643d740ffee05ed',1,'get_next_debug_point(struct debug_struct *ds, u64 current_id, struct tdisk_debug_info *out):&#160;tdisk_debug.c']]]
 ];

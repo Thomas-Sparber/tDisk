@@ -1,0 +1,19 @@
+<map id="td_queue_work" name="td_queue_work">
+<area shape="rect" id="node2" href="$tdisk_8c.html#aa3d78e85e0eb26deae43a19adc91413e" title="This function does the actual device operations. " alt="" coords="184,259,343,285"/>
+<area shape="rect" id="node18" href="$tdisk_8c.html#ac7c9f870d85abfae3b133fed4eca5de5" title="This function sorts all the sector indices This is useful at the loading time. " alt="" coords="172,309,355,336"/>
+<area shape="rect" id="node3" href="$tdisk_8c.html#ab2ac2de6430027382248318b34364d2b" title="Flushes the underlying devices of the tDisk. " alt="" coords="441,5,567,32"/>
+<area shape="rect" id="node5" href="$helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="1225,133,1319,160"/>
+<area shape="rect" id="node6" href="$tdisk_8c.html#a97861b5c4ef4f2807d29ef1f1c74fe64" title="Writes the given sector index to the given internal device. " alt="" coords="653,157,819,184"/>
+<area shape="rect" id="node9" href="$tdisk_8c.html#a1050db79753eb77efec01765efd1e66f" title="Performs the given index operation. " alt="" coords="403,157,605,184"/>
+<area shape="rect" id="node10" href="$tdisk__device__operations_8h.html#a6634c65571b6a9594cb1dad4fd62d95e" title="Generic function that checks if a device is ready or not. " alt="" coords="443,208,565,235"/>
+<area shape="rect" id="node11" href="$tdisk__device__operations_8h.html#afd71ce89b7266b5ec95db67cca456e70" title="Generic function that allocs space on a device. " alt="" coords="455,259,553,285"/>
+<area shape="rect" id="node12" href="$tdisk__device__operations_8h.html#a29930d5031aca4da37a5d1bf41a7e55f" title="Generic function that writes a bio_vec to a device. " alt="" coords="867,284,973,311"/>
+<area shape="rect" id="node13" href="$tdisk__device__operations_8h.html#a1efd2d4f27fce5d5f531ca6740da6421" title="Generic function that reads a bio_vec from a device. " alt="" coords="867,347,973,373"/>
+<area shape="rect" id="node14" href="$tdisk_8c.html#a065827e59437fce3cdf0603d56e5c3a8" title="Writes the given sector index to the given internal device aysnchronously. " alt="" coords="421,411,587,453"/>
+<area shape="rect" id="node16" href="$tdisk__device__operations_8h.html#a127ecafc977eb70f6aee698eac1d4332" title="Generic function that writes a bio_vec to a device. " alt="" coords="429,477,579,504"/>
+<area shape="rect" id="node17" href="$tdisk__device__operations_8h.html#ac380edd0d3a35291b5d428e215e5ee09" title="Generic function that reads a bio_vec from a device. " alt="" coords="429,528,579,555"/>
+<area shape="rect" id="node4" href="$tdisk__device__operations_8h.html#a0637c1cf3cedbdcd2dfeb4c93907cf14" title="Generic function that flushes a device. " alt="" coords="686,5,786,32"/>
+<area shape="rect" id="node7" href="$tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="876,208,964,235"/>
+<area shape="rect" id="node8" href="$tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="1021,247,1177,273"/>
+<area shape="rect" id="node15" href="$tdisk__device__operations_8h.html#ad0f4e8c574f4a5e59ee4dba8f7d561dc" title="Generic function that writes data to a device. " alt="" coords="670,419,802,445"/>
+</map>

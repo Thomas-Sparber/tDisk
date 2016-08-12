@@ -95,6 +95,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="textblock"><code>#include &lt;<a class="el" href="config_8h_source.html">tdisk/config.h</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="interface_8h_source.html">tdisk/interface.h</a>&gt;</code><br />
 <code>#include &quot;<a class="el" href="worker__timeout_8h_source.html">worker_timeout.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="tdisk__debug_8h_source.html">tdisk_debug.h</a>&quot;</code><br />
 <code>#include &lt;linux/atomic.h&gt;</code><br />
 <code>#include &lt;linux/bio.h&gt;</code><br />
 <code>#include &lt;linux/blkdev.h&gt;</code><br />
@@ -109,6 +110,26 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <code>#include &lt;linux/spinlock.h&gt;</code><br />
 <code>#include &lt;linux/types.h&gt;</code><br />
 <code>#include &lt;linux/vmalloc.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Include dependency graph for tdisk.h:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8h__incl.png" border="0" usemap="#tdisk_8h" alt=""/></div>
+<map name="tdisk_8h" id="tdisk_8h">
+<area shape="rect" id="node2" href="config_8h.html" title="tdisk/config.h" alt="" coords="238,229,345,256"/>
+<area shape="rect" id="node3" href="interface_8h.html" title="tdisk/interface.h" alt="" coords="350,155,474,181"/>
+<area shape="rect" id="node5" href="worker__timeout_8h.html" title="worker_timeout.h" alt="" coords="141,80,274,107"/>
+<area shape="rect" id="node8" href="tdisk__debug_8h.html" title="tdisk_debug.h" alt="" coords="566,80,676,107"/>
+</map>
+</div>
+</div><div class="textblock"><div class="dynheader">
+This graph shows which files directly or indirectly include this file:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8h__dep__incl.png" border="0" usemap="#tdisk_8hdep" alt=""/></div>
+<map name="tdisk_8hdep" id="tdisk_8hdep">
+<area shape="rect" id="node2" href="tdisk_8c.html" title="tdisk.c" alt="" coords="5,80,68,107"/>
+<area shape="rect" id="node3" href="tdisk__control_8c.html" title="tdisk_control.c" alt="" coords="93,80,207,107"/>
+</map>
+</div>
 </div>
 <p><a href="tdisk_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -203,7 +224,15 @@ total_sorted</td>
       </table>
 </div><div class="memdoc">
 <div class="textblock"><p>A <a class="el" href="tdisk_8h.html#structtd__internal__device" title="A td_internal_device represents an underlying physical device of a tDisk. ">td_internal_device</a> represents an underlying physical device of a tDisk. </p>
-</div><table class="fieldtable">
+</div><div class="dynheader">
+Collaboration diagram for td_internal_device:</div>
+<div class="dyncontent">
+<div class="center"><img src="structtd__internal__device__coll__graph.png" border="0" usemap="#td__internal__device_coll__map" alt="Collaboration graph"/></div>
+<map name="td__internal__device_coll__map" id="td__internal__device_coll__map">
+<area shape="rect" id="node2" href="interface_8h.html#structdevice__performance" title="This struct represents performance indicators of a physical disk. " alt="" coords="5,5,157,32"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
+<table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="aaed54d506f852885ed435b5851a767d1"></a>struct file *</td>
@@ -268,7 +297,16 @@ type</td>
       </table>
 </div><div class="memdoc">
 <div class="textblock"><p>This struct represents an internal device but sorted accorting to its performance. </p>
-</div><table class="fieldtable">
+</div><div class="dynheader">
+Collaboration diagram for sorted_internal_device:</div>
+<div class="dyncontent">
+<div class="center"><img src="structsorted__internal__device__coll__graph.png" border="0" usemap="#sorted__internal__device_coll__map" alt="Collaboration graph"/></div>
+<map name="sorted__internal__device_coll__map" id="sorted__internal__device_coll__map">
+<area shape="rect" id="node2" href="tdisk_8h.html#structtd__internal__device" title="A td_internal_device represents an underlying physical device of a tDisk. " alt="" coords="19,95,158,121"/>
+<area shape="rect" id="node3" href="interface_8h.html#structdevice__performance" title="This struct represents performance indicators of a physical disk. " alt="" coords="13,5,165,32"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
+<table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="a2652902da07e65d66c398d92aafac28d"></a>sector_t</td>
@@ -309,7 +347,21 @@ The blocks which should be - according to performance and block access count - s
 </div><div class="memdoc">
 <div class="textblock"><p>This struct represents a tDisk. </p>
 <p>It contains the internal devices, the sorted sectors and various other driver and kernel specific fields. </p>
-</div><table class="fieldtable">
+</div><div class="dynheader">
+Collaboration diagram for tdisk:</div>
+<div class="dyncontent">
+<div class="center"><img src="structtdisk__coll__graph.png" border="0" usemap="#tdisk_coll__map" alt="Collaboration graph"/></div>
+<map name="tdisk_coll__map" id="tdisk_coll__map">
+<area shape="rect" id="node2" href="tdisk_8h.html#structsorted__internal__device" title="This struct represents an internal device but sorted accorting to its performance. " alt="" coords="507,68,673,95"/>
+<area shape="rect" id="node3" href="tdisk_8h.html#structtd__internal__device" title="A td_internal_device represents an underlying physical device of a tDisk. " alt="" coords="292,24,431,51"/>
+<area shape="rect" id="node4" href="interface_8h.html#structdevice__performance" title="This struct represents performance indicators of a physical disk. " alt="" coords="5,24,157,51"/>
+<area shape="rect" id="node5" href="tdisk_8h.html#structsorted__sector__index" title="A sorted_sector_index represents a physical sector sorted according to the access_count. " alt="" coords="515,119,665,145"/>
+<area shape="rect" id="node6" href="tdisk__debug_8h.html#structdebug__struct" title="This struct holds the data for saving debug info. " alt="" coords="537,169,643,196"/>
+<area shape="rect" id="node7" href="tdisk__debug_8h.html#structdebug__info" title="This struct is used to store information about the current operations of a program. " alt="" coords="315,169,407,196"/>
+<area shape="rect" id="node8" href="structworker__timeout__data.html" title="This data needs to be handed over by kthread_run to start the timeout worker thread. " alt="" coords="511,220,669,247"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
+<table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="ac9c724a662414f3c8334a1c4bb001772"></a>int</td>
@@ -333,6 +385,12 @@ blocksize</td>
 <a class="anchor" id="a0128269e955e1ffe953858bcf9463ea9"></a>struct mutex</td>
 <td class="fieldname">
 ctl_mutex</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a7acd834e4bd8f72814137ffa1b0f658c"></a>struct <a class="el" href="tdisk__debug_8h.html#structdebug__struct">debug_struct</a></td>
+<td class="fieldname">
+debug</td>
 <td class="fielddoc">
 </td></tr>
 <tr><td class="fieldtype">
@@ -582,6 +640,21 @@ td_work</td>
 <p>Adds a tDisk with the given minronumber and blocksize to the system. </p>
 <p>Adds a tDisk with the given minronumber and blocksize to the system. </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8h_a1948aee6b84a82a54fabc7d83af6d278_cgraph.png" border="0" usemap="#tdisk_8h_a1948aee6b84a82a54fabc7d83af6d278_cgraph" alt=""/></div>
+<map name="tdisk_8h_a1948aee6b84a82a54fabc7d83af6d278_cgraph" id="tdisk_8h_a1948aee6b84a82a54fabc7d83af6d278_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#ae660b62d97f779b17ec9cf9341f99aa2" title="This function is used to resize the sector indices. " alt="" coords="136,5,287,32"/>
+<area shape="rect" id="node5" href="tdisk__debug_8h.html#a9c90c413b7c60e2b2604351efadf7d7f" title="Initializes a debug struct. " alt="" coords="145,56,277,83"/>
+<area shape="rect" id="node3" href="helpers_8h.html#a30e8683972fa03c8b2d7293f277f7b67" title="This function simply returns the division result of the numbers and omits the mod. " alt="" coords="344,5,489,32"/>
+<area shape="rect" id="node4" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="547,5,640,32"/>
+<area shape="rect" id="node6" href="tdisk__debug_8h.html#a5826094d489fbe2ae739a8d271bdf62a" title="This function is called by the DEBUG_POINT macro. " alt="" coords="366,56,467,83"/>
+<area shape="rect" id="node7" href="tdisk__debug_8h.html#a6d486f45c45f8974a643d740ffee05ed" title="Retrieves the next debug info. " alt="" coords="335,107,499,133"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a6bd8ab6cde7f6e1aca72164f5adefa12"></a>
@@ -612,6 +685,16 @@ td_work</td>
 <p>Finds the tDisk with the given minornumber.</p>
 <p>If the given minor number is &lt; 0, the minor number of an unbound tDisk is returned or -ENODEV if there is no unbound tDisk </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8h_a6bd8ab6cde7f6e1aca72164f5adefa12_cgraph.png" border="0" usemap="#tdisk_8h_a6bd8ab6cde7f6e1aca72164f5adefa12_cgraph" alt=""/></div>
+<map name="tdisk_8h_a6bd8ab6cde7f6e1aca72164f5adefa12_cgraph" id="tdisk_8h_a6bd8ab6cde7f6e1aca72164f5adefa12_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#a318b6ad0da3f9469036fa9d493cf556e" title="This function is used to find the next free minor number in the idr. " alt="" coords="155,5,317,47"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="acd5e2f82be480bdbf9f7495bc9263ca9"></a>
@@ -632,12 +715,29 @@ td_work</td>
 <p>Removes the given tDisk from the system.</p>
 <p>this frees all the resources </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="tdisk_8h_acd5e2f82be480bdbf9f7495bc9263ca9_cgraph.png" border="0" usemap="#tdisk_8h_acd5e2f82be480bdbf9f7495bc9263ca9_cgraph" alt=""/></div>
+<map name="tdisk_8h_acd5e2f82be480bdbf9f7495bc9263ca9_cgraph" id="tdisk_8h_acd5e2f82be480bdbf9f7495bc9263ca9_cgraph">
+<area shape="rect" id="node2" href="tdisk_8c.html#a28059be4f864c9f6afaaebb5143b29a6" title="Stops the worker thread. " alt="" coords="161,13,329,39"/>
+<area shape="rect" id="node5" href="tdisk_8c.html#a3bf9aa5806e550a172fad50351f00d43" title="Writes the td header to the given device and measures the disk performance if perf != NULL..." alt="" coords="183,63,307,90"/>
+<area shape="rect" id="node9" href="tdisk_8c.html#a3d3def15917c648547ea4e4ab3394317" title="Writes all the sector indices to the device. " alt="" coords="173,114,317,141"/>
+<area shape="rect" id="node3" href="worker__timeout_8c.html#acdf7d2e8ff5e302d8f0b19d5c0e92058" title="Flushes the given worker thread. " alt="" coords="377,5,535,47"/>
+<area shape="rect" id="node4" href="worker__timeout_8c.html#a9cb5d7f5650cedfe0249a116d574ed76" title="This function is called for the flush work. " alt="" coords="589,5,733,47"/>
+<area shape="rect" id="node6" href="tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1" title="tDisk Driver " alt="" coords="412,93,500,119"/>
+<area shape="rect" id="node7" href="tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452" title="This function updates the performance data of the given performacen data. " alt="" coords="583,93,739,119"/>
+<area shape="rect" id="node8" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="787,93,880,119"/>
+</map>
+</div>
+</p>
+
 </div>
 </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jul 7 2016 17:20:36 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Aug 12 2016 11:16:36 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

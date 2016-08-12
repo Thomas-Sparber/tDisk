@@ -95,6 +95,31 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="contents">
 <div class="textblock"><code>#include &lt;<a class="el" href="config_8h_source.html">tdisk/config.h</a>&gt;</code><br />
 <code>#include &lt;linux/types.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Include dependency graph for interface.h:</div>
+<div class="dyncontent">
+<div class="center"><img src="interface_8h__incl.png" border="0" usemap="#interface_8h" alt=""/></div>
+<map name="interface_8h" id="interface_8h">
+<area shape="rect" id="node2" href="config_8h.html" title="tdisk/config.h" alt="" coords="5,80,112,107"/>
+</map>
+</div>
+</div><div class="textblock"><div class="dynheader">
+This graph shows which files directly or indirectly include this file:</div>
+<div class="dyncontent">
+<div class="center"><img src="interface_8h__dep__incl.png" border="0" usemap="#interface_8hdep" alt=""/></div>
+<map name="interface_8hdep" id="interface_8hdep">
+<area shape="rect" id="node2" href="tdisk_8h.html" title="tdisk.h" alt="" coords="5,155,69,181"/>
+<area shape="rect" id="node5" href="tdisk__debug_8h.html" title="tdisk_debug.h" alt="" coords="75,80,186,107"/>
+<area shape="rect" id="node7" href="tdisk__file_8h.html" title="tdisk_file.h" alt="" coords="210,80,299,107"/>
+<area shape="rect" id="node9" href="tdisk__nl_8h.html" title="tdisk_nl.h" alt="" coords="324,80,407,107"/>
+<area shape="rect" id="node3" href="tdisk_8c.html" title="tdisk.c" alt="" coords="115,304,178,331"/>
+<area shape="rect" id="node4" href="tdisk__control_8c.html" title="tdisk_control.c" alt="" coords="49,229,164,256"/>
+<area shape="rect" id="node6" href="tdisk__debug_8c.html" title="tdisk_debug.c" alt="" coords="94,155,205,181"/>
+<area shape="rect" id="node8" href="tdisk__device__operations_8h.html" title="tdisk_device_operations.h" alt="" coords="188,229,375,256"/>
+<area shape="rect" id="node10" href="tdisk__plugin_8h.html" title="tdisk_plugin.h" alt="" coords="292,155,401,181"/>
+<area shape="rect" id="node11" href="tdisk__nl_8c.html" title="tdisk_nl.c" alt="" coords="426,155,507,181"/>
+</map>
+</div>
 </div>
 <p><a href="interface_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -121,6 +146,9 @@ Classes</h2></td></tr>
 <tr class="memitem:structtdisk__info"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#structtdisk__info">tdisk_info</a></td></tr>
 <tr class="memdesc:structtdisk__info"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thsi struct is used to transfer tDisk information to user space.  <a href="interface_8h.html#structtdisk__info">More...</a><br /></td></tr>
 <tr class="separator:structtdisk__info"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:structtdisk__debug__info"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#structtdisk__debug__info">tdisk_debug_info</a></td></tr>
+<tr class="memdesc:structtdisk__debug__info"><td class="mdescLeft">&#160;</td><td class="mdescRight">This struct is used to store information about the current operations of a tdisk.  <a href="interface_8h.html#structtdisk__debug__info">More...</a><br /></td></tr>
+<tr class="separator:structtdisk__debug__info"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
@@ -142,16 +170,18 @@ Macros</h2></td></tr>
 <tr class="separator:ab0f1bc4ce9d797da17245d667a0262b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a84ac29bd7c2a6ebf2af67331caf4ffa7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a84ac29bd7c2a6ebf2af67331caf4ffa7">TDISK_ADD_DISK</a>&#160;&#160;&#160;0x4C00</td></tr>
 <tr class="separator:a84ac29bd7c2a6ebf2af67331caf4ffa7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab26fe62fc9e2bbe68f16c50a10f1131b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#ab26fe62fc9e2bbe68f16c50a10f1131b">TDISK_GET_STATUS</a>&#160;&#160;&#160;0x4C05</td></tr>
+<tr class="memitem:ab26fe62fc9e2bbe68f16c50a10f1131b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#ab26fe62fc9e2bbe68f16c50a10f1131b">TDISK_GET_STATUS</a>&#160;&#160;&#160;0x4C01</td></tr>
 <tr class="separator:ab26fe62fc9e2bbe68f16c50a10f1131b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a41eb03138be832f0acd249efb274a955"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a41eb03138be832f0acd249efb274a955">TDISK_GET_DEVICE_INFO</a>&#160;&#160;&#160;0x4C06</td></tr>
+<tr class="memitem:a41eb03138be832f0acd249efb274a955"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a41eb03138be832f0acd249efb274a955">TDISK_GET_DEVICE_INFO</a>&#160;&#160;&#160;0x4C02</td></tr>
 <tr class="separator:a41eb03138be832f0acd249efb274a955"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a44d284d3c3fbf4a97cdf9e0c6d66c0dd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a44d284d3c3fbf4a97cdf9e0c6d66c0dd">TDISK_GET_SECTOR_INDEX</a>&#160;&#160;&#160;0x4C07</td></tr>
+<tr class="memitem:a44d284d3c3fbf4a97cdf9e0c6d66c0dd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a44d284d3c3fbf4a97cdf9e0c6d66c0dd">TDISK_GET_SECTOR_INDEX</a>&#160;&#160;&#160;0x4C03</td></tr>
 <tr class="separator:a44d284d3c3fbf4a97cdf9e0c6d66c0dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aead0b8eee1e2723d4ce6aa349b1c62e3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#aead0b8eee1e2723d4ce6aa349b1c62e3">TDISK_GET_ALL_SECTOR_INDICES</a>&#160;&#160;&#160;0x4C08</td></tr>
+<tr class="memitem:aead0b8eee1e2723d4ce6aa349b1c62e3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#aead0b8eee1e2723d4ce6aa349b1c62e3">TDISK_GET_ALL_SECTOR_INDICES</a>&#160;&#160;&#160;0x4C04</td></tr>
 <tr class="separator:aead0b8eee1e2723d4ce6aa349b1c62e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a06fa9158db0e6fc24b9aa4c43e235768"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a06fa9158db0e6fc24b9aa4c43e235768">TDISK_CLEAR_ACCESS_COUNT</a>&#160;&#160;&#160;0x4C09</td></tr>
+<tr class="memitem:a06fa9158db0e6fc24b9aa4c43e235768"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a06fa9158db0e6fc24b9aa4c43e235768">TDISK_CLEAR_ACCESS_COUNT</a>&#160;&#160;&#160;0x4C05</td></tr>
 <tr class="separator:a06fa9158db0e6fc24b9aa4c43e235768"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a458a64bb5b1106b8f965834c0aa9cd05"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a458a64bb5b1106b8f965834c0aa9cd05">TDISK_GET_DEBUG_INFO</a>&#160;&#160;&#160;0x4C06</td></tr>
+<tr class="separator:a458a64bb5b1106b8f965834c0aa9cd05"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a86b668864d608406b0d274d8dd44c754"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a86b668864d608406b0d274d8dd44c754">TDISK_CTL_ADD</a>&#160;&#160;&#160;0x4C80</td></tr>
 <tr class="separator:a86b668864d608406b0d274d8dd44c754"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a118ec3e9c71a7aa4ac6485429b6218f0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a118ec3e9c71a7aa4ac6485429b6218f0">TDISK_CTL_REMOVE</a>&#160;&#160;&#160;0x4C81</td></tr>
@@ -363,7 +393,15 @@ stdev_write_time_cycles</td>
       </table>
 </div><div class="memdoc">
 <div class="textblock"><p>This struct is used to transfer internal device specific information to user space. </p>
-</div><table class="fieldtable">
+</div><div class="dynheader">
+Collaboration diagram for internal_device_info:</div>
+<div class="dyncontent">
+<div class="center"><img src="structinternal__device__info__coll__graph.png" border="0" usemap="#internal__device__info_coll__map" alt="Collaboration graph"/></div>
+<map name="internal__device__info_coll__map" id="internal__device__info_coll__map">
+<area shape="rect" id="node2" href="interface_8h.html#structdevice__performance" title="This struct represents performance indicators of a physical disk. " alt="" coords="5,5,157,32"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
+<table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="ae95850c862a17b682ba82045f518e7ba"></a><a class="el" href="interface_8h.html#affd8cffebb9bfeaab075a6d080bbc085">tdisk_index</a></td>
@@ -455,7 +493,15 @@ used</td>
       </table>
 </div><div class="memdoc">
 <div class="textblock"><p>Thsi struct is used to transfer sector specific information to user space. </p>
-</div><table class="fieldtable">
+</div><div class="dynheader">
+Collaboration diagram for sector_info:</div>
+<div class="dyncontent">
+<div class="center"><img src="structsector__info__coll__graph.png" border="0" usemap="#sector__info_coll__map" alt="Collaboration graph"/></div>
+<map name="sector__info_coll__map" id="sector__info_coll__map">
+<area shape="rect" id="node2" href="interface_8h.html#structphysical__sector__index" title="A index represents the physical location of a logical sector. " alt="" coords="5,5,167,32"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
+<table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="a09cddcc261e74287f34dc2910c0c9d2e"></a>__u64</td>
@@ -527,6 +573,64 @@ number</td>
 size_blocks</td>
 <td class="fielddoc">
 </td></tr>
+</table>
+
+</div>
+</div>
+<a name="structtdisk__debug__info" id="structtdisk__debug__info"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct tdisk_debug_info</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>This struct is used to store information about the current operations of a tdisk. </p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Class Members</th></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a0668bf7ba7a9a7250a51935bac42c23b"></a>char</td>
+<td class="fieldname">
+file[256]</td>
+<td class="fielddoc">
+The current source file. </td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a1c473029968c59b30abd9de546263cb0"></a>char</td>
+<td class="fieldname">
+function[256]</td>
+<td class="fielddoc">
+The current function. </td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="adcad485c0a92f26f4f744a116b38cff7"></a>int</td>
+<td class="fieldname">
+hz</td>
+<td class="fielddoc">
+The value of HZ (x HZ = 1 sec) </td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a89521eaa0c88da94b2870aedcc2adb53"></a>__u64</td>
+<td class="fieldname">
+id</td>
+<td class="fielddoc">
+The id of the debug info. </td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="abfefa22b90e27ce388f2a389a420ccf4"></a>int</td>
+<td class="fieldname">
+line</td>
+<td class="fielddoc">
+The current line in the file. </td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="af246eb1724bbbcaeaace06ac5148f235"></a>char</td>
+<td class="fieldname">
+message[256]</td>
+<td class="fielddoc">
+A custom message. </td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="adff3ee22e32fc08af0ac118eec6a2f22"></a>__u64</td>
+<td class="fieldname">
+time</td>
+<td class="fielddoc">
+The time of the debugging info in jiffies. </td></tr>
 </table>
 
 </div>
@@ -675,7 +779,7 @@ size_blocks</td>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define TDISK_CLEAR_ACCESS_COUNT&#160;&#160;&#160;0x4C09</td>
+          <td class="memname">#define TDISK_CLEAR_ACCESS_COUNT&#160;&#160;&#160;0x4C05</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -723,7 +827,19 @@ size_blocks</td>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define TDISK_GET_ALL_SECTOR_INDICES&#160;&#160;&#160;0x4C08</td>
+          <td class="memname">#define TDISK_GET_ALL_SECTOR_INDICES&#160;&#160;&#160;0x4C04</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a458a64bb5b1106b8f965834c0aa9cd05"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TDISK_GET_DEBUG_INFO&#160;&#160;&#160;0x4C06</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -735,7 +851,7 @@ size_blocks</td>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define TDISK_GET_DEVICE_INFO&#160;&#160;&#160;0x4C06</td>
+          <td class="memname">#define TDISK_GET_DEVICE_INFO&#160;&#160;&#160;0x4C02</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -747,7 +863,7 @@ size_blocks</td>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define TDISK_GET_SECTOR_INDEX&#160;&#160;&#160;0x4C07</td>
+          <td class="memname">#define TDISK_GET_SECTOR_INDEX&#160;&#160;&#160;0x4C03</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -759,7 +875,7 @@ size_blocks</td>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define TDISK_GET_STATUS&#160;&#160;&#160;0x4C05</td>
+          <td class="memname">#define TDISK_GET_STATUS&#160;&#160;&#160;0x4C01</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -906,7 +1022,7 @@ size_blocks</td>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jul 7 2016 17:20:35 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Aug 12 2016 11:16:35 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

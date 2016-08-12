@@ -173,6 +173,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a0ae90078deea2d47bffe7a8cb1c3bf12"><td class="memItemLeft" align="right" valign="top"><a class="el" href="tdisk_8h.html#structf__internal__device__info">f_internal_device_info</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html#a0ae90078deea2d47bffe7a8cb1c3bf12">getDeviceInfo</a> (unsigned int device) const </td></tr>
 <tr class="memdesc:a0ae90078deea2d47bffe7a8cb1c3bf12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns information about the internal device with the given device id.  <a href="#a0ae90078deea2d47bffe7a8cb1c3bf12">More...</a><br /></td></tr>
 <tr class="separator:a0ae90078deea2d47bffe7a8cb1c3bf12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54514ce9bdce631a132f53c164f28a37"><td class="memItemLeft" align="right" valign="top"><a class="el" href="tdisk_8h.html#structf__tdisk__debug__info">f_tdisk_debug_info</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html#a54514ce9bdce631a132f53c164f28a37">getDebugInfo</a> (uint64_t currentId=0) const </td></tr>
+<tr class="memdesc:a54514ce9bdce631a132f53c164f28a37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the (next) debug info for the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#a54514ce9bdce631a132f53c164f28a37">More...</a><br /></td></tr>
+<tr class="separator:a54514ce9bdce631a132f53c164f28a37"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a129e805e34ed79aa4a6ac04c4beafc42"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="structtd_1_1FileAssignment.html">FileAssignment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html#a129e805e34ed79aa4a6ac04c4beafc42">getFilesOnDevice</a> (unsigned int device, bool getPercentages, bool filesOnly)</td></tr>
 <tr class="memdesc:a129e805e34ed79aa4a6ac04c4beafc42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns all files which are stored on the given internal device.  <a href="#a129e805e34ed79aa4a6ac04c4beafc42">More...</a><br /></td></tr>
 <tr class="separator:a129e805e34ed79aa4a6ac04c4beafc42"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -558,6 +561,24 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Returns the current size in bytes. </p>
+
+</div>
+</div>
+<a class="anchor" id="a54514ce9bdce631a132f53c164f28a37"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="tdisk_8h.html#structf__tdisk__debug__info">f_tdisk_debug_info</a> tDisk::getDebugInfo </td>
+          <td>(</td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>currentId</em> = <code>0</code></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the (next) debug info for the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>. </p>
 
 </div>
 </div>
@@ -1263,7 +1284,7 @@ Friends</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jul 7 2016 17:20:39 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Aug 12 2016 11:17:36 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

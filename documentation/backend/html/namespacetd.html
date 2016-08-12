@@ -294,6 +294,9 @@ Functions</h2></td></tr>
 <tr class="memitem:afca1b356e08b3b148700f6a6a376f75d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#afca1b356e08b3b148700f6a6a376f75d">get_device_info</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:afca1b356e08b3b148700f6a6a376f75d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns information about the internal device with the given index number of the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#afca1b356e08b3b148700f6a6a376f75d">More...</a><br /></td></tr>
 <tr class="separator:afca1b356e08b3b148700f6a6a376f75d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a9d99c9dc01971c26aaf361dabe5722"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a4a9d99c9dc01971c26aaf361dabe5722">get_debug_info</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
+<tr class="memdesc:a4a9d99c9dc01971c26aaf361dabe5722"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns debug information about the tdisk.  <a href="#a4a9d99c9dc01971c26aaf361dabe5722">More...</a><br /></td></tr>
+<tr class="separator:a4a9d99c9dc01971c26aaf361dabe5722"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adf2b9beb3d929f848b7cde2be69146d4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#adf2b9beb3d929f848b7cde2be69146d4">load_config_file</a> (const std::vector&lt; std::string &gt; &amp;args, <a class="el" href="classtd_1_1Options.html">Options</a> &amp;<a class="el" href="backend_2share_2src_2main_8cpp.html#a4d92a8f5b7d984c1b4ed7b54f347b7a9">options</a>)</td></tr>
 <tr class="memdesc:adf2b9beb3d929f848b7cde2be69146d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the given config file.  <a href="#adf2b9beb3d929f848b7cde2be69146d4">More...</a><br /></td></tr>
 <tr class="separator:adf2b9beb3d929f848b7cde2be69146d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -495,6 +498,10 @@ Functions</h2></td></tr>
 <tr class="memitem:a4996747371ca2064349d93ba7f1a5b67"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a4996747371ca2064349d93ba7f1a5b67">createResultString</a> (std::ostream &amp;ss, const <a class="el" href="tdisk_8h.html#structf__internal__device__info">f_internal_device_info</a> &amp;info, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
 <tr class="memdesc:a4996747371ca2064349d93ba7f1a5b67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given <a class="el" href="tdisk_8h.html#structf__internal__device__info" title="Frontend version This struct is used to transfer internal device specific information to user space...">f_internal_device_info</a> using the given format.  <a href="#a4996747371ca2064349d93ba7f1a5b67">More...</a><br /></td></tr>
 <tr class="separator:a4996747371ca2064349d93ba7f1a5b67"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6961c6b30f65627151335e3d0fde70a6"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
+<tr class="memitem:a6961c6b30f65627151335e3d0fde70a6"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#a6961c6b30f65627151335e3d0fde70a6">createResultString</a> (std::ostream &amp;ss, const <a class="el" href="tdisk_8h.html#structf__tdisk__debug__info">f_tdisk_debug_info</a> &amp;info, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
+<tr class="memdesc:a6961c6b30f65627151335e3d0fde70a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given <a class="el" href="tdisk_8h.html#structf__tdisk__debug__info" title="Frontend version This struct is used to retrieve debug information from a tdisk. ">f_tdisk_debug_info</a> using the given format.  <a href="#a6961c6b30f65627151335e3d0fde70a6">More...</a><br /></td></tr>
+<tr class="separator:a6961c6b30f65627151335e3d0fde70a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af4d2cb1983587835ffa59f10da80a3c6"><td class="memTemplParams" colspan="2">template&lt;&gt; </td></tr>
 <tr class="memitem:af4d2cb1983587835ffa59f10da80a3c6"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetd.html#af4d2cb1983587835ffa59f10da80a3c6">createResultString</a> (std::ostream &amp;ss, const <a class="el" href="classtd_1_1tDisk.html">tDisk</a> &amp;disk, unsigned int hierarchy, const utils::ci_string &amp;outputFormat)</td></tr>
 <tr class="memdesc:af4d2cb1983587835ffa59f10da80a3c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifies the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> using the given format.  <a href="#af4d2cb1983587835ffa59f10da80a3c6">More...</a><br /></td></tr>
@@ -623,7 +630,7 @@ Variables</h2></td></tr>
 <tr class="memitem:a158b8cac49abeedc3bf81afc491b75fe"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="classtd_1_1Serialport.html#a84535a180500799d9fb11176a2972505">Serialport::Baud</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#a158b8cac49abeedc3bf81afc491b75fe">default_baud</a> = <a class="el" href="classtd_1_1Serialport.html#a84535a180500799d9fb11176a2972505ac6489bbe11486d6aad1042189e7e2685">Serialport::Baud_2400</a></td></tr>
 <tr class="memdesc:a158b8cac49abeedc3bf81afc491b75fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">The default baud rate which is used for serial port communication.  <a href="#a158b8cac49abeedc3bf81afc491b75fe">More...</a><br /></td></tr>
 <tr class="separator:a158b8cac49abeedc3bf81afc491b75fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afbd3fb3d993728df2551893c876ee10b"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="classtd_1_1Serialport.html#a328e62d3e556e11eb030428d22d8d2c5">Serialport::Parity</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#afbd3fb3d993728df2551893c876ee10b">default_parity</a> = <a class="el" href="classtd_1_1Serialport.html#a328e62d3e556e11eb030428d22d8d2c5a9256c08e7ceff81863c9fd6b8eb44d22">Serialport::EvenParity</a></td></tr>
+<tr class="memitem:afbd3fb3d993728df2551893c876ee10b"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="classtd_1_1Serialport.html#a328e62d3e556e11eb030428d22d8d2c5">Serialport::Parity</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#afbd3fb3d993728df2551893c876ee10b">default_parity</a> = <a class="el" href="classtd_1_1Serialport.html#a328e62d3e556e11eb030428d22d8d2c5ab1a1f8cb372c06ee9fcf18d014ca2da2">Serialport::NoParity</a></td></tr>
 <tr class="memdesc:afbd3fb3d993728df2551893c876ee10b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The default parity which is used for serial port communication.  <a href="#afbd3fb3d993728df2551893c876ee10b">More...</a><br /></td></tr>
 <tr class="separator:afbd3fb3d993728df2551893c876ee10b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac9b784f3e9a02a5317bf5859cc2d3df0"><td class="memItemLeft" align="right" valign="top">static constexpr const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetd.html#ac9b784f3e9a02a5317bf5859cc2d3df0">endSequence</a> [] = &quot;&lt;[[[[end-of-serial-<a class="el" href="backend_2serial_2src_2main_8cpp.html#ac0986528ca5e5b4e8c5383fe5c3d4bee">request</a>]]]]&gt;\n&quot;</td></tr>
@@ -2474,48 +2481,6 @@ template&lt;&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ab58e8d9772dfc5be530dd02462cc8aad"></a>
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">void td::createResultString </td>
-          <td>(</td>
-          <td class="paramtype">std::ostream &amp;&#160;</td>
-          <td class="paramname"><em>ss</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="tdisk_8h.html#structf__sector__index">f_sector_index</a> &amp;&#160;</td>
-          <td class="paramname"><em>index</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>hierarchy</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const utils::ci_string &amp;&#160;</td>
-          <td class="paramname"><em>outputFormat</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Stringifies the given <a class="el" href="tdisk_8h.html#structf__sector__index" title="Frontend version A index represents the physical location of a logical sector. ">f_sector_index</a> using the given format. </p>
-
-</div>
-</div>
 <a class="anchor" id="a473af34a81459d8382839e4924d951af"></a>
 <div class="memitem">
 <div class="memproto">
@@ -2572,6 +2537,48 @@ template&lt;&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The object converted to string using the given format </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ab58e8d9772dfc5be530dd02462cc8aad"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void td::createResultString </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>ss</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="tdisk_8h.html#structf__sector__index">f_sector_index</a> &amp;&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>hierarchy</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const utils::ci_string &amp;&#160;</td>
+          <td class="paramname"><em>outputFormat</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Stringifies the given <a class="el" href="tdisk_8h.html#structf__sector__index" title="Frontend version A index represents the physical location of a logical sector. ">f_sector_index</a> using the given format. </p>
 
 </div>
 </div>
@@ -2656,48 +2663,6 @@ template&lt;&gt; </div>
 </div><div class="memdoc">
 
 <p>Stringifies the given <a class="el" href="tdisk_8h.html#structf__device__performance" title="Frontend version This struct represents performance indicators of a physical disk. ">f_device_performance</a> using the given format. </p>
-
-</div>
-</div>
-<a class="anchor" id="abe537198f7e59d8823e5c328c67db532"></a>
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">void td::createResultString </td>
-          <td>(</td>
-          <td class="paramtype">std::ostream &amp;&#160;</td>
-          <td class="paramname"><em>ss</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const enum <a class="el" href="tdisk_8h.html#ad7dd78dd16267ddee8d0dfd653efd7fa">f_internal_device_type</a> &amp;&#160;</td>
-          <td class="paramname"><em>type</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>hierarchy</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const utils::ci_string &amp;&#160;</td>
-          <td class="paramname"><em>outputFormat</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Stringifies the given <a class="el" href="tdisk_8h.html#structf__internal__device__info" title="Frontend version This struct is used to transfer internal device specific information to user space...">f_internal_device_info</a> using the given format. </p>
 
 </div>
 </div>
@@ -2810,6 +2775,48 @@ template&lt;&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="abe537198f7e59d8823e5c328c67db532"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void td::createResultString </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>ss</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const enum <a class="el" href="tdisk_8h.html#ad7dd78dd16267ddee8d0dfd653efd7fa">f_internal_device_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>hierarchy</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const utils::ci_string &amp;&#160;</td>
+          <td class="paramname"><em>outputFormat</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Stringifies the given <a class="el" href="tdisk_8h.html#structf__internal__device__info" title="Frontend version This struct is used to transfer internal device specific information to user space...">f_internal_device_info</a> using the given format. </p>
+
+</div>
+</div>
 <a class="anchor" id="a4996747371ca2064349d93ba7f1a5b67"></a>
 <div class="memitem">
 <div class="memproto">
@@ -2849,48 +2856,6 @@ template&lt;&gt; </div>
 </div><div class="memdoc">
 
 <p>Stringifies the given <a class="el" href="tdisk_8h.html#structf__internal__device__info" title="Frontend version This struct is used to transfer internal device specific information to user space...">f_internal_device_info</a> using the given format. </p>
-
-</div>
-</div>
-<a class="anchor" id="af4d2cb1983587835ffa59f10da80a3c6"></a>
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">void td::createResultString </td>
-          <td>(</td>
-          <td class="paramtype">std::ostream &amp;&#160;</td>
-          <td class="paramname"><em>ss</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="classtd_1_1tDisk.html">tDisk</a> &amp;&#160;</td>
-          <td class="paramname"><em>disk</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>hierarchy</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const utils::ci_string &amp;&#160;</td>
-          <td class="paramname"><em>outputFormat</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Stringifies the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> using the given format. </p>
 
 </div>
 </div>
@@ -3003,6 +2968,48 @@ template&lt;&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a6961c6b30f65627151335e3d0fde70a6"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void td::createResultString </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>ss</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="tdisk_8h.html#structf__tdisk__debug__info">f_tdisk_debug_info</a> &amp;&#160;</td>
+          <td class="paramname"><em>info</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>hierarchy</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const utils::ci_string &amp;&#160;</td>
+          <td class="paramname"><em>outputFormat</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Stringifies the given <a class="el" href="tdisk_8h.html#structf__tdisk__debug__info" title="Frontend version This struct is used to retrieve debug information from a tdisk. ">f_tdisk_debug_info</a> using the given format. </p>
+
+</div>
+</div>
 <a class="anchor" id="a40a488149b8086018a5f8effbe378c6c"></a>
 <div class="memitem">
 <div class="memproto">
@@ -3050,6 +3057,48 @@ template&lt;&gt; </div>
 </div><div class="memdoc">
 
 <p>Stringifies the given <a class="el" href="structtd_1_1IndividualResult.html" title="This struct defines an individual result, e.g. ">IndividualResult</a> using the given format. </p>
+
+</div>
+</div>
+<a class="anchor" id="af4d2cb1983587835ffa59f10da80a3c6"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void td::createResultString </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>ss</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classtd_1_1tDisk.html">tDisk</a> &amp;&#160;</td>
+          <td class="paramname"><em>disk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>hierarchy</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const utils::ci_string &amp;&#160;</td>
+          <td class="paramname"><em>outputFormat</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Stringifies the given <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> using the given format. </p>
 
 </div>
 </div>
@@ -4285,6 +4334,45 @@ template&lt;class T , class... V&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A stringified version of an array of <a class="el" href="namespacetd_1_1c.html#structtd_1_1c_1_1f__sector__index" title="Frontend version A index represents the physical location of a logical sector. ">td::c::f_sector_index</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a4a9d99c9dc01971c26aaf361dabe5722"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtd_1_1BackendResult.html">BackendResult</a> td::get_debug_info </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>args</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtd_1_1Options.html">Options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns debug information about the tdisk. </p>
+<p>When the current debug id is given, then the next debug info is returned </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">args</td><td><ul>
+<li><a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> minor number (e.g. 0) or path (e.g. /dev/td0)</li>
+<li>(Optional: The current debug id) </li>
+</ul>
+</td></tr>
+    <tr><td class="paramname">options</td><td>The command options (e.g. output-format) </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -5638,7 +5726,7 @@ template&lt;class... Args&gt; </div>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="classtd_1_1Serialport.html#a328e62d3e556e11eb030428d22d8d2c5">Serialport::Parity</a> td::default_parity = <a class="el" href="classtd_1_1Serialport.html#a328e62d3e556e11eb030428d22d8d2c5a9256c08e7ceff81863c9fd6b8eb44d22">Serialport::EvenParity</a></td>
+          <td class="memname">constexpr <a class="el" href="classtd_1_1Serialport.html#a328e62d3e556e11eb030428d22d8d2c5">Serialport::Parity</a> td::default_parity = <a class="el" href="classtd_1_1Serialport.html#a328e62d3e556e11eb030428d22d8d2c5ab1a1f8cb372c06ee9fcf18d014ca2da2">Serialport::NoParity</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -5716,7 +5804,7 @@ template&lt;class... Args&gt; </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jul 7 2016 17:20:38 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Aug 12 2016 11:17:33 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

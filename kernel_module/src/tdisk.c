@@ -910,7 +910,7 @@ static int td_is_compatible_header(struct tdisk *td, struct tdisk_header *header
   * Reads the td header from the given device
   * and measures the disk performance if perf != NULL
  **/
-static int td_read_header(struct tdisk *td, struct td_internal_device *device, struct tdisk_header *header, bool first_device, int *index_operation_to_do)
+static int td_read_header(struct tdisk *td, struct td_internal_device *device, struct tdisk_header *header, bool first_device, int *index_operation_to_do, bool format)
 {
 	int error;
 
@@ -958,6 +958,14 @@ static int td_read_header(struct tdisk *td, struct td_internal_device *device, s
 		printk(KERN_ERR "tDisk: Bug in td_is_compatible_header function\n");
 		BUG_ON(td_is_compatible_header(td, header));
 		(*index_operation_to_do) = 123456;
+		break;
+	}
+
+	if((*index_operation_to_do) != WRITE && format == true)
+	{
+		printk(KERN_INFO "tDisk: device was part of a tDisk but formatting as you requested\n");
+		(*index_operation_to_do) = WRITE;
+		header->disk_index = (tdisk_index)(td->internal_devices_count + 1);
 	}
 
 	return 0;
@@ -1632,7 +1640,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	struct address_space *mapping;
 	struct tdisk_header header;
 	int error;
-	loff_t size;
+	loff_t device_size;
 	loff_t size_counter = 0;
 	sector_t sector = 0;
 	sector_t new_max_sectors;
@@ -1641,7 +1649,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	int index_operation_to_do;
 	int first_device = (td->internal_devices_count == 0);
 	int additional_sectors;
-	int format;
+	bool format;
 
 	//Check for disk limit
 	if(td->internal_devices_count == TDISK_MAX_PHYSICAL_DISKS)
@@ -1690,7 +1698,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		mapping_set_gfp_mask(mapping, new_device.old_gfp_mask & ~(__GFP_IO|__GFP_FS));
 
 		//File size in bytes
-		size = file_get_size(new_device.file);
+		device_size = file_get_size(new_device.file);
 		break;
 #else
 #pragma message "Files are disabled"
@@ -1702,7 +1710,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		printk(KERN_INFO "tDisk: Adding new internal device plugin: %s (Path: %s)\n", new_device.name, new_device.path);
 
 		//Plugin size in bytes
-		size = plugin_get_size(new_device.name);
+		device_size = plugin_get_size(new_device.name);
 		break;
 #else
 #pragma message "Plugins are disabled"
@@ -1715,29 +1723,20 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	}
 
 #ifdef MEASURE_PING_PERFORMANCE
-	td_measure_device_performance(&new_device, size);
+	td_measure_device_performance(&new_device, device_size);
 #else
 #pragma message "Ping performance measurement is disabled"
 #endif //MEASURE_PING_PERFORMANCE
 
-	//printk(KERN_DEBUG "tDisk: device performance before reading header: %llu\n", td_get_device_performance(&new_device));
-	error = td_read_header(td, &new_device, &header, first_device, &index_operation_to_do);
+	error = td_read_header(td, &new_device, &header, first_device, &index_operation_to_do, format);
 	if(error)goto out_putf;
-	//printk(KERN_DEBUG "tDisk: device performance after reading header: %llu\n", td_get_device_performance(&new_device));
-
-	if(index_operation_to_do != WRITE && format == true)
-	{
-		printk(KERN_INFO "tDisk: device was part of a tDisk but formatting as you requested\n");
-		index_operation_to_do = WRITE;
-		header.disk_index = (tdisk_index)(td->internal_devices_count + 1);
-	}
 
 	//Calculate new max_sectors of tDisk
 	if(index_operation_to_do == WRITE)
 	{
-		size_counter = (loff_t)td->size_blocks * td->blocksize + size;
-		if(__div64_32(&size_counter, td->blocksize))size_counter++;
-		new_max_sectors = (sector_t)size_counter;
+		loff_t device_size_blocks = (loff_t)td->size_blocks * td->blocksize + device_size;
+		if(__div64_32(&device_size_blocks, td->blocksize))device_size_blocks++;
+		new_max_sectors = (sector_t)device_size_blocks;
 	}
 	else new_max_sectors = td->max_sectors;
 
@@ -1750,14 +1749,14 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 
 	error = -EINVAL;
 	if(additional_sectors != 0)printk(KERN_DEBUG "tDisk: %d additional sectors needed\n", additional_sectors);
-	if(size < ((loff_t)td->header_size+additional_sectors+1)*td->blocksize)	//Disk too small
+	if(device_size < ((loff_t)td->header_size+additional_sectors+1)*td->blocksize)	//Disk too small
 	{
-		printk(KERN_WARNING "tDisk: Can't add disk, too small: %llu. Should be at least %llu\n", size, ((loff_t)td->header_size+additional_sectors+1)*td->blocksize);
+		printk(KERN_WARNING "tDisk: Can't add disk, too small: %llu. Should be at least %llu\n", device_size, ((loff_t)td->header_size+additional_sectors+1)*td->blocksize);
 		goto out_putf;
 	}
 
 	//Subtract (new) header size from disk size
-	size -= ((loff_t)td->header_size+additional_sectors)*td->blocksize;
+	device_size -= ((loff_t)td->header_size+additional_sectors)*td->blocksize;
 
 	//resize tDisk indices
 	if(additional_sectors != 0)
@@ -1795,7 +1794,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	if(header.disk_index > td->internal_devices_count)td->internal_devices_count = (tdisk_index)(header.disk_index);
 
 	//Calculate actual device size
-	new_device.size_blocks = __div64_32_nomod((uint64_t)size, td->blocksize) - 1;	//-1 to leave one sector for movement
+	new_device.size_blocks = __div64_32_nomod((uint64_t)device_size, td->blocksize) - 1;	//-1 to leave one sector for movement
 
 	error = 0;
 
@@ -1815,7 +1814,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		sector = 0;
 		size_counter = 0;
 		physical_sector = vmalloc(sizeof(struct sector_index));
-		while((size_counter+td->blocksize+td->blocksize) <= size)	//+td->blocksize to leave one sector for movement
+		while((size_counter+td->blocksize+td->blocksize) <= device_size)	//+td->blocksize to leave one sector for movement
 		{
 			int internal_ret;
 			sector_t logical_sector = td->size_blocks++;
@@ -1904,7 +1903,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		//Header size increased. Let's create available sectors
 		//At the beginning of each disk by moving them to the new disk.
 		//Since this operation is very critical and wee need to use the
-		//newly inserted device before it it actually ready, we stop the
+		//newly inserted device before it is actually ready, we stop the
 		//queue to prevent any data corruption
 
 		sector_t search;
@@ -1978,7 +1977,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	}
 
 	td->internal_devices[header.disk_index-1] = new_device;
-	printk(KERN_DEBUG "tDisk: new physical disk %u: size: %llu bytes. Logical size(%lu)\n", header.disk_index, size, td->size_blocks*td->blocksize);
+	printk(KERN_DEBUG "tDisk: new physical disk %u: size: %llu bytes. Logical size(%lu)\n", header.disk_index, device_size, td->size_blocks*td->blocksize);
 
 	//let user-space know about this change
 	set_capacity(td->kernel_disk, (td->size_blocks*td->blocksize) >> 9);

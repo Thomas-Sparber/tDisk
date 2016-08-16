@@ -84,7 +84,7 @@ namespace td
 	BackendResult remove_tDisk(const std::vector<std::string> &args, Options &options);
 
 	/**
-	  * Adds one or more nacking files to a tDisk.
+	  * Adds one or more backing files to a tDisk.
 	  * @param args:
 	  *  - tDisk minor number (e.g. 0) or path (e.g. /dev/td0)
 	  *  - Backing file to add (path to file or disk or plugin name)
@@ -92,6 +92,15 @@ namespace td
 	  * @param options: The command options (e.g. output-format)
 	 **/
 	BackendResult add_disk(const std::vector<std::string> &args, Options &options);
+
+	/**
+	  * Removes a backing file from a tDisk.
+	  * @param args:
+	  *  - tDisk minor number (e.g. 0) or path (e.g. /dev/td0)
+	  *  - Backing file to remove (device id)
+	  * @param options: The command options (e.g. output-format)
+	 **/
+	BackendResult remove_disk(const std::vector<std::string> &args, Options &options);
 
 	/**
 	  * Gets the current maximum amount of sectors (defined

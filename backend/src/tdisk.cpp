@@ -191,6 +191,20 @@ void tDisk::addDisk(const string &path, bool format)
 	online = true;
 }
 
+void tDisk::removeDisk(unsigned int disk)
+{
+	int ret = c::tdisk_remove_disk(name.c_str(), disk);
+
+	try {
+		handleError(ret);
+	} catch (const tDiskOfflineException &e) {
+		throw tDiskOfflineException("Can't remove disk ", disk ," from tDisk ", name, ": ", e.what());
+	} catch (const tDiskException &e) {
+		throw tDiskException("Can't remove disk ", disk ," from tDisk ", name, ": ", e.what());
+	}
+	online = true;
+}
+
 unsigned long long tDisk::getMaxSectors() const
 {
 	uint64_t maxSectors;

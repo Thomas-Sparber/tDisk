@@ -247,6 +247,11 @@ public:
 	void addDisk(const std::string &path, bool format);
 
 	/**
+	  * Removes the given internal disk from the tDisk
+	 **/
+	void removeDisk(unsigned int disk);
+
+	/**
 	  * Returns the current amount of max sectors
 	 **/
 	unsigned long long getMaxSectors() const;

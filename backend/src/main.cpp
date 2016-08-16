@@ -84,6 +84,10 @@ vector<Command> commands {
 		"added as file. If not it is added as a plugin. It needs the tDisk\n"
 		"minornumber/path and filename/pluginname as argument"),
 	
+	Command("remove_disk", remove_disk,
+		"Removes the given internal device from the tDisk.  It needs the\n"
+		"tDisk minornumber/path and device id as argument"),
+	
 	Command("get_max_sectors", get_max_sectors,
 		"Gets the current maximum amount of sectors for the given tDisk. It\n"
 		"needs the tDisk minornumber/path as argument"),

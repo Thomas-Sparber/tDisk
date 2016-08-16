@@ -251,6 +251,23 @@ int tdisk_add_disk(const char *device, const char *new_disk, int format)
 	return ret;
 }
 
+int tdisk_remove_disk(const char *device, unsigned int disk)
+{
+	int dev;
+	int ret;
+
+	if(!check_td_control())return -ENODEV;
+
+	dev = open(device, O_RDWR);
+	if(dev < 0)return -EACCES;
+
+	ret = ioctl(dev, TDISK_REMOVE_DISK, disk);
+
+	close(dev);
+
+	return ret;
+}
+
 int tdisk_get_max_sectors(const char *device, uint64_t *out)
 {
 	int dev;

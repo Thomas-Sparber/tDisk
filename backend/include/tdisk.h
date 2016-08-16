@@ -179,6 +179,12 @@ int tdisk_remove(int device);
 int tdisk_add_disk(const char *device, const char *new_disk, int format);
 
 /**
+  * Removes the internal device with the given id
+  * from the tDisk
+ **/
+int tdisk_remove_disk(const char *device, unsigned int disk);
+
+/**
   * Gets the current maximum amount of sectors for the given tDisk
  **/
 int tdisk_get_max_sectors(const char *device, uint64_t *out);
@@ -200,7 +206,7 @@ int tdisk_get_sector_index(const char *device, uint64_t logical_sector, struct f
 
 /**
   * Returns infomration about all sector indices
-  * @param device The tDiskto get all sector incides from
+  * @param device The tDisk to get all sector incides from
   * @param out An array of f_sector_info to store the infomration
   * @param size The size of the array
  **/

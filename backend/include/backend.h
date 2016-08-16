@@ -51,6 +51,11 @@ struct BackendResult* remove_tDisk(int argc, char *args[], struct Options *optio
 struct BackendResult* add_disk(int argc, char *args[], struct Options *options);
 
 /**
+  * C version of remove_disk. Look at the C++ version for more details.
+ **/
+struct BackendResult* remove_disk(int argc, char *args[], struct Options *options);
+
+/**
   * C version of get_max_sectors. Look at the C++ version for more details.
  **/
 struct BackendResult* get_max_sectors(int argc, char *args[], struct Options *options);

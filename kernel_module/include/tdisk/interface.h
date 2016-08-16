@@ -203,6 +203,7 @@ struct tdisk_debug_info
 #define TDISK_GET_ALL_SECTOR_INDICES	0x4C04
 #define TDISK_CLEAR_ACCESS_COUNT		0x4C05
 #define TDISK_GET_DEBUG_INFO			0x4C06
+#define TDISK_REMOVE_DISK				0x4C07
 
 // /dev/td-control interface
 #define TDISK_CTL_ADD			0x4C80

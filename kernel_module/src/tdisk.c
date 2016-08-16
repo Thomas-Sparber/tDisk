@@ -2009,6 +2009,73 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 }
 
 /**
+  * This function removes the disk with the given index
+  * from the tdisk. It does so by moving the disk to be
+  * removed to the end and then shrinking the tDisk. If
+  * the file system was previously shrinked then there will
+  * be no data loss
+ **/
+static int td_remove_disk(struct tdisk *td, tdisk_index disk)
+{
+	int error = 0;
+	sector_t sector;
+	sector_t sector_rev = td->max_sectors - 1;
+
+	//Fur such a critical operation we need to stop the
+	//queue to prevent any data loss
+	td_stop_worker_thread(td);
+
+	for(sector = 0; sector < td->max_sectors; ++sector)
+	{
+		if(td->indices[sector].disk == disk)
+		{
+			//This sector needs to be moved to the end
+
+			//Find sector at the end which can be swapped
+			while(td->indices[sector_rev].disk == 0 || td->indices[sector_rev].disk == disk)
+			{
+				if(unlikely(sector_rev == 0))break;
+				sector_rev--;
+			}
+
+			if(td->indices[sector_rev].disk == 0 || td->indices[sector_rev].disk == disk)
+			{
+				//No sector found
+				printk(KERN_WARNING "tDisk: No sector found at the end while removing disk %d\n", disk);
+				error = -ENODEV;
+				goto out;
+			}
+
+			if(!SECTOR_USED(td->indices[sector].access_count) && !SECTOR_USED(td->indices[sector_rev].access_count))
+			{
+				//Both sectors are unused. We can simply swap
+				//the indices instead of copying data
+				swap(td->indices[sector].disk, td->indices[sector_rev].disk);
+				swap(td->indices[sector].access_count, td->indices[sector_rev].access_count);
+				swap(td->indices[sector].sector, td->indices[sector_rev].sector);
+				td_perform_index_operation(td, WRITE, sector, &td->indices[sector], true, false);
+				td_perform_index_operation(td, WRITE, sector_rev, &td->indices[sector_rev], true, false);
+			}
+			else
+			{
+				error = td_swap_sectors(td, sector, &td->indices[sector], sector_rev, &td->indices[sector_rev]);
+				if(error)
+				{
+					printk(KERN_WARNING "tDisk: Error swapping sectors %llu and %llu when removing disk %u\n", sector, sector_rev, disk);
+					goto out;
+				}
+			}
+		}
+	}
+
+ out:
+	//Starting queue again
+	td_start_worker_thread(td);
+
+	return error;
+}
+
+/**
   * This function transfers device status information
   * to user space
  **/
@@ -2178,6 +2245,9 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 		break;
 	case TDISK_GET_DEBUG_INFO:
 		err = td_get_debug(td, (struct tdisk_debug_info __user *) arg);
+		break;
+	case TDISK_REMOVE_DISK:
+		err = td_remove_disk(td, (tdisk_index)arg);
 		break;
 	default:
 		printk(KERN_WARNING "tDisk: Invalid IOCTL: %d\n", cmd);

@@ -2025,7 +2025,7 @@ static int td_remove_disk(struct tdisk *td, tdisk_index disk)
 	//queue to prevent any data loss
 	td_stop_worker_thread(td);
 
-	for(sector = 0; sector < td->max_sectors; ++sector)
+	for(sector = 0; sector < sector_rev; ++sector)
 	{
 		if(td->indices[sector].disk == disk)
 		{

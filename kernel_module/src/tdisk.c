@@ -276,7 +276,7 @@ inline static unsigned long long td_get_device_performance(const struct td_inter
   * sector a in sector b and vice versa and updates the
   * indices
  **/
-static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_index *a, sector_t logical_b, struct sector_index *b)
+static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_index *a, sector_t logical_b, struct sector_index *b, bool do_disk_operation)
 {
 	int ret;
 	loff_t pos_a;
@@ -348,7 +348,7 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	a->disk = disk_a;
 	a->access_count = access_count_a;
 	a->sector = td->internal_devices[disk_a-1].move_help_sector;
-	td_perform_index_operation(td, WRITE, logical_a, a, true, false);
+	td_perform_index_operation(td, WRITE, logical_a, a, do_disk_operation, false);
 
 	ret = write_data(&td->internal_devices[disk_a-1], buffer_b, pos_a, td->blocksize);
 	if(ret != 0)
@@ -360,7 +360,7 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	b->disk = disk_a;
 	b->access_count = access_count_b;
 	b->sector = sector_a;
-	td_perform_index_operation(td, WRITE, logical_b, b, true, false);
+	td_perform_index_operation(td, WRITE, logical_b, b, do_disk_operation, false);
 
 	ret = write_data(&td->internal_devices[disk_b-1], buffer_a, pos_b, td->blocksize);
 	if(ret != 0)
@@ -372,7 +372,7 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	a->disk = disk_b;
 	a->access_count = access_count_a;
 	a->sector = sector_b;
-	td_perform_index_operation(td, WRITE, logical_a, a, true, false);
+	td_perform_index_operation(td, WRITE, logical_a, a, do_disk_operation, false);
 
  out:
 	vfree(buffer_a);
@@ -754,7 +754,7 @@ static bool td_move_one_sector(struct tdisk *td)
 			//printk(KERN_DEBUG "tDisk: swapping logical sectors %llu (disk: %u, access: %u) and %llu (disk: %u, access: %u): %llu/%llu\n",
 			//		logical_a, a->disk, a->access_count, logical_b, b->disk, b->access_count, correctly_stored, td->size_blocks);
 
-			td_swap_sectors(td, logical_a, a, logical_b, b);
+			td_swap_sectors(td, logical_a, a, logical_b, b, true);
 
 			if(td->sorted_devices[sorted_disk-1].dev == &td->internal_devices[a->disk-1])
 				td->sorted_devices[sorted_disk-1].amount_blocks++;
@@ -1941,7 +1941,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 							printk(KERN_DEBUG "tDisk: Moved header block %lu (disk: %u, sector: %llu) to %lu (disk: %u, sector: %llu)",
 									sector, td->indices[sector].disk, td->indices[sector].sector, search, td->indices[search].disk, td->indices[search].sector);
 
-							td_swap_sectors(td, sector, &td->indices[sector], search, &td->indices[search]);
+							td_swap_sectors(td, sector, &td->indices[sector], search, &td->indices[search], true);
 
 							//Resetting moved-block values
 							td->indices[search].disk = 0;

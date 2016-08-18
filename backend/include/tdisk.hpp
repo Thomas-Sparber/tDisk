@@ -294,6 +294,19 @@ public:
 	f_internal_device_info getDeviceInfo(unsigned int device) const;
 
 	/**
+	  * Returns the device info about all internal devices
+	 **/
+	std::vector<f_internal_device_info> getAllDeviceInfo() const
+	{
+		std::vector<f_internal_device_info> ret;
+
+		for(unsigned int device = 1; device <= getInternalDevicesCount(); ++device)
+			ret.push_back(getDeviceInfo(device));
+
+		return std::move(ret);
+	}
+
+	/**
 	  * Returns the (next) debug info for the tDisk
 	 **/
 	f_tdisk_debug_info getDebugInfo(uint64_t currentId=0) const;

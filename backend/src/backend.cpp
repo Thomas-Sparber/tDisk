@@ -397,7 +397,7 @@ BackendResult td::remove_tDisk(const vector<string> &args, Options &options)
 	return std::move(r);
 }
 
-BackendResult td::remove_disk(const vector<string> &args, Options &/*options*/)
+BackendResult td::remove_disk(const vector<string> &args, Options &options)
 {
 	BackendResult r;
 	if(args.size() < 2)
@@ -420,33 +420,51 @@ BackendResult td::remove_disk(const vector<string> &args, Options &/*options*/)
 		d.removeDisk(disk);
 		r.message(BackendResultType::driver, concat("Successfully removed disk ", disk));
 
-		/*configuration config(options.getStringOptionValue("configfile"), options);
-TODO
-		configuration::tdisk_config temp;
-		temp.minornumber = d.getMinornumber();
-		auto found = find(config.tdisks.begin(), config.tdisks.end(), temp);
-		if(found != config.tdisks.end())
-		{
-			for(std::size_t i = 1; i < args.size(); ++i)
-			{
-				found->devices.push_back(args[i]);
-				r.message(BackendResultType::configfile, concat("Successfully added disk ", args[i]));
-			}
+		vector<f_internal_device_info> remainingDevices = d.getAllDeviceInfo();
 
-			config.save(options.getStringOptionValue("configfile"));
-		}*/
+		//Perform config file operation
+		try {
+			bool removed = false;
+			configuration config(options.getStringOptionValue("configfile"), options);
+
+			configuration::tdisk_config temp;
+			temp.minornumber = d.getMinornumber();
+			auto tDiskConfig = find(config.tdisks.begin(), config.tdisks.end(), temp);
+			if(tDiskConfig != config.tdisks.end())
+			{
+				for(auto it = tDiskConfig->devices.begin(); it != tDiskConfig->devices.end(); ++it)
+				{
+					bool found = false;
+					for(const f_internal_device_info &device : remainingDevices)
+					{
+						if((*it) == device.name)
+						{
+							found = true;
+							break;
+						}
+					}
+
+					if(!found)
+					{
+						tDiskConfig->devices.erase(it);
+						removed = true;
+						break;
+					}
+				}
+			}
+			if(removed)
+			{
+				config.save(options.getStringOptionValue("configfile"));
+				r.message(BackendResultType::configfile, concat("Successfully removed disk ", disk));
+			}
+		} catch (const tDiskException &e) {
+			r.error(BackendResultType::configfile, e.what());
+		}
 	} catch (const tDiskOfflineException &e) {
 		r.error(BackendResultType::driver, e.what());
 	} catch (const tDiskException &e) {
 		r.error(BackendResultType::driver, e.what());
 	}
-
-	//Perform config file operation
-	/*try {	TODO
-		
-	} catch (const tDiskException &e) {
-		r.error(BackendResultType::configfile, e.what());
-	}*/
 
 	return std::move(r);
 }

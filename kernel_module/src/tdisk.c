@@ -2017,6 +2017,7 @@ static int td_remove_disk(struct tdisk *td, tdisk_index disk)
 	sector_t sector_rev = td->max_sectors - 1;
 	sector_t amount_sectors_removed = 0;
 	tdisk_index i;
+	struct tdisk_header invalid_header;
 
 	spin_lock(&td->tdisk_lock);
 	td->modifying = true;
@@ -2111,6 +2112,10 @@ static int td_remove_disk(struct tdisk *td, tdisk_index disk)
 		if(td->indices[sector].disk > disk)
 			td->indices[sector].disk--;
 	}
+
+	//Invalidate header
+	memset(&invalid_header, 0, sizeof(struct tdisk_header));
+	write_data(&td->internal_devices[disk-1], &invalid_header, 0, sizeof(struct tdisk_header));
 
 	//Release file if any
 	if(td->internal_devices[disk-1].file)

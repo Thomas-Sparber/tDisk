@@ -1644,7 +1644,6 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	struct tdisk_header header;
 	int error;
 	loff_t device_size;
-	loff_t size_counter = 0;
 	sector_t sector = 0;
 	sector_t new_max_sectors;
 	struct sector_index *physical_sector;
@@ -1814,17 +1813,13 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		td_write_header(&new_device, &header);
 
 		//Save sector indices
-		sector = 0;
-		size_counter = 0;
 		physical_sector = vmalloc(sizeof(struct sector_index));
-		while((size_counter+td->blocksize+td->blocksize) <= device_size)	//+td->blocksize to leave one sector for movement
+		for(sector = 0; sector < new_device.size_blocks; ++sector, ++td->size_blocks)
 		{
 			int internal_ret;
-			sector_t logical_sector = td->size_blocks++;
-			size_counter += td->blocksize;
 			physical_sector->disk = (tdisk_index)(header.disk_index);
-			physical_sector->sector = td->header_size + sector++;
-			internal_ret = td_perform_index_operation(td, WRITE, logical_sector, physical_sector, false, false);
+			physical_sector->sector = td->header_size + sector;
+			internal_ret = td_perform_index_operation(td, WRITE, td->size_blocks, physical_sector, false, false);
 			if(internal_ret == 1)
 			{
 				//This should be impossible since we increase the index everytime it is necessary

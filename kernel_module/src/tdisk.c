@@ -2046,7 +2046,7 @@ static int td_remove_disk(struct tdisk *td, tdisk_index disk)
 	}
 
 	//Move all sectors which belong to the internal device to the end of the tDisk
-	for(sector = 0; sector < sector_rev; ++sector)
+	for(sector = 0; sector < td->max_sectors; ++sector)
 	{
 		if(td->indices[sector].disk == disk)
 		{
@@ -2057,6 +2057,12 @@ static int td_remove_disk(struct tdisk *td, tdisk_index disk)
 			{
 				if(unlikely(sector_rev == 0))break;
 				sector_rev--;
+			}
+
+			if(sector >= sector_rev)
+			{
+				amount_sectors_removed++;
+				continue;
 			}
 
 			if(td->indices[sector_rev].disk == 0 || td->indices[sector_rev].disk == disk)

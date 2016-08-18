@@ -2015,11 +2015,36 @@ static int td_remove_disk(struct tdisk *td, tdisk_index disk)
 	int error = 0;
 	sector_t sector;
 	sector_t sector_rev = td->max_sectors - 1;
+	sector_t amount_sectors_removed = 0;
+	tdisk_index i;
 
-	//Fur such a critical operation we need to stop the
+	spin_lock(&td->tdisk_lock);
+	td->modifying = true;
+	while(td->optimizing)
+	{
+		//We set the modifying flag to true so that the thread
+		//stops optimizing, but we still need to wait until the
+		//thread has finished its current work
+		printk_ratelimited(KERN_DEBUG "tDisk: Waiting for optimizer to finish before removing new device\n");
+
+		spin_unlock(&td->tdisk_lock);
+		msleep(1000);
+		spin_lock(&td->tdisk_lock);
+	}
+	spin_unlock(&td->tdisk_lock);
+
+	//For such a critical operation we need to stop the
 	//queue to prevent any data loss
 	td_stop_worker_thread(td);
 
+	if(disk == 0 || !device_is_ready(&td->internal_devices[disk-1]))
+	{
+		printk(KERN_WARNING, "tDisk: Can't remove device %u because it is not ready\n", disk);
+		error = -EINVAL;
+		goto out;
+	}
+
+	//Move all sectors which belong to the internal device to the end of the tDisk
 	for(sector = 0; sector < sector_rev; ++sector)
 	{
 		if(td->indices[sector].disk == disk)
@@ -2048,24 +2073,79 @@ static int td_remove_disk(struct tdisk *td, tdisk_index disk)
 				swap(td->indices[sector].disk, td->indices[sector_rev].disk);
 				swap(td->indices[sector].access_count, td->indices[sector_rev].access_count);
 				swap(td->indices[sector].sector, td->indices[sector_rev].sector);
-				td_perform_index_operation(td, WRITE, sector, &td->indices[sector], true, false);
-				td_perform_index_operation(td, WRITE, sector_rev, &td->indices[sector_rev], true, false);
+				td_perform_index_operation(td, WRITE, sector, &td->indices[sector], false, false);
+				td_perform_index_operation(td, WRITE, sector_rev, &td->indices[sector_rev], false, false);
 			}
 			else
 			{
-				error = td_swap_sectors(td, sector, &td->indices[sector], sector_rev, &td->indices[sector_rev]);
+				error = td_swap_sectors(td, sector, &td->indices[sector], sector_rev, &td->indices[sector_rev], false);
 				if(error)
 				{
 					printk(KERN_WARNING "tDisk: Error swapping sectors %llu and %llu when removing disk %u\n", sector, sector_rev, disk);
 					goto out;
 				}
 			}
+
+			//Now we make the sector invalid by setting the disk to 0
+			//Then it is not usable anymore. If there was any data
+			//beyond the size limit after the disk is removed then
+			//this will be the first point where data is lost. But
+			//we assume that the user either modified the partition table
+			//or resized the filesystem before.
+			td->indices[sector_rev].disk = 0;
+			td->indices[sector_rev].access_count = 0;
+			td->indices[sector_rev].sector = 0;
+
+			amount_sectors_removed++;
 		}
 	}
 
+	MY_BUG_ON(td->internal_devices[disk-1].size_blocks != amount_sectors_removed, PRINT_ULL(td->internal_devices[disk-1].size_blocks), PRINT_ULL(amount_sectors_removed));
+
+	//All the sectors are now moved at the end of the tDisk and the 
+	//disk is set to 0 which makes them "empty".
+	//Now we decrement all disk indices with an id higher than the
+	//disk which was removed
+	for(sector = 0; sector < td->max_sectors; ++sector)
+	{
+		if(td->indices[sector].disk > disk)
+			td->indices[sector].disk--;
+	}
+
+	//Release file if any
+	if(td->internal_devices[disk-1].file)
+	{
+		gfp_t gfp = td->internal_devices[disk-1].old_gfp_mask;
+		mapping_set_gfp_mask(td->internal_devices[disk-1].file->f_mapping, gfp);
+		fput(td->internal_devices[disk-1].file);
+		td->internal_devices[disk-1].file = NULL;
+	}
+
+	//Now we remove the internal device from the array
+	for(i = disk; i < td->internal_devices_count; ++i)
+		td->internal_devices[i-1] = td->internal_devices[i];
+	td->internal_devices_count--;
+
+	//Write all disk indices
+	for(i = 1; i <= td->internal_devices_count; ++i)
+		td_write_all_indices(td, &td->internal_devices[i-1]);
+
+	//Set new size
+	td->size_blocks -= amount_sectors_removed;
+
+	//let user-space know about this change
+	set_capacity(td->kernel_disk, (td->size_blocks*td->blocksize) >> 9);
+	bd_set_size(td->block_device, (loff_t)td->size_blocks*td->blocksize);
+	kobject_uevent(&disk_to_dev(td->block_device->bd_disk)->kobj, KOBJ_CHANGE);
+
  out:
+	spin_lock(&td->tdisk_lock);
+	td->modifying = false;
+	spin_unlock(&td->tdisk_lock);
+
 	//Starting queue again
 	td_start_worker_thread(td);
+	td_reread_partitions(td, td->block_device);
 
 	return error;
 }

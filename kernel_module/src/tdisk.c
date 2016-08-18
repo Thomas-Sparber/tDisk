@@ -2329,9 +2329,14 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 	case TDISK_REMOVE_DISK:
 		err = td_remove_disk(td, (tdisk_index)arg);
 		break;
+	case CDROM_GET_CAPABILITY:
+		//Udev sends it and we don't want to spam dmesg
+		err = -ENOIOCTLCMD;
+		break;
 	default:
 		printk(KERN_WARNING "tDisk: Invalid IOCTL: %d\n", cmd);
-		err = -EINVAL;
+		err = -ENOIOCTLCMD;
+		break;
 	}
 	mutex_unlock(&td->ctl_mutex);
 
@@ -2356,7 +2361,12 @@ static int td_compat_ioctl(struct block_device *bdev, fmode_t mode, unsigned int
 	case TDISK_GET_SECTOR_INDEX:
 	case TDISK_GET_ALL_SECTOR_INDICES:
 	case TDISK_CLEAR_ACCESS_COUNT:
+	case TDISK_GET_DEBUG_INFO:
+	case CDROM_GET_CAPABILITY:
 		arg = (unsigned long)compat_ptr((compat_uptr_t)arg);
+		err = td_ioctl(bdev, mode, cmd, arg);
+		break;
+	case TDISK_REMOVE_DISK:
 		err = td_ioctl(bdev, mode, cmd, arg);
 		break;
 	default:

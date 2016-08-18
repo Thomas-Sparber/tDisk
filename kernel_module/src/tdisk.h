@@ -18,6 +18,7 @@
 #include <linux/bio.h>
 #include <linux/blkdev.h>
 #include <linux/blk-mq.h>
+#include <linux/cdrom.h>
 #include <linux/delay.h>
 #include <linux/kthread.h>
 #include <linux/list.h>

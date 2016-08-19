@@ -2157,6 +2157,9 @@ static int td_remove_disk(struct tdisk *td, tdisk_index disk)
 	kobject_uevent(&disk_to_dev(td->block_device->bd_disk)->kobj, KOBJ_CHANGE);
 
  out:
+ 	//Index needs to be resorted
+ 	td->access_count_resort = 0;
+
 	spin_lock(&td->tdisk_lock);
 	td->modifying = false;
 	spin_unlock(&td->tdisk_lock);

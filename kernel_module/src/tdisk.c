@@ -2347,11 +2347,11 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 		break;
 	case CDROM_GET_CAPABILITY:
 		//Udev sends it and we don't want to spam dmesg
-		err = -ENOIOCTLCMD;
+		err = -ENOTTY;
 		break;
 	default:
 		printk(KERN_WARNING "tDisk: Invalid IOCTL: %d\n", cmd);
-		err = -ENOIOCTLCMD;
+		err = -ENOTTY;
 		break;
 	}
 	mutex_unlock(&td->ctl_mutex);
@@ -2386,7 +2386,7 @@ static int td_compat_ioctl(struct block_device *bdev, fmode_t mode, unsigned int
 		err = td_ioctl(bdev, mode, cmd, arg);
 		break;
 	default:
-		err = -ENOIOCTLCMD;
+		err = -ENOTTY;
 		break;
 	}
 	return err;

@@ -2019,6 +2019,8 @@ static int td_remove_disk(struct tdisk *td, tdisk_index disk)
 	tdisk_index i;
 	struct tdisk_header invalid_header;
 
+	printk(KERN_DEBUG "tDisk: Removing internal device %u\n", disk);
+
 	spin_lock(&td->tdisk_lock);
 	td->modifying = true;
 	while(td->optimizing)
@@ -2061,6 +2063,11 @@ static int td_remove_disk(struct tdisk *td, tdisk_index disk)
 
 			if(sector >= sector_rev)
 			{
+				//Make sector "empty". look below for more details
+				td->indices[sector].disk = 0;
+				td->indices[sector].access_count = 0;
+				td->indices[sector].sector = 0;
+
 				amount_sectors_removed++;
 				continue;
 			}

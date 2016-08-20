@@ -847,12 +847,13 @@ bool td_reorganize_all_indices(struct tdisk *td)
 		list_for_each_entry_safe(item, item_safe, &td->sorted_sectors_head, total_sorted)
 		{
 			//printk_ratelimited(KERN_DEBUG "tDisk sorting logical sector %u\n", item-td->sorted_sectors);
-			if(unlikely(item->total_sorted.prev != &td->sorted_sectors_head))
+			if(likely(item->total_sorted.prev != &td->sorted_sectors_head))
 			{
 				bool move = false;
 				prev = list_entry(item->total_sorted.prev, struct sorted_sector_index, total_sorted);
 
-				while(ACCESS_COUNT(item->physical_sector->access_count) > ACCESS_COUNT(prev->physical_sector->access_count))
+				while(ACCESS_COUNT(item->physical_sector->access_count) > ACCESS_COUNT(prev->physical_sector->access_count) ||
+						item->physical_sector->disk != 0 && prev->physical_sector->disk == 0)
 				{
 					move = true;
 					if(unlikely(prev->total_sorted.prev == &td->sorted_sectors_head))break;

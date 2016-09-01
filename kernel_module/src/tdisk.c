@@ -52,7 +52,7 @@ static void td_stop_worker_thread(struct tdisk *td);
 static enum worker_status td_queue_work(void *private_data, struct kthread_work *work);
 
 static int TD_MAJOR = 0;
-MODULE_LICENSE("GPL");
+MODULE_LICENSE("tDisk");
 MODULE_AUTHOR("Thomas Sparber <thomas@sparber.eu>");
 MODULE_DESCRIPTION(DRIVER_NAME " Driver");
 MODULE_ALIAS_BLOCKDEV_MAJOR(TD_MAJOR);
@@ -853,7 +853,7 @@ bool td_reorganize_all_indices(struct tdisk *td)
 				prev = list_entry(item->total_sorted.prev, struct sorted_sector_index, total_sorted);
 
 				while(ACCESS_COUNT(item->physical_sector->access_count) > ACCESS_COUNT(prev->physical_sector->access_count) ||
-						item->physical_sector->disk != 0 && prev->physical_sector->disk == 0)
+						(item->physical_sector->disk != 0 && prev->physical_sector->disk == 0))
 				{
 					move = true;
 					if(unlikely(prev->total_sorted.prev == &td->sorted_sectors_head))break;

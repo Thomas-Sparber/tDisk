@@ -59,8 +59,6 @@ MODULE_ALIAS_BLOCKDEV_MAJOR(TD_MAJOR);
 
 DEFINE_IDR(td_index_idr);
 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3,19,0)
-
 /*
  * Flushes the entire td device
  */
@@ -86,22 +84,6 @@ static int td_flush(struct tdisk *td)
  out:
 	return err;
 }
-
-#else
-
-/*
- * Flushes the td device (not the underlying devices)
- */
-static int td_flush(struct tdisk *td)
-{
-	//Freeze and unfreeze queue
-	blk_mq_freeze_queue(td->queue);
-	blk_mq_unfreeze_queue(td->queue);
-
-	return 0;
-}
-
-#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(3,19,0)
 
 /**
   * Flushes the underlying devices of the tDisk

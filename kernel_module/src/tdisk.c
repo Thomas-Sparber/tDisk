@@ -74,6 +74,12 @@ static int td_flush(struct tdisk *td)
 		goto out;
 	}
 
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3,19,0)
+	rq->cmd_type = REQ_TYPE_SPECIAL;
+#else
+	rq->cmd_type = REQ_TYPE_DRV_PRIV;
+#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(3,19,0)
+
 	rq->cmd_flags = REQ_FLUSH;
 	rq->bio = rq->biotail = NULL;
 

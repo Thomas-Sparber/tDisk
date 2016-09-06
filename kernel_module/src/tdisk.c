@@ -52,12 +52,42 @@ static void td_stop_worker_thread(struct tdisk *td);
 static enum worker_status td_queue_work(void *private_data, struct kthread_work *work);
 
 static int TD_MAJOR = 0;
-MODULE_LICENSE("tDisk");
+MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Thomas Sparber <thomas@sparber.eu>");
 MODULE_DESCRIPTION(DRIVER_NAME " Driver");
 MODULE_ALIAS_BLOCKDEV_MAJOR(TD_MAJOR);
 
 DEFINE_IDR(td_index_idr);
+
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3,19,0)
+
+/*
+ * Flushes the entire td device
+ */
+static int td_flush(struct tdisk *td)
+{
+	int err = 0;
+	struct request *rq;
+
+	rq = blk_get_request(td->queue, 0, GFP_KERNEL);
+	if(IS_ERR(rq))
+	{
+		err = -ENOMEM;
+		goto out;
+	}
+
+	rq->cmd_flags = REQ_FLUSH;
+	rq->bio = rq->biotail = NULL;
+
+	blk_execute_rq(td->queue, td->kernel_disk, rq, false);
+
+ 	blk_put_request(rq);
+
+ out:
+	return err;
+}
+
+#else
 
 /*
  * Flushes the td device (not the underlying devices)
@@ -71,6 +101,8 @@ static int td_flush(struct tdisk *td)
 	return 0;
 }
 
+#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(3,19,0)
+
 /**
   * Flushes the underlying devices of the tDisk
  **/
@@ -78,6 +110,7 @@ static int td_flush_devices(struct tdisk *td)
 {
 	unsigned int i;
 	int ret = 0;
+
 	for(i = 0; i < td->internal_devices_count; ++i)
 	{
 		int internal_ret = flush_device(&td->internal_devices[i]);
@@ -167,24 +200,6 @@ int td_write_index_to_disk(struct tdisk *td, sector_t logical_sector, tdisk_inde
 	actual = &td->indices[logical_sector];
 
 	return write_data(&td->internal_devices[disk-1], actual, position, length);
-}
-
-/**
-  * Writes the given sector index to the given internal device aysnchronously
- **/
-void td_write_index_to_disk_async(struct tdisk *td, sector_t logical_sector, tdisk_index disk, void *private_data, void (*callback)(void*,long))
-{
-	struct sector_index *actual;
-	loff_t position = td->index_offset_byte + (loff_t)logical_sector * (loff_t)sizeof(struct sector_index);
-	unsigned int length = sizeof(struct sector_index);
-
-	if(position + length > td->header_size * td->blocksize)
-	{
-		if(callback)callback(private_data, -ENOMEM);
-	}
-	actual = &td->indices[logical_sector];
-
-	write_data_async(&td->internal_devices[disk-1], actual, position, length, private_data, callback);
 }
 
 /**
@@ -1123,6 +1138,13 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		sector_t sector = (sector_t)sector_div;
 		loff_t actual_pos_byte;
 
+		if(unlikely(sector >= td->size_blocks))
+		{
+			printk_ratelimited(KERN_ERR "tDisk: requested sector %llu beyond disk size %llu\n", sector, td->size_blocks);
+			ret = -EIO;
+			continue;
+		}
+
 #ifdef USE_INITIAL_OPTIMIZATION
 		if(!SECTOR_USED(td->indices[sector].access_count))
 		{
@@ -1231,6 +1253,24 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 #ifdef ASYNC_OPERATIONS
 
 /**
+  * Writes the given sector index to the given internal device aysnchronously
+ **/
+void td_write_index_to_disk_async(struct tdisk *td, sector_t logical_sector, tdisk_index disk, void *private_data, void (*callback)(void*,long))
+{
+	struct sector_index *actual;
+	loff_t position = td->index_offset_byte + (loff_t)logical_sector * (loff_t)sizeof(struct sector_index);
+	unsigned int length = sizeof(struct sector_index);
+
+	if(position + length > td->header_size * td->blocksize)
+	{
+		if(callback)callback(private_data, -ENOMEM);
+	}
+	actual = &td->indices[logical_sector];
+
+	write_data_async(&td->internal_devices[disk-1], actual, position, length, private_data, callback);
+}
+
+/**
   * This callback is used for async file operations
  **/
 static void async_request_callback(void *private_data, long ret)
@@ -1283,20 +1323,21 @@ static int td_do_disk_operation_async(struct tdisk *td, struct request *rq)
 	int ret = -EIOCBQUEUED;
 	struct sector_index physical_sector;
 
-	struct multi_aio_data *multi_data = kmalloc(sizeof(struct multi_aio_data), GFP_KERNEL);
-
-	atomic_set(&multi_data->ret, 0);
-	atomic_set(&multi_data->remaining, 1);
-	multi_data->length = (long)blk_rq_bytes(rq);
-	multi_data->private_data = rq;
-	multi_data->callback = async_request_callback;
-
+	struct multi_aio_data *multi_data;
 
 	pos_byte = (loff_t)blk_rq_pos(rq) << 9;
 
 	//Handle flush operations
 	if((rq->cmd_flags & REQ_WRITE) && (rq->cmd_flags & REQ_FLUSH))
 		return td_flush_devices(td);
+
+	multi_data = kmalloc(sizeof(struct multi_aio_data), GFP_KERNEL);
+
+	atomic_set(&multi_data->ret, 0);
+	atomic_set(&multi_data->remaining, 1);
+	multi_data->length = (long)blk_rq_bytes(rq);
+	multi_data->private_data = rq;
+	multi_data->callback = async_request_callback;
 
 	//Normal file operations
 	rq_for_each_segment(bvec, rq, iter)
@@ -1306,6 +1347,13 @@ static int td_do_disk_operation_async(struct tdisk *td, struct request *rq)
 		loff_t offset = __div64_32(&sector_div, td->blocksize);
 		sector_t sector = (sector_t)sector_div;
 		loff_t actual_pos_byte;
+
+		if(unlikely(sector >= td->size_blocks))
+		{
+			printk_ratelimited(KERN_ERR "tDisk: requested sector %llu beyond disk size %llu\n", sector, td->size_blocks);
+			ret = -EIO;
+			continue;
+		}
 
 #ifdef USE_INITIAL_OPTIMIZATION
 		if(!SECTOR_USED(td->indices[sector].access_count))
@@ -1962,35 +2010,20 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		td_start_worker_thread(td);
 	}
 
-	if(first_device)
-	{
-		//Start the worker thread which handles all the disk
-		//operations such as reading, writing and all the sector
-		//movements.
-		error = td_start_worker_thread(td);
-		if(error)
-		{
-			printk(KERN_WARNING "tDisk: Error setting up worker thread\n");
-			goto out_reset_sectors;
-		}
-	}
-
 	td->internal_devices[header.disk_index-1] = new_device;
 	printk(KERN_DEBUG "tDisk: new physical disk %u: size: %llu bytes. Logical size(%lu)\n", header.disk_index, device_size, td->size_blocks*td->blocksize);
 
 	//let user-space know about this change
 	set_capacity(td->kernel_disk, (td->size_blocks*td->blocksize) >> 9);
 	bd_set_size(bdev, (loff_t)td->size_blocks*td->blocksize);
-	kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);
+	kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);	//GPL only
 
 	td->state = state_bound;
 	td_reread_partitions(td, bdev);
 
 	//Grab the block_device to prevent its destruction
 	if(first_device)bdgrab(bdev);
-	spin_lock(&td->tdisk_lock);
 	td->modifying = false;
-	spin_unlock(&td->tdisk_lock);
 	return 0;
 
  out_reset_sectors:
@@ -1998,9 +2031,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
  out_putf:
 	if(new_device.file)fput(new_device.file);
  out:
-	spin_lock(&td->tdisk_lock);
 	td->modifying = false;
-	spin_unlock(&td->tdisk_lock);
 	return error;
 }
 
@@ -2043,7 +2074,7 @@ static int td_remove_disk(struct tdisk *td, tdisk_index disk)
 
 	if(disk == 0 || !device_is_ready(&td->internal_devices[disk-1]))
 	{
-		printk(KERN_WARNING, "tDisk: Can't remove device %u because it is not ready\n", disk);
+		printk(KERN_WARNING "tDisk: Can't remove device %u because it is not ready\n", disk);
 		error = -EINVAL;
 		goto out;
 	}
@@ -2155,15 +2186,13 @@ static int td_remove_disk(struct tdisk *td, tdisk_index disk)
 	//let user-space know about this change
 	set_capacity(td->kernel_disk, (td->size_blocks*td->blocksize) >> 9);
 	bd_set_size(td->block_device, (loff_t)td->size_blocks*td->blocksize);
-	kobject_uevent(&disk_to_dev(td->block_device->bd_disk)->kobj, KOBJ_CHANGE);
+	kobject_uevent(&disk_to_dev(td->block_device->bd_disk)->kobj, KOBJ_CHANGE);	//GPL only
 
  out:
  	//Index needs to be resorted
  	td->access_count_resort = 0;
 
-	spin_lock(&td->tdisk_lock);
 	td->modifying = false;
-	spin_unlock(&td->tdisk_lock);
 
 	//Starting queue again
 	td_start_worker_thread(td);
@@ -2410,9 +2439,7 @@ static int td_open(struct block_device *bdev, fmode_t mode)
 
 /**
   * This function is called by the kernel whenever it doesn't
-  * need the device anymore. If we tried to clear the tDisk
-  * with an elevated reference count, we will clear it here
-  * once the reference count reaches 0.
+  * need the device anymore.
  **/
 static void td_release(struct gendisk *disk, fmode_t mode)
 {
@@ -2451,7 +2478,12 @@ static int td_start_worker_thread(struct tdisk *td)
 	td->worker_task = kthread_run(kthread_worker_fn_timeout, &td->worker_timeout, "td%d", td->number);
 
 	if(IS_ERR(td->worker_task))
+	{
+		printk(KERN_ERR "tDisk: Error starting worker thread: No memory\n");
 		return -ENOMEM;
+	}
+
+	printk(KERN_DEBUG "tDisk: Worker thread successfully started\n");
 
 	set_user_nice(td->worker_task, MIN_NICE);
 	return 0;
@@ -2464,6 +2496,8 @@ static void td_stop_worker_thread(struct tdisk *td)
 {
 	flush_kthread_worker_timeout(&td->worker_timeout.worker);
 	kthread_stop(td->worker_task);
+
+	printk(KERN_DEBUG "tDisk: Worker thread stopped\n");
 }
 
 /**
@@ -2481,6 +2515,30 @@ static int td_init_request(void *data, struct request *rq, unsigned int hctx_idx
 
 	return 0;
 }
+
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3,19,0)
+
+/**
+  * This function is called by the kernel for each request
+  * it reqeives. This function hands it over to the worker
+  * thread.
+ **/
+static int td_queue_rq(struct blk_mq_hw_ctx *hctx, struct request *rq)
+{
+	struct td_command *cmd = blk_mq_rq_to_pdu(rq);
+	struct tdisk *td = cmd->rq->q->queuedata;
+
+	//blk_mq_start_request(rq);
+
+	if(td->state != state_bound)
+		return -EIO;
+
+	queue_kthread_work(&td->worker_timeout.worker, &cmd->td_work);
+
+	return BLK_MQ_RQ_QUEUE_OK;
+}
+
+#else
 
 /**
   * This function is called by the kernel for each request
@@ -2502,6 +2560,8 @@ static int td_queue_rq(struct blk_mq_hw_ctx *hctx, const struct blk_mq_queue_dat
 	return BLK_MQ_RQ_QUEUE_OK;
 }
 
+#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(3,19,0)
+
 /**
   * This is the actual worker function which is called by
   * the worker thread. It does the file operations and moves
@@ -2520,7 +2580,9 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 		struct td_command *cmd = container_of(work, struct td_command, td_work);
 		int ret = 0;
 
-		if(cmd->rq->cmd_flags & REQ_WRITE && (td->flags & TD_FLAGS_READ_ONLY))
+		if((cmd->rq->cmd_flags & REQ_WRITE) && (td->flags & TD_FLAGS_READ_ONLY))
+			ret = -EIO;
+		else if(td->internal_devices_count == 0)
 			ret = -EIO;
 		else
 		{
@@ -2534,20 +2596,20 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 #ifdef ASYNC_OPERATIONS
 		if(ret && ret != -EIOCBQUEUED)
 		{
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+	#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
 			cmd->rq->errors = -EIO;
 			blk_mq_complete_request(cmd->rq);
-#else
+	#else
 			blk_mq_complete_request(cmd->rq, -EIO);
-#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+	#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
 		}
 #else
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+	#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
 		if(ret)cmd->rq->errors = -EIO;
 		blk_mq_complete_request(cmd->rq);
-#else
+	#else
 		blk_mq_complete_request(cmd->rq, ret ? -EIO : 0);
-#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+	#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
 #endif //ASYNC_OPERATIONS
 
 		//Setting this flag is required to force resoring the indices
@@ -2560,6 +2622,10 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 	{
 #ifdef MOVE_SECTORS
 		enum worker_status ret_val;
+
+		//Return if there are no devices attached yet
+		if(td->internal_devices_count == 0)
+			return secondary_work_finished;
 
 		spin_lock(&td->tdisk_lock);
 		if(td->modifying)
@@ -2617,9 +2683,7 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 			else ret_val = secondary_work_finished;
 		}
 
-		spin_lock(&td->tdisk_lock);
 		td->optimizing = false;
-		spin_unlock(&td->tdisk_lock);
 		return ret_val;
 #else
 #pragma message "Moving sectors is disabled"
@@ -2709,6 +2773,16 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	err = td_set_max_sectors(td, 0);
 	if(err < 0)goto out_free_queue;
 
+	//Start the worker thread which handles all the disk
+	//operations such as reading, writing and all the sector
+	//movements.
+	err = td_start_worker_thread(td);
+	if(err)
+	{
+		printk(KERN_WARNING "tDisk: Error setting up worker thread\n");
+		goto out_free_queue;
+	}
+
 	init_debug_struct(&td->debug);
 
 	disk->flags |= GENHD_FL_EXT_DEVT;
@@ -2790,10 +2864,16 @@ int tdisk_remove(struct tdisk *td)
 	printk(KERN_DEBUG "tDisk: disk %d removed\n", td->number);
 
 	idr_remove(&td_index_idr, td->number);
+
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,19,0)
 	blk_cleanup_queue(td->queue);
+	printk(KERN_DEBUG "tDisk: queue cleared\n");
+#endif
+
 	del_gendisk(td->kernel_disk);
 	blk_mq_free_tag_set(&td->tag_set);
 	put_disk(td->kernel_disk);
+
 	vfree(td->sorted_sectors);
 	vfree(td->indices);
 	kfree(td);

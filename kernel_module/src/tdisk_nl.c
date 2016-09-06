@@ -607,60 +607,62 @@ loff_t nltd_get_size(const char *plugin)
 }
 
 /**
+  * This thread checks every second for
+  * requests which are running too long
+ **/
+struct task_struct *timeout_thread;
+
+/**
   * This function is called in a regular interval
   * to stop all requests which are waiting for longer
   * than NLTD_TIMEOUT_SECS seconds for an answer
   * This assures that every request is completed - 
   * with or without error
  **/
-void clear_timed_out_requests(unsigned long data);
-
-/**
-  * This timer is set every second to check for
-  * requests which are running too long
- **/
-struct timer_list timeout_timer = {
-	.function = &clear_timed_out_requests
-};
-
-void clear_timed_out_requests(unsigned long data)
+int clear_timed_out_requests(void *data)
 {
 	int amount = 0;
 	struct pending_request *n;
 	struct pending_request *request;
 
-	//This is used as temporary storage. All requests
-	//to time out are transferred to this list to prevent
-	//holding the spinlock too long
-	LIST_HEAD(removed);
-
-	//go through each request
-	spin_lock_irq(&request_lock);
-	list_for_each_entry_safe(request, n, &pending_requests, list)
+	while(!kthread_should_stop())
 	{
-		if(request->timeout_counter++ >= NLTD_TIMEOUT_SECS)
+		//This is used as temporary storage. All requests
+		//to time out are transferred to this list to prevent
+		//holding the spinlock too long
+		LIST_HEAD(removed);
+
+		__set_current_state(TASK_RUNNING);
+
+		//go through each request
+		spin_lock_irq(&request_lock);
+		list_for_each_entry_safe(request, n, &pending_requests, list)
 		{
-			list_del_init(&request->list);
-			list_add(&request->list, &removed);
+			if(request->timeout_counter++ >= NLTD_TIMEOUT_SECS)
+			{
+				list_del_init(&request->list);
+				list_add(&request->list, &removed);
+			}
 		}
+		spin_unlock_irq(&request_lock);
+
+		//Time out all requests
+		list_for_each_entry_safe(request, n, &removed, list)
+		{
+			unsigned long time = jiffies_to_msecs((unsigned long)request->started);
+			printk(KERN_DEBUG "tDisk: Timing out request %u: start-time: %lus %lums\n", request->seq_nr, time/1000, (time%1000));
+			if(request->callback)request->callback(request->userobject, -ETIMEDOUT);
+			kfree(request);
+			amount++;
+		}
+
+		if(amount)printk(KERN_WARNING "tDisk: Cleared %d timed out requests\n", amount);
+
+		set_current_state(TASK_INTERRUPTIBLE);
+		schedule_timeout(HZ);
 	}
-	spin_unlock_irq(&request_lock);
 
-	//Time out all requests
-	list_for_each_entry_safe(request, n, &removed, list)
-	{
-		unsigned long time = jiffies_to_msecs((unsigned long)request->started);
-		printk(KERN_DEBUG "tDisk: Timing out request %u: start-time: %lus %lums\n", request->seq_nr, time/1000, (time%1000));
-		if(request->callback)request->callback(request->userobject, -ETIMEDOUT);
-		kfree(request);
-		amount++;
-	}
-
-	if(amount)printk(KERN_WARNING "tDisk: Cleared %d timed out requests\n", amount);
-
-	//Re-set timer
-	timeout_timer.expires = jiffies + HZ;
-	add_timer(&timeout_timer);
+	return 0;
 }
 
 /**
@@ -689,8 +691,7 @@ int nltd_register()
 	ret = genl_register_family_with_ops(&genl_tdisk_family, genl_tdisk_ops);
 	if(ret)return ret;
 
-	timeout_timer.expires = jiffies + HZ;
-	add_timer(&timeout_timer);
+	timeout_thread = kthread_run(clear_timed_out_requests, NULL, "nltd_timeout");
 
 	return ret;
 }
@@ -703,7 +704,7 @@ void nltd_unregister()
 	struct pending_request *request;	
 	LIST_HEAD(removed);
 
-	del_timer(&timeout_timer);
+	kthread_stop(timeout_thread);
 
 	//Clear all registered plugins
 	spin_lock_irq(&plugin_lock);

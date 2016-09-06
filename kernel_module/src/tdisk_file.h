@@ -14,7 +14,9 @@
 #ifdef USE_FILES
 
 #pragma GCC system_header
+#include <linux/aio.h>
 #include <linux/falloc.h>
+#include <linux/fs.h>
 #include <linux/file.h>
 #include <linux/uio.h>
 #include <linux/version.h>
@@ -204,6 +206,8 @@ inline static int file_read_data(struct file *file, void *data, loff_t pos, unsi
 }
 
 /*************************** AIO *******************************/
+
+#ifdef ASYNC_OPERATIONS
 
 struct aio_data
 {
@@ -417,6 +421,8 @@ inline static void file_read_data_async(struct file *file, void *data, loff_t po
 
 	file_multi_aio_complete(multi_data, 0);
 }
+
+#endif //ASYNC_OPERATIONS
 
 #else
 #pragma message "Files are disabled"

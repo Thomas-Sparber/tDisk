@@ -224,6 +224,8 @@ inline static int read_bio_vec(struct td_internal_device *device, struct bio_vec
 	return ret;
 }
 
+#ifdef ASYNC_OPERATIONS
+
 /**
   * Generic function that writes data to a device.
   * The device can be a file or a plugin.
@@ -371,6 +373,8 @@ inline static void read_bio_vec_async(struct td_internal_device *device, struct 
 		break;
 	}
 }
+
+#endif //ASYNC_OPERATIONS
 
 /**
   * Generic function that flushes a device.

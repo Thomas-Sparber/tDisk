@@ -14,6 +14,7 @@
 #pragma GCC system_header
 #include <linux/completion.h>
 #include <linux/genetlink.h>
+#include <linux/kthread.h>
 #include <linux/skbuff.h>
 #include <linux/spinlock.h>
 #include <linux/timer.h>

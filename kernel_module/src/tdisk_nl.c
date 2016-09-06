@@ -662,6 +662,8 @@ int clear_timed_out_requests(void *data)
 		schedule_timeout(HZ);
 	}
 
+	__set_current_state(TASK_RUNNING);
+
 	return 0;
 }
 

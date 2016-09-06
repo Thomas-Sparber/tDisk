@@ -70,14 +70,28 @@ enum worker_status
  **/
 struct worker_timeout_data
 {
-	struct kthread_worker worker;
+	spinlock_t lock;
+ 	struct list_head work;
+	struct task_struct *thread;
+
 	long timeout;
 	long secondary_work_delay;
 	void *private_data;
 	enum worker_status(*work_func)(void*,struct kthread_work*);
 }; //end struct worker timeout data
 
-int kthread_worker_fn_timeout(void *worker_ptr);
-void flush_kthread_worker_timeout(struct kthread_worker *worker);
+/**
+  * This function is used to initialize
+  * the timeout worker
+ **/
+struct task_struct* start_worker_timeout(struct worker_timeout_data *data, const char namefmt[], ...);
+
+/**
+  * This function is used to insert a work into
+  * the wor queue
+ **/
+void enqueue_work(struct worker_timeout_data *data, struct kthread_work *work);
+
+void flush_kthread_worker_timeout(struct worker_timeout_data *data);
 
 #endif //WORKER_TIMEOUT_H

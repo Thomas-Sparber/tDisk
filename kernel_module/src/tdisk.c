@@ -52,7 +52,7 @@ static void td_stop_worker_thread(struct tdisk *td);
 static enum worker_status td_queue_work(void *private_data, struct kthread_work *work);
 
 static int TD_MAJOR = 0;
-MODULE_LICENSE("GPL");
+MODULE_LICENSE("tDisk");
 MODULE_AUTHOR("Thomas Sparber <thomas@sparber.eu>");
 MODULE_DESCRIPTION(DRIVER_NAME " Driver");
 MODULE_ALIAS_BLOCKDEV_MAJOR(TD_MAJOR);
@@ -2016,7 +2016,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	//let user-space know about this change
 	set_capacity(td->kernel_disk, (td->size_blocks*td->blocksize) >> 9);
 	bd_set_size(bdev, (loff_t)td->size_blocks*td->blocksize);
-	kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);	//GPL only
+	//kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);	//GPL only
 
 	td->state = state_bound;
 	td_reread_partitions(td, bdev);
@@ -2186,7 +2186,7 @@ static int td_remove_disk(struct tdisk *td, tdisk_index disk)
 	//let user-space know about this change
 	set_capacity(td->kernel_disk, (td->size_blocks*td->blocksize) >> 9);
 	bd_set_size(td->block_device, (loff_t)td->size_blocks*td->blocksize);
-	kobject_uevent(&disk_to_dev(td->block_device->bd_disk)->kobj, KOBJ_CHANGE);	//GPL only
+	//kobject_uevent(&disk_to_dev(td->block_device->bd_disk)->kobj, KOBJ_CHANGE);	//GPL only
 
  out:
  	//Index needs to be resorted
@@ -2470,12 +2470,12 @@ static const struct block_device_operations td_fops = {
  **/
 static int td_start_worker_thread(struct tdisk *td)
 {
-	init_kthread_worker(&td->worker_timeout.worker);
 	td->worker_timeout.private_data = td;
 	td->worker_timeout.timeout = DEFAULT_WORKER_TIMEOUT;
 	td->worker_timeout.secondary_work_delay = DEFAULT_SECONDARY_WORK_DELAY;
 	td->worker_timeout.work_func = &td_queue_work;
-	td->worker_task = kthread_run(kthread_worker_fn_timeout, &td->worker_timeout, "td%d", td->number);
+	td->worker_task = start_worker_timeout(&td->worker_timeout, "td%d", td->number);
+	//td->worker_task = kthread_run(kthread_worker_fn_timeout, &td->worker_timeout, "td%d", td->number);
 
 	if(IS_ERR(td->worker_task))
 	{
@@ -2494,7 +2494,7 @@ static int td_start_worker_thread(struct tdisk *td)
  **/
 static void td_stop_worker_thread(struct tdisk *td)
 {
-	flush_kthread_worker_timeout(&td->worker_timeout.worker);
+	flush_kthread_worker_timeout(&td->worker_timeout);
 	kthread_stop(td->worker_task);
 
 	printk(KERN_DEBUG "tDisk: Worker thread stopped\n");
@@ -2533,7 +2533,7 @@ static int td_queue_rq(struct blk_mq_hw_ctx *hctx, struct request *rq)
 	if(td->state != state_bound)
 		return -EIO;
 
-	queue_kthread_work(&td->worker_timeout.worker, &cmd->td_work);
+	enqueue_work(&td->worker_timeout, &cmd->td_work);
 
 	return BLK_MQ_RQ_QUEUE_OK;
 }
@@ -2555,7 +2555,7 @@ static int td_queue_rq(struct blk_mq_hw_ctx *hctx, const struct blk_mq_queue_dat
 	if(td->state != state_bound)
 		return -EIO;
 
-	queue_kthread_work(&td->worker_timeout.worker, &cmd->td_work);
+	enqueue_work(&td->worker_timeout, &cmd->td_work);
 
 	return BLK_MQ_RQ_QUEUE_OK;
 }
@@ -2732,12 +2732,12 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	//allocate id, if id >= 0, we're requesting that specific id
 	if(i >= 0)
 	{
-		err = idr_alloc(&td_index_idr, td, i, i + 1, GFP_KERNEL);
+		err = idr_alloc_cyclic(&td_index_idr, td, i, i + 1, GFP_KERNEL);
 		if(err == -ENOSPC)err = -EEXIST;
 	}
 	else
 	{
-		err = idr_alloc(&td_index_idr, td, 0, 0, GFP_KERNEL);
+		err = idr_alloc_cyclic(&td_index_idr, td, 0, 0, GFP_KERNEL);
 	}
 	if(err < 0)goto out_free_dev;
 	i = err;

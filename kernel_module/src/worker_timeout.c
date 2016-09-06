@@ -110,6 +110,7 @@ void flush_kthread_worker_timeout(struct worker_timeout_data *data)
 	enqueue_work(data, &fwork.work);
 	wait_for_completion(&fwork.done);
 }
+EXPORT_SYMBOL(flush_kthread_worker_timeout);
 
 void enqueue_work(struct worker_timeout_data *data, struct kthread_work *work)
 {
@@ -120,6 +121,7 @@ void enqueue_work(struct worker_timeout_data *data, struct kthread_work *work)
 	wake_up_process(data->thread);
 	spin_unlock_irqrestore(&data->lock, flags);
 }
+EXPORT_SYMBOL(enqueue_work);
 
 struct task_struct* start_worker_timeout(struct worker_timeout_data *data, const char namefmt[], ...)
 {
@@ -139,3 +141,4 @@ struct task_struct* start_worker_timeout(struct worker_timeout_data *data, const
 
 	return data->thread;
 }
+EXPORT_SYMBOL(start_worker_timeout);

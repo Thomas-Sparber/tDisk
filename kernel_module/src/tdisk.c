@@ -637,6 +637,23 @@ static void td_assign_sectors(struct tdisk *td)
 }
 
 /**
+  * This function checks if the given tDisk is ready.
+  * A tDisk is ready when all internal devices are present
+ **/
+static bool td_is_ready(struct tdisk *td)
+{
+	tdisk_index disk;
+
+	for(disk = 1; disk <= td->internal_devices_count; ++disk)
+	{
+		if(!device_is_ready(&td->internal_devices[disk-1]))
+			return false;
+	}
+
+	return true;
+}
+
+/**
   * This function moves the sector with the
   * highest access count to the disk with the
   * best performance.
@@ -652,14 +669,11 @@ static bool td_move_one_sector(struct tdisk *td)
 	sector_t correctly_stored;
 
 	//Check if all devices are loaded
-	for(sorted_disk = 1; sorted_disk <= td->internal_devices_count; ++sorted_disk)
+	if(!td_is_ready(td))
 	{
-		if(!device_is_ready(&td->internal_devices[sorted_disk-1]))
-		{
-			//Not all disks are loaded yet
-			printk(KERN_DEBUG "tDisk: Not all disks are ready. Not moving sectors\n");
-			return false;
-		}
+		//Not all disks are loaded yet
+		printk(KERN_DEBUG "tDisk: Not all disks are ready. Not moving sectors\n");
+		return false;
 	}
 
 	if(td->sorted_devices == NULL)
@@ -1809,15 +1823,12 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			goto out_putf;
 		}
 
-		for(disk = 1; disk <= td->internal_devices_count; ++disk)
+		if(!td_is_ready(td))
 		{
-			if(!device_is_ready(&td->internal_devices[disk-1]))
-			{
-				printk(KERN_WARNING "tDisk: This disk would increase the tDisk index size but not all disks are loaded yet.\n");
-				printk(KERN_WARNING "tDisk: ...can't continue, please add all disks first.\n");
-				error = -EINVAL;
-				goto out_putf;
-			}
+			printk(KERN_WARNING "tDisk: This disk would increase the tDisk index size but not all disks are loaded yet.\n");
+			printk(KERN_WARNING "tDisk: ...can't continue, please add all disks first.\n");
+			error = -EINVAL;
+			goto out_putf;
 		}
 	}
 
@@ -2007,7 +2018,16 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	//kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);	//GPL only
 
 	td->state = state_bound;
-	td_reread_partitions(td, bdev);
+
+	//Read partitions if the device is ready --> all internal devices present
+	if(td_is_ready(td))
+	{
+		td_reread_partitions(td, bdev);
+	}
+	else
+	{
+		printk(KERN_DEBUG "tDisk: Device not yet ready. Not reading partition table\n");
+	}
 
 	//Grab the block_device to prevent its destruction
 	if(first_device)bdgrab(bdev);

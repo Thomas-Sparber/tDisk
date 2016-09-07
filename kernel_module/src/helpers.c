@@ -1,6 +1,7 @@
 #include "helpers.h"
 #include "tdisk_tools_config.h"
 
+#ifndef __ASM_ARM_DIV64
 #ifndef __div64_32_DEFINED
 
 uint32_t __div64_32(uint64_t *n, uint32_t base)
@@ -38,6 +39,7 @@ uint32_t __div64_32(uint64_t *n, uint32_t base)
 EXPORT_SYMBOL(__div64_32);
 
 #endif //__div64_32_DEFINED
+#endif //__ASM_ARM_DIV64
 
 #ifndef vfs_iter_write_DEFINED
 

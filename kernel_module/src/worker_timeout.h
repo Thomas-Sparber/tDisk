@@ -15,13 +15,6 @@
 #include <linux/kthread.h>
 
 /**
-  * Initializes a kthread_work to be used
-  * with a timeout_worker
- **/
-#define init_thread_work_timeout(work) \
-	init_kthread_work((work), NULL);
-
-/**
   * This enum represents the current status of
   * the worker thread.
   * It is returned from the user specific worker
@@ -79,6 +72,16 @@ struct worker_timeout_data
 	void *private_data;
 	enum worker_status(*work_func)(void*,struct kthread_work*);
 }; //end struct worker timeout data
+
+/**
+  * Initializes a kthread_work to be used
+  * with a timeout_worker
+ **/
+inline static void init_thread_work_timeout(struct kthread_work *work)
+{
+	memset(work, 0, sizeof(struct kthread_work));
+	INIT_LIST_HEAD(&work->node);
+}
 
 /**
   * This function is used to initialize

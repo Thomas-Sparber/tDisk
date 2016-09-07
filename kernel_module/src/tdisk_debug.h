@@ -14,6 +14,7 @@
 #pragma GCC system_header
 #include <linux/jiffies.h>
 #include <linux/spinlock.h>
+#include <linux/string.h>
 #include <linux/types.h>
 
 #define AMOUNT_MEASURE_POINTS 10
@@ -24,7 +25,7 @@
   * This struct is used to store information about the current
   * operations of a program
  **/
-struct debug_info
+struct td_debug_info
 {
 	/** The id of the debug info **/
 	u64 id;
@@ -44,7 +45,7 @@ struct debug_info
 	/** The time of the debugging info **/
 	u64 time_jiffies;
 
-}; //end struct debug_info
+}; //end struct td_debug_info
 
 /**
   * This struct holds the data for saving debug info
@@ -58,7 +59,7 @@ struct debug_struct
 	spinlock_t counter_lock;
 
 	/** The stored debug info **/
-	struct debug_info info[AMOUNT_MEASURE_POINTS];
+	struct td_debug_info info[AMOUNT_MEASURE_POINTS];
 
 	/** The current index of the debug info **/
 	int current_debug_info;

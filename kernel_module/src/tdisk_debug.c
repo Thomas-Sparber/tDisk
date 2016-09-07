@@ -11,9 +11,9 @@
 void debug_point(struct debug_struct *ds, const char *file, int line, const char *function, const char *message, ...)
 {
 	va_list args;
-	struct debug_info *info;
+	struct td_debug_info *info;
 
-	//Find new debug_info
+	//Find new td_debug_info
 	spin_lock(&ds->counter_lock);
 	if(ds->current_debug_info >= AMOUNT_MEASURE_POINTS)
 		ds->current_debug_info = 0;
@@ -38,11 +38,11 @@ void get_next_debug_point(struct debug_struct *ds, u64 current_id, struct tdisk_
 {
 	int i;
 	int converted_i;
-	struct debug_info info;
+	struct td_debug_info info;
 
 	current_id++;
 
-	//Find new debug_info
+	//Find new td_debug_info
 	spin_lock(&ds->counter_lock);
 	for(i = 0; i < AMOUNT_MEASURE_POINTS; ++i)
 	{
@@ -55,9 +55,9 @@ void get_next_debug_point(struct debug_struct *ds, u64 current_id, struct tdisk_
 	spin_unlock(&ds->counter_lock);
 
 	out->id = info.id;
-	strncpy(out->file, info.file, sizeof(out->file));
+	memcpy(out->file, info.file, sizeof(out->file));
 	out->line = info.line;
-	strncpy(out->function, info.function, sizeof(out->function));
-	strncpy(out->message, info.message, sizeof(out->message));
+	memcpy(out->function, info.function, sizeof(out->function));
+	memcpy(out->message, info.message, sizeof(out->message));
 	out->time = info.time_jiffies;
 }

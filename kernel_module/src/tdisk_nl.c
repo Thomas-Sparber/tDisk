@@ -114,6 +114,10 @@ struct sync_request
 	struct completion done;
 }; //end struct sync_request
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,0)
+#define nla_put_u64(skb,type,value) nla_put_u64_64bit(skb,type,value,0)
+#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(3,19,0)
+
 /**
   * This internal callback is used for synchonous plugin
   * operations. This callback simply wakes up the waiting

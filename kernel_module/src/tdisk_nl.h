@@ -18,6 +18,7 @@
 #include <linux/skbuff.h>
 #include <linux/spinlock.h>
 #include <linux/timer.h>
+#include <linux/version.h>
 #include <net/genetlink.h>
 #include <net/net_namespace.h>
 #include <net/sock.h>

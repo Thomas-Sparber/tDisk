@@ -240,7 +240,7 @@ inline static void file_multi_aio_complete(void *private_data, long ret)
 
 	if(ret < 0)atomic_inc(&data->ret);
 
-	printk(KERN_DEBUG "tDisk: Multi AIO completed, ret: %ld, %d msissing\n", ret, atomic_read(&data->remaining)-1);
+	printk(KERN_DEBUG "tDisk: Multi AIO completed, ret: %ld, %d missing\n", ret, atomic_read(&data->remaining)-1);
 	if(atomic_dec_and_test(&data->remaining))
 	{
 		if(unlikely(atomic_read(&data->ret) != 0))data->length = -EIO;
@@ -277,7 +277,7 @@ inline static int file_write_bio_vec_async(struct file *file, struct bio_vec *bv
 	data->private_data = private_data;
 	data->callback = callback;
 
-	printk(KERN_DEBUG "tDisk: Sending async read file request\n");
+	printk(KERN_DEBUG "tDisk: Sending async write file request\n");
 	ret = file->f_op->write_iter(&data->iocb, &iter);
 	printk(KERN_DEBUG "tDisk: Done Sending async write file request: %d\n", ret);
 
@@ -368,7 +368,6 @@ inline static int file_read_bio_vec_async(struct file *file, struct bio_vec *bve
 
 	if(ret != -EIOCBQUEUED)
 	{
-		printk(KERN_DEBUG "tDisk: Async file request returned an error: %d\n", ret);
 		if(callback)callback(private_data, ret);
 	}
 }

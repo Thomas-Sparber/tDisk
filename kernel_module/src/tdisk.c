@@ -1144,7 +1144,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		{
 			printk_ratelimited(KERN_ERR "tDisk: requested sector %llu beyond disk size %llu\n", sector, td->size_blocks);
 			ret = -EIO;
-			continue;
+			break;
 		}
 
 #ifdef USE_INITIAL_OPTIMIZATION
@@ -1182,7 +1182,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		{
 			printk_ratelimited(KERN_ERR "tDisk: Error reading logical sector index: %llu\n", sector);
 			ret = -EIO;
-			continue;
+			break;
 		}
 
 		//Calculate actual position in the physical disk
@@ -1192,7 +1192,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		{
 			printk_ratelimited(KERN_ERR "tDisk: found invalid disk index for reading logical sector %llu: %u\n", sector, physical_sector.disk);
 			ret = -EIO;
-			continue;
+			break;
 		}
 
 		device = &td->internal_devices[physical_sector.disk - 1];	//-1 because 0 means unused
@@ -1200,7 +1200,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		{
 			printk_ratelimited(KERN_DEBUG "tDisk: Device %u is not ready. Probably not yet loaded...\n", physical_sector.disk);
 			ret = -EIO;
-			continue;
+			break;
 		}
 
 		if((rq->cmd_flags & REQ_WRITE) && (rq->cmd_flags & REQ_DISCARD))
@@ -1295,9 +1295,9 @@ static void async_request_callback(void *private_data, long ret)
 
 		ret = 0;
 	}
-	else
+	else if(ret < 0)
 	{
-		printk(KERN_ERR "tDisk: Async disk error\n");
+		printk(KERN_ERR "tDisk: Async disk error: %d\n", ret);
 		ret = -EIO;
 	}
 	
@@ -1317,12 +1317,12 @@ static void async_request_callback(void *private_data, long ret)
   * does the actual device operation. Disk performances are also
   * recorded.
  **/
-static int td_do_disk_operation_async(struct tdisk *td, struct request *rq)
+static void td_do_disk_operation_async(struct tdisk *td, struct request *rq)
 {
 	struct bio_vec bvec;
 	struct req_iterator iter;
 	loff_t pos_byte;
-	int ret = -EIOCBQUEUED;
+	int ret;
 	struct sector_index physical_sector;
 
 	struct multi_aio_data *multi_data;
@@ -1331,7 +1331,10 @@ static int td_do_disk_operation_async(struct tdisk *td, struct request *rq)
 
 	//Handle flush operations
 	if((rq->cmd_flags & REQ_WRITE) && (rq->cmd_flags & REQ_FLUSH))
-		return td_flush_devices(td);
+	{
+		ret = td_flush_devices(td);
+		async_request_callback(rq, 0);
+	}
 
 	multi_data = kmalloc(sizeof(struct multi_aio_data), GFP_KERNEL);
 
@@ -1353,8 +1356,9 @@ static int td_do_disk_operation_async(struct tdisk *td, struct request *rq)
 		if(unlikely(sector >= td->size_blocks))
 		{
 			printk_ratelimited(KERN_ERR "tDisk: requested sector %llu beyond disk size %llu\n", sector, td->size_blocks);
-			ret = -EIO;
-			continue;
+			atomic_inc(&multi_data->remaining);
+			file_multi_aio_complete(multi_data, -EIO);
+			break;
 		}
 
 #ifdef USE_INITIAL_OPTIMIZATION
@@ -1395,7 +1399,14 @@ static int td_do_disk_operation_async(struct tdisk *td, struct request *rq)
 #endif //USE_INITIAL_OPTIMIZATION
 
 		//Fetch physical index
-		td_perform_index_operation(td, READ, sector, &physical_sector, true, true);
+		ret = td_perform_index_operation(td, READ, sector, &physical_sector, true, true);
+		if(ret != 0)
+		{
+			printk_ratelimited(KERN_ERR "tDisk: Error reading logical sector index: %llu\n", sector);
+			atomic_inc(&multi_data->remaining);
+			file_multi_aio_complete(multi_data, -EIO);
+			break;
+		}
 
 		//Calculate actual position in the physical disk
 		actual_pos_byte = (loff_t)physical_sector.sector*td->blocksize + offset;
@@ -1403,22 +1414,26 @@ static int td_do_disk_operation_async(struct tdisk *td, struct request *rq)
 		if(physical_sector.disk == 0 || physical_sector.disk > td->internal_devices_count)
 		{
 			printk_ratelimited(KERN_ERR "tDisk: found invalid disk index for reading logical sector %llu: %u\n", sector, physical_sector.disk);
-			ret = -EIO;
-			continue;
+			atomic_inc(&multi_data->remaining);
+			file_multi_aio_complete(multi_data, -EIO);
+			break;
 		}
 
 		device = &td->internal_devices[physical_sector.disk - 1];	//-1 because 0 means unused
 		if(!device_is_ready(device))
 		{
 			printk_ratelimited(KERN_DEBUG "tDisk: Device %u is not ready. Probably not yet loaded...\n", physical_sector.disk);
-			ret = -EIO;
-			continue;
+			atomic_inc(&multi_data->remaining);
+			file_multi_aio_complete(multi_data, -EIO);
+			break;
 		}
 
 		if((rq->cmd_flags & REQ_WRITE) && (rq->cmd_flags & REQ_DISCARD))
 		{
 			//Handle discard operations
+			atomic_inc(&multi_data->remaining);
 			ret = device_alloc(device, actual_pos_byte, bvec.bv_len);
+			file_multi_aio_complete(multi_data, ret);
 			if(ret)break;
 		}
 		else if(rq->cmd_flags & REQ_WRITE)
@@ -1441,7 +1456,6 @@ static int td_do_disk_operation_async(struct tdisk *td, struct request *rq)
 	}
 
 	file_multi_aio_complete(multi_data, 0);
-	return ret;
 }
 #endif //ASYNC_OPERATIONS
 
@@ -1814,8 +1828,6 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	//resize tDisk indices
 	if(additional_sectors != 0)
 	{
-		tdisk_index disk;
-
 		if(index_operation_to_do != WRITE && index_operation_to_do != READ)
 		{
 			printk(KERN_WARNING "tDisk: Can't add new disk because it would increase the tDisk index\n");
@@ -2595,22 +2607,22 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 		else
 		{
 #ifdef ASYNC_OPERATIONS
-			ret = td_do_disk_operation_async(td, cmd->rq);
+			td_do_disk_operation_async(td, cmd->rq);
 #else
 			ret = td_do_disk_operation(td, cmd->rq);
 #endif //ASYNC_OPERATIONS
 		}
 
 #ifdef ASYNC_OPERATIONS
-		if(ret && ret != -EIOCBQUEUED)
-		{
+		//if(ret != -EIOCBQUEUED)
+		//{
 	#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
-			cmd->rq->errors = -EIO;
-			blk_mq_complete_request(cmd->rq);
+		//	cmd->rq->errors = -EIO;
+		//	blk_mq_complete_request(cmd->rq);
 	#else
-			blk_mq_complete_request(cmd->rq, -EIO);
+		//	blk_mq_complete_request(cmd->rq, -EIO);
 	#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
-		}
+		//}
 #else
 	#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
 		if(ret)cmd->rq->errors = -EIO;

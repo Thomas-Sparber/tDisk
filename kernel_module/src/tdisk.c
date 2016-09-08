@@ -334,14 +334,14 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	ret = read_data(&td->internal_devices[disk_a-1], buffer_a, pos_a, td->blocksize);		//a read op1
 	if(ret != 0)
 	{
-		printk(KERN_WARNING "tDisk: Swap error: reading %lu, disk: %u, ret: %d\n", logical_a, disk_a, ret);
+		printk(KERN_WARNING "tDisk: Swap error: reading %llu, disk: %u, ret: %d\n", logical_a, disk_a, ret);
 		goto out;
 	}
 
 	ret = read_data(&td->internal_devices[disk_b-1], buffer_b, pos_b, td->blocksize);		//b read op1
 	if(ret != 0)
 	{
-		printk(KERN_WARNING "tDisk: Swap error: reading %lu, disk: %u, ret: %d\n", logical_b, disk_b, ret);
+		printk(KERN_WARNING "tDisk: Swap error: reading %llu, disk: %u, ret: %d\n", logical_b, disk_b, ret);
 		goto out;
 	}
 
@@ -350,7 +350,7 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	ret = write_data(&td->internal_devices[disk_a-1], buffer_a, pos_help_a, td->blocksize);
 	if(ret != 0)
 	{
-		printk(KERN_WARNING "tDisk: Swap-help error: writing %lu, disk: %u, ret: %d\n", logical_a, disk_a, ret);
+		printk(KERN_WARNING "tDisk: Swap-help error: writing %llu, disk: %u, ret: %d\n", logical_a, disk_a, ret);
 		goto out;
 	}
 
@@ -362,7 +362,7 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	ret = write_data(&td->internal_devices[disk_a-1], buffer_b, pos_a, td->blocksize);
 	if(ret != 0)
 	{
-		printk(KERN_WARNING "tDisk: Swap error: writing %lu, disk: %u, ret: %d\n", logical_a, disk_a, ret);
+		printk(KERN_WARNING "tDisk: Swap error: writing %llu, disk: %u, ret: %d\n", logical_a, disk_a, ret);
 		goto out;
 	}
 
@@ -374,7 +374,7 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	ret = write_data(&td->internal_devices[disk_b-1], buffer_a, pos_b, td->blocksize);
 	if(ret != 0)
 	{
-		printk(KERN_WARNING "tDisk: Swap error: writing %lu, disk: %u, ret: %d\n", logical_b, disk_b, ret);
+		printk(KERN_WARNING "tDisk: Swap error: writing %llu, disk: %u, ret: %d\n", logical_b, disk_b, ret);
 		goto out;
 	}
 
@@ -460,8 +460,6 @@ static struct sorted_sector_index* td_find_sector_index(struct sorted_internal_d
 	struct sorted_sector_index *item;
 	struct sorted_sector_index *lowest = NULL;
 
-	//TODO Actually these sectors should be sorted
-	//so no need to access all of them
 	list_for_each_entry(item, &device->preferred_blocks, device_assigned)
 	{
 		if(item->physical_sector->disk == disk)
@@ -488,8 +486,6 @@ static struct sorted_sector_index* td_find_sector_index_acc(struct sorted_intern
 	struct sorted_sector_index *item;
 	struct sorted_sector_index *ret = NULL;
 
-	//TODO Actually these sectors should be sorted
-	//so no need to access all of them
 	list_for_each_entry(item, &device->preferred_blocks, device_assigned)
 	{
 		if(is_faster)
@@ -573,7 +569,7 @@ static void td_assign_sectors(struct tdisk *td)
 
 		if(td->sorted_devices[sorted_disk-1].available_blocks != 0)
 		{
-			printk(KERN_ERR "tDisk: While assigning sectors: available_blocks (%lu) of disk %u is not 0 as it should be\n", td->sorted_devices[sorted_disk-1].available_blocks, DEVICE_INDEX(td->sorted_devices[sorted_disk-1].dev, td->internal_devices)+1);
+			printk(KERN_ERR "tDisk: While assigning sectors: available_blocks (%llu) of disk %u is not 0 as it should be\n", td->sorted_devices[sorted_disk-1].available_blocks, DEVICE_INDEX(td->sorted_devices[sorted_disk-1].dev, td->internal_devices)+1);
 		}
 	}
 
@@ -2041,7 +2037,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	}
 
 	td->internal_devices[header.disk_index-1] = new_device;
-	printk(KERN_DEBUG "tDisk: new physical disk %u: size: %llu bytes. Logical size(%lu)\n", header.disk_index, device_size, td->size_blocks*td->blocksize);
+	printk(KERN_DEBUG "tDisk: new physical disk %u: size: %llu bytes. Logical size(%llu)\n", header.disk_index, device_size, td->size_blocks*td->blocksize);
 
 	//let user-space know about this change
 	set_capacity(td->kernel_disk, (td->size_blocks*td->blocksize) >> 9);

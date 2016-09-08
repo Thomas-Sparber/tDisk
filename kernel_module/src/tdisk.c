@@ -135,7 +135,6 @@ static int td_write_all_indices(struct tdisk *td, struct td_internal_device *dev
 	ret = write_data(device, data, skip, u_length);
 
 	if(ret)printk(KERN_ERR "tDisk: Error writing all disk indices: %d. Offset: %llu, length: %llu\n", ret, skip, length);
-	else printk(KERN_DEBUG "tDisk: Success writing all disk indices\n");
 
 	return ret;
 }
@@ -1817,27 +1816,25 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	//Set max_sectors if it's a known device
 	if(index_operation_to_do == READ && header.current_max_sectors > new_max_sectors)new_max_sectors = header.current_max_sectors;
 
+	//Check if the header needs to be increased
+	//If yes, also check if the new device has enough capacity
 	error = -ENOMEM;
 	additional_sectors = td_get_max_sectors_header_increase(td, new_max_sectors);
 	if(additional_sectors < 0)goto out_putf;
 
 	error = -EINVAL;
 	if(additional_sectors != 0)printk(KERN_DEBUG "tDisk: %d additional sectors needed\n", additional_sectors);
-	if(device_size < ((loff_t)td->header_size+additional_sectors+1)*td->blocksize)	//Disk too small
+	if(device_size < ((loff_t)td->header_size+additional_sectors*(td->internal_devices_count+1)+1)*td->blocksize)	//Disk too small
 	{
-		printk(KERN_WARNING "tDisk: Can't add disk, too small: %llu. Should be at least %llu\n", device_size, ((loff_t)td->header_size+additional_sectors+1)*td->blocksize);
+		printk(KERN_WARNING "tDisk: Can't add disk, too small: %llu. Should be at least %llu\n", device_size, ((loff_t)td->header_size+additional_sectors*(td->internal_devices_count+1)+1)*td->blocksize);
 		goto out_putf;
 	}
 
-	//Subtract (new) header size from disk size
-	device_size -= ((loff_t)td->header_size+additional_sectors)*td->blocksize;
-
-	//resize tDisk indices
 	if(additional_sectors != 0)
 	{
 		if(index_operation_to_do != WRITE && index_operation_to_do != READ)
 		{
-			printk(KERN_WARNING "tDisk: Can't add new disk because it would increase the tDisk index\n");
+			printk(KERN_ERR "tDisk: Can't add known disk because it would increase the tDisk index\n");
 			error = -EINVAL;
 			goto out_putf;
 		}
@@ -1849,21 +1846,28 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			error = -EINVAL;
 			goto out_putf;
 		}
+
+		//Resize sector indices an sorted sectors
+		printk(KERN_DEBUG "tDisk: Header size before increase: %d\n", td->header_size);
+		additional_sectors = td_set_max_sectors(td, new_max_sectors);
+		if(additional_sectors < 0)
+		{
+			error = additional_sectors;
+			goto out_reset_sectors;
+		}
+		else if(additional_sectors == 0)printk(KERN_ERR "tDisk: sector increase was neccessary but was not performed!\n");
+		printk(KERN_DEBUG "tDisk: Header size after increase: %d\n", td->header_size);
 	}
 
-	//Resize sector indices an sorted sectors
-	additional_sectors = td_set_max_sectors(td, new_max_sectors);
-	if(additional_sectors < 0)
-	{
-		error = additional_sectors;
-		goto out_reset_sectors;
-	}
+	//Subtract (new) header size from disk size
+	device_size -= ((loff_t)td->header_size)*td->blocksize;
 
 	//Set disk references in tDisk
 	if(header.disk_index > td->internal_devices_count)td->internal_devices_count = (tdisk_index)(header.disk_index);
 
 	//Calculate actual device size
 	new_device.size_blocks = __div64_32_nomod((uint64_t)device_size, td->blocksize) - 1;	//-1 to leave one sector for movement
+	printk(KERN_DEBUG "tDisk: new device size in blocks: %llu\n", new_device.size_blocks);
 
 	error = 0;
 
@@ -1972,6 +1976,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		//queue to prevent any data corruption
 
 		sector_t search;
+		tdisk_index disk;
 
 		//Stopping queue
 		td_stop_worker_thread(td);
@@ -1992,15 +1997,15 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 				{
 					//This sector needs to be moved
 
-					tdisk_index disk = td->indices[sector].disk;
 					bool moved = false;
+					disk = td->indices[sector].disk;
 
 					for(search = td->size_blocks; search > sector; --search)
 					{
 						if(td->indices[search].disk == header.disk_index)
 						{
 							//Appropriate block found
-							printk(KERN_DEBUG "tDisk: Moved header block %lu (disk: %u, sector: %llu) to %lu (disk: %u, sector: %llu)",
+							printk(KERN_DEBUG "tDisk: Moved header block %llu (disk: %u, sector: %llu) to %llu (disk: %u, sector: %llu)",
 									sector, td->indices[sector].disk, td->indices[sector].sector, search, td->indices[search].disk, td->indices[search].sector);
 
 							td_swap_sectors(td, sector, &td->indices[sector], search, &td->indices[search], true);
@@ -2012,17 +2017,24 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 
 							//Set disks size
 							td->size_blocks--;
-							td->internal_devices[disk].size_blocks--;
+							td->internal_devices[disk-1].size_blocks--;
 
 							moved = true;
 							break;
 						}
 					}
-					printk(KERN_DEBUG "tDisk: finished sector %lu: %s", sector, moved ? "true" : "false");
+					printk(KERN_DEBUG "tDisk: finished sector %llu: %s", sector, moved ? "true" : "false");
 					MY_BUG_ON(!moved, PRINT_INT(td->indices[sector].disk), PRINT_ULL(td->indices[sector].sector), PRINT_ULL(search));
 				}
 			}
 		}
+
+		printk(KERN_DEBUG "tDisk: New sizes after moving indices:\n");
+		printk(KERN_DEBUG "tDisk: tDisk size: %llu\n", td->size_blocks);
+
+		for(disk = 1; disk <= td->internal_devices_count; ++disk)
+			printk(KERN_DEBUG "tDisk: disk %u size: %llu\n", disk, td->internal_devices[disk-1].size_blocks);
+
 
 		//Starting again the queue
 		td_start_worker_thread(td);

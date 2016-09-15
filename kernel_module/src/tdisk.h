@@ -130,15 +130,6 @@ struct sorted_internal_device
 }; //end struct sorted_internal_device
 
 /**
-  * Possible states of a device
- **/
-enum {
-	state_unbound,
-	state_bound,
-	state_cleared,
-};
-
-/**
   * This struct represents a tDisk. It contains
   * the internal devices, the sorted sectors and
   * various other driver and kernel specific fields.
@@ -159,7 +150,6 @@ struct tdisk {
 	struct sorted_internal_device *sorted_devices;
 
 	spinlock_t				tdisk_lock;
-	int						state;
 	struct mutex			ctl_mutex;
 
 	bool					optimizing;

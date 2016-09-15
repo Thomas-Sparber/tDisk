@@ -2052,8 +2052,6 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	bd_set_size(bdev, (loff_t)td->size_blocks*td->blocksize);
 	//kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);	//GPL only
 
-	td->state = state_bound;
-
 	//Read partitions if the device is ready --> all internal devices present
 	if(td_is_ready(td))
 	{
@@ -2251,9 +2249,6 @@ static int td_remove_disk(struct tdisk *td, tdisk_index disk)
 static int td_get_status(struct tdisk *td, struct tdisk_info __user *arg)
 {
 	struct tdisk_info info;
-
-	if(td->state != state_bound)
-		return -ENXIO;
 
 	memset(&info, 0, sizeof(info));
 	//info.block_device = huge_encode_dev(td->block_device);
@@ -2573,9 +2568,6 @@ static int td_queue_rq(struct blk_mq_hw_ctx *hctx, struct request *rq)
 
 	//blk_mq_start_request(rq);
 
-	if(td->state != state_bound)
-		return -EIO;
-
 	enqueue_work(&td->worker_timeout, &cmd->td_work);
 
 	return BLK_MQ_RQ_QUEUE_OK;
@@ -2594,9 +2586,6 @@ static int td_queue_rq(struct blk_mq_hw_ctx *hctx, const struct blk_mq_queue_dat
 	struct tdisk *td = cmd->rq->q->queuedata;
 
 	blk_mq_start_request(bd->rq);
-
-	if(td->state != state_bound)
-		return -EIO;
 
 	enqueue_work(&td->worker_timeout, &cmd->td_work);
 
@@ -2769,7 +2758,6 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	td = kzalloc(sizeof(struct tdisk), GFP_KERNEL);
 	if(!td)goto out;
 
-	td->state = state_unbound;
 	td->size_blocks = 0;
 
 	//allocate id, if id >= 0, we're requesting that specific id
@@ -2925,23 +2913,6 @@ int tdisk_remove(struct tdisk *td)
 }
 
 /**
-  * This function is used to find the next free minor
-  * number in the idr
- **/
-static int tdisk_find_free_device_callback(int id, void *ptr, void *data)
-{
-	struct tdisk *td = ptr;
-	struct tdisk **t = data;
-
-	if(td->state == state_unbound)
-	{
-		*t = td;
-		return 1;
-	}
-	return 0;
-}
-
-/**
   * This function returns the tDisk for the given
   * minor number. If the given minor number is < 0,
   * the minor number of an unbound tDisk is returned
@@ -2952,15 +2923,7 @@ int tdisk_lookup(struct tdisk **t, int i)
 	struct tdisk *td;
 	int ret = -ENODEV;
 
-	if(i < 0)
-	{
-		if(idr_for_each(&td_index_idr, &tdisk_find_free_device_callback, &td))
-		{
-			*t = td;
-			ret = td->number;
-		}
-	}
-	else
+	if(i >= 0)
 	{
 		//lookup and return a specific i
 		td = idr_find(&td_index_idr, i);

@@ -135,19 +135,17 @@ struct sorted_internal_device
   * various other driver and kernel specific fields.
  **/
 struct tdisk {
-	int			number;
-	atomic_t	refcount;
-	int			flags;
-	sector_t	max_sectors;
-
-	struct block_device	*block_device;
-	unsigned int		blocksize;
-	sector_t			size_blocks;
+	int				number;
+	atomic_t		refcount;
+	int				flags;
+	unsigned int	blocksize;
+	sector_t		max_sectors;
+	sector_t		size_blocks;
 
 	//The internal devices
-	tdisk_index internal_devices_count;
-	struct td_internal_device internal_devices[TDISK_MAX_PHYSICAL_DISKS];
-	struct sorted_internal_device *sorted_devices;
+	tdisk_index						internal_devices_count;
+	struct td_internal_device		internal_devices[TDISK_MAX_PHYSICAL_DISKS];
+	struct sorted_internal_device	*sorted_devices;
 
 	spinlock_t				tdisk_lock;
 	struct mutex			ctl_mutex;
@@ -161,6 +159,7 @@ struct tdisk {
 	struct request_queue	*queue;
 	struct blk_mq_tag_set	tag_set;
 	struct gendisk			*kernel_disk;
+	struct block_device		*block_device;
 
 	unsigned int index_offset_byte;
 	unsigned int header_size;		//Size in sectors of the index where the header and sectors are stored. Located at the beginning of the disk
@@ -188,7 +187,7 @@ struct td_command {
   * Adds a tDisk with the given minronumber and
   * blocksize to the system.
  **/
-int tdisk_add(struct tdisk **td, int i, unsigned int blocksize);
+int tdisk_add(struct tdisk **td, struct tdisk_add_parameters *params);
 
 /**
   * Finds the tDisk with the given minornumber

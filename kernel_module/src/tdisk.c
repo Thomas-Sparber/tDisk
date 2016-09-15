@@ -2744,16 +2744,16 @@ static struct blk_mq_ops tdisk_mq_ops = {
   * This function creates a new tDisk with the given
   * minor number, and blocksize.
  **/
-int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
+int tdisk_add(struct tdisk **t, struct tdisk_add_parameters *params)
 {
 	struct tdisk *td;
 	struct gendisk *disk;
 	int err;
 	unsigned int header_size_byte;
 
-	if(blocksize == 0 || blocksize % TDISK_BLOCKSIZE_MOD)
+	if(params->blocksize == 0 || params->blocksize % TDISK_BLOCKSIZE_MOD)
 	{
-		printk(KERN_WARNING"tDisk: Failed to add tDisk. blocksize must be a multiple of 4096 but is %u\n", blocksize);
+		printk(KERN_WARNING"tDisk: Failed to add tDisk. blocksize must be a multiple of 4096 but is %u\n", params->blocksize);
 		return -EINVAL;
 	}
 
@@ -2766,11 +2766,12 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	if(!td)goto out;
 
 	td->size_blocks = 0;
+	
 
 	//allocate id, if id >= 0, we're requesting that specific id
-	if(i >= 0)
+	if(params->minornumber >= 0)
 	{
-		err = idr_alloc_cyclic(&td_index_idr, td, i, i + 1, GFP_KERNEL);
+		err = idr_alloc_cyclic(&td_index_idr, td, params->minornumber, params->minornumber + 1, GFP_KERNEL);
 		if(err == -ENOSPC)err = -EEXIST;
 	}
 	else
@@ -2778,7 +2779,7 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 		err = idr_alloc_cyclic(&td_index_idr, td, 0, 0, GFP_KERNEL);
 	}
 	if(err < 0)goto out_free_dev;
-	i = err;
+	params->minornumber = err;
 
 	//Set queue data
 	err = -ENOMEM;
@@ -2806,7 +2807,7 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	disk = td->kernel_disk = alloc_disk(1);
 	if(!disk)goto out_free_queue;
 
-	td->blocksize = blocksize;
+	td->blocksize = params->blocksize;
 	td->index_offset_byte = header_size_byte;
 	err = td_set_max_sectors(td, 0);
 	if(err < 0)goto out_free_queue;
@@ -2826,20 +2827,20 @@ int tdisk_add(struct tdisk **t, int i, unsigned int blocksize)
 	disk->flags |= GENHD_FL_EXT_DEVT;
 	mutex_init(&td->ctl_mutex);
 	atomic_set(&td->refcount, 0); 
-	td->number		= i;
+	td->number		= params->minornumber;
 	spin_lock_init(&td->tdisk_lock);
 	disk->major		= TD_MAJOR;
-	disk->first_minor	= i;
+	disk->first_minor	= params->minornumber;
 	disk->fops		= &td_fops;
 	disk->private_data	= td;
 	disk->queue		= td->queue;
 	//set_blocksize(td->block_device, blocksize);	TODO?
-	sprintf(disk->disk_name, "td%d", i);
+	sprintf(disk->disk_name, "td%d", params->minornumber);
 	add_disk(disk);
 	*t = td;
 
-	DEBUG_POINT(&td->debug, "tDisk: new disk %s: blocksize: %u, header size: %u sec\n", disk->disk_name, blocksize, td->header_size);
-	printk(KERN_DEBUG "tDisk: new disk %s: blocksize: %u, header size: %u sec\n", disk->disk_name, blocksize, td->header_size);
+	DEBUG_POINT(&td->debug, "tDisk: new disk %s: blocksize: %u, header size: %u sec\n", disk->disk_name, params->blocksize, td->header_size);
+	printk(KERN_DEBUG "tDisk: new disk %s: blocksize: %u, header size: %u sec\n", disk->disk_name, params->blocksize, td->header_size);
 
 	return td->number;
 
@@ -2848,7 +2849,7 @@ out_free_queue:
 out_cleanup_tags:
 	blk_mq_free_tag_set(&td->tag_set);
 out_free_idr:
-	idr_remove(&td_index_idr, i);
+	idr_remove(&td_index_idr, params->minornumber);
 out_free_dev:
 	kfree(td);
 out:

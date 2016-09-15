@@ -36,7 +36,7 @@ static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned lo
 			ret = -EEXIST;
 			break;
 		}
-		ret = tdisk_add(&td, params.minornumber, params.blocksize);
+		ret = tdisk_add(&td, &params);
 		break;
 	case TDISK_CTL_REMOVE:
 		ret = tdisk_lookup(&td, (int)parm);
@@ -44,7 +44,9 @@ static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned lo
 		ret = tdisk_remove(td);
 		break;
 	case TDISK_CTL_GET_FREE:
-		ret = tdisk_add(&td, -1, (unsigned int)parm);
+		params.minornumber = -1;
+		params.blocksize = (unsigned int)parm;
+		ret = tdisk_add(&td, &params);
 		break;
 	default:
 		ret = -EINVAL;

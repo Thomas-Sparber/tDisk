@@ -1079,11 +1079,14 @@ sector_t td_find_sector_for_better_performance(struct tdisk *td, sector_t sector
 	//No faster device found
 	if(better_devices[0] == 0)return sector;
 
-	//Try to find a free sector from a bett erdevice
-	for(current_sector = 0; current_sector < td->size_blocks; ++current_sector)
+	//Try to find a free sector from a better device
+	for(current_sector = 0; current_sector < td->max_sectors; ++current_sector)
 	{
+		if(td->indices[current_sector].disk == 0)break;
+
+		//A potential better sector must be resided on a different disk,
+		//not an unused disk (== 0) but an unused sector
 		if(td->indices[current_sector].disk == disk ||
-			td->indices[current_sector].disk == 0 ||
 			SECTOR_USED(td->indices[current_sector].access_count))continue;
 
 		for(j = 0; j < td->internal_devices_count && better_devices[j] != 0; ++j)
@@ -1097,9 +1100,13 @@ sector_t td_find_sector_for_better_performance(struct tdisk *td, sector_t sector
 				//Better sector found
 				sector = current_sector;
 
-				//Sector from best device found
-				if(j == 0)current_sector = td->size_blocks;
+				//Sector from best device found.
+				//Exiting loop
+				if(j == 0)current_sector = td->max_sectors;
 
+				//If we didn't find a free sector from the best disk yet
+				//we keep on searching... In some cases it really
+				//makes a huge difference using the fastest disk
 				break;
 			}
 		}

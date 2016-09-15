@@ -303,6 +303,7 @@ const char* loadTDisk(const char *it, const char *end, configuration::tdisk_conf
 
 		if(name == "minornumber")it = getLongValue(it, end, out.minornumber);
 		else if(name == "blocksize")it = getLongValue(it, end, out.blocksize);
+		else if(name == "percentCache")it = getLongValue(it, end, out.percentCache);
 		else if(name == "devices")it = getStringArrayValue(it, end, out.devices);
 		else throw ConfigException("Invalid tDisk option ", name);
 	}
@@ -372,6 +373,7 @@ template <> void td::createResultString(std::ostream &ss, const configuration::t
 		ss<<"{\n";
 			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, config, minornumber, hierarchy+1, outputFormat); ss<<",\n";
 			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, config, blocksize, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, config, percentCache, hierarchy+1, outputFormat); ss<<",\n";
 			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, config, devices, hierarchy+1, outputFormat); ss<<"\n";
 		insertTab(ss, hierarchy); ss<<"}";
 	}
@@ -379,6 +381,7 @@ template <> void td::createResultString(std::ostream &ss, const configuration::t
 	{
 		CREATE_RESULT_STRING_MEMBER_TEXT(ss, config, minornumber, hierarchy+1, outputFormat); ss<<"\n";
 		CREATE_RESULT_STRING_MEMBER_TEXT(ss, config, blocksize, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, config, percentCache, hierarchy+1, outputFormat); ss<<"\n";
 		CREATE_RESULT_STRING_MEMBER_TEXT(ss, config, devices, hierarchy+1, outputFormat); ss<<"\n";
 	}
 	else

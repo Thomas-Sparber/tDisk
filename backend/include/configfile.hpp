@@ -63,6 +63,7 @@ public:
 		tdisk_config() :
 			minornumber(-1),
 			blocksize(),
+			percentCache(),
 			devices()
 		{}
 
@@ -89,6 +90,11 @@ public:
 		  * The tDisk's blocksize
 		 **/
 		unsigned int blocksize;
+
+		/**
+		  * The amount in percentage of the total storage of cache buffer
+		 **/
+		unsigned int percentCache;
 
 		/**
 		  * The internal devices of the tDisk

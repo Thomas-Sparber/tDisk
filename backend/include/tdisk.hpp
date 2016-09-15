@@ -89,7 +89,7 @@ public:
 	  * @param blocksize The blocksize for the new tDisk
 	  * @returns The newly created tDisk
 	 **/
-	static tDisk create(int i_minornumber, unsigned int blocksize);
+	static tDisk create(int minornumber, unsigned int blocksize, unsigned int percentCache);
 
 	/**
 	  * Creates a new tDisk with the given blocksize. The next available
@@ -97,7 +97,7 @@ public:
 	  * @param blocksize The blocksize for the new tDisk
 	  * @returns The new tDisk
 	 **/
-	static tDisk create(unsigned int blocksize);
+	static tDisk create(unsigned int blocksize, unsigned int percentCache);
 
 	/**
 	  * Removes the tDisk with the given minornumber from the system

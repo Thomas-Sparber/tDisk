@@ -98,10 +98,10 @@ int tDisk::getMinorNumber(const string &name)
 	return number;
 }
 
-tDisk tDisk::create(int i_minornumber, unsigned int blocksize)
+tDisk tDisk::create(int i_minornumber, unsigned int blocksize, unsigned int percentCache)
 {
 	char temp[256];
-	int ret = c::tdisk_add_specific(temp, i_minornumber, blocksize);
+	int ret = c::tdisk_add_specific(temp, i_minornumber, blocksize, percentCache);
 	try {
 		handleError(ret);
 	} catch(const tDiskOfflineException &e) {
@@ -116,10 +116,10 @@ tDisk tDisk::create(int i_minornumber, unsigned int blocksize)
 	return tDisk(i_minornumber, temp);
 }
 
-tDisk tDisk::create(unsigned int blocksize)
+tDisk tDisk::create(unsigned int blocksize, unsigned int percentCache)
 {
 	char temp[256];
-	int ret = c::tdisk_add(temp, blocksize);
+	int ret = c::tdisk_add(temp, blocksize, percentCache);
 	try {
 		handleError(ret);
 	} catch(const tDiskOfflineException &e) {

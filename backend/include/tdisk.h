@@ -150,18 +150,20 @@ int tdisk_get_devices(char **devices, int size, int length);
   * Adds a new device with the next free minor number to the system.
   * @param out_name The name of the new device will be stored here
   * @param blocksize The blocksize of the new device
+  * @param percent_cache The amount in percentage of the total storage of cache buffer
   * @returns The minor number of the new device or a negative error code
  **/
-int tdisk_add(char *out_name, unsigned int blocksize);
+int tdisk_add(char *out_name, unsigned int blocksize, unsigned int percent_cache);
 
 /**
   * Adds a new device with the given minor number to the system.
   * @param out_name The name of the new device will be stored here
   * @param minor The minor number of the new device
   * @param blocksize The blocksize of the new device
+  * @param percent_cache The amount in percentage of the total storage of cache buffer
   * @returns The minor number of the new device or a negative error code
  **/
-int tdisk_add_specific(char *out_name, int minor, unsigned int blocksize);
+int tdisk_add_specific(char *out_name, int minor, unsigned int blocksize, unsigned int percent_cache);
 
 /**
   * Removes the device with the given minor number from the system.

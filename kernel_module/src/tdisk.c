@@ -2766,7 +2766,7 @@ int tdisk_add(struct tdisk **t, struct tdisk_add_parameters *params)
 	if(!td)goto out;
 
 	td->size_blocks = 0;
-	
+	td->percent_cache = params->percent_cache;
 
 	//allocate id, if id >= 0, we're requesting that specific id
 	if(params->minornumber >= 0)

@@ -142,6 +142,9 @@ struct tdisk {
 	sector_t		max_sectors;
 	sector_t		size_blocks;
 
+	//The amount in percentage of the total storage of cache buffer
+	unsigned int	percent_cache;
+
 	//The internal devices
 	tdisk_index						internal_devices_count;
 	struct td_internal_device		internal_devices[TDISK_MAX_PHYSICAL_DISKS];

@@ -33,17 +33,19 @@ int tdisk_get_devices(char **devices, int size, int length)
 	return 2;
 }
 
-int tdisk_add(char *out_name, unsigned int blocksize)
+int tdisk_add(char *out_name, unsigned int blocksize, unsigned int percent_cache)
 {
 	UNUSED(blocksize);
+	UNUSED(percent_cache);
 
 	sprintf(out_name, "/dev/td0");
 	return 0;
 }
 
-int tdisk_add_specific(char *out_name, int minor, unsigned int blocksize)
+int tdisk_add_specific(char *out_name, int minor, unsigned int blocksize, unsigned int percent_cache)
 {
 	UNUSED(blocksize);
+	UNUSED(percent_cache);
 
 	sprintf(out_name, "/dev/td%d", minor);
 	return minor;

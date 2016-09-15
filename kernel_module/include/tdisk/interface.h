@@ -56,6 +56,7 @@ struct tdisk_add_parameters
 {
 	int minornumber;
 	unsigned int blocksize;
+	unsigned int percent_cache;
 }; //end tdisk_add_parameters
 
 /**

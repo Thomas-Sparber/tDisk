@@ -134,19 +134,9 @@ BackendResult td::get_devices(const vector<string> &/*args*/, Options &options)
 {
 	BackendResult r;
 	vector<fs::Device> devices;
-	//vector<c::f_internal_device_info> internal_devices;
 
 	try {
 		fs::getDevices(devices);
-		/*for(const fs::Device &device : devices)
-		{
-			c::f_internal_device_info d;
-			d.type = c::f_internal_device_type_file;
-			strncpy(d.name, device.name.c_str(), F_TDISK_MAX_INTERNAL_DEVICE_NAME);
-			strncpy(d.path, device.path.c_str(), F_TDISK_MAX_INTERNAL_DEVICE_NAME);
-			d.size = device.size;
-			internal_devices.push_back(d);
-		}*/
 	} catch (const tDiskException &e) {
 		r.error(BackendResultType::general, e.what());
 	}
@@ -189,6 +179,8 @@ BackendResult td::create_tDisk(const vector<string> &args, Options &options)
 		}
 	}
 	else number = -1;
+
+	int percentCache = 10;
 	
 	if(number == -1)
 	{
@@ -221,8 +213,8 @@ BackendResult td::create_tDisk(const vector<string> &args, Options &options)
 	if(!options.getOptionBoolValue("config-only"))
 	{
 		try {
-			if(number >= 0)disk = tDisk::create(number, (unsigned int)blocksize);
-			else disk = tDisk::create((unsigned int)blocksize);
+			if(number >= 0)disk = tDisk::create(number, (unsigned int)blocksize, percentCache);
+			else disk = tDisk::create((unsigned int)blocksize, percentCache);
 
 			for(size_t i = devicesIndex; i < args.size(); ++i)disk.addDisk(args[i], true);
 		} catch(const tDiskOfflineException &e) {
@@ -241,6 +233,7 @@ BackendResult td::create_tDisk(const vector<string> &args, Options &options)
 			configuration::tdisk_config newDevice;
 			newDevice.minornumber = number;
 			newDevice.blocksize = blocksize;
+			newDevice.percentCache = percentCache;
 			for(size_t i = devicesIndex; i < args.size(); ++i)newDevice.devices.push_back(args[i]);
 			config.addDevice(std::move(newDevice));
 
@@ -289,6 +282,8 @@ BackendResult td::add_tDisk(const vector<string> &args, Options &options)
 			return std::move(r);
 		}
 	}
+
+	int percentCache = 10;
 	
 	if(number == -1)
 	{
@@ -321,8 +316,8 @@ BackendResult td::add_tDisk(const vector<string> &args, Options &options)
 	if(!options.getOptionBoolValue("config-only"))
 	{
 		try {
-			if(number >= 0)disk = tDisk::create(number, blocksize);
-			else disk = tDisk::create(blocksize);
+			if(number >= 0)disk = tDisk::create(number, blocksize, percentCache);
+			else disk = tDisk::create(blocksize, percentCache);
 		} catch(const tDiskOfflineException &e) {
 			r.warning(BackendResultType::driver, e.what());
 		} catch(const tDiskException &e) {
@@ -339,6 +334,7 @@ BackendResult td::add_tDisk(const vector<string> &args, Options &options)
 			configuration::tdisk_config newDevice;
 			newDevice.minornumber = number;
 			newDevice.blocksize = blocksize;
+			newDevice.percentCache = percentCache;
 			config.addDevice(std::move(newDevice));
 
 			config.save(options.getStringOptionValue("configfile"));
@@ -755,7 +751,7 @@ BackendResult td::load_config_file(const vector<string> &args, Options &options)
 
 			//Load tDisk
 			try {
-				tDisk disk = tDisk::create(config.minornumber, config.blocksize);
+				tDisk disk = tDisk::create(config.minornumber, config.blocksize, config.percentCache);
 
 				for(const string device : config.devices)
 					disk.addDisk(device, false);

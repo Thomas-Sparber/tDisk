@@ -145,27 +145,12 @@ int tdisk_get_devices(char **devices, int size, int length)
 	}
 }
 
-int tdisk_add(char *out_name, unsigned int blocksize)
+int tdisk_add(char *out_name, unsigned int blocksize, unsigned int percent_cache)
 {
-	int controller;
-	int device;
-
-	if(!check_td_control())return -ENODEV;
-
-	controller = open(CONTROL_FILE, O_RDWR);
-	if(controller < 0)return -EACCES;
-
-	device = ioctl(controller, TDISK_CTL_GET_FREE, blocksize);
-
-	if(device >= 0)
-		build_device_name(device, out_name);
-
-	close(controller);
-
-	return device;
+	return tdisk_add_specific(out_name, -1, blocksize, percent_cache);
 }
 
-int tdisk_add_specific(char *out_name, int minor, unsigned int blocksize)
+int tdisk_add_specific(char *out_name, int minor, unsigned int blocksize, unsigned int percent_cache)
 {
 	int controller;
 	int device;
@@ -177,7 +162,8 @@ int tdisk_add_specific(char *out_name, int minor, unsigned int blocksize)
 
 	struct tdisk_add_parameters params = {
 		.minornumber = minor,
-		.blocksize = blocksize
+		.blocksize = blocksize,
+		.percent_cache = percent_cache
 	};
 
 	device = ioctl(controller, TDISK_CTL_ADD, &params);

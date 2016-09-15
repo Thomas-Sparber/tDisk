@@ -935,7 +935,6 @@ static int td_read_header(struct tdisk *td, struct td_internal_device *device, s
 	int error;
 
 	error = read_data(device, header, 0, sizeof(struct tdisk_header));
-	printk(KERN_DEBUG "tDisk: Finished reading header: %d\n", error);
 	if(error)return error;
 
 	printk(KERN_DEBUG "tDisk: Header: driver: %s, minor: %u, major: %u\n", header->driver_name, header->major_version, header->minor_version);
@@ -1824,8 +1823,25 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	}
 	else new_max_sectors = td->max_sectors;
 
-	//Set max_sectors if it's a known device
-	if(index_operation_to_do == READ && header.current_max_sectors > new_max_sectors)new_max_sectors = header.current_max_sectors;
+	//Set values if it's a known device
+	if(index_operation_to_do != WRITE)
+	{
+		if(header.blocksize != td->blocksize)
+		{
+			printk(KERN_ERR "tDisk: Can't add device with blocksize of %llu to tDisk with blocksize of %llu\n", header.blocksize, td->blocksize);
+			error = -EINVAL;
+			goto out_putf;
+		}
+
+		if(!first_device)
+		{
+			if(header.current_max_sectors != new_max_sectors)printk(KERN_WARNING "tDisk: max_sectors of the individual devices don't match: %llu != %llu\n", new_max_sectors, header.current_max_sectors);
+			if(header.size_blocks != td->size_blocks)printk(KERN_WARNING "tDisk: size_blocks of the individual devices don't match: %llu != %llu\n", td->size_blocks, header.size_blocks);
+		}
+
+		if(header.current_max_sectors > new_max_sectors)new_max_sectors = header.current_max_sectors;
+		if(header.size_blocks > td->size_blocks)td->size_blocks = header.size_blocks;
+	}
 
 	//Check if the header needs to be increased
 	//If yes, also check if the new device has enough capacity
@@ -1834,7 +1850,7 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	if(additional_sectors < 0)goto out_putf;
 
 	error = -EINVAL;
-	if(additional_sectors != 0)printk(KERN_DEBUG "tDisk: %d additional sectors needed\n", additional_sectors);
+	if(additional_sectors != 0)printk(KERN_DEBUG "tDisk: %d additional sectors needed --> %u\n", additional_sectors, td->header_size+(unsigned)additional_sectors);
 	if(device_size < ((loff_t)td->header_size+additional_sectors*(td->internal_devices_count+1)+1)*td->blocksize)	//Disk too small
 	{
 		printk(KERN_WARNING "tDisk: Can't add disk, too small: %llu. Should be at least %llu\n", device_size, ((loff_t)td->header_size+additional_sectors*(td->internal_devices_count+1)+1)*td->blocksize);
@@ -1859,7 +1875,6 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 		}
 
 		//Resize sector indices an sorted sectors
-		printk(KERN_DEBUG "tDisk: Header size before increase: %d\n", td->header_size);
 		additional_sectors = td_set_max_sectors(td, new_max_sectors);
 		if(additional_sectors < 0)
 		{
@@ -1867,7 +1882,6 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			goto out_reset_sectors;
 		}
 		else if(additional_sectors == 0)printk(KERN_ERR "tDisk: sector increase was neccessary but was not performed!\n");
-		printk(KERN_DEBUG "tDisk: Header size after increase: %d\n", td->header_size);
 	}
 
 	//Subtract (new) header size from disk size
@@ -1891,6 +1905,8 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 	{
 	case WRITE:
 		//Writing header to disk
+		header.blocksize = td->blocksize;
+		header.size_blocks = td->size_blocks;
 		header.current_max_sectors = td->max_sectors;
 		td_write_header(&new_device, &header);
 
@@ -2034,7 +2050,6 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 							break;
 						}
 					}
-					printk(KERN_DEBUG "tDisk: finished sector %llu: %s", sector, moved ? "true" : "false");
 					MY_BUG_ON(!moved, PRINT_INT(td->indices[sector].disk), PRINT_ULL(td->indices[sector].sector), PRINT_ULL(search));
 				}
 			}
@@ -2884,6 +2899,8 @@ int tdisk_remove(struct tdisk *td)
 		struct tdisk_header header = {
 			.disk_index = i,
 			.performance = td->internal_devices[i-1].performance,
+			.blocksize = td->blocksize,
+			.size_blocks = td->size_blocks,
 			.current_max_sectors = td->max_sectors
 		};
 		gfp_t gfp = td->internal_devices[i-1].old_gfp_mask;

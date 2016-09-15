@@ -1674,12 +1674,20 @@ static int device_should_format(struct internal_device_add_parameters __user *ar
 	return parameters.format;
 }
 
+/**
+  * This function finds the sector which can be used
+  * to support move operations. The main purpose uf the
+  * move help sector is to prevent data loss in case
+  * the computer crashes in the middle of a move operation.
+  * The move help sector is the sector which is not used
+  * in the indices
+ **/
 static sector_t find_move_help_sector(struct tdisk *td, tdisk_index disk, sector_t max_sector)
 {
 	sector_t sector;
 	sector_t current_sector = 0;
 
-	for(current_sector = td->header_size; current_sector <= max_sector; ++current_sector)
+	for(current_sector = td->header_size; current_sector < max_sector + td->header_size; ++current_sector)
 	{
 		bool found = false;
 
@@ -1695,8 +1703,8 @@ static sector_t find_move_help_sector(struct tdisk *td, tdisk_index disk, sector
 		if(!found)return current_sector;
 	}
 
-	printk(KERN_WARNING "tDisk: No move help sector found for disk %u! Using last: %llu\n", disk, max_sector+1);
-	return max_sector+1;
+	printk(KERN_WARNING "tDisk: No move help sector found for disk %u! Using last: %llu\n", disk, current_sector);
+	return current_sector;
 }
 
 /**
@@ -1943,16 +1951,16 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 			if(td->indices[sector].disk > td->internal_devices_count)
 				td->internal_devices_count = td->indices[sector].disk;
 
-			if(td->indices[sector].disk == 0)break;
+			if(td->indices[sector].disk != 0 && sector >= td->size_blocks)
+				td->size_blocks = sector + 1;
 		}
-		td->size_blocks = sector;
 		new_device.move_help_sector = find_move_help_sector(td, header.disk_index, new_device.size_blocks+1);
 		if(td->size_blocks == 0)
 		{
 			error = -EINVAL;
 			td->internal_devices_count = 0;
-			printk(KERN_WARNING "tDisk: blocksize is 0. This probably means that the system crashed.\n");
-			printk(KERN_WARNING "tDisk: Sorry but the disk is broken. Maybe it can be reconstructed if you use another disk from this tDisk\n");
+			printk(KERN_WARNING "tDisk: size_blocks is 0. This probably means that the system crashed.\n");
+			printk(KERN_WARNING "tDisk: Sorry but the disk is broken. Maybe it can be reconstructed if you use another disk from this tDisk first\n");
 			goto out_reset_sectors;
 		}
 		break;

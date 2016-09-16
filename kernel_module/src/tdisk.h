@@ -146,6 +146,7 @@ struct tdisk {
 
 	//The amount in percentage of the total storage of cache buffer
 	unsigned int	percent_cache;
+	sector_t		cache_sectors;
 
 	//The internal devices
 	tdisk_index						internal_devices_count;

@@ -9,6 +9,7 @@
 #define TDSIK_DEVICE_OPERATIONS_H
 
 #include <tdisk/config.h>
+#include "helpers.h"
 #include "tdisk_file.h"
 #include "tdisk_plugin.h"
 

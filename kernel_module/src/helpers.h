@@ -53,7 +53,7 @@
 #define MY_BUG_ON0(equation) \
 	do { \
 		if(unlikely(equation)) { \
-			printk_ratelimited(KERN_ERR "tDisk BUG: " #equation "\n"); \
+			printk(KERN_ERR "tDisk BUG: " #equation "\n"); \
 			BUG_ON(equation); \
 		} \
 	} while(0)
@@ -62,8 +62,8 @@
 #define MY_BUG_ON2(equation, data_type, data) \
 	do { \
 		if(unlikely(equation)) { \
-			printk_ratelimited(KERN_ERR "tDisk BUG: " #equation "\n"); \
-			printk_ratelimited(KERN_ERR "tDisk BUG_DATA: " #data " = " data_type "\n", data); \
+			printk(KERN_ERR "tDisk BUG: " #equation "\n"); \
+			printk(KERN_ERR "tDisk BUG_DATA: " #data " = " data_type "\n", data); \
 			BUG_ON(equation); \
 		} \
 	} while(0)
@@ -72,9 +72,9 @@
 #define MY_BUG_ON4(equation, data_type1, data1, data_type2, data2) \
 	do { \
 		if(unlikely(equation)) { \
-			printk_ratelimited(KERN_ERR "tDisk BUG: " #equation); \
-			printk_ratelimited(KERN_ERR "tDisk BUG_DATA: " #data1 " = " data_type1 "\n", data1); \
-			printk_ratelimited(KERN_ERR "tDisk BUG_DATA: " #data2 " = " data_type2 "\n", data2); \
+			printk(KERN_ERR "tDisk BUG: " #equation); \
+			printk(KERN_ERR "tDisk BUG_DATA: " #data1 " = " data_type1 "\n", data1); \
+			printk(KERN_ERR "tDisk BUG_DATA: " #data2 " = " data_type2 "\n", data2); \
 			BUG_ON(equation); \
 		} \
 	} while(0)
@@ -83,10 +83,10 @@
 #define MY_BUG_ON6(equation, data_type1, data1, data_type2, data2, data_type3, data3) \
 	do { \
 		if(unlikely(equation)) { \
-			printk_ratelimited(KERN_ERR "tDisk BUG: " #equation); \
-			printk_ratelimited(KERN_ERR "tDisk BUG_DATA: " #data1 " = " data_type1 "\n", data1); \
-			printk_ratelimited(KERN_ERR "tDisk BUG_DATA: " #data2 " = " data_type2 "\n", data2); \
-			printk_ratelimited(KERN_ERR "tDisk BUG_DATA: " #data3 " = " data_type3 "\n", data3); \
+			printk(KERN_ERR "tDisk BUG: " #equation); \
+			printk(KERN_ERR "tDisk BUG_DATA: " #data1 " = " data_type1 "\n", data1); \
+			printk(KERN_ERR "tDisk BUG_DATA: " #data2 " = " data_type2 "\n", data2); \
+			printk(KERN_ERR "tDisk BUG_DATA: " #data3 " = " data_type3 "\n", data3); \
 			BUG_ON(equation); \
 		} \
 	} while(0)

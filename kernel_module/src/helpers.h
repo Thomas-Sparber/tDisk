@@ -11,13 +11,16 @@
 #pragma GCC system_header
 #include <linux/aio.h>
 #include <linux/bio.h>
-#include <linux/blk-mq.h>
 #include <linux/blkdev.h>
 #include <linux/fs.h>
 #include <linux/file.h>
 #include <linux/list.h>
 #include <linux/uio.h>
 #include <linux/version.h>
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,16,0)
+#include <linux/blk-mq.h>
+#endif //LINUX_VERSION_CODE >= KERNEL_VERSION(3,16,0)
 
 #define GET_MACRO(_0, _1, _2, _3, _4, _5, _6, NAME, ...) NAME
 

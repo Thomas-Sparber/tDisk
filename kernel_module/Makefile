@@ -1,4 +1,5 @@
-obj-m := tdisk.o tdisk_tools.o tdisk_all_in_one.o
+obj-m := tdisk.o tdisk_tools.o
+# tdisk_all_in_one.o
 ccflags-y := -O3 -I$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/include \
 	-Wall \
 	-Wextra \
@@ -58,9 +59,6 @@ check_kernel_symbols:
 	@echo "#define TDISK_TOOLS_CONFIG_H"						>> src/tdisk_tools_config.h
 	@echo ""													>> src/tdisk_tools_config.h
 	@grep __div64_32		/proc/kallsyms > /dev/null && echo "#define __div64_32_DEFINED"		>> src/tdisk_tools_config.h || true
-	@grep vfs_iter_write	/proc/kallsyms > /dev/null && echo "#define vfs_iter_write_DEFINED"	>> src/tdisk_tools_config.h || true
-	@grep vfs_iter_read		/proc/kallsyms > /dev/null && echo "#define vfs_iter_read_DEFINED"	>> src/tdisk_tools_config.h || true
-	@grep iov_iter_bvec		/proc/kallsyms > /dev/null && echo "#define iov_iter_bvec_DEFINED"	>> src/tdisk_tools_config.h || true
 	@echo ""													>> src/tdisk_tools_config.h
 	@echo "#endif //TDISK_TOOLS_CONFIG_H"						>> src/tdisk_tools_config.h
 

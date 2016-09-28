@@ -694,7 +694,11 @@ int nltd_register()
 
 	spin_lock_init(&request_lock);
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0)
+	ret = genl_register_family_with_ops(&genl_tdisk_family, genl_tdisk_ops, sizeof(genl_tdisk_ops) / sizeof(struct genl_ops));
+#else
 	ret = genl_register_family_with_ops(&genl_tdisk_family, genl_tdisk_ops);
+#endif //LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0)
 	if(ret)return ret;
 
 	timeout_thread = kthread_run(clear_timed_out_requests, NULL, "nltd_timeout");

@@ -67,6 +67,27 @@ inline static int file_flush(struct file *file)
 	return vfs_fsync(file, 0);
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0)
+
+/**
+  * This function writes the given bio_vec to
+  * file at the given position.
+ **/
+inline static int file_write_bio_vec(struct file *file, struct bio_vec *bvec, loff_t *pos)
+{
+	int ret;
+
+	file_start_write(file);
+	ret = file->f_op->write(file, kmap(bvec->bv_page), bvec->bv_len, pos);
+	file_end_write(file);
+
+	kunmap(bvec->bv_page);
+
+	return ret;
+}
+
+#else
+
 /**
   * This function writes the given bio_vec to
   * file at the given position.
@@ -85,11 +106,13 @@ inline static int file_write_bio_vec(struct file *file, struct bio_vec *bvec, lo
 	return ret;
 }
 
+#endif //LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0)
+
 /**
   * This function writes the given page to
   * file at the given position.
  **/
-inline static int file_write_page(struct file *file, struct page *p, loff_t *pos, unsigned int length)
+/*inline static int file_write_page(struct file *file, struct page *p, loff_t *pos, unsigned int length)
 {
 	struct bio_vec bvec = {
 		.bv_page = p,
@@ -98,7 +121,7 @@ inline static int file_write_page(struct file *file, struct page *p, loff_t *pos
 	};
 
 	return file_write_bio_vec(file, &bvec, pos);
-}
+}*/
 
 /**
   * This function writes the given bytes to
@@ -106,7 +129,7 @@ inline static int file_write_page(struct file *file, struct page *p, loff_t *pos
  **/
 inline static int file_write_data(struct file *file, void *data, loff_t pos, unsigned int length)
 {
-	int len;
+	/*int len;
 	int ret = 0;
 	struct page *p = alloc_page(GFP_KERNEL);
 
@@ -135,8 +158,40 @@ inline static int file_write_data(struct file *file, void *data, loff_t pos, uns
 	while(length);
 
 	__free_page(p);
+	return ret;*/
+
+	ssize_t ret;
+	mm_segment_t fs;
+
+	fs = get_fs();
+	set_fs(get_ds());
+
+	file_start_write(file);
+	ret = file->f_op->write(file, data, length, &pos);
+	file_end_write(file);
+	set_fs(fs);
+
+	return ret < 0 ? ret : 0;
+}
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0)
+
+/**
+  * This function reads the given bio_vec from
+  * file at the given position.
+ **/
+inline static int file_read_bio_vec(struct file *file, struct bio_vec *bvec, loff_t *pos)
+{
+	int ret;
+
+	ret = file->f_op->read(file, kmap(bvec->bv_page), bvec->bv_len, pos);
+
+	kunmap(bvec->bv_page);
+
 	return ret;
 }
+
+#else
 
 /**
   * This function reads the given bio_vec from
@@ -153,11 +208,13 @@ inline static int file_read_bio_vec(struct file *file, struct bio_vec *bvec, lof
 	return ret;
 }
 
+#endif //LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0)
+
 /**
   * This function reads the given page from
   * file at the given position.
  **/
-inline static int file_read_page(struct file *file, struct page *p, loff_t *pos, unsigned int length)
+/*inline static int file_read_page(struct file *file, struct page *p, loff_t *pos, unsigned int length)
 {
 	struct bio_vec bvec = {
 		.bv_page = p,
@@ -166,7 +223,7 @@ inline static int file_read_page(struct file *file, struct page *p, loff_t *pos,
 	};
 
 	return file_read_bio_vec(file, &bvec, pos);
-}
+}*/
 
 /**
   * This function reads the given bytes from
@@ -174,7 +231,7 @@ inline static int file_read_page(struct file *file, struct page *p, loff_t *pos,
  **/
 inline static int file_read_data(struct file *file, void *data, loff_t pos, unsigned int length)
 {
-	int len;
+	/*int len;
 	int ret = 0;
 	struct page *p = alloc_page(GFP_KERNEL);
 	do
@@ -202,7 +259,17 @@ inline static int file_read_data(struct file *file, void *data, loff_t pos, unsi
 	while(length);
 
 	__free_page(p);
-	return ret;
+	return ret;*/
+
+	int ret;
+	mm_segment_t fs;
+
+	fs = get_fs();
+	set_fs(get_ds());
+	ret = file->f_op->read(file, data, length, &pos);
+	set_fs(fs);
+
+	return ret < 0 ? ret : 0;
 }
 
 /*************************** AIO *******************************/

@@ -47,6 +47,21 @@
  **/
 #define SET_ACCESS_COUNT(sector, count) sector = (typeof(sector))(((sector) & 1) | ((count)<<1))
 
+#ifndef MIN_NICE
+#define MIN_NICE 20
+#endif //MIN_NICE
+
+/**
+  * This is just a hack in case the kernel was compiled
+  * with CONFIG_DEBUG_LOCK_ALLOC. Then mutex_lock is replaced
+  * with mutex_lock_nested which we can't use in a non GPL module...
+  * The function is then implemented in helpers.c
+ **/
+#ifdef mutex_lock
+#undef mutex_lock
+extern void mutex_lock(struct mutex *lock);
+#endif //mutex_lock
+
 static int td_start_worker_thread(struct tdisk *td);
 static void td_stop_worker_thread(struct tdisk *td);
 static enum worker_status td_queue_work(void *private_data, struct kthread_work *work);
@@ -1152,12 +1167,16 @@ sector_t td_find_sector_for_better_performance(struct tdisk *td, sector_t sector
  **/
 static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 {
-	struct bio_vec bvec;
+	struct bio_vec *bvec;
 	struct req_iterator iter;
 	ssize_t len;
 	loff_t pos_byte;
 	int ret = 0;
 	struct sector_index physical_sector;
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,16,0)
+	struct bio_vec bvec_temp;
+#endif //LINUX_VERSION_CODE >= KERNEL_VERSION(3,16,0)
 
 	pos_byte = (loff_t)blk_rq_pos(rq) << 9;
 
@@ -1166,8 +1185,14 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		return td_flush_devices(td);
 
 	//Normal file operations
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,16,0)
+	rq_for_each_segment(bvec_temp, rq, iter)
+	{
+		bvec = &bvec_temp;
+#else
 	rq_for_each_segment(bvec, rq, iter)
 	{
+#endif //LINUX_VERSION_CODE >= KERNEL_VERSION(3,16,0)
 		struct td_internal_device *device;
 		loff_t sector_div = pos_byte;
 		loff_t offset = __div64_32(&sector_div, td->blocksize);
@@ -1240,18 +1265,18 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		if((rq->cmd_flags & REQ_WRITE) && (rq->cmd_flags & REQ_DISCARD))
 		{
 			//Handle discard operations
-			len = (ssize_t)bvec.bv_len;
-			ret = device_alloc(device, actual_pos_byte, bvec.bv_len);
+			len = (ssize_t)bvec->bv_len;
+			ret = device_alloc(device, actual_pos_byte, bvec->bv_len);
 			if(ret)break;
 		}
 		else if(rq->cmd_flags & REQ_WRITE)
 		{
 			//Do write operation
-			len = write_bio_vec(device, &bvec, &actual_pos_byte);
+			len = write_bio_vec(device, bvec, &actual_pos_byte);
 
-			if(unlikely((size_t)len != bvec.bv_len))
+			if(unlikely((size_t)len != bvec->bv_len))
 			{
-				printk(KERN_ERR "tDisk: Write error at byte offset %llu, length %li/%u.\n", pos_byte, len, bvec.bv_len);
+				printk(KERN_ERR "tDisk: Write error at byte offset %llu, length %li/%u.\n", pos_byte, len, bvec->bv_len);
 
 				if(len >= 0)ret = -EIO;
 				else ret = (int)len;
@@ -1261,7 +1286,7 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 		else
 		{
 			//Do read operation
-			len = read_bio_vec(device, &bvec, &actual_pos_byte);
+			len = read_bio_vec(device, bvec, &actual_pos_byte);
 
 			if(len < 0)
 			{
@@ -1269,9 +1294,9 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 				break;
 			}
 
-			flush_dcache_page(bvec.bv_page);
+			flush_dcache_page(bvec->bv_page);
 
-			if((size_t)len != bvec.bv_len)
+			if((size_t)len != bvec->bv_len)
 			{
 				struct bio *bio;
 				__rq_for_each_bio(bio, rq)zero_fill_bio(bio);
@@ -1654,7 +1679,7 @@ static int td_add_check_file(struct tdisk *td, fmode_t mode, struct block_device
 	}
 
 	//Check rw permissions
-	if(!(file->f_mode & FMODE_WRITE) || !(mode & FMODE_WRITE) || !file->f_op->write_iter)
+	if(!(file->f_mode & FMODE_WRITE) || !(mode & FMODE_WRITE) || !file->f_op->write)
 	{
 		if(td->internal_devices_count && !(td->flags & TD_FLAGS_READ_ONLY))
 		{
@@ -1838,7 +1863,11 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 #endif //MEASURE_PING_PERFORMANCE
 
 	error = td_read_header(td, &new_device, &header, first_device, &index_operation_to_do, format);
-	if(error)goto out_putf;
+	if(error)
+	{
+		printk(KERN_WARNING "tDisk: Can't read device header: %d\n", error);
+		goto out_putf;
+	}
 
 	//Calculate new max_sectors of tDisk
 	if(index_operation_to_do == WRITE)
@@ -2456,7 +2485,7 @@ static int td_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, u
 	struct tdisk *td = bdev->bd_disk->private_data;
 	int err;
 
-	mutex_lock_nested(&td->ctl_mutex, 1);
+	mutex_lock(&td->ctl_mutex);
 	switch(cmd)
 	{
 	case TDISK_ADD_DISK:
@@ -2608,6 +2637,41 @@ static void td_stop_worker_thread(struct tdisk *td)
 	printk(KERN_DEBUG "tDisk: Worker thread stopped\n");
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0)
+
+/**
+  * This function is called by the kernel for each request
+  * it reqeives. This function hands it over to the worker
+  * thread.
+ **/
+static void td_request(struct request_queue *q)
+{
+	struct request *rq;
+	struct tdisk *td = q->queuedata;
+
+	//No need to hold thq queue lock.
+	//It is autmatically aquired before the function is called
+
+	//Get current requests from queue
+	while((rq = blk_fetch_request(q)))
+	{
+		struct td_command *cmd = vmalloc(sizeof(struct td_command));
+
+		if(!cmd)
+		{
+			blk_end_request_all(rq, -ENOMEM);
+			break;
+		}
+
+		cmd->rq = rq;
+		init_thread_work_timeout(&cmd->td_work);
+
+		enqueue_work(&td->worker_timeout, &cmd->td_work);
+	}
+}
+
+#else
+
 /**
   * This function is called for every request before it is
   * given to the workr thread. This makes it possible to initialize it
@@ -2624,7 +2688,7 @@ static int td_init_request(void *data, struct request *rq, unsigned int hctx_idx
 	return 0;
 }
 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3,19,0)
+	#if LINUX_VERSION_CODE <= KERNEL_VERSION(3,19,0)
 
 /**
   * This function is called by the kernel for each request
@@ -2643,7 +2707,7 @@ static int td_queue_rq(struct blk_mq_hw_ctx *hctx, struct request *rq)
 	return BLK_MQ_RQ_QUEUE_OK;
 }
 
-#else
+	#else
 
 /**
   * This function is called by the kernel for each request
@@ -2662,7 +2726,17 @@ static int td_queue_rq(struct blk_mq_hw_ctx *hctx, const struct blk_mq_queue_dat
 	return BLK_MQ_RQ_QUEUE_OK;
 }
 
-#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(3,19,0)
+/**
+  * This struct defines the functions to dispatch requests
+ **/
+static struct blk_mq_ops tdisk_mq_ops = {
+	.queue_rq       = td_queue_rq,
+	.map_queue      = blk_mq_map_queue,
+	.init_request	= td_init_request,
+};
+
+	#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(3,19,0)
+#endif //LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0)
 
 /**
   * This is the actual worker function which is called by
@@ -2706,7 +2780,10 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 	#endif //LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
 		//}
 #else
-	#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
+	#if LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0)
+		__blk_end_request_all(cmd->rq, ret ? -EIO : 0);
+		vfree(cmd);
+	#elif LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
 		if(ret)cmd->rq->errors = -EIO;
 		blk_mq_complete_request(cmd->rq);
 	#else
@@ -2795,15 +2872,6 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 }
 
 /**
-  * This struct defines the functions to dispatch requests
- **/
-static struct blk_mq_ops tdisk_mq_ops = {
-	.queue_rq       = td_queue_rq,
-	.map_queue      = blk_mq_map_queue,
-	.init_request	= td_init_request,
-};
-
-/**
   * This function creates a new tDisk with the given
   * minor number, and blocksize.
  **/
@@ -2846,6 +2914,13 @@ int tdisk_add(struct tdisk **t, struct tdisk_add_parameters *params)
 
 	//Set queue data
 	err = -ENOMEM;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0)
+	spin_lock_init(&td->queue_lock);
+	td->queue = blk_init_queue(td_request, &td->queue_lock);
+	if(!td->queue)goto out_free_idr;
+
+	td->queue->queuedata = td;
+#else
 	td->tag_set.ops = &tdisk_mq_ops;
 	td->tag_set.nr_hw_queues = 1;
 	td->tag_set.queue_depth = 128;
@@ -2866,6 +2941,7 @@ int tdisk_add(struct tdisk **t, struct tdisk_add_parameters *params)
 	td->queue->queuedata = td;
 
 	queue_flag_set_unlocked(QUEUE_FLAG_NOMERGES, td->queue);
+#endif //LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0)
 
 	disk = td->kernel_disk = alloc_disk(1);
 	if(!disk)goto out_free_queue;
@@ -2889,7 +2965,7 @@ int tdisk_add(struct tdisk **t, struct tdisk_add_parameters *params)
 
 	disk->flags |= GENHD_FL_EXT_DEVT;
 	mutex_init(&td->ctl_mutex);
-	atomic_set(&td->refcount, 0); 
+	atomic_set(&td->refcount, 0);
 	td->number		= params->minornumber;
 	spin_lock_init(&td->tdisk_lock);
 	disk->major		= TD_MAJOR;
@@ -2909,8 +2985,10 @@ int tdisk_add(struct tdisk **t, struct tdisk_add_parameters *params)
 
 out_free_queue:
 	blk_cleanup_queue(td->queue);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,16,0)
 out_cleanup_tags:
 	blk_mq_free_tag_set(&td->tag_set);
+#endif //LINUX_VERSION_CODE >= KERNEL_VERSION(3,16,0)
 out_free_idr:
 	idr_remove(&td_index_idr, params->minornumber);
 out_free_dev:
@@ -2975,7 +3053,11 @@ int tdisk_remove(struct tdisk *td)
 #endif
 
 	del_gendisk(td->kernel_disk);
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,16,0)
 	blk_mq_free_tag_set(&td->tag_set);
+#endif //LINUX_VERSION_CODE >= KERNEL_VERSION(3,16,0)
+
 	put_disk(td->kernel_disk);
 
 	vfree(td->sorted_sectors);

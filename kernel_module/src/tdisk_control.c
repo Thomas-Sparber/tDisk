@@ -9,6 +9,17 @@
 #include "tdisk_control.h"
 #include "tdisk.h"
 
+/**
+  * This is just a hack in case the kernel was compiled
+  * with CONFIG_DEBUG_LOCK_ALLOC. Then mutex_lock is replaced
+  * with mutex_lock_nested which we can't use in a non GPL module...
+  * The function is then implemented in helpers.c
+ **/
+#ifdef mutex_lock
+#undef mutex_lock
+extern void mutex_lock(struct mutex *lock);
+#endif //mutex_lock
+
 DEFINE_MUTEX(td_index_mutex);
 
 /**

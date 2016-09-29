@@ -2781,7 +2781,7 @@ static enum worker_status td_queue_work(void *private_data, struct kthread_work 
 		//}
 #else
 	#if LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0)
-		__blk_end_request_all(cmd->rq, ret ? -EIO : 0);
+		blk_end_request_all(cmd->rq, ret ? -EIO : 0);
 		vfree(cmd);
 	#elif LINUX_VERSION_CODE <= KERNEL_VERSION(4,1,14)
 		if(ret)cmd->rq->errors = -EIO;

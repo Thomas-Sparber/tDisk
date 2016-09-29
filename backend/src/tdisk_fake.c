@@ -67,6 +67,14 @@ int tdisk_add_disk(const char *device, const char *new_disk, int format)
 	return 0;
 }
 
+int tdisk_remove_disk(const char *device, unsigned int disk)
+{
+	UNUSED(device);
+	UNUSED(disk);
+
+	return 0;
+}
+
 int tdisk_get_max_sectors(const char *device, uint64_t *out)
 {
 	UNUSED(device);
@@ -178,6 +186,21 @@ int tdisk_get_device_info(const char *device, unsigned int disk, struct f_intern
 	out->performance.mod_avg_write = (uint32_t) (rand() % 16384);
 	out->performance.mod_stdev_write = (uint32_t) (rand() % 16384);
 
+	return 0;
+}
+
+int tdisk_get_debug_info(const char *device, uint64_t current_id, struct f_tdisk_debug_info *out)
+{
+	UNUSED(device);
+	UNUSED(current_id);
+	
+	out->id = 0;
+	snprintf(out->file, sizeof(out->file), "fakefile.c");
+	out->line = 100;
+	snprintf(out->function, sizeof(out->function), "fake-function");
+	snprintf(out->message, sizeof(out->message), "This is a fake message");
+	out->time = 10;
+	
 	return 0;
 }
 

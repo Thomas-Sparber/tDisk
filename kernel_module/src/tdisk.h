@@ -16,6 +16,7 @@
 #pragma GCC system_header
 #include <linux/atomic.h>
 #include <linux/bio.h>
+#include <linux/blk-mq.h>
 #include <linux/blkdev.h>
 #include <linux/cdrom.h>
 #include <linux/delay.h>
@@ -29,10 +30,6 @@
 #include <linux/types.h>
 #include <linux/version.h>
 #include <linux/vmalloc.h>
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,16,0)
-#include <linux/blk-mq.h>
-#endif //LINUX_VERSION_CODE >= KERNEL_VERSION(3,16,0)
 
 /**
   * Describes the header (first bytes) of a physical
@@ -166,12 +163,7 @@ struct tdisk {
 	struct worker_timeout_data	worker_timeout;
 	struct task_struct		*worker_task;
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0)
-	spinlock_t				queue_lock;
-#else
 	struct blk_mq_tag_set	tag_set;
-#endif //LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0)
-
 	struct request_queue	*queue;
 	struct gendisk			*kernel_disk;
 	struct block_device		*block_device;

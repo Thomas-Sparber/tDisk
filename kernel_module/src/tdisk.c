@@ -3062,7 +3062,7 @@ static int __init tdisk_init(void)
 	TD_MAJOR = register_blkdev((unsigned)TD_MAJOR, "td");
 	if(TD_MAJOR <= 0)goto error_nltd;
 
-	printk(KERN_INFO "tDisk: driver loaded\n");
+	printk(KERN_INFO "tDisk: driver " DRIVER_VERSION_STRING " loaded\n");
 	return 0;
 
  error_nltd:

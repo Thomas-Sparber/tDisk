@@ -17,6 +17,10 @@
 #define DRIVER_MAJOR_VERSION 1
 #define DRIVER_MINOR_VERSION 0
 
+#define TO_XSTRING(s) TO_STRING(s)
+#define TO_STRING(s) #s
+#define DRIVER_VERSION_STRING DRIVER_NAME " " TO_XSTRING(DRIVER_MAJOR_VERSION) "." TO_XSTRING(DRIVER_MINOR_VERSION)
+
 /**
   * Amount of past operations which are averaged
   * over the time to measure the performance of a device

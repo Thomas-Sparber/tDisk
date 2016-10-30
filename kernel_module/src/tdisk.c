@@ -1677,7 +1677,7 @@ static int td_add_check_file(struct tdisk *td, fmode_t mode, struct block_device
 	}
 
 	//Check rw permissions
-	if(!(file->f_mode & FMODE_WRITE) || !(mode & FMODE_WRITE) || !file->f_op->write)
+	if(!(file->f_mode & FMODE_WRITE) || !(mode & FMODE_WRITE))
 	{
 		if(td->internal_devices_count && !(td->flags & TD_FLAGS_READ_ONLY))
 		{

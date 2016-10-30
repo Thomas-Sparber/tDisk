@@ -15,6 +15,7 @@
 #include <vector>
 
 #ifdef __linux__
+#include <linux/limits.h>
 #include <unistd.h>
 #else
 #include <direct.h>
@@ -183,7 +184,7 @@ namespace td
 
 			if(dir.substr(0,2) == ".." || dir.substr(0,1) == ".")
 			{
-				char currentPath[1024];
+				char currentPath[PATH_MAX];
 #ifdef __linux__
 				realpath(executable, currentPath);
 #else

@@ -43,6 +43,11 @@
 #define RESET_ACCESS_COUNT(sector) sector = (sector) & 1
 
 /**
+  * Sets the given sector to be unused
+ **/
+#define SET_UNUSED_SECTOR(sector) sector = (sector) & ~1
+
+/**
   * Sets the access count of the given sector
  **/
 #define SET_ACCESS_COUNT(sector, count) sector = (typeof(sector))(((sector) & 1) | ((count)<<1))
@@ -2451,6 +2456,7 @@ static int td_clear_access_count(struct tdisk *td)
 	for(i = 0; i < td->max_sectors; ++i)
 	{
 		RESET_ACCESS_COUNT(td->sorted_sectors[i].physical_sector->access_count);
+		SET_UNUSED_SECTOR(td->sorted_sectors[i].physical_sector->access_count);
 	}
 
 	return 0;

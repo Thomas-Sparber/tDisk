@@ -504,16 +504,19 @@ static struct sorted_sector_index* td_find_sector_index(struct sorted_internal_d
   * the wrong disks (according to the sorting algorithm). So if
   * they have the same access count they can simply be ignored.
  **/
-static struct sorted_sector_index* td_find_sector_index_acc(struct sorted_internal_device *device, tdisk_index disk, __u16 access_count, bool is_faster)
+static struct sorted_sector_index* td_find_sector_index_acc(struct tdisk *td, struct sorted_internal_device *device, tdisk_index disk, __u16 access_count, bool is_cache_sector, bool is_faster)
 {
 	struct sorted_sector_index *item;
 	struct sorted_sector_index *ret = NULL;
 
 	list_for_each_entry(item, &device->preferred_blocks, device_assigned)
 	{
+		sector_t logical_sector = (sector_t)(item->physical_sector - td->indices);
+		bool swap_is_cache_sector = (logical_sector > td->size_blocks);
+
 		if(is_faster)
 		{
-			if(item->physical_sector->disk == disk && ACCESS_COUNT(item->physical_sector->access_count) <= access_count)
+			if(item->physical_sector->disk == disk && is_cache_sector == swap_is_cache_sector && (is_cache_sector || ACCESS_COUNT(item->physical_sector->access_count) <= access_count))
 			{
 				if(ret == NULL || ACCESS_COUNT(item->physical_sector->access_count) > ACCESS_COUNT(ret->physical_sector->access_count))
 					ret = item;
@@ -521,7 +524,7 @@ static struct sorted_sector_index* td_find_sector_index_acc(struct sorted_intern
 		}
 		else
 		{
-			if(item->physical_sector->disk == disk && ACCESS_COUNT(item->physical_sector->access_count) >= access_count)
+			if(item->physical_sector->disk == disk && is_cache_sector == swap_is_cache_sector && (is_cache_sector || ACCESS_COUNT(item->physical_sector->access_count) >= access_count))
 			{
 				if(ret == NULL || ACCESS_COUNT(item->physical_sector->access_count) < ACCESS_COUNT(ret->physical_sector->access_count))
 					ret = item;
@@ -632,13 +635,16 @@ static void td_assign_sectors(struct tdisk *td)
 				struct sorted_internal_device *corresponding = td_find_sorted_device(td->sorted_devices, &td->internal_devices[sector->physical_sector->disk-1], td->internal_devices_count);
 				struct sorted_sector_index *to_swap;
 
-				bool isFaster = corresponding < &td->sorted_devices[sorted_disk-1];
+				bool is_faster = corresponding < &td->sorted_devices[sorted_disk-1];
+
+				sector_t logical_sector = (sector_t)(sector->physical_sector - td->indices);
+				bool is_cache_sector = (logical_sector > td->size_blocks);
 
 				if(!corresponding)continue;
 
 				//Finds a sector with an equal or higher access count
 				//for the current disk inside the "corresponding"
-				to_swap = td_find_sector_index_acc(corresponding, current_disk, ACCESS_COUNT(sector->physical_sector->access_count), isFaster);
+				to_swap = td_find_sector_index_acc(td, corresponding, current_disk, ACCESS_COUNT(sector->physical_sector->access_count), is_cache_sector, is_faster);
 
 				if(to_swap != NULL)
 				{
@@ -876,6 +882,10 @@ int td_sector_index_callback_total(void *priv, struct list_head *a, struct list_
 
 inline static bool compare_sectors(struct tdisk *td, struct sector_index *a, struct sector_index *b)
 {
+	//Obviously, used sectors are "larger" than unused sectors
+	if(a->disk != 0 && b->disk == 0)return true;
+	if(a->disk == 0 && b->disk != 0)return false;
+
 	//This condition is used for the cache functionality.
 	//Since the cache sectors are stored at the end of the tdisk we
 	//need to calculate the logical sector in order to find out
@@ -891,9 +901,6 @@ inline static bool compare_sectors(struct tdisk *td, struct sector_index *a, str
 		else return false;
 	}
 	else if(logical_b >= td->size_blocks)return false;
-
-	//Obviously, used sectors are "larger" than unused sectors
-	if(a->disk != 0 && b->disk == 0)return true;
 
 	//Obviously, sectors with a higher access count are "larger"
 	if(ACCESS_COUNT(a->access_count) > ACCESS_COUNT(b->access_count))return true;

@@ -230,33 +230,19 @@ int td_write_index_to_disk(struct tdisk *td, sector_t logical_sector, tdisk_inde
   * The flag update_access_count can be used to define whether the access
   * count of the specific sector should be updated. This is useful e.g. when
   * sectors are moved - this shouldn't influence the access count variable.
+  * If the operation is READ, then the access_count of the sector is retured
+  * as it was before the operation. e.g. if the sector was unused, the sector
+  * is set to be used but the original value (unused) is retuned.
  **/
 int td_perform_index_operation(struct tdisk *td, int direction, sector_t logical_sector, struct sector_index *physical_sector, bool do_disk_operation, bool update_access_count)
 {
+	int ret = 0;
 	struct sector_index *actual;
 	loff_t position = td->index_offset_byte + (loff_t)logical_sector * (loff_t)sizeof(struct sector_index);
 	unsigned int length = sizeof(struct sector_index);
 
 	if(position + length > td->header_size * td->blocksize)return 1;
 	actual = &td->indices[logical_sector];
-
-	//Increment access count
-	if(update_access_count)
-	{
-		INC_ACCESS_COUNT(actual->access_count);
-
-#ifdef AUTO_RESET_ACCESS_COUNT
-		//printk_ratelimited(KERN_DEBUG "tDisk: access count: %u max: %u\n", actual->access_count, (typeof(actual->access_count))-1);
-		if(ACCESS_COUNT(actual->access_count) == (((typeof(actual->access_count))-1)>>1))
-		{
-			printk(KERN_DEBUG "tDisk: Resetting tDisk access count\n");
-			reset_access_count(td, do_disk_operation);
-		}
-#else
-#pragma message "Reset auto access count is disabled"
-#endif //AUTO_RESET_ACCESS_COUNT
-	}
-
 
 	//MY_BUG_ON(direction == WRITE && physical_sector->disk == 0, PRINT_INT(physical_sector->disk), PRINT_ULL(logical_sector));
 	MY_BUG_ON(direction == READ && actual->disk == 0, PRINT_INT(actual->disk), PRINT_ULL(logical_sector));
@@ -267,7 +253,7 @@ int td_perform_index_operation(struct tdisk *td, int direction, sector_t logical
 	else if(direction == COMPARE)
 	{
 		if(physical_sector->disk != actual->disk || physical_sector->sector != actual->sector)
-			return -1;
+			ret = -1;
 	}
 	else if(direction == WRITE)
 	{
@@ -287,7 +273,24 @@ int td_perform_index_operation(struct tdisk *td, int direction, sector_t logical
 		}
 	}
 
-	return 0;
+	//Increment access count
+	if(update_access_count)
+	{
+		INC_ACCESS_COUNT(actual->access_count);
+
+#ifdef AUTO_RESET_ACCESS_COUNT
+		//printk_ratelimited(KERN_DEBUG "tDisk: access count: %u max: %u\n", actual->access_count, (typeof(actual->access_count))-1);
+		if(ACCESS_COUNT(actual->access_count) == (((typeof(actual->access_count))-1)>>1))
+		{
+			printk(KERN_DEBUG "tDisk: Resetting tDisk access count\n");
+			reset_access_count(td, do_disk_operation);
+		}
+#else
+#pragma message "Reset auto access count is disabled"
+#endif //AUTO_RESET_ACCESS_COUNT
+	}
+
+	return ret;
 }
 
 /**
@@ -1209,35 +1212,6 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 			break;
 		}
 
-#ifdef USE_INITIAL_OPTIMIZATION
-		if(!SECTOR_USED(td->indices[sector].access_count))
-		{
-			//If the sector is not yet used we can try to find a
-			//faster disk to gain some performance
-
-			sector_t better_sector = td_find_sector_for_better_performance(td, sector);
-
-			if(sector != better_sector)
-			{
-				physical_sector.disk = td->indices[better_sector].disk;
-				physical_sector.sector = td->indices[better_sector].sector;
-
-				td->indices[better_sector].disk = td->indices[sector].disk;
-				td->indices[better_sector].sector = td->indices[sector].sector;
-
-				td->indices[sector].disk = physical_sector.disk;
-				td->indices[sector].sector = physical_sector.sector;
-
-				td_write_index_to_disk(td, sector, td->indices[sector].disk);
-				td_write_index_to_disk(td, better_sector, td->indices[sector].disk);
-				td_write_index_to_disk(td, sector, td->indices[better_sector].disk);
-				td_write_index_to_disk(td, better_sector, td->indices[better_sector].disk);
-			}
-		}
-#else
-#pragma message "Initial optimization is disabled"
-#endif //USE_INITIAL_OPTIMIZATION
-
 		//Fetch physical index
 		ret = td_perform_index_operation(td, READ, sector, &physical_sector, true, true);
 		if(ret != 0)
@@ -1246,6 +1220,34 @@ static int td_do_disk_operation(struct tdisk *td, struct request *rq)
 			ret = -EIO;
 			break;
 		}
+
+#ifdef USE_INITIAL_OPTIMIZATION
+		if(!SECTOR_USED(physical_sector.access_count))
+		{
+			//If the sector is not yet used we can try to find a
+			//faster disk to gain some performance
+
+			sector_t better_sector = td_find_sector_for_better_performance(td, sector);
+
+			if(sector != better_sector)
+			{
+				//printk(KERN_DEBUG "tDisk: optimizing sector %llu by using disk %u instead of %u\n", sector, td->indices[better_sector].disk, td->indices[sector].disk);
+
+				swap(td->indices[better_sector].disk, td->indices[sector].disk);
+				swap(td->indices[better_sector].sector, td->indices[sector].sector);
+
+				td_write_index_to_disk(td, sector, td->indices[sector].disk);
+				td_write_index_to_disk(td, better_sector, td->indices[sector].disk);
+				td_write_index_to_disk(td, sector, td->indices[better_sector].disk);
+				td_write_index_to_disk(td, better_sector, td->indices[better_sector].disk);
+
+				//Re- reading swapped index but without affecting access count
+				td_perform_index_operation(td, READ, sector, &physical_sector, false, false);
+			}
+		}
+#else
+#pragma message "Initial optimization is disabled"
+#endif //USE_INITIAL_OPTIMIZATION
 
 		//Calculate actual position in the physical disk
 		actual_pos_byte = (loff_t)physical_sector.sector*td->blocksize + offset;
@@ -1423,8 +1425,17 @@ static void td_do_disk_operation_async(struct tdisk *td, struct request *rq)
 			break;
 		}
 
+		//Fetch physical index
+		ret = td_perform_index_operation(td, READ, sector, &physical_sector, true, true);
+		if(ret != 0)
+		{
+			printk_ratelimited(KERN_ERR "tDisk: Error reading logical sector index: %llu\n", sector);
+			ret = -EIO;
+			break;
+		}
+
 #ifdef USE_INITIAL_OPTIMIZATION
-		if(!SECTOR_USED(td->indices[sector].access_count))
+		if(!SECTOR_USED(physical_sector.access_count))
 		{
 			//If the sector is not yet used we can try to find a
 			//faster disk to gain some performance
@@ -1433,42 +1444,23 @@ static void td_do_disk_operation_async(struct tdisk *td, struct request *rq)
 
 			if(sector != better_sector)
 			{
-				physical_sector.disk = td->indices[better_sector].disk;
-				physical_sector.sector = td->indices[better_sector].sector;
+				//printk(KERN_DEBUG "tDisk: optimizing sector %llu by using disk %u instead of %u\n", sector, td->indices[better_sector].disk, td->indices[sector].disk);
 
-				td->indices[better_sector].disk = td->indices[sector].disk;
-				td->indices[better_sector].sector = td->indices[sector].sector;
+				swap(td->indices[better_sector].disk, td->indices[sector].disk);
+				swap(td->indices[better_sector].sector, td->indices[sector].sector);
 
-				td->indices[sector].disk = physical_sector.disk;
-				td->indices[sector].sector = physical_sector.sector;
+				td_write_index_to_disk_async(td, sector, td->indices[sector].disk);
+				td_write_index_to_disk_async(td, better_sector, td->indices[sector].disk);
+				td_write_index_to_disk_async(td, sector, td->indices[better_sector].disk);
+				td_write_index_to_disk_async(td, better_sector, td->indices[better_sector].disk);
 
-				//atomic_inc(&multi_data->remaining);
-				//atomic_inc(&multi_data->remaining);
-				//atomic_inc(&multi_data->remaining);
-				//atomic_inc(&multi_data->remaining);
-				//td_write_index_to_disk_async(td, sector, td->indices[sector].disk, multi_data, &file_multi_aio_complete);
-				//td_write_index_to_disk_async(td, better_sector, td->indices[sector].disk, multi_data, &file_multi_aio_complete);
-				//td_write_index_to_disk_async(td, sector, td->indices[better_sector].disk, multi_data, &file_multi_aio_complete);
-				//td_write_index_to_disk_async(td, better_sector, td->indices[better_sector].disk, multi_data, &file_multi_aio_complete);
-				td_write_index_to_disk_async(td, sector, td->indices[sector].disk, multi_data, &file_multi_aio_complete);
-				td_write_index_to_disk_async(td, better_sector, td->indices[sector].disk, multi_data, &file_multi_aio_complete);
-				td_write_index_to_disk_async(td, sector, td->indices[better_sector].disk, multi_data, &file_multi_aio_complete);
-				td_write_index_to_disk_async(td, better_sector, td->indices[better_sector].disk, multi_data, &file_multi_aio_complete);
+				//Re- reading swapped index but without affecting access count
+				td_perform_index_operation(td, READ, sector, &physical_sector, false, false);
 			}
 		}
 #else
 #pragma message "Initial optimization is disabled"
 #endif //USE_INITIAL_OPTIMIZATION
-
-		//Fetch physical index
-		ret = td_perform_index_operation(td, READ, sector, &physical_sector, true, true);
-		if(ret != 0)
-		{
-			printk_ratelimited(KERN_ERR "tDisk: Error reading logical sector index: %llu\n", sector);
-			atomic_inc(&multi_data->remaining);
-			file_multi_aio_complete(multi_data, -EIO);
-			break;
-		}
 
 		//Calculate actual position in the physical disk
 		actual_pos_byte = (loff_t)physical_sector.sector*td->blocksize + offset;

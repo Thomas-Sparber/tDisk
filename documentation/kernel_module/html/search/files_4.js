@@ -12,5 +12,8 @@ var searchData=
   ['tdisk_5fnl_2ec',['tdisk_nl.c',['../tdisk__nl_8c.html',1,'']]],
   ['tdisk_5fnl_2eh',['tdisk_nl.h',['../tdisk__nl_8h.html',1,'']]],
   ['tdisk_5fperformance_2eh',['tdisk_performance.h',['../tdisk__performance_8h.html',1,'']]],
-  ['tdisk_5fplugin_2eh',['tdisk_plugin.h',['../tdisk__plugin_8h.html',1,'']]]
+  ['tdisk_5fplugin_2eh',['tdisk_plugin.h',['../tdisk__plugin_8h.html',1,'']]],
+  ['tdisk_5ftools_2ec',['tdisk_tools.c',['../tdisk__tools_8c.html',1,'']]],
+  ['tdisk_5ftools_2eh',['tdisk_tools.h',['../tdisk__tools_8h.html',1,'']]],
+  ['tdisk_5ftools_5fconfig_2eh',['tdisk_tools_config.h',['../tdisk__tools__config_8h.html',1,'']]]
 ];

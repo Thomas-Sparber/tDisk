@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['unregister_5ftdisk_5fcontrol',['unregister_tdisk_control',['../tdisk__control_8c.html#aecd351f37cbaf1d7f2bdaa12caaadb50',1,'unregister_tdisk_control(void):&#160;tdisk_control.c'],['../tdisk__control_8h.html#aecd351f37cbaf1d7f2bdaa12caaadb50',1,'unregister_tdisk_control(void):&#160;tdisk_control.c']]],
-  ['update_5fperformance',['update_performance',['../tdisk__performance_8h.html#a2b17e0984ecdd5fabfc948d3f70b8dbd',1,'tdisk_performance.h']]]
+  ['write_5fbio_5fvec',['write_bio_vec',['../tdisk__device__operations_8h.html#a29930d5031aca4da37a5d1bf41a7e55f',1,'tdisk_device_operations.h']]],
+  ['write_5fdata',['write_data',['../tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1',1,'tdisk_device_operations.h']]]
 ];

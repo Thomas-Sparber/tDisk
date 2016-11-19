@@ -1,0 +1,17 @@
+digraph "td_perform_index_operation"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="td_perform_index_operation",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="td_write_index_to_disk",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk_8c.html#a97861b5c4ef4f2807d29ef1f1c74fe64",tooltip="Writes the given sector index to the given internal device. "];
+  Node2 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="write_data",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1",tooltip="tDisk Driver "];
+  Node3 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="update_performance",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452",tooltip="This function updates the performance data of the given performacen data. "];
+  Node4 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="__div64_32",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$helpers_8c.html#aff7dbb9c60a4d1c2a3648918d7d083e6"];
+  Node5 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="EXPORT_SYMBOL",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$helpers_8c.html#a6b260ca72a53d15fc7e64d9b70d46d96"];
+}

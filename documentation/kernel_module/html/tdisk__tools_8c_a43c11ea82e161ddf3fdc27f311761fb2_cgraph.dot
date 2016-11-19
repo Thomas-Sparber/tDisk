@@ -1,0 +1,19 @@
+digraph "tdisk_tools_exit"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="tdisk_tools_exit",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="module_init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__tools_8c.html#aa187590fa16f6eb6731665b23dcbd1ac"];
+  Node1 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="tdisk_tools_init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__tools_8c.html#aa63c95dfb992c6e311efde93c52d25ed"];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="module_exit",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__tools_8c.html#a513806851a8a466bdf21167aa9050909"];
+  Node1 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="MODULE_AUTHOR",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__tools_8c.html#a3bfedbd1b6427eb9e89aef58a6c9d705"];
+  Node1 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="MODULE_LICENSE",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__tools_8c.html#ad94b36675e7eb067ea3ce6ff9e244a44"];
+  Node1 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="MODULE_DESCRIPTION",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__tools_8c.html#a842eb036288e7981f360acd25bf11310"];
+}

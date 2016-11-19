@@ -1,6 +1,9 @@
 var searchData=
 [
-  ['find_5fmove_5fhelp_5fsector',['find_move_help_sector',['../tdisk_8c.html#a55115d4e1ad049651e2eb378bdbeb715',1,'tdisk.c']]],
-  ['flush_5fdevice',['flush_device',['../tdisk__device__operations_8h.html#a0637c1cf3cedbdcd2dfeb4c93907cf14',1,'tdisk_device_operations.h']]],
-  ['flush_5fkthread_5fworker_5ftimeout',['flush_kthread_worker_timeout',['../worker__timeout_8c.html#acdf7d2e8ff5e302d8f0b19d5c0e92058',1,'flush_kthread_worker_timeout(struct kthread_worker *worker):&#160;worker_timeout.c'],['../worker__timeout_8h.html#acdf7d2e8ff5e302d8f0b19d5c0e92058',1,'flush_kthread_worker_timeout(struct kthread_worker *worker):&#160;worker_timeout.c']]]
+  ['debug_5fpoint',['debug_point',['../tdisk__debug_8c.html#a5826094d489fbe2ae739a8d271bdf62a',1,'debug_point(struct debug_struct *ds, const char *file, int line, const char *function, const char *message,...):&#160;tdisk_debug.c'],['../tdisk__debug_8h.html#a5826094d489fbe2ae739a8d271bdf62a',1,'debug_point(struct debug_struct *ds, const char *file, int line, const char *function, const char *message,...):&#160;tdisk_debug.c']]],
+  ['define_5fidr',['DEFINE_IDR',['../tdisk_8c.html#abe0e26a8351543bdb2138bd0786a698c',1,'tdisk.c']]],
+  ['define_5fmutex',['DEFINE_MUTEX',['../tdisk__control_8c.html#aaeeedaf9f7c793fbef60470b81b862aa',1,'tdisk_control.c']]],
+  ['device_5falloc',['device_alloc',['../tdisk__device__operations_8h.html#afd71ce89b7266b5ec95db67cca456e70',1,'tdisk_device_operations.h']]],
+  ['device_5fis_5fready',['device_is_ready',['../tdisk__device__operations_8h.html#a6634c65571b6a9594cb1dad4fd62d95e',1,'tdisk_device_operations.h']]],
+  ['device_5fshould_5fformat',['device_should_format',['../tdisk_8c.html#a2e930709eb141176957d5989d7336872',1,'tdisk.c']]]
 ];

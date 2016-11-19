@@ -86,7 +86,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">tdisk.h File Reference</div>  </div>
@@ -98,8 +97,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <code>#include &quot;<a class="el" href="tdisk__debug_8h_source.html">tdisk_debug.h</a>&quot;</code><br />
 <code>#include &lt;linux/atomic.h&gt;</code><br />
 <code>#include &lt;linux/bio.h&gt;</code><br />
-<code>#include &lt;linux/blkdev.h&gt;</code><br />
 <code>#include &lt;linux/blk-mq.h&gt;</code><br />
+<code>#include &lt;linux/blkdev.h&gt;</code><br />
+<code>#include &lt;linux/cdrom.h&gt;</code><br />
 <code>#include &lt;linux/delay.h&gt;</code><br />
 <code>#include &lt;linux/kthread.h&gt;</code><br />
 <code>#include &lt;linux/list.h&gt;</code><br />
@@ -109,6 +109,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <code>#include &lt;linux/sort.h&gt;</code><br />
 <code>#include &lt;linux/spinlock.h&gt;</code><br />
 <code>#include &lt;linux/types.h&gt;</code><br />
+<code>#include &lt;linux/version.h&gt;</code><br />
 <code>#include &lt;linux/vmalloc.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for tdisk.h:</div>
@@ -151,23 +152,14 @@ Classes</h2></td></tr>
 <tr class="memdesc:structtd__command"><td class="mdescLeft">&#160;</td><td class="mdescRight">A <a class="el" href="tdisk_8h.html#structtd__command" title="A td_command is used by the worker thread to process a request. ">td_command</a> is used by the worker thread to process a request.  <a href="tdisk_8h.html#structtd__command">More...</a><br /></td></tr>
 <tr class="separator:structtd__command"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
-Enumerations</h2></td></tr>
-<tr class="memitem:adf764cbdea00d65edcd07bb9953ad2b7"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="tdisk_8h.html#adf764cbdea00d65edcd07bb9953ad2b7adb788a447245c3561ad8f2b0f7f0ccef">state_unbound</a>, 
-<a class="el" href="tdisk_8h.html#adf764cbdea00d65edcd07bb9953ad2b7ab0cae7c5c2520426a2e99ef8aec15154">state_bound</a>, 
-<a class="el" href="tdisk_8h.html#adf764cbdea00d65edcd07bb9953ad2b7aed4057de0cb7b6517f9ccb1a5dbdfb9b">state_cleared</a>
- }<tr class="memdesc:adf764cbdea00d65edcd07bb9953ad2b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Possible states of a device.  <a href="tdisk_8h.html#adf764cbdea00d65edcd07bb9953ad2b7">More...</a><br /></td></tr>
-</td></tr>
-<tr class="separator:adf764cbdea00d65edcd07bb9953ad2b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a24ad0a9c5d13f1079ff987557641b23a"><td class="memItemLeft" align="right" valign="top">struct&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#a24ad0a9c5d13f1079ff987557641b23a">__attribute__</a> ((packed)) tdisk_header</td></tr>
 <tr class="memdesc:a24ad0a9c5d13f1079ff987557641b23a"><td class="mdescLeft">&#160;</td><td class="mdescRight">tDisk Driver  <a href="#a24ad0a9c5d13f1079ff987557641b23a">More...</a><br /></td></tr>
 <tr class="separator:a24ad0a9c5d13f1079ff987557641b23a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1948aee6b84a82a54fabc7d83af6d278"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#a1948aee6b84a82a54fabc7d83af6d278">tdisk_add</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> **td, int i, unsigned int blocksize)</td></tr>
-<tr class="memdesc:a1948aee6b84a82a54fabc7d83af6d278"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a tDisk with the given minronumber and blocksize to the system.  <a href="#a1948aee6b84a82a54fabc7d83af6d278">More...</a><br /></td></tr>
-<tr class="separator:a1948aee6b84a82a54fabc7d83af6d278"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3c1abe96f282511704be7454d6b32b9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#af3c1abe96f282511704be7454d6b32b9">tdisk_add</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> **td, struct <a class="el" href="interface_8h.html#structtdisk__add__parameters">tdisk_add_parameters</a> *params)</td></tr>
+<tr class="memdesc:af3c1abe96f282511704be7454d6b32b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a tDisk with the given minronumber and blocksize to the system.  <a href="#af3c1abe96f282511704be7454d6b32b9">More...</a><br /></td></tr>
+<tr class="separator:af3c1abe96f282511704be7454d6b32b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6bd8ab6cde7f6e1aca72164f5adefa12"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk_8h.html#a6bd8ab6cde7f6e1aca72164f5adefa12">tdisk_lookup</a> (struct <a class="el" href="tdisk_8h.html#structtdisk">tdisk</a> **td, int i)</td></tr>
 <tr class="memdesc:a6bd8ab6cde7f6e1aca72164f5adefa12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the tDisk with the given minornumber.  <a href="#a6bd8ab6cde7f6e1aca72164f5adefa12">More...</a><br /></td></tr>
 <tr class="separator:a6bd8ab6cde7f6e1aca72164f5adefa12"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -234,6 +226,18 @@ Collaboration diagram for td_internal_device:</div>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a6b98b4f7b169b1445955e9a8fb2edf69"></a>__u64</td>
+<td class="fieldname">
+bytes_read</td>
+<td class="fielddoc">
+Counting bytes written to and read frm the internal device. </td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="adfae25661d3e3774ed332c821299e944"></a>__u64</td>
+<td class="fieldname">
+bytes_written</td>
+<td class="fielddoc">
+</td></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="aaed54d506f852885ed435b5851a767d1"></a>struct file *</td>
 <td class="fieldname">
@@ -382,6 +386,18 @@ blocksize</td>
 <td class="fielddoc">
 </td></tr>
 <tr><td class="fieldtype">
+<a class="anchor" id="aff3c16b1b673c8622e1d7097bec81392"></a>__u64</td>
+<td class="fieldname">
+bytes_optimized</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a973d65038355c7bb0fbab17e131c9923"></a>sector_t</td>
+<td class="fieldname">
+cache_sectors</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
 <a class="anchor" id="a0128269e955e1ffe953858bcf9463ea9"></a>struct mutex</td>
 <td class="fieldname">
 ctl_mutex</td>
@@ -460,6 +476,12 @@ optimizing</td>
 <td class="fielddoc">
 </td></tr>
 <tr><td class="fieldtype">
+<a class="anchor" id="a03e22db7028be04b60b3eb2d5a4e6945"></a>unsigned int</td>
+<td class="fieldname">
+percent_cache</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
 <a class="anchor" id="a1749a32e6a9f62627631eadcef5ba003"></a>struct request_queue *</td>
 <td class="fieldname">
 queue</td>
@@ -493,12 +515,6 @@ sorted_sectors</td>
 <a class="anchor" id="aecec8c7810c43f1440ae010f556bb4f9"></a>struct list_head</td>
 <td class="fieldname">
 sorted_sectors_head</td>
-<td class="fielddoc">
-</td></tr>
-<tr><td class="fieldtype">
-<a class="anchor" id="aef112692675cde246a7443167403f8df"></a>int</td>
-<td class="fieldname">
-state</td>
 <td class="fielddoc">
 </td></tr>
 <tr><td class="fieldtype">
@@ -563,29 +579,6 @@ td_work</td>
 
 </div>
 </div>
-<h2 class="groupheader">Enumeration Type Documentation</h2>
-<a class="anchor" id="adf764cbdea00d65edcd07bb9953ad2b7"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">anonymous enum</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Possible states of a device. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a class="anchor" id="adf764cbdea00d65edcd07bb9953ad2b7adb788a447245c3561ad8f2b0f7f0ccef"></a>state_unbound&#160;</td><td class="fielddoc">
-</td></tr>
-<tr><td class="fieldname"><a class="anchor" id="adf764cbdea00d65edcd07bb9953ad2b7ab0cae7c5c2520426a2e99ef8aec15154"></a>state_bound&#160;</td><td class="fielddoc">
-</td></tr>
-<tr><td class="fieldname"><a class="anchor" id="adf764cbdea00d65edcd07bb9953ad2b7aed4057de0cb7b6517f9ccb1a5dbdfb9b"></a>state_cleared&#160;</td><td class="fielddoc">
-</td></tr>
-</table>
-
-</div>
-</div>
 <h2 class="groupheader">Function Documentation</h2>
 <a class="anchor" id="a24ad0a9c5d13f1079ff987557641b23a"></a>
 <div class="memitem">
@@ -607,7 +600,7 @@ td_work</td>
 
 </div>
 </div>
-<a class="anchor" id="a1948aee6b84a82a54fabc7d83af6d278"></a>
+<a class="anchor" id="af3c1abe96f282511704be7454d6b32b9"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -620,14 +613,8 @@ td_work</td>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>i</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>blocksize</em>&#160;</td>
+          <td class="paramtype">struct <a class="el" href="interface_8h.html#structtdisk__add__parameters">tdisk_add_parameters</a> *&#160;</td>
+          <td class="paramname"><em>params</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -643,14 +630,8 @@ td_work</td>
 <p><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="tdisk_8h_a1948aee6b84a82a54fabc7d83af6d278_cgraph.png" border="0" usemap="#tdisk_8h_a1948aee6b84a82a54fabc7d83af6d278_cgraph" alt=""/></div>
-<map name="tdisk_8h_a1948aee6b84a82a54fabc7d83af6d278_cgraph" id="tdisk_8h_a1948aee6b84a82a54fabc7d83af6d278_cgraph">
-<area shape="rect" id="node2" href="tdisk_8c.html#ae660b62d97f779b17ec9cf9341f99aa2" title="This function is used to resize the sector indices. " alt="" coords="136,5,287,32"/>
-<area shape="rect" id="node5" href="tdisk__debug_8h.html#a9c90c413b7c60e2b2604351efadf7d7f" title="Initializes a debug struct. " alt="" coords="145,56,277,83"/>
-<area shape="rect" id="node3" href="helpers_8h.html#a30e8683972fa03c8b2d7293f277f7b67" title="This function simply returns the division result of the numbers and omits the mod. " alt="" coords="344,5,489,32"/>
-<area shape="rect" id="node4" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c" title="Copied from div64.c. " alt="" coords="547,5,640,32"/>
-<area shape="rect" id="node6" href="tdisk__debug_8h.html#a5826094d489fbe2ae739a8d271bdf62a" title="This function is called by the DEBUG_POINT macro. " alt="" coords="366,56,467,83"/>
-<area shape="rect" id="node7" href="tdisk__debug_8h.html#a6d486f45c45f8974a643d740ffee05ed" title="Retrieves the next debug info. " alt="" coords="335,107,499,133"/>
+<div class="center"><img src="tdisk_8h_af3c1abe96f282511704be7454d6b32b9_cgraph.png" border="0" usemap="#tdisk_8h_af3c1abe96f282511704be7454d6b32b9_cgraph" alt=""/></div>
+<map name="tdisk_8h_af3c1abe96f282511704be7454d6b32b9_cgraph" id="tdisk_8h_af3c1abe96f282511704be7454d6b32b9_cgraph">
 </map>
 </div>
 </p>
@@ -684,16 +665,6 @@ Here is the call graph for this function:</div>
 <p>Finds the tDisk with the given minornumber. </p>
 <p>Finds the tDisk with the given minornumber.</p>
 <p>If the given minor number is &lt; 0, the minor number of an unbound tDisk is returned or -ENODEV if there is no unbound tDisk </p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="tdisk_8h_a6bd8ab6cde7f6e1aca72164f5adefa12_cgraph.png" border="0" usemap="#tdisk_8h_a6bd8ab6cde7f6e1aca72164f5adefa12_cgraph" alt=""/></div>
-<map name="tdisk_8h_a6bd8ab6cde7f6e1aca72164f5adefa12_cgraph" id="tdisk_8h_a6bd8ab6cde7f6e1aca72164f5adefa12_cgraph">
-<area shape="rect" id="node2" href="tdisk_8c.html#a318b6ad0da3f9469036fa9d493cf556e" title="This function is used to find the next free minor number in the idr. " alt="" coords="155,5,317,47"/>
-</map>
-</div>
-</p>
 
 </div>
 </div>
@@ -737,7 +708,7 @@ Here is the call graph for this function:</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Aug 12 2016 11:16:36 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Nov 19 2016 13:47:53 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

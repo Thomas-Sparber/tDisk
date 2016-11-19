@@ -1,0 +1,48 @@
+digraph "tdisk_exit"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="tdisk_exit",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="tdisk_exit_callback",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk_8c.html#a3fa9045f35e110b774aefdeae02490cb",tooltip="This callback function is called for each tDisk at driver exit time to clean up all remaining devices..."];
+  Node2 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="tdisk_remove",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk_8c.html#acd5e2f82be480bdbf9f7495bc9263ca9",tooltip="This function is called to remove a tDisk. "];
+  Node3 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="td_stop_worker_thread",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk_8c.html#a28059be4f864c9f6afaaebb5143b29a6",tooltip="Stops the worker thread. "];
+  Node4 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="flush_kthread_worker\l_timeout",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$worker__timeout_8c.html#a667bdbacc0627bd22a46710e5eb66c0b",tooltip="Flushes the given worker thread. "];
+  Node5 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="kthread_flush_work\l_fn_timeout",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$worker__timeout_8c.html#a9cb5d7f5650cedfe0249a116d574ed76",tooltip="This function is called for the flush work. "];
+  Node5 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="enqueue_work",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$worker__timeout_8c.html#a28894745c062aff814a8438ca2342fc1",tooltip="This function is used to insert a work into the wor queue. "];
+  Node7 -> Node8 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="EXPORT_SYMBOL",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$worker__timeout_8c.html#a62b9c89dd0ee9cfa04c1b1eabd734db9"];
+  Node7 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 -> Node8 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 -> Node9 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="td_write_header",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk_8c.html#a3bf9aa5806e550a172fad50351f00d43",tooltip="Writes the td header to the given device and measures the disk performance if perf != NULL..."];
+  Node9 -> Node10 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="write_data",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1",tooltip="tDisk Driver "];
+  Node10 -> Node11 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="update_performance",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452",tooltip="This function updates the performance data of the given performacen data. "];
+  Node11 -> Node12 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node12 [label="__div64_32",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$helpers_8c.html#aff7dbb9c60a4d1c2a3648918d7d083e6"];
+  Node12 -> Node13 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node13 [label="EXPORT_SYMBOL",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$helpers_8c.html#a6b260ca72a53d15fc7e64d9b70d46d96"];
+  Node3 -> Node14 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node14 [label="td_write_all_indices",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk_8c.html#a3d3def15917c648547ea4e4ab3394317",tooltip="Writes all the sector indices to the device. "];
+  Node14 -> Node10 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 -> Node15 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node15 [label="unregister_tdisk_control",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__control_8c.html#aecd351f37cbaf1d7f2bdaa12caaadb50",tooltip="Unregisters the td-control device. "];
+  Node1 -> Node16 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node16 [label="module_init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk_8c.html#ab5e8d8a77992f966538e4a610d6ebbea"];
+  Node1 -> Node17 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node17 [label="tdisk_init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk_8c.html#a11577c3ce164dc2e8c8b34ee0948a0fd",tooltip="This funtction is the main entry point of the driver. "];
+  Node17 -> Node18 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node18 [label="register_tdisk_control",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__control_8c.html#a3390bb9a6c7b60e83d3b037d13837077",tooltip="tDisk Driver "];
+  Node17 -> Node15 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 -> Node19 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node19 [label="module_exit",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk_8c.html#adaa08dff1b8c2e0427a7aa49690051b5"];
+}

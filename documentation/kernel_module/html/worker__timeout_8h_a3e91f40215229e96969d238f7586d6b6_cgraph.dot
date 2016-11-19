@@ -1,0 +1,18 @@
+digraph "start_worker_timeout"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="start_worker_timeout",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="kthread_worker_fn_timeout",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$worker__timeout_8c.html#aeeaf145beeced418bedd6922339af97c",tooltip="This function is more or less copied from the linux kernel version except that it is able to wake up ..."];
+  Node2 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="kthread_flush_work\l_fn_timeout",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$worker__timeout_8c.html#a9cb5d7f5650cedfe0249a116d574ed76",tooltip="This function is called for the flush work. "];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="EXPORT_SYMBOL",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$worker__timeout_8c.html#a62b9c89dd0ee9cfa04c1b1eabd734db9"];
+  Node1 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="start_worker_timeout",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$worker__timeout_8c.html#a3e91f40215229e96969d238f7586d6b6",tooltip="This function is used to initialize the timeout worker. "];
+  Node5 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+}

@@ -1,0 +1,13 @@
+digraph "td_set_max_sectors"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="td_set_max_sectors",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="__div64_32_nomod",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$helpers_8h.html#a30e8683972fa03c8b2d7293f277f7b67",tooltip="This function simply returns the division result of the numbers and omits the mod. "];
+  Node2 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="__div64_32",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$helpers_8c.html#aff7dbb9c60a4d1c2a3648918d7d083e6"];
+  Node3 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="EXPORT_SYMBOL",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$helpers_8c.html#a6b260ca72a53d15fc7e64d9b70d46d96"];
+}

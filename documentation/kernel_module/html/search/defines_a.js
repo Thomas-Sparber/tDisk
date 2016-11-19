@@ -12,5 +12,8 @@ var searchData=
   ['tdisk_5fget_5fsector_5findex',['TDISK_GET_SECTOR_INDEX',['../interface_8h.html#a44d284d3c3fbf4a97cdf9e0c6d66c0dd',1,'interface.h']]],
   ['tdisk_5fget_5fstatus',['TDISK_GET_STATUS',['../interface_8h.html#ab26fe62fc9e2bbe68f16c50a10f1131b',1,'interface.h']]],
   ['tdisk_5fmax_5finternal_5fdevice_5fname',['TDISK_MAX_INTERNAL_DEVICE_NAME',['../interface_8h.html#a3bf56f06d133566dc575e5baa7a7d60a',1,'interface.h']]],
-  ['tdisk_5fmax_5fphysical_5fdisks',['TDISK_MAX_PHYSICAL_DISKS',['../interface_8h.html#ab0f1bc4ce9d797da17245d667a0262b8',1,'interface.h']]]
+  ['tdisk_5fmax_5fphysical_5fdisks',['TDISK_MAX_PHYSICAL_DISKS',['../interface_8h.html#ab0f1bc4ce9d797da17245d667a0262b8',1,'interface.h']]],
+  ['tdisk_5fremove_5fdisk',['TDISK_REMOVE_DISK',['../interface_8h.html#aee4f68816b6ee84c6e8984cfb09139c8',1,'interface.h']]],
+  ['to_5fstring',['TO_STRING',['../interface_8h.html#a7f4e7e79546c14f44ccd0e1a1ab7fccd',1,'interface.h']]],
+  ['to_5fxstring',['TO_XSTRING',['../interface_8h.html#a89145675af2ee8974534736fb998bbb8',1,'interface.h']]]
 ];

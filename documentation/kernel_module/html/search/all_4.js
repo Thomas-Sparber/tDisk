@@ -1,7 +1,6 @@
 var searchData=
 [
   ['debug',['debug',['../tdisk_8h.html#a7acd834e4bd8f72814137ffa1b0f658c',1,'tdisk']]],
-  ['debug_5finfo',['debug_info',['../tdisk__debug_8h.html#structdebug__info',1,'']]],
   ['debug_5fpoint',['debug_point',['../tdisk__debug_8c.html#a5826094d489fbe2ae739a8d271bdf62a',1,'debug_point(struct debug_struct *ds, const char *file, int line, const char *function, const char *message,...):&#160;tdisk_debug.c'],['../tdisk__debug_8h.html#a5826094d489fbe2ae739a8d271bdf62a',1,'debug_point(struct debug_struct *ds, const char *file, int line, const char *function, const char *message,...):&#160;tdisk_debug.c'],['../tdisk__debug_8h.html#a8e2892ab76beba7f47c6919e09627ab2',1,'DEBUG_POINT():&#160;tdisk_debug.h']]],
   ['debug_5fpoints_5fenabled',['DEBUG_POINTS_ENABLED',['../tdisk__debug_8h.html#a55d765a2c4e0e508e4a730b2520aebdf',1,'tdisk_debug.h']]],
   ['debug_5fstruct',['debug_struct',['../tdisk__debug_8h.html#structdebug__struct',1,'']]],
@@ -20,5 +19,6 @@ var searchData=
   ['done',['done',['../worker__timeout_8c.html#abd654a7e2d21a19e059ca775444e526c',1,'kthread_flush_work']]],
   ['driver_5fmajor_5fversion',['DRIVER_MAJOR_VERSION',['../interface_8h.html#ad8b564add4ed906d28e266f9486fd43b',1,'interface.h']]],
   ['driver_5fminor_5fversion',['DRIVER_MINOR_VERSION',['../interface_8h.html#ae2e8c786ddce3df9c7e15062ecc34210',1,'interface.h']]],
-  ['driver_5fname',['DRIVER_NAME',['../interface_8h.html#a25634d21648ca7fb7a2aca614bafaaeb',1,'interface.h']]]
+  ['driver_5fname',['DRIVER_NAME',['../interface_8h.html#a25634d21648ca7fb7a2aca614bafaaeb',1,'interface.h']]],
+  ['driver_5fversion_5fstring',['DRIVER_VERSION_STRING',['../interface_8h.html#a60125b6ec86d4b4249bae65db23ee758',1,'interface.h']]]
 ];

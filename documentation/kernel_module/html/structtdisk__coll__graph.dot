@@ -1,0 +1,22 @@
+digraph "tdisk"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="tdisk",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node2 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" sorted_devices" ,fontname="Helvetica"];
+  Node2 [label="sorted_internal_device",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk_8h.html#structsorted__internal__device",tooltip="This struct represents an internal device but sorted accorting to its performance. "];
+  Node3 -> Node2 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" dev" ,fontname="Helvetica"];
+  Node3 [label="td_internal_device",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk_8h.html#structtd__internal__device",tooltip="A td_internal_device represents an underlying physical device of a tDisk. "];
+  Node4 -> Node3 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" performance" ,fontname="Helvetica"];
+  Node4 [label="device_performance",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$interface_8h.html#structdevice__performance",tooltip="This struct represents performance indicators of a physical disk. "];
+  Node5 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" sorted_sectors" ,fontname="Helvetica"];
+  Node5 [label="sorted_sector_index",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk_8h.html#structsorted__sector__index",tooltip="A sorted_sector_index represents a physical sector sorted according to the access_count. "];
+  Node6 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" debug" ,fontname="Helvetica"];
+  Node6 [label="debug_struct",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__debug_8h.html#structdebug__struct",tooltip="This struct holds the data for saving debug info. "];
+  Node7 -> Node6 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" info" ,fontname="Helvetica"];
+  Node7 [label="td_debug_info",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__debug_8h.html#structtd__debug__info",tooltip="This struct is used to store information about the current operations of a program. "];
+  Node8 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" worker_timeout" ,fontname="Helvetica"];
+  Node8 [label="worker_timeout_data",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structworker__timeout__data.html",tooltip="This data needs to be handed over by kthread_run to start the timeout worker thread. "];
+  Node3 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" internal_devices" ,fontname="Helvetica"];
+}

@@ -1,0 +1,35 @@
+digraph "td_do_disk_operation"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="td_do_disk_operation",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="td_flush_devices",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk_8c.html#ab2ac2de6430027382248318b34364d2b",tooltip="Flushes the underlying devices of the tDisk. "];
+  Node2 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="flush_device",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__device__operations_8h.html#a0637c1cf3cedbdcd2dfeb4c93907cf14",tooltip="Generic function that flushes a device. "];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="__div64_32",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$helpers_8c.html#aff7dbb9c60a4d1c2a3648918d7d083e6"];
+  Node4 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="EXPORT_SYMBOL",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$helpers_8c.html#a6b260ca72a53d15fc7e64d9b70d46d96"];
+  Node1 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="td_perform_index_operation",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk_8c.html#a1050db79753eb77efec01765efd1e66f",tooltip="Performs the given index operation. "];
+  Node6 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="td_write_index_to_disk",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk_8c.html#a97861b5c4ef4f2807d29ef1f1c74fe64",tooltip="Writes the given sector index to the given internal device. "];
+  Node7 -> Node8 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="write_data",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__device__operations_8h.html#a7416ee55b81815dc405f452977f280f1",tooltip="tDisk Driver "];
+  Node8 -> Node9 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="update_performance",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__performance_8h.html#ae00201ef33f2b28f394b7e60f29f1452",tooltip="This function updates the performance data of the given performacen data. "];
+  Node9 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 -> Node10 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="device_is_ready",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__device__operations_8h.html#a6634c65571b6a9594cb1dad4fd62d95e",tooltip="Generic function that checks if a device is ready or not. "];
+  Node1 -> Node11 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="device_alloc",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__device__operations_8h.html#afd71ce89b7266b5ec95db67cca456e70",tooltip="Generic function that allocs space on a device. "];
+  Node1 -> Node12 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node12 [label="write_bio_vec",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__device__operations_8h.html#a29930d5031aca4da37a5d1bf41a7e55f",tooltip="Generic function that writes a bio_vec to a device. "];
+  Node12 -> Node9 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 -> Node13 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node13 [label="read_bio_vec",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$tdisk__device__operations_8h.html#a1efd2d4f27fce5d5f531ca6740da6421",tooltip="Generic function that reads a bio_vec from a device. "];
+  Node13 -> Node9 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+}

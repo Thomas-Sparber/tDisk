@@ -91,6 +91,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;<a class="el" href="config_8h_source.html">tdisk/config.h</a>&gt;</code><br />
+<code>#include &quot;<a class="el" href="helpers_8h_source.html">helpers.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="tdisk__file_8h_source.html">tdisk_file.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="tdisk__plugin_8h_source.html">tdisk_plugin.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -130,18 +131,6 @@ Functions</h2></td></tr>
 <tr class="memitem:a1efd2d4f27fce5d5f531ca6740da6421"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__device__operations_8h.html#a1efd2d4f27fce5d5f531ca6740da6421">read_bio_vec</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, struct bio_vec *bvec, loff_t *position)</td></tr>
 <tr class="memdesc:a1efd2d4f27fce5d5f531ca6740da6421"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that reads a bio_vec from a device.  <a href="#a1efd2d4f27fce5d5f531ca6740da6421">More...</a><br /></td></tr>
 <tr class="separator:a1efd2d4f27fce5d5f531ca6740da6421"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad0f4e8c574f4a5e59ee4dba8f7d561dc"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__device__operations_8h.html#ad0f4e8c574f4a5e59ee4dba8f7d561dc">write_data_async</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, void *data, loff_t position, unsigned int length, void *private_data, void(*callback)(void *, long))</td></tr>
-<tr class="memdesc:ad0f4e8c574f4a5e59ee4dba8f7d561dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that writes data to a device.  <a href="#ad0f4e8c574f4a5e59ee4dba8f7d561dc">More...</a><br /></td></tr>
-<tr class="separator:ad0f4e8c574f4a5e59ee4dba8f7d561dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a41b66505044191954e2506b5a89aea5c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__device__operations_8h.html#a41b66505044191954e2506b5a89aea5c">read_data_async</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, void *data, loff_t position, unsigned int length, void *private_data, void(*callback)(void *, long))</td></tr>
-<tr class="memdesc:a41b66505044191954e2506b5a89aea5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that reads data from a device.  <a href="#a41b66505044191954e2506b5a89aea5c">More...</a><br /></td></tr>
-<tr class="separator:a41b66505044191954e2506b5a89aea5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a127ecafc977eb70f6aee698eac1d4332"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__device__operations_8h.html#a127ecafc977eb70f6aee698eac1d4332">write_bio_vec_async</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, struct bio_vec *bvec, loff_t position, void *private_data, void(*callback)(void *, long))</td></tr>
-<tr class="memdesc:a127ecafc977eb70f6aee698eac1d4332"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that writes a bio_vec to a device.  <a href="#a127ecafc977eb70f6aee698eac1d4332">More...</a><br /></td></tr>
-<tr class="separator:a127ecafc977eb70f6aee698eac1d4332"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac380edd0d3a35291b5d428e215e5ee09"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__device__operations_8h.html#ac380edd0d3a35291b5d428e215e5ee09">read_bio_vec_async</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device, struct bio_vec *bvec, loff_t position, void *private_data, void(*callback)(void *, long))</td></tr>
-<tr class="memdesc:ac380edd0d3a35291b5d428e215e5ee09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that reads a bio_vec from a device.  <a href="#ac380edd0d3a35291b5d428e215e5ee09">More...</a><br /></td></tr>
-<tr class="separator:ac380edd0d3a35291b5d428e215e5ee09"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0637c1cf3cedbdcd2dfeb4c93907cf14"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__device__operations_8h.html#a0637c1cf3cedbdcd2dfeb4c93907cf14">flush_device</a> (struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *device)</td></tr>
 <tr class="memdesc:a0637c1cf3cedbdcd2dfeb4c93907cf14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic function that flushes a device.  <a href="#a0637c1cf3cedbdcd2dfeb4c93907cf14">More...</a><br /></td></tr>
 <tr class="separator:a0637c1cf3cedbdcd2dfeb4c93907cf14"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -304,61 +293,6 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a class="anchor" id="ac380edd0d3a35291b5d428e215e5ee09"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void read_bio_vec_async </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">struct bio_vec *&#160;</td>
-          <td class="paramname"><em>bvec</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">loff_t&#160;</td>
-          <td class="paramname"><em>position</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>private_data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void(*)(void *, long)&#160;</td>
-          <td class="paramname"><em>callback</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Generic function that reads a bio_vec from a device. </p>
-<p>The device can be a file or a plugin. </p>
-
-</div>
-</div>
 <a class="anchor" id="aef5a276b75fc3125ea4ba57e59031cf0"></a>
 <div class="memitem">
 <div class="memproto">
@@ -419,67 +353,6 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a class="anchor" id="a41b66505044191954e2506b5a89aea5c"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void read_data_async </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">loff_t&#160;</td>
-          <td class="paramname"><em>position</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>length</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>private_data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void(*)(void *, long)&#160;</td>
-          <td class="paramname"><em>callback</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Generic function that reads data from a device. </p>
-<p>The device can be a file or a plugin. </p>
-
-</div>
-</div>
 <a class="anchor" id="a29930d5031aca4da37a5d1bf41a7e55f"></a>
 <div class="memitem">
 <div class="memproto">
@@ -531,61 +404,6 @@ Here is the call graph for this function:</div>
 </map>
 </div>
 </p>
-
-</div>
-</div>
-<a class="anchor" id="a127ecafc977eb70f6aee698eac1d4332"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void write_bio_vec_async </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">struct bio_vec *&#160;</td>
-          <td class="paramname"><em>bvec</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">loff_t&#160;</td>
-          <td class="paramname"><em>position</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>private_data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void(*)(void *, long)&#160;</td>
-          <td class="paramname"><em>callback</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Generic function that writes a bio_vec to a device. </p>
-<p>The device can be a file or a plugin. </p>
 
 </div>
 </div>
@@ -649,71 +467,10 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a class="anchor" id="ad0f4e8c574f4a5e59ee4dba8f7d561dc"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void write_data_async </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structtd__internal__device">td_internal_device</a> *&#160;</td>
-          <td class="paramname"><em>device</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">loff_t&#160;</td>
-          <td class="paramname"><em>position</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>length</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>private_data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void(*)(void *, long)&#160;</td>
-          <td class="paramname"><em>callback</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Generic function that writes data to a device. </p>
-<p>The device can be a file or a plugin. </p>
-
-</div>
-</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Aug 12 2016 11:16:36 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Nov 19 2016 13:47:53 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

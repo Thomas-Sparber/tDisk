@@ -149,6 +149,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a9bd889c223f3d2ef52ee436c69f9247d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html#a9bd889c223f3d2ef52ee436c69f9247d">addDisk</a> (const std::string &amp;path, bool format)</td></tr>
 <tr class="memdesc:a9bd889c223f3d2ef52ee436c69f9247d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds the given internal disk to the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#a9bd889c223f3d2ef52ee436c69f9247d">More...</a><br /></td></tr>
 <tr class="separator:a9bd889c223f3d2ef52ee436c69f9247d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09ee7b4338017d087b21725cccfd688d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html#a09ee7b4338017d087b21725cccfd688d">removeDisk</a> (unsigned int disk)</td></tr>
+<tr class="memdesc:a09ee7b4338017d087b21725cccfd688d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the given internal disk from the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#a09ee7b4338017d087b21725cccfd688d">More...</a><br /></td></tr>
+<tr class="separator:a09ee7b4338017d087b21725cccfd688d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4df0ef0eaa751ef8b379c2dc80fd7774"><td class="memItemLeft" align="right" valign="top">unsigned long long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html#a4df0ef0eaa751ef8b379c2dc80fd7774">getMaxSectors</a> () const </td></tr>
 <tr class="memdesc:a4df0ef0eaa751ef8b379c2dc80fd7774"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the current amount of max sectors.  <a href="#a4df0ef0eaa751ef8b379c2dc80fd7774">More...</a><br /></td></tr>
 <tr class="separator:a4df0ef0eaa751ef8b379c2dc80fd7774"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -173,6 +176,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a0ae90078deea2d47bffe7a8cb1c3bf12"><td class="memItemLeft" align="right" valign="top"><a class="el" href="tdisk_8h.html#structf__internal__device__info">f_internal_device_info</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html#a0ae90078deea2d47bffe7a8cb1c3bf12">getDeviceInfo</a> (unsigned int device) const </td></tr>
 <tr class="memdesc:a0ae90078deea2d47bffe7a8cb1c3bf12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns information about the internal device with the given device id.  <a href="#a0ae90078deea2d47bffe7a8cb1c3bf12">More...</a><br /></td></tr>
 <tr class="separator:a0ae90078deea2d47bffe7a8cb1c3bf12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a74c7f259bd7b5ce1fc809af008fc8a7a"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="tdisk_8h.html#structf__internal__device__info">f_internal_device_info</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html#a74c7f259bd7b5ce1fc809af008fc8a7a">getAllDeviceInfo</a> () const </td></tr>
+<tr class="memdesc:a74c7f259bd7b5ce1fc809af008fc8a7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the device info about all internal devices.  <a href="#a74c7f259bd7b5ce1fc809af008fc8a7a">More...</a><br /></td></tr>
+<tr class="separator:a74c7f259bd7b5ce1fc809af008fc8a7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62405c35d74056556adb0155a105a1db"><td class="memItemLeft" align="right" valign="top">std::vector&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html#a62405c35d74056556adb0155a105a1db">getInternalDeviceUsage</a> () const </td></tr>
+<tr class="memdesc:a62405c35d74056556adb0155a105a1db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the disk usage in percent of the internal devices.  <a href="#a62405c35d74056556adb0155a105a1db">More...</a><br /></td></tr>
+<tr class="separator:a62405c35d74056556adb0155a105a1db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a54514ce9bdce631a132f53c164f28a37"><td class="memItemLeft" align="right" valign="top"><a class="el" href="tdisk_8h.html#structf__tdisk__debug__info">f_tdisk_debug_info</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html#a54514ce9bdce631a132f53c164f28a37">getDebugInfo</a> (uint64_t currentId=0) const </td></tr>
 <tr class="memdesc:a54514ce9bdce631a132f53c164f28a37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the (next) debug info for the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>.  <a href="#a54514ce9bdce631a132f53c164f28a37">More...</a><br /></td></tr>
 <tr class="separator:a54514ce9bdce631a132f53c164f28a37"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -197,12 +206,12 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a358bdfdd5ea32936735488c0bc6ed438"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtd_1_1tDisk.html">tDisk</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html#a358bdfdd5ea32936735488c0bc6ed438">get</a> (const std::string &amp;str)</td></tr>
 <tr class="memdesc:a358bdfdd5ea32936735488c0bc6ed438"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> for the gven name or minronumber.  <a href="#a358bdfdd5ea32936735488c0bc6ed438">More...</a><br /></td></tr>
 <tr class="separator:a358bdfdd5ea32936735488c0bc6ed438"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95b8414dce6c821039c1f95ff86a7cab"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtd_1_1tDisk.html">tDisk</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html#a95b8414dce6c821039c1f95ff86a7cab">create</a> (int i_minornumber, unsigned int blocksize)</td></tr>
-<tr class="memdesc:a95b8414dce6c821039c1f95ff86a7cab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a new tDIsk with the given minornumber and blocksize.  <a href="#a95b8414dce6c821039c1f95ff86a7cab">More...</a><br /></td></tr>
-<tr class="separator:a95b8414dce6c821039c1f95ff86a7cab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a141c3d576f707d3c0c1f996ec9cf653f"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtd_1_1tDisk.html">tDisk</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html#a141c3d576f707d3c0c1f996ec9cf653f">create</a> (unsigned int blocksize)</td></tr>
-<tr class="memdesc:a141c3d576f707d3c0c1f996ec9cf653f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a new <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> with the given blocksize.  <a href="#a141c3d576f707d3c0c1f996ec9cf653f">More...</a><br /></td></tr>
-<tr class="separator:a141c3d576f707d3c0c1f996ec9cf653f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af255e453dc145917bed6871441b7935a"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtd_1_1tDisk.html">tDisk</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html#af255e453dc145917bed6871441b7935a">create</a> (int <a class="el" href="classtd_1_1tDisk.html#ac18788504f3bba14ad7a85ae06470e51">minornumber</a>, unsigned int blocksize, unsigned int percentCache)</td></tr>
+<tr class="memdesc:af255e453dc145917bed6871441b7935a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a new tDIsk with the given minornumber and blocksize.  <a href="#af255e453dc145917bed6871441b7935a">More...</a><br /></td></tr>
+<tr class="separator:af255e453dc145917bed6871441b7935a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b0108150792be1ca26b3d425f12810f"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtd_1_1tDisk.html">tDisk</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html#a9b0108150792be1ca26b3d425f12810f">create</a> (unsigned int blocksize, unsigned int percentCache)</td></tr>
+<tr class="memdesc:a9b0108150792be1ca26b3d425f12810f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a new <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> with the given blocksize.  <a href="#a9b0108150792be1ca26b3d425f12810f">More...</a><br /></td></tr>
+<tr class="separator:a9b0108150792be1ca26b3d425f12810f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a532c71736a38f25e5ea1147c9ed7abd9"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtd_1_1tDisk.html#a532c71736a38f25e5ea1147c9ed7abd9">remove</a> (int i_minornumber)</td></tr>
 <tr class="memdesc:a532c71736a38f25e5ea1147c9ed7abd9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> with the given minornumber from the system.  <a href="#a532c71736a38f25e5ea1147c9ed7abd9">More...</a><br /></td></tr>
 <tr class="separator:a532c71736a38f25e5ea1147c9ed7abd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -420,7 +429,7 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a95b8414dce6c821039c1f95ff86a7cab"></a>
+<a class="anchor" id="af255e453dc145917bed6871441b7935a"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -431,13 +440,19 @@ Friends</h2></td></tr>
           <td class="memname"><a class="el" href="classtd_1_1tDisk.html">tDisk</a> tDisk::create </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>i_minornumber</em>, </td>
+          <td class="paramname"><em>minornumber</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>blocksize</em>&#160;</td>
+          <td class="paramname"><em>blocksize</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>percentCache</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -464,7 +479,7 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a141c3d576f707d3c0c1f996ec9cf653f"></a>
+<a class="anchor" id="a9b0108150792be1ca26b3d425f12810f"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -475,8 +490,18 @@ Friends</h2></td></tr>
           <td class="memname"><a class="el" href="classtd_1_1tDisk.html">tDisk</a> tDisk::create </td>
           <td>(</td>
           <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>blocksize</em></td><td>)</td>
+          <td class="paramname"><em>blocksize</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>percentCache</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -527,6 +552,31 @@ Friends</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The matching <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a74c7f259bd7b5ce1fc809af008fc8a7a"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="tdisk_8h.html#structf__internal__device__info">f_internal_device_info</a>&gt; td::tDisk::getAllDeviceInfo </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the device info about all internal devices. </p>
 
 </div>
 </div>
@@ -648,6 +698,23 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Returns the amount of current internal devices. </p>
+
+</div>
+</div>
+<a class="anchor" id="a62405c35d74056556adb0155a105a1db"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">vector&lt; double &gt; tDisk::getInternalDeviceUsage </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the disk usage in percent of the internal devices. </p>
 
 </div>
 </div>
@@ -1113,6 +1180,24 @@ Friends</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a09ee7b4338017d087b21725cccfd688d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void tDisk::removeDisk </td>
+          <td>(</td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>disk</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Removes the given internal disk from the <a class="el" href="classtd_1_1tDisk.html" title="Represents the C++ interface to manage tDisks. ">tDisk</a>. </p>
+
+</div>
+</div>
 <a class="anchor" id="aae36a648dcb61a98ac5cca5b1fba7b1b"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1284,7 +1369,7 @@ Friends</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Aug 12 2016 11:17:36 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Nov 19 2016 13:47:54 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

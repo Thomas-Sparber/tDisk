@@ -58,5 +58,5 @@ var searchData=
   ['stopallplugins',['stopAllPlugins',['../classtd_1_1Plugin.html#ac5a201a421be4d5c00becf812336076b',1,'td::Plugin']]],
   ['str_5fresult',['str_result',['../classtd_1_1BackendResult.html#a80b663bd561edd680ff1fa3f27e4e085',1,'td::BackendResult']]],
   ['subdevices',['subdevices',['../structtd_1_1fs_1_1Device.html#a77bdcb3f1628acff32750c8d4975fca9',1,'td::fs::Device']]],
-  ['success',['Success',['../namespacetd.html#ad4f9fce860c758179b4ac9795bc61785a505a83f220c02df2f85c3810cd9ceb38',1,'td::Success()'],['../namespacetd_1_1shell.html#a419de455ca1e2a77c74bef691cbeec6a',1,'td::shell::success()']]]
+  ['success',['success',['../namespacetd_1_1shell.html#a419de455ca1e2a77c74bef691cbeec6a',1,'td::shell::success()'],['../namespacetd.html#ad4f9fce860c758179b4ac9795bc61785a505a83f220c02df2f85c3810cd9ceb38',1,'td::Success()']]]
 ];

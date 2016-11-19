@@ -96,8 +96,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:ac071a0da82c6f27ba74a5c92c1ea3f34"><td class="memItemLeft" align="right" valign="top">struct kthread_worker&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structworker__timeout__data.html#ac071a0da82c6f27ba74a5c92c1ea3f34">worker</a></td></tr>
-<tr class="separator:ac071a0da82c6f27ba74a5c92c1ea3f34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb2a71bed70a93d7d99fd1799c4dd304"><td class="memItemLeft" align="right" valign="top">spinlock_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structworker__timeout__data.html#afb2a71bed70a93d7d99fd1799c4dd304">lock</a></td></tr>
+<tr class="separator:afb2a71bed70a93d7d99fd1799c4dd304"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ae2b4e4bc2eebcd1c1065b971cfa882"><td class="memItemLeft" align="right" valign="top">struct list_head&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structworker__timeout__data.html#a6ae2b4e4bc2eebcd1c1065b971cfa882">work</a></td></tr>
+<tr class="separator:a6ae2b4e4bc2eebcd1c1065b971cfa882"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fc3337816b0c7fd262a8f4de991d6ad"><td class="memItemLeft" align="right" valign="top">struct task_struct *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structworker__timeout__data.html#a2fc3337816b0c7fd262a8f4de991d6ad">thread</a></td></tr>
+<tr class="separator:a2fc3337816b0c7fd262a8f4de991d6ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a70433e8dd140c0f8c60afb21ef1d9576"><td class="memItemLeft" align="right" valign="top">long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structworker__timeout__data.html#a70433e8dd140c0f8c60afb21ef1d9576">timeout</a></td></tr>
 <tr class="separator:a70433e8dd140c0f8c60afb21ef1d9576"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a363a1a40a664023b2b1dabc83b39530a"><td class="memItemLeft" align="right" valign="top">long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structworker__timeout__data.html#a363a1a40a664023b2b1dabc83b39530a">secondary_work_delay</a></td></tr>
@@ -111,6 +115,18 @@ Public Attributes</h2></td></tr>
 <div class="textblock"><p>This data needs to be handed over by kthread_run to start the timeout worker thread. </p>
 <p>e.g. kthread_run(kthread_worker_fn_timeout, <a class="el" href="structworker__timeout__data.html" title="This data needs to be handed over by kthread_run to start the timeout worker thread. ">worker_timeout_data</a>... timeout is the default timeout which needs to be exceeded in order to start secondary work. secondary_work_delay is the time which is waited between each secondary work. This is e.g. useful if the secondary work is heavy work and the CPU shouldn't be used too much. private_data is the private data which should be handed over to the worker function, worker_func is the worker function which should be started for every work to be done. If kthread_work is null, then it is secondary work, if kthread_work is not null it is primary work. </p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
+<a class="anchor" id="afb2a71bed70a93d7d99fd1799c4dd304"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">spinlock_t worker_timeout_data::lock</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="abedaadcd34bc4e74e976cde731f1a9da"></a>
 <div class="memitem">
 <div class="memproto">
@@ -135,12 +151,36 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a2fc3337816b0c7fd262a8f4de991d6ad"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct task_struct* worker_timeout_data::thread</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a70433e8dd140c0f8c60afb21ef1d9576"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">long worker_timeout_data::timeout</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6ae2b4e4bc2eebcd1c1065b971cfa882"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct list_head worker_timeout_data::work</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -159,25 +199,13 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ac071a0da82c6f27ba74a5c92c1ea3f34"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">struct kthread_worker worker_timeout_data::worker</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="worker__timeout_8h_source.html">worker_timeout.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Aug 12 2016 11:16:36 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Nov 19 2016 13:47:53 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

@@ -159,6 +159,12 @@ Macros</h2></td></tr>
 <tr class="separator:ad8b564add4ed906d28e266f9486fd43b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae2e8c786ddce3df9c7e15062ecc34210"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#ae2e8c786ddce3df9c7e15062ecc34210">DRIVER_MINOR_VERSION</a>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:ae2e8c786ddce3df9c7e15062ecc34210"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89145675af2ee8974534736fb998bbb8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a89145675af2ee8974534736fb998bbb8">TO_XSTRING</a>(s)&#160;&#160;&#160;<a class="el" href="interface_8h.html#a7f4e7e79546c14f44ccd0e1a1ab7fccd">TO_STRING</a>(s)</td></tr>
+<tr class="separator:a89145675af2ee8974534736fb998bbb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f4e7e79546c14f44ccd0e1a1ab7fccd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a7f4e7e79546c14f44ccd0e1a1ab7fccd">TO_STRING</a>(s)&#160;&#160;&#160;#s</td></tr>
+<tr class="separator:a7f4e7e79546c14f44ccd0e1a1ab7fccd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60125b6ec86d4b4249bae65db23ee758"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a60125b6ec86d4b4249bae65db23ee758">DRIVER_VERSION_STRING</a>&#160;&#160;&#160;<a class="el" href="interface_8h.html#a25634d21648ca7fb7a2aca614bafaaeb">DRIVER_NAME</a> &quot; &quot; <a class="el" href="interface_8h.html#a89145675af2ee8974534736fb998bbb8">TO_XSTRING</a>(<a class="el" href="interface_8h.html#ad8b564add4ed906d28e266f9486fd43b">DRIVER_MAJOR_VERSION</a>) &quot;.&quot; <a class="el" href="interface_8h.html#a89145675af2ee8974534736fb998bbb8">TO_XSTRING</a>(<a class="el" href="interface_8h.html#ae2e8c786ddce3df9c7e15062ecc34210">DRIVER_MINOR_VERSION</a>)</td></tr>
+<tr class="separator:a60125b6ec86d4b4249bae65db23ee758"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e73efcdf86ccce6dfd20dd25eb008ac"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a4e73efcdf86ccce6dfd20dd25eb008ac">MEASURE_RECORDS_SHIFT</a>&#160;&#160;&#160;12</td></tr>
 <tr class="memdesc:a4e73efcdf86ccce6dfd20dd25eb008ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Amount of past operations which are averaged over the time to measure the performance of a device this value must be seen as a bit shift value.  <a href="#a4e73efcdf86ccce6dfd20dd25eb008ac">More...</a><br /></td></tr>
 <tr class="separator:a4e73efcdf86ccce6dfd20dd25eb008ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -182,6 +188,8 @@ Macros</h2></td></tr>
 <tr class="separator:a06fa9158db0e6fc24b9aa4c43e235768"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a458a64bb5b1106b8f965834c0aa9cd05"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a458a64bb5b1106b8f965834c0aa9cd05">TDISK_GET_DEBUG_INFO</a>&#160;&#160;&#160;0x4C06</td></tr>
 <tr class="separator:a458a64bb5b1106b8f965834c0aa9cd05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee4f68816b6ee84c6e8984cfb09139c8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#aee4f68816b6ee84c6e8984cfb09139c8">TDISK_REMOVE_DISK</a>&#160;&#160;&#160;0x4C07</td></tr>
+<tr class="separator:aee4f68816b6ee84c6e8984cfb09139c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a86b668864d608406b0d274d8dd44c754"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a86b668864d608406b0d274d8dd44c754">TDISK_CTL_ADD</a>&#160;&#160;&#160;0x4C80</td></tr>
 <tr class="separator:a86b668864d608406b0d274d8dd44c754"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a118ec3e9c71a7aa4ac6485429b6218f0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interface_8h.html#a118ec3e9c71a7aa4ac6485429b6218f0">TDISK_CTL_REMOVE</a>&#160;&#160;&#160;0x4C81</td></tr>
@@ -266,6 +274,12 @@ blocksize</td>
 <a class="anchor" id="ae882c39362281e8537ecb20440a1f166"></a>int</td>
 <td class="fieldname">
 minornumber</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a452185b40abee6c569460bced0e92eca"></a>unsigned int</td>
+<td class="fieldname">
+percent_cache</td>
 <td class="fielddoc">
 </td></tr>
 </table>
@@ -403,6 +417,18 @@ Collaboration diagram for internal_device_info:</div>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="aa23f6daef3ea9c1c4568b242d8bc3754"></a>__u64</td>
+<td class="fieldname">
+bytes_read</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
+<a class="anchor" id="a5656ce4ec195a8a87dde6ea774f24e2a"></a>__u64</td>
+<td class="fieldname">
+bytes_written</td>
+<td class="fielddoc">
+</td></tr>
 <tr><td class="fieldtype">
 <a class="anchor" id="ae95850c862a17b682ba82045f518e7ba"></a><a class="el" href="interface_8h.html#affd8cffebb9bfeaab075a6d080bbc085">tdisk_index</a></td>
 <td class="fieldname">
@@ -544,6 +570,12 @@ blocksize</td>
 <td class="fielddoc">
 </td></tr>
 <tr><td class="fieldtype">
+<a class="anchor" id="a506358e94c17b1a7c2f4c04868bbf92c"></a>__u64</td>
+<td class="fieldname">
+bytes_optimized</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
 <a class="anchor" id="af6b9704c24d6475c514a0adb59e4bf7f"></a>__u32</td>
 <td class="fieldname">
 flags</td>
@@ -672,6 +704,18 @@ The time of the debugging info in jiffies. </td></tr>
 
 <p>tDisk Driver </p>
 <dl class="section author"><dt>Author</dt><dd>Thomas Sparber (2015) </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a60125b6ec86d4b4249bae65db23ee758"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define DRIVER_VERSION_STRING&#160;&#160;&#160;<a class="el" href="interface_8h.html#a25634d21648ca7fb7a2aca614bafaaeb">DRIVER_NAME</a> &quot; &quot; <a class="el" href="interface_8h.html#a89145675af2ee8974534736fb998bbb8">TO_XSTRING</a>(<a class="el" href="interface_8h.html#ad8b564add4ed906d28e266f9486fd43b">DRIVER_MAJOR_VERSION</a>) &quot;.&quot; <a class="el" href="interface_8h.html#a89145675af2ee8974534736fb998bbb8">TO_XSTRING</a>(<a class="el" href="interface_8h.html#ae2e8c786ddce3df9c7e15062ecc34210">DRIVER_MINOR_VERSION</a>)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -906,6 +950,50 @@ The time of the debugging info in jiffies. </td></tr>
 
 </div>
 </div>
+<a class="anchor" id="aee4f68816b6ee84c6e8984cfb09139c8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TDISK_REMOVE_DISK&#160;&#160;&#160;0x4C07</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a7f4e7e79546c14f44ccd0e1a1ab7fccd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TO_STRING</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">s</td><td>)</td>
+          <td>&#160;&#160;&#160;#s</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a89145675af2ee8974534736fb998bbb8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TO_XSTRING</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">s</td><td>)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="interface_8h.html#a7f4e7e79546c14f44ccd0e1a1ab7fccd">TO_STRING</a>(s)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <h2 class="groupheader">Typedef Documentation</h2>
 <a class="anchor" id="affd8cffebb9bfeaab075a6d080bbc085"></a>
 <div class="memitem">
@@ -1022,7 +1110,7 @@ The time of the debugging info in jiffies. </td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Aug 12 2016 11:16:35 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Nov 19 2016 13:47:53 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

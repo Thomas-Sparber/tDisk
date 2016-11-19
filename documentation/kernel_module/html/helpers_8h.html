@@ -91,7 +91,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">helpers.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;linux/list.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;linux/aio.h&gt;</code><br />
+<code>#include &lt;linux/bio.h&gt;</code><br />
+<code>#include &lt;linux/blk-mq.h&gt;</code><br />
+<code>#include &lt;linux/blkdev.h&gt;</code><br />
+<code>#include &lt;linux/fs.h&gt;</code><br />
+<code>#include &lt;linux/file.h&gt;</code><br />
+<code>#include &lt;linux/list.h&gt;</code><br />
+<code>#include &lt;linux/uio.h&gt;</code><br />
+<code>#include &lt;linux/version.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for helpers.h:</div>
 <div class="dyncontent">
@@ -152,9 +160,6 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a3f039576767725a84a29ae0459a74b0c"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="helpers_8h.html#a3f039576767725a84a29ae0459a74b0c">__div64_32</a> (uint64_t *n, uint32_t base)</td></tr>
-<tr class="memdesc:a3f039576767725a84a29ae0459a74b0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copied from div64.c.  <a href="#a3f039576767725a84a29ae0459a74b0c">More...</a><br /></td></tr>
-<tr class="separator:a3f039576767725a84a29ae0459a74b0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a30e8683972fa03c8b2d7293f277f7b67"><td class="memItemLeft" align="right" valign="top">static uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="helpers_8h.html#a30e8683972fa03c8b2d7293f277f7b67">__div64_32_nomod</a> (uint64_t n, uint32_t base)</td></tr>
 <tr class="memdesc:a30e8683972fa03c8b2d7293f277f7b67"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function simply returns the division result of the numbers and omits the mod.  <a href="#a30e8683972fa03c8b2d7293f277f7b67">More...</a><br /></td></tr>
 <tr class="separator:a30e8683972fa03c8b2d7293f277f7b67"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -263,7 +268,7 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">do</span> { \</div><div class="line">        if(unlikely(equation)) { \</div><div class="line">            printk_ratelimited(KERN_ERR <span class="stringliteral">&quot;tDisk BUG: &quot;</span> #equation <span class="stringliteral">&quot;\n&quot;</span>); \</div><div class="line">            BUG_ON(equation); \</div><div class="line">        } \</div><div class="line">    } <span class="keywordflow">while</span>(0)</div></div><!-- fragment -->
+<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">do</span> { \</div><div class="line">        if(unlikely(equation)) { \</div><div class="line">            printk(KERN_ERR <span class="stringliteral">&quot;tDisk BUG: &quot;</span> #equation <span class="stringliteral">&quot;\n&quot;</span>); \</div><div class="line">            BUG_ON(equation); \</div><div class="line">        } \</div><div class="line">    } <span class="keywordflow">while</span>(0)</div></div><!-- fragment -->
 <p>Helper function of MY_BUG_ON. </p>
 
 </div>
@@ -297,7 +302,7 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">do</span> { \</div><div class="line">        if(unlikely(equation)) { \</div><div class="line">            printk_ratelimited(KERN_ERR <span class="stringliteral">&quot;tDisk BUG: &quot;</span> #equation <span class="stringliteral">&quot;\n&quot;</span>); \</div><div class="line">            printk_ratelimited(KERN_ERR <span class="stringliteral">&quot;tDisk BUG_DATA: &quot;</span> #data <span class="stringliteral">&quot; = &quot;</span> data_type <span class="stringliteral">&quot;\n&quot;</span>, data); \</div><div class="line">            BUG_ON(equation); \</div><div class="line">        } \</div><div class="line">    } <span class="keywordflow">while</span>(0)</div></div><!-- fragment -->
+<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">do</span> { \</div><div class="line">        if(unlikely(equation)) { \</div><div class="line">            printk(KERN_ERR <span class="stringliteral">&quot;tDisk BUG: &quot;</span> #equation <span class="stringliteral">&quot;\n&quot;</span>); \</div><div class="line">            printk(KERN_ERR <span class="stringliteral">&quot;tDisk BUG_DATA: &quot;</span> #data <span class="stringliteral">&quot; = &quot;</span> data_type <span class="stringliteral">&quot;\n&quot;</span>, data); \</div><div class="line">            BUG_ON(equation); \</div><div class="line">        } \</div><div class="line">    } <span class="keywordflow">while</span>(0)</div></div><!-- fragment -->
 <p>Helper function of MY_BUG_ON. </p>
 
 </div>
@@ -343,7 +348,7 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">do</span> { \</div><div class="line">        if(unlikely(equation)) { \</div><div class="line">            printk_ratelimited(KERN_ERR <span class="stringliteral">&quot;tDisk BUG: &quot;</span> #equation); \</div><div class="line">            printk_ratelimited(KERN_ERR <span class="stringliteral">&quot;tDisk BUG_DATA: &quot;</span> #data1 <span class="stringliteral">&quot; = &quot;</span> data_type1 <span class="stringliteral">&quot;\n&quot;</span>, data1); \</div><div class="line">            printk_ratelimited(KERN_ERR <span class="stringliteral">&quot;tDisk BUG_DATA: &quot;</span> #data2 <span class="stringliteral">&quot; = &quot;</span> data_type2 <span class="stringliteral">&quot;\n&quot;</span>, data2); \</div><div class="line">            BUG_ON(equation); \</div><div class="line">        } \</div><div class="line">    } <span class="keywordflow">while</span>(0)</div></div><!-- fragment -->
+<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">do</span> { \</div><div class="line">        if(unlikely(equation)) { \</div><div class="line">            printk(KERN_ERR <span class="stringliteral">&quot;tDisk BUG: &quot;</span> #equation); \</div><div class="line">            printk(KERN_ERR <span class="stringliteral">&quot;tDisk BUG_DATA: &quot;</span> #data1 <span class="stringliteral">&quot; = &quot;</span> data_type1 <span class="stringliteral">&quot;\n&quot;</span>, data1); \</div><div class="line">            printk(KERN_ERR <span class="stringliteral">&quot;tDisk BUG_DATA: &quot;</span> #data2 <span class="stringliteral">&quot; = &quot;</span> data_type2 <span class="stringliteral">&quot;\n&quot;</span>, data2); \</div><div class="line">            BUG_ON(equation); \</div><div class="line">        } \</div><div class="line">    } <span class="keywordflow">while</span>(0)</div></div><!-- fragment -->
 <p>Helper function of MY_BUG_ON. </p>
 
 </div>
@@ -401,7 +406,7 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">do</span> { \</div><div class="line">        if(unlikely(equation)) { \</div><div class="line">            printk_ratelimited(KERN_ERR <span class="stringliteral">&quot;tDisk BUG: &quot;</span> #equation); \</div><div class="line">            printk_ratelimited(KERN_ERR <span class="stringliteral">&quot;tDisk BUG_DATA: &quot;</span> #data1 <span class="stringliteral">&quot; = &quot;</span> data_type1 <span class="stringliteral">&quot;\n&quot;</span>, data1); \</div><div class="line">            printk_ratelimited(KERN_ERR <span class="stringliteral">&quot;tDisk BUG_DATA: &quot;</span> #data2 <span class="stringliteral">&quot; = &quot;</span> data_type2 <span class="stringliteral">&quot;\n&quot;</span>, data2); \</div><div class="line">            printk_ratelimited(KERN_ERR <span class="stringliteral">&quot;tDisk BUG_DATA: &quot;</span> #data3 <span class="stringliteral">&quot; = &quot;</span> data_type3 <span class="stringliteral">&quot;\n&quot;</span>, data3); \</div><div class="line">            BUG_ON(equation); \</div><div class="line">        } \</div><div class="line">    } <span class="keywordflow">while</span>(0)</div></div><!-- fragment -->
+<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">do</span> { \</div><div class="line">        if(unlikely(equation)) { \</div><div class="line">            printk(KERN_ERR <span class="stringliteral">&quot;tDisk BUG: &quot;</span> #equation); \</div><div class="line">            printk(KERN_ERR <span class="stringliteral">&quot;tDisk BUG_DATA: &quot;</span> #data1 <span class="stringliteral">&quot; = &quot;</span> data_type1 <span class="stringliteral">&quot;\n&quot;</span>, data1); \</div><div class="line">            printk(KERN_ERR <span class="stringliteral">&quot;tDisk BUG_DATA: &quot;</span> #data2 <span class="stringliteral">&quot; = &quot;</span> data_type2 <span class="stringliteral">&quot;\n&quot;</span>, data2); \</div><div class="line">            printk(KERN_ERR <span class="stringliteral">&quot;tDisk BUG_DATA: &quot;</span> #data3 <span class="stringliteral">&quot; = &quot;</span> data_type3 <span class="stringliteral">&quot;\n&quot;</span>, data3); \</div><div class="line">            BUG_ON(equation); \</div><div class="line">        } \</div><div class="line">    } <span class="keywordflow">while</span>(0)</div></div><!-- fragment -->
 <p>Helper function of MY_BUG_ON. </p>
 
 </div>
@@ -515,42 +520,6 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a3f039576767725a84a29ae0459a74b0c"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static uint32_t __div64_32 </td>
-          <td>(</td>
-          <td class="paramtype">uint64_t *&#160;</td>
-          <td class="paramname"><em>n</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint32_t&#160;</td>
-          <td class="paramname"><em>base</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Copied from div64.c. </p>
-
-</div>
-</div>
 <a class="anchor" id="a30e8683972fa03c8b2d7293f277f7b67"></a>
 <div class="memitem">
 <div class="memproto">
@@ -600,7 +569,7 @@ Here is the call graph for this function:</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Aug 12 2016 11:16:35 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Nov 19 2016 13:47:53 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

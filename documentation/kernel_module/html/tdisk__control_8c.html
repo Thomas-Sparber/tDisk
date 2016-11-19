@@ -152,7 +152,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>tDisk Driver </p>
-<dl class="section author"><dt>Author</dt><dd>Thomas Sparber (2015-2016) </dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Thomas Sparber (2015-2016) This is just a hack in case the kernel was compiled with CONFIG_DEBUG_LOCK_ALLOC. Then mutex_lock is replaced with mutex_lock_nested which we can't use in a non GPL module... The function is then implemented in <a class="el" href="helpers_8c.html">helpers.c</a> </dd></dl>
 
 </div>
 </div>
@@ -311,7 +311,7 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    .open       = nonseekable_open,</div><div class="line">    .unlocked_ioctl = <a class="code" href="tdisk__control_8c.html#a22bf4ed010596733550f05638629fa43">tdisk_control_ioctl</a>,</div><div class="line">    .compat_ioctl   = <a class="code" href="tdisk__control_8c.html#a22bf4ed010596733550f05638629fa43">tdisk_control_ioctl</a>,</div><div class="line">    .owner      = THIS_MODULE,</div><div class="line">    .llseek     = noop_llseek,</div><div class="line">}</div><div class="ttc" id="tdisk__control_8c_html_a22bf4ed010596733550f05638629fa43"><div class="ttname"><a href="tdisk__control_8c.html#a22bf4ed010596733550f05638629fa43">tdisk_control_ioctl</a></div><div class="ttdeci">static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned long parm)</div><div class="ttdoc">This function handles the ioctl calls of the td-control device. </div><div class="ttdef"><b>Definition:</b> tdisk_control.c:18</div></div>
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    .open       = nonseekable_open,</div><div class="line">    .unlocked_ioctl = <a class="code" href="tdisk__control_8c.html#a22bf4ed010596733550f05638629fa43">tdisk_control_ioctl</a>,</div><div class="line">    .compat_ioctl   = <a class="code" href="tdisk__control_8c.html#a22bf4ed010596733550f05638629fa43">tdisk_control_ioctl</a>,</div><div class="line">    .owner      = THIS_MODULE,</div><div class="line">    .llseek     = noop_llseek,</div><div class="line">}</div><div class="ttc" id="tdisk__control_8c_html_a22bf4ed010596733550f05638629fa43"><div class="ttname"><a href="tdisk__control_8c.html#a22bf4ed010596733550f05638629fa43">tdisk_control_ioctl</a></div><div class="ttdeci">static long tdisk_control_ioctl(struct file *file, unsigned int cmd, unsigned long parm)</div><div class="ttdoc">This function handles the ioctl calls of the td-control device. </div><div class="ttdef"><b>Definition:</b> tdisk_control.c:29</div></div>
 </div><!-- fragment -->
 <p>Represents the file operations of the td-control device. </p>
 
@@ -334,7 +334,7 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    .minor      = MISC_DYNAMIC_MINOR,</div><div class="line">    .name       = <span class="stringliteral">&quot;td-control&quot;</span>,</div><div class="line">    .fops       = &amp;<a class="code" href="tdisk__control_8c.html#ad71894ae66cd434f4eae52b9a258197d">tdisk_ctl_fops</a>,</div><div class="line">}</div><div class="ttc" id="tdisk__control_8c_html_ad71894ae66cd434f4eae52b9a258197d"><div class="ttname"><a href="tdisk__control_8c.html#ad71894ae66cd434f4eae52b9a258197d">tdisk_ctl_fops</a></div><div class="ttdeci">static const struct file_operations tdisk_ctl_fops</div><div class="ttdoc">Represents the file operations of the td-control device. </div><div class="ttdef"><b>Definition:</b> tdisk_control.c:61</div></div>
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    .minor      = MISC_DYNAMIC_MINOR,</div><div class="line">    .name       = <span class="stringliteral">&quot;td-control&quot;</span>,</div><div class="line">    .fops       = &amp;<a class="code" href="tdisk__control_8c.html#ad71894ae66cd434f4eae52b9a258197d">tdisk_ctl_fops</a>,</div><div class="line">}</div><div class="ttc" id="tdisk__control_8c_html_ad71894ae66cd434f4eae52b9a258197d"><div class="ttname"><a href="tdisk__control_8c.html#ad71894ae66cd434f4eae52b9a258197d">tdisk_ctl_fops</a></div><div class="ttdeci">static const struct file_operations tdisk_ctl_fops</div><div class="ttdoc">Represents the file operations of the td-control device. </div><div class="ttdef"><b>Definition:</b> tdisk_control.c:74</div></div>
 </div><!-- fragment -->
 <p>Mic device operations. </p>
 
@@ -343,7 +343,7 @@ Here is the call graph for this function:</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Aug 12 2016 11:16:36 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Nov 19 2016 13:47:53 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

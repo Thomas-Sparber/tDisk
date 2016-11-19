@@ -117,9 +117,21 @@ Functions</h2></td></tr>
 <tr class="memitem:aeeaf145beeced418bedd6922339af97c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="worker__timeout_8c.html#aeeaf145beeced418bedd6922339af97c">kthread_worker_fn_timeout</a> (void *worker_ptr)</td></tr>
 <tr class="memdesc:aeeaf145beeced418bedd6922339af97c"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function is more or less copied from the linux kernel version except that it is able to wake up after a specific timeout, even if there is no work to do.  <a href="#aeeaf145beeced418bedd6922339af97c">More...</a><br /></td></tr>
 <tr class="separator:aeeaf145beeced418bedd6922339af97c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acdf7d2e8ff5e302d8f0b19d5c0e92058"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="worker__timeout_8c.html#acdf7d2e8ff5e302d8f0b19d5c0e92058">flush_kthread_worker_timeout</a> (struct kthread_worker *worker)</td></tr>
-<tr class="memdesc:acdf7d2e8ff5e302d8f0b19d5c0e92058"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flushes the given worker thread.  <a href="#acdf7d2e8ff5e302d8f0b19d5c0e92058">More...</a><br /></td></tr>
-<tr class="separator:acdf7d2e8ff5e302d8f0b19d5c0e92058"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a667bdbacc0627bd22a46710e5eb66c0b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="worker__timeout_8c.html#a667bdbacc0627bd22a46710e5eb66c0b">flush_kthread_worker_timeout</a> (struct <a class="el" href="structworker__timeout__data.html">worker_timeout_data</a> *data)</td></tr>
+<tr class="memdesc:a667bdbacc0627bd22a46710e5eb66c0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flushes the given worker thread.  <a href="#a667bdbacc0627bd22a46710e5eb66c0b">More...</a><br /></td></tr>
+<tr class="separator:a667bdbacc0627bd22a46710e5eb66c0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62b9c89dd0ee9cfa04c1b1eabd734db9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="worker__timeout_8c.html#a62b9c89dd0ee9cfa04c1b1eabd734db9">EXPORT_SYMBOL</a> (<a class="el" href="worker__timeout_8h.html#a667bdbacc0627bd22a46710e5eb66c0b">flush_kthread_worker_timeout</a>)</td></tr>
+<tr class="separator:a62b9c89dd0ee9cfa04c1b1eabd734db9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28894745c062aff814a8438ca2342fc1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="worker__timeout_8c.html#a28894745c062aff814a8438ca2342fc1">enqueue_work</a> (struct <a class="el" href="structworker__timeout__data.html">worker_timeout_data</a> *data, struct kthread_work *work)</td></tr>
+<tr class="memdesc:a28894745c062aff814a8438ca2342fc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function is used to insert a work into the wor queue.  <a href="#a28894745c062aff814a8438ca2342fc1">More...</a><br /></td></tr>
+<tr class="separator:a28894745c062aff814a8438ca2342fc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad79ce817093abdcbe9a8de5f76c0a1bb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="worker__timeout_8c.html#ad79ce817093abdcbe9a8de5f76c0a1bb">EXPORT_SYMBOL</a> (<a class="el" href="worker__timeout_8h.html#a28894745c062aff814a8438ca2342fc1">enqueue_work</a>)</td></tr>
+<tr class="separator:ad79ce817093abdcbe9a8de5f76c0a1bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e91f40215229e96969d238f7586d6b6"><td class="memItemLeft" align="right" valign="top">struct task_struct *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="worker__timeout_8c.html#a3e91f40215229e96969d238f7586d6b6">start_worker_timeout</a> (struct <a class="el" href="structworker__timeout__data.html">worker_timeout_data</a> *data, const char namefmt[],...)</td></tr>
+<tr class="memdesc:a3e91f40215229e96969d238f7586d6b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function is used to initialize the timeout worker.  <a href="#a3e91f40215229e96969d238f7586d6b6">More...</a><br /></td></tr>
+<tr class="separator:a3e91f40215229e96969d238f7586d6b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa287e2dd31e43d84c032b2bfea479a57"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="worker__timeout_8c.html#aa287e2dd31e43d84c032b2bfea479a57">EXPORT_SYMBOL</a> (<a class="el" href="worker__timeout_8h.html#a3e91f40215229e96969d238f7586d6b6">start_worker_timeout</a>)</td></tr>
+<tr class="separator:aa287e2dd31e43d84c032b2bfea479a57"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/><h2 class="groupheader">Class Documentation</h2>
 <a name="structkthread__flush__work" id="structkthread__flush__work"></a>
@@ -152,15 +164,100 @@ work</td>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="acdf7d2e8ff5e302d8f0b19d5c0e92058"></a>
+<a class="anchor" id="a28894745c062aff814a8438ca2342fc1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void enqueue_work </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structworker__timeout__data.html">worker_timeout_data</a> *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct kthread_work *&#160;</td>
+          <td class="paramname"><em>work</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This function is used to insert a work into the wor queue. </p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="worker__timeout_8c_a28894745c062aff814a8438ca2342fc1_cgraph.png" border="0" usemap="#worker__timeout_8c_a28894745c062aff814a8438ca2342fc1_cgraph" alt=""/></div>
+<map name="worker__timeout_8c_a28894745c062aff814a8438ca2342fc1_cgraph" id="worker__timeout_8c_a28894745c062aff814a8438ca2342fc1_cgraph">
+</map>
+</div>
+</p>
+
+</div>
+</div>
+<a class="anchor" id="a62b9c89dd0ee9cfa04c1b1eabd734db9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">EXPORT_SYMBOL </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="worker__timeout_8h.html#a667bdbacc0627bd22a46710e5eb66c0b">flush_kthread_worker_timeout</a>&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ad79ce817093abdcbe9a8de5f76c0a1bb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">EXPORT_SYMBOL </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="worker__timeout_8h.html#a28894745c062aff814a8438ca2342fc1">enqueue_work</a>&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa287e2dd31e43d84c032b2bfea479a57"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">EXPORT_SYMBOL </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="worker__timeout_8h.html#a3e91f40215229e96969d238f7586d6b6">start_worker_timeout</a>&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a667bdbacc0627bd22a46710e5eb66c0b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void flush_kthread_worker_timeout </td>
           <td>(</td>
-          <td class="paramtype">struct kthread_worker *&#160;</td>
-          <td class="paramname"><em>worker</em></td><td>)</td>
+          <td class="paramtype">struct <a class="el" href="structworker__timeout__data.html">worker_timeout_data</a> *&#160;</td>
+          <td class="paramname"><em>data</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -171,9 +268,8 @@ work</td>
 <p><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="worker__timeout_8c_acdf7d2e8ff5e302d8f0b19d5c0e92058_cgraph.png" border="0" usemap="#worker__timeout_8c_acdf7d2e8ff5e302d8f0b19d5c0e92058_cgraph" alt=""/></div>
-<map name="worker__timeout_8c_acdf7d2e8ff5e302d8f0b19d5c0e92058_cgraph" id="worker__timeout_8c_acdf7d2e8ff5e302d8f0b19d5c0e92058_cgraph">
-<area shape="rect" id="node2" href="worker__timeout_8c.html#a9cb5d7f5650cedfe0249a116d574ed76" title="This function is called for the flush work. " alt="" coords="211,5,355,47"/>
+<div class="center"><img src="worker__timeout_8c_a667bdbacc0627bd22a46710e5eb66c0b_cgraph.png" border="0" usemap="#worker__timeout_8c_a667bdbacc0627bd22a46710e5eb66c0b_cgraph" alt=""/></div>
+<map name="worker__timeout_8c_a667bdbacc0627bd22a46710e5eb66c0b_cgraph" id="worker__timeout_8c_a667bdbacc0627bd22a46710e5eb66c0b_cgraph">
 </map>
 </div>
 </p>
@@ -236,10 +332,53 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
+<a class="anchor" id="a3e91f40215229e96969d238f7586d6b6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct task_struct* start_worker_timeout </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structworker__timeout__data.html">worker_timeout_data</a> *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char&#160;</td>
+          <td class="paramname"><em>namefmt</em>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This function is used to initialize the timeout worker. </p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="worker__timeout_8c_a3e91f40215229e96969d238f7586d6b6_cgraph.png" border="0" usemap="#worker__timeout_8c_a3e91f40215229e96969d238f7586d6b6_cgraph" alt=""/></div>
+<map name="worker__timeout_8c_a3e91f40215229e96969d238f7586d6b6_cgraph" id="worker__timeout_8c_a3e91f40215229e96969d238f7586d6b6_cgraph">
+</map>
+</div>
+</p>
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Aug 12 2016 11:16:36 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Nov 19 2016 13:47:53 for tDisk kernel module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

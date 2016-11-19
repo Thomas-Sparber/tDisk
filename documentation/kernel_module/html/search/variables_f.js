@@ -7,7 +7,6 @@ var searchData=
   ['sorted_5fdevices',['sorted_devices',['../tdisk_8h.html#afc94f39a23273730a4272e1cc9f4efe1',1,'tdisk']]],
   ['sorted_5fsectors',['sorted_sectors',['../tdisk_8h.html#a19b7faba24f2fae4b3068bc6c997fae6',1,'tdisk']]],
   ['sorted_5fsectors_5fhead',['sorted_sectors_head',['../tdisk_8h.html#aecec8c7810c43f1440ae010f556bb4f9',1,'tdisk']]],
-  ['state',['state',['../tdisk_8h.html#aef112692675cde246a7443167403f8df',1,'tdisk']]],
   ['stdev_5fread_5ftime_5fcycles',['stdev_read_time_cycles',['../interface_8h.html#aa5beb0c3a8421142496a5893e3670900',1,'device_performance']]],
   ['stdev_5fwrite_5ftime_5fcycles',['stdev_write_time_cycles',['../interface_8h.html#a0d850521d615d218f78f51b015edb859',1,'device_performance']]]
 ];

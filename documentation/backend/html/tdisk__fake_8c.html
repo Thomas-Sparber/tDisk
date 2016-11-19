@@ -112,18 +112,21 @@ Functions</h2></td></tr>
 <tr class="memitem:ac60604a575dda1dc4c2df06521e9459b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__fake_8c.html#ac60604a575dda1dc4c2df06521e9459b">tdisk_get_devices</a> (char **devices, int size, int length)</td></tr>
 <tr class="memdesc:ac60604a575dda1dc4c2df06521e9459b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the names of the current tDisks.  <a href="#ac60604a575dda1dc4c2df06521e9459b">More...</a><br /></td></tr>
 <tr class="separator:ac60604a575dda1dc4c2df06521e9459b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad92008c56fcd597e8690f5b6a672a4e2"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__fake_8c.html#ad92008c56fcd597e8690f5b6a672a4e2">tdisk_add</a> (char *out_name, unsigned int blocksize)</td></tr>
-<tr class="memdesc:ad92008c56fcd597e8690f5b6a672a4e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a new device with the next free minor number to the system.  <a href="#ad92008c56fcd597e8690f5b6a672a4e2">More...</a><br /></td></tr>
-<tr class="separator:ad92008c56fcd597e8690f5b6a672a4e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6cc23fd90443484afb612f1c5e4c9480"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__fake_8c.html#a6cc23fd90443484afb612f1c5e4c9480">tdisk_add_specific</a> (char *out_name, int minor, unsigned int blocksize)</td></tr>
-<tr class="memdesc:a6cc23fd90443484afb612f1c5e4c9480"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a new device with the given minor number to the system.  <a href="#a6cc23fd90443484afb612f1c5e4c9480">More...</a><br /></td></tr>
-<tr class="separator:a6cc23fd90443484afb612f1c5e4c9480"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ce422d5e2ddc91bb38de86da03774ee"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__fake_8c.html#a5ce422d5e2ddc91bb38de86da03774ee">tdisk_add</a> (char *out_name, unsigned int blocksize, unsigned int percent_cache)</td></tr>
+<tr class="memdesc:a5ce422d5e2ddc91bb38de86da03774ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a new device with the next free minor number to the system.  <a href="#a5ce422d5e2ddc91bb38de86da03774ee">More...</a><br /></td></tr>
+<tr class="separator:a5ce422d5e2ddc91bb38de86da03774ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3fb34d6948c3e2802363647bac145516"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__fake_8c.html#a3fb34d6948c3e2802363647bac145516">tdisk_add_specific</a> (char *out_name, int minor, unsigned int blocksize, unsigned int percent_cache)</td></tr>
+<tr class="memdesc:a3fb34d6948c3e2802363647bac145516"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a new device with the given minor number to the system.  <a href="#a3fb34d6948c3e2802363647bac145516">More...</a><br /></td></tr>
+<tr class="separator:a3fb34d6948c3e2802363647bac145516"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acca57af6bc1ae02fd40f91bfe8c34577"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__fake_8c.html#acca57af6bc1ae02fd40f91bfe8c34577">tdisk_remove</a> (int device)</td></tr>
 <tr class="memdesc:acca57af6bc1ae02fd40f91bfe8c34577"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the device with the given minor number from the system.  <a href="#acca57af6bc1ae02fd40f91bfe8c34577">More...</a><br /></td></tr>
 <tr class="separator:acca57af6bc1ae02fd40f91bfe8c34577"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeefce20b8c902c1e179c9125bf1e8a75"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__fake_8c.html#aeefce20b8c902c1e179c9125bf1e8a75">tdisk_add_disk</a> (const char *device, const char *new_disk, int format)</td></tr>
 <tr class="memdesc:aeefce20b8c902c1e179c9125bf1e8a75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a new internal device to the tDisk.  <a href="#aeefce20b8c902c1e179c9125bf1e8a75">More...</a><br /></td></tr>
 <tr class="separator:aeefce20b8c902c1e179c9125bf1e8a75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef015908232e3e086a2b65f105fcc954"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__fake_8c.html#aef015908232e3e086a2b65f105fcc954">tdisk_remove_disk</a> (const char *device, unsigned int disk)</td></tr>
+<tr class="memdesc:aef015908232e3e086a2b65f105fcc954"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the internal device with the given id from the tDisk.  <a href="#aef015908232e3e086a2b65f105fcc954">More...</a><br /></td></tr>
+<tr class="separator:aef015908232e3e086a2b65f105fcc954"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3aa58e062a2b6868332192860503b56b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__fake_8c.html#a3aa58e062a2b6868332192860503b56b">tdisk_get_max_sectors</a> (const char *device, uint64_t *out)</td></tr>
 <tr class="memdesc:a3aa58e062a2b6868332192860503b56b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the current maximum amount of sectors for the given tDisk.  <a href="#a3aa58e062a2b6868332192860503b56b">More...</a><br /></td></tr>
 <tr class="separator:a3aa58e062a2b6868332192860503b56b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -148,6 +151,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a4aa850d78942df4f1ffda923f3e30992"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__fake_8c.html#a4aa850d78942df4f1ffda923f3e30992">tdisk_get_device_info</a> (const char *device, unsigned int disk, struct <a class="el" href="tdisk_8h.html#structf__internal__device__info">f_internal_device_info</a> *out)</td></tr>
 <tr class="memdesc:a4aa850d78942df4f1ffda923f3e30992"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets device information of the device with the given id.  <a href="#a4aa850d78942df4f1ffda923f3e30992">More...</a><br /></td></tr>
 <tr class="separator:a4aa850d78942df4f1ffda923f3e30992"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3472e5ec521a2c5781e670ecf8e915ae"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__fake_8c.html#a3472e5ec521a2c5781e670ecf8e915ae">tdisk_get_debug_info</a> (const char *device, uint64_t current_id, struct <a class="el" href="tdisk_8h.html#structf__tdisk__debug__info">f_tdisk_debug_info</a> *out)</td></tr>
+<tr class="memdesc:a3472e5ec521a2c5781e670ecf8e915ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets debug information about the given tDisk.  <a href="#a3472e5ec521a2c5781e670ecf8e915ae">More...</a><br /></td></tr>
+<tr class="separator:a3472e5ec521a2c5781e670ecf8e915ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af1ddceaf518428c08d332e1948bf7f75"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tdisk__fake_8c.html#af1ddceaf518428c08d332e1948bf7f75">get_measure_records_shift</a> ()</td></tr>
 <tr class="memdesc:af1ddceaf518428c08d332e1948bf7f75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the measure shift.  <a href="#af1ddceaf518428c08d332e1948bf7f75">More...</a><br /></td></tr>
 <tr class="separator:af1ddceaf518428c08d332e1948bf7f75"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -232,7 +238,7 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ad92008c56fcd597e8690f5b6a672a4e2"></a>
+<a class="anchor" id="a5ce422d5e2ddc91bb38de86da03774ee"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -246,7 +252,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>blocksize</em>&#160;</td>
+          <td class="paramname"><em>blocksize</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>percent_cache</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -261,6 +273,7 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">out_name</td><td>The name of the new device will be stored here </td></tr>
     <tr><td class="paramname">blocksize</td><td>The blocksize of the new device </td></tr>
+    <tr><td class="paramname">percent_cache</td><td>The amount in percentage of the total storage of cache buffer </td></tr>
   </table>
   </dd>
 </dl>
@@ -310,7 +323,7 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a6cc23fd90443484afb612f1c5e4c9480"></a>
+<a class="anchor" id="a3fb34d6948c3e2802363647bac145516"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -330,7 +343,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>blocksize</em>&#160;</td>
+          <td class="paramname"><em>blocksize</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>percent_cache</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -346,6 +365,7 @@ Functions</h2></td></tr>
     <tr><td class="paramname">out_name</td><td>The name of the new device will be stored here </td></tr>
     <tr><td class="paramname">minor</td><td>The minor number of the new device </td></tr>
     <tr><td class="paramname">blocksize</td><td>The blocksize of the new device </td></tr>
+    <tr><td class="paramname">percent_cache</td><td>The amount in percentage of the total storage of cache buffer </td></tr>
   </table>
   </dd>
 </dl>
@@ -404,7 +424,7 @@ Functions</h2></td></tr>
 <p>Returns infomration about all sector indices. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">device</td><td>The tDiskto get all sector incides from </td></tr>
+    <tr><td class="paramname">device</td><td>The tDisk to get all sector incides from </td></tr>
     <tr><td class="paramname">out</td><td>An array of <a class="el" href="tdisk_8h.html#structf__sector__info" title="Frontend version This struct is used to transfer sector specific information to user space...">f_sector_info</a> to store the infomration </td></tr>
     <tr><td class="paramname">size</td><td>The size of the array </td></tr>
   </table>
@@ -438,6 +458,40 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Gets the blocksize for the given tDisk. </p>
+
+</div>
+</div>
+<a class="anchor" id="a3472e5ec521a2c5781e670ecf8e915ae"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tdisk_get_debug_info </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>device</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>current_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="tdisk_8h.html#structf__tdisk__debug__info">f_tdisk_debug_info</a> *&#160;</td>
+          <td class="paramname"><em>out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Gets debug information about the given tDisk. </p>
 
 </div>
 </div>
@@ -671,10 +725,38 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="aef015908232e3e086a2b65f105fcc954"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tdisk_remove_disk </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>device</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>disk</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Removes the internal device with the given id from the tDisk. </p>
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Aug 12 2016 11:17:32 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Nov 19 2016 13:47:53 for tDisk userspace module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

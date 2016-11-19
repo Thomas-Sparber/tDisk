@@ -71,6 +71,8 @@ struct f_internal_device_info
 	char path[F_TDISK_MAX_INTERNAL_DEVICE_NAME];
 	uint64_t size;
 	struct f_device_performance performance;
+	uint64_t bytes_read;
+	uint64_t bytes_written;
 }; //end struct f_internal_device_info
 
 /**

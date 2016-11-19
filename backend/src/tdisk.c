@@ -65,6 +65,8 @@ inline static void set_internal_device_info(struct f_internal_device_info *targe
 	strncpy(target->path, source->path, TDISK_MAX_INTERNAL_DEVICE_NAME);
 	target->type = source->type;
 	target->size = source->size;
+	target->bytes_read = source->bytes_read;
+	target->bytes_written = source->bytes_written;
 	set_device_performance(&target->performance, &source->performance);
 }
 

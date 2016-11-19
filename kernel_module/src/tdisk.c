@@ -352,9 +352,12 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 		return false;
 	}
 
+	//Count optimized bytes
+	td->bytes_optimized += td->blocksize;
 
 	//Reading blocks from both disks
 	ret = read_data(&td->internal_devices[disk_a-1], buffer_a, pos_a, td->blocksize);		//a read op1
+	td->internal_devices[disk_a-1].bytes_read -= td->blocksize;
 	if(ret != 0)
 	{
 		printk(KERN_WARNING "tDisk: Swap error: reading %llu, disk: %u, ret: %d\n", logical_a, disk_a, ret);
@@ -362,6 +365,7 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	}
 
 	ret = read_data(&td->internal_devices[disk_b-1], buffer_b, pos_b, td->blocksize);		//b read op1
+	td->internal_devices[disk_b-1].bytes_read -= td->blocksize;
 	if(ret != 0)
 	{
 		printk(KERN_WARNING "tDisk: Swap error: reading %llu, disk: %u, ret: %d\n", logical_b, disk_b, ret);
@@ -371,6 +375,7 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 
 
 	ret = write_data(&td->internal_devices[disk_a-1], buffer_a, pos_help_a, td->blocksize);
+	td->internal_devices[disk_a-1].bytes_written -= td->blocksize;
 	if(ret != 0)
 	{
 		printk(KERN_WARNING "tDisk: Swap-help error: writing %llu, disk: %u, ret: %d\n", logical_a, disk_a, ret);
@@ -383,6 +388,7 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	td_perform_index_operation(td, WRITE, logical_a, a, do_disk_operation, false);
 
 	ret = write_data(&td->internal_devices[disk_a-1], buffer_b, pos_a, td->blocksize);
+	td->internal_devices[disk_a-1].bytes_written -= td->blocksize;
 	if(ret != 0)
 	{
 		printk(KERN_WARNING "tDisk: Swap error: writing %llu, disk: %u, ret: %d\n", logical_a, disk_a, ret);
@@ -395,6 +401,7 @@ static bool td_swap_sectors(struct tdisk *td, sector_t logical_a, struct sector_
 	td_perform_index_operation(td, WRITE, logical_b, b, do_disk_operation, false);
 
 	ret = write_data(&td->internal_devices[disk_b-1], buffer_a, pos_b, td->blocksize);
+	td->internal_devices[disk_b-1].bytes_written -= td->blocksize;
 	if(ret != 0)
 	{
 		printk(KERN_WARNING "tDisk: Swap error: writing %llu, disk: %u, ret: %d\n", logical_b, disk_b, ret);
@@ -1860,6 +1867,10 @@ static int td_add_disk(struct tdisk *td, fmode_t mode, struct block_device *bdev
 
 #ifdef MEASURE_PING_PERFORMANCE
 	td_measure_device_performance(&new_device, device_size);
+
+	//Reset read and write counters
+	new_device.bytes_read = 0;
+	new_device.bytes_written = 0;
 #else
 #pragma message "Ping performance measurement is disabled"
 #endif //MEASURE_PING_PERFORMANCE
@@ -2385,6 +2396,8 @@ static int td_get_device_info(struct tdisk *td, struct internal_device_info __us
 	memcpy(info.path, td->internal_devices[info.disk-1].path, TDISK_MAX_INTERNAL_DEVICE_NAME);
 	info.performance = td->internal_devices[info.disk-1].performance;
 	info.size = td->internal_devices[info.disk-1].size_blocks * td->blocksize;
+	info.bytes_read = td->internal_devices[info.disk-1].bytes_read;
+	info.bytes_written = td->internal_devices[info.disk-1].bytes_written;
 
 	if(copy_to_user(arg, &info, sizeof(info)) != 0)
 		return -EFAULT;

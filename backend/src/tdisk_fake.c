@@ -176,6 +176,8 @@ int tdisk_get_device_info(const char *device, unsigned int disk, struct f_intern
 	}
 
 	out->size = (uint64_t) (rand() % 1024*1024*1024);
+	out->bytes_read = (uint64_t) (rand() % 1024*1024*1024);
+	out->bytes_written = (uint64_t) (rand() % 1024*1024*1024);
 	
 	out->performance.avg_read_time_cycles = (uint64_t) (rand() % 1000000);
 	out->performance.stdev_read_time_cycles = (uint64_t) (rand() % 1000000);

@@ -575,6 +575,8 @@ template <> void td::createResultString(ostream &ss, const f_internal_device_inf
 			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, info, name, hierarchy+1, outputFormat); ss<<",\n";
 			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, info, path, hierarchy+1, outputFormat); ss<<",\n";
 			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, info, size, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, info, bytes_read, hierarchy+1, outputFormat); ss<<",\n";
+			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, info, bytes_written, hierarchy+1, outputFormat); ss<<",\n";
 			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, info, type, hierarchy+1, outputFormat); ss<<",\n";
 			insertTab(ss, hierarchy+1); CREATE_RESULT_STRING_MEMBER_JSON(ss, info, performance, hierarchy+1, outputFormat); ss<<"\n";
 		insertTab(ss, hierarchy); ss<<"}";
@@ -585,6 +587,8 @@ template <> void td::createResultString(ostream &ss, const f_internal_device_inf
 		CREATE_RESULT_STRING_MEMBER_TEXT(ss, info, name, hierarchy+1, outputFormat); ss<<"\n";
 		CREATE_RESULT_STRING_MEMBER_TEXT(ss, info, path, hierarchy+1, outputFormat); ss<<"\n";
 		CREATE_RESULT_STRING_MEMBER_TEXT(ss, info, size, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, info, bytes_read, hierarchy+1, outputFormat); ss<<"\n";
+		CREATE_RESULT_STRING_MEMBER_TEXT(ss, info, bytes_written, hierarchy+1, outputFormat); ss<<"\n";
 		CREATE_RESULT_STRING_MEMBER_TEXT(ss, info, type, hierarchy+1, outputFormat); ss<<"\n";
 		createResultString(ss, info.performance, hierarchy+1, outputFormat); ss<<"\n";
 	}

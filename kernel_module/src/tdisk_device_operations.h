@@ -30,6 +30,9 @@ inline static int write_data(struct td_internal_device *device, void *data, loff
 //#pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
 
+	//Record bytes written
+	device->bytes_written += length;
+
 	switch(device->type)
 	{
 #ifdef USE_FILES
@@ -82,6 +85,9 @@ inline static int read_data(struct td_internal_device *device, void *data, loff_
 #else
 //#pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
+
+	//Record bytes read
+	device->bytes_read += length;
 
 	switch(device->type)
 	{
@@ -136,6 +142,9 @@ inline static int write_bio_vec(struct td_internal_device *device, struct bio_ve
 //#pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
 
+	//Record bytes written
+	device->bytes_written += bvec->bv_len;
+
 	switch(device->type)
 	{
 #ifdef USE_FILES
@@ -189,6 +198,9 @@ inline static int read_bio_vec(struct td_internal_device *device, struct bio_vec
 //#pragma message "Performance measurement is disabled"
 #endif //MEASURE_PERFORMANCE
 
+	//Record bytes read
+	device->bytes_read += bvec->bv_len;
+
 	switch(device->type)
 	{
 #ifdef USE_FILES
@@ -233,6 +245,9 @@ inline static int read_bio_vec(struct td_internal_device *device, struct bio_vec
  **/
 inline static void write_data_async(struct td_internal_device *device, void *data, loff_t position, unsigned int length, void *private_data, void (*callback)(void*,long))
 {
+	//Record bytes written
+	device->bytes_written += length;
+
 	switch(device->type)
 	{
 #ifdef USE_FILES
@@ -270,6 +285,9 @@ inline static void write_data_async(struct td_internal_device *device, void *dat
  **/
 inline static void read_data_async(struct td_internal_device *device, void *data, loff_t position, unsigned int length, void *private_data, void (*callback)(void*,long))
 {
+	//Record bytes read
+	device->bytes_read += length;
+
 	switch(device->type)
 	{
 #ifdef USE_FILES
@@ -307,6 +325,9 @@ inline static void read_data_async(struct td_internal_device *device, void *data
  **/
 inline static void write_bio_vec_async(struct td_internal_device *device, struct bio_vec *bvec, loff_t position, void *private_data, void (*callback)(void*,long))
 {
+	//Record bytes written
+	device->bytes_written += length;
+
 	switch(device->type)
 	{
 #ifdef USE_FILES
@@ -344,6 +365,9 @@ inline static void write_bio_vec_async(struct td_internal_device *device, struct
  **/
 inline static void read_bio_vec_async(struct td_internal_device *device, struct bio_vec *bvec, loff_t position, void *private_data, void (*callback)(void*,long))
 {
+	//Record bytes read
+	device->bytes_read += bvec->bv_len;
+
 	switch(device->type)
 	{
 #ifdef USE_FILES

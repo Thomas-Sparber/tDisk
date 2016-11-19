@@ -122,6 +122,8 @@ struct internal_device_info
 	__u64 size;
 	enum internal_device_type type;
 	tdisk_index disk;
+	__u64 bytes_read;
+	__u64 bytes_written;
 }; //end struct internal_device_info
 
 /**
@@ -158,12 +160,13 @@ struct sector_info
   * to user space.
  **/
 struct tdisk_info {
-	__u64			max_sectors;		/* ioctl r/o */
-	__u64			size_blocks;		/* ioctl r/o */
-	__u32			blocksize;			/* ioctl r/o */
-	__u32			number;				/* ioctl r/o */
-	__u32			flags;				/* ioctl r/o */
-	tdisk_index		internaldevices;	/* ioctl r/o */
+	__u64			max_sectors;
+	__u64			size_blocks;
+	__u64			bytes_optimized;
+	__u32			blocksize;
+	__u32			number;
+	__u32			flags;
+	tdisk_index		internaldevices;
 };
 
 

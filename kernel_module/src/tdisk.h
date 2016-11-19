@@ -101,6 +101,12 @@ struct td_internal_device
 	  * The sector which is used for sector move operations. To guarantee no data loss
 	 **/
 	sector_t move_help_sector;
+
+	/**
+	  * Counting bytes written to and read frm the internal device
+	 **/
+	__u64 bytes_read;
+	__u64 bytes_written;
 }; //end struct td_internal_device
 
 /**
@@ -144,6 +150,9 @@ struct tdisk {
 	unsigned int	blocksize;
 	sector_t		max_sectors;
 	sector_t		size_blocks;
+
+	//Counts the number of bytes optimized
+	__u64 bytes_optimized;
 
 	//The amount in percentage of the total storage of cache buffer
 	unsigned int	percent_cache;

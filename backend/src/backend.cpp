@@ -930,3 +930,23 @@ BackendResult td::performance_improvement(const vector<string> &args, Options &o
 	
 	return std::move(r);
 }
+
+BackendResult td::get_internal_device_usage(const vector<string> &args, Options &options)
+{
+	BackendResult r;
+	if(args.empty())
+	{
+		r.error(BackendResultType::general, "\"get_internal_device_usage\" needs the td device");
+		return std::move(r);
+	}
+
+	try {
+		tDisk d = tDisk::get(args[0]);
+		const vector<double> &usage = d.getInternalDeviceUsage();
+		r.result(usage, options.getOptionValue("output-format"));
+	} catch (const tDiskException &e) {
+		r.error(BackendResultType::driver, e.what());
+	}
+	
+	return std::move(r);
+}

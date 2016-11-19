@@ -432,6 +432,49 @@ tDiskPerformanceImprovement tDisk::getPerformanceImprovement(std::size_t amountF
 	return std::move(p);
 }
 
+vector<double> tDisk::getInternalDeviceUsage() const
+{
+	unsigned long long max_sectors = getMaxSectors();
+
+	performance::start("getAllSectorIndices");
+	vector<f_sector_info> indices((std::size_t)max_sectors);
+	int ret = c::tdisk_get_all_sector_indices(name.c_str(), &indices[0], max_sectors);
+	performance::stop("getAllSectorIndices");
+
+	try {
+		handleError(ret);
+	} catch (const tDiskOfflineException &e) {
+		throw tDiskOfflineException("Can't all sector indices for tDisk ", name, ": ", e.what());
+	} catch (const tDiskException &e) {
+		throw tDiskException("Can't all sector indices for tDisk ", name, ": ", e.what());
+	}
+
+	vector<double> percent;
+	vector<unsigned long long> totalSectors;
+
+	for(const f_sector_info &info : indices)
+	{
+		if(info.physical_sector.disk == 0)continue;
+
+		while(percent.size() < info.physical_sector.disk)
+		{
+			percent.push_back(0);
+			totalSectors.push_back(0);
+		}
+
+		totalSectors[info.physical_sector.disk-1]++;
+		if(info.physical_sector.used)percent[info.physical_sector.disk-1]++;
+	}
+
+	for(std::size_t i = 0; i < percent.size(); ++i)
+	{
+		percent[i] = percent[i] / (double)totalSectors[i];
+	}
+
+	online = true;
+	return std::move(percent);
+}
+
 template <> void td::createResultString(ostream &ss, const f_sector_index &index, unsigned int hierarchy, const utils::ci_string &outputFormat)
 {
 	bool used = index.used;

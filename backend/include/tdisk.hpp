@@ -307,6 +307,11 @@ public:
 	}
 
 	/**
+	  * Returns the disk usage in percent of the internal devices
+	 **/
+	std::vector<double> getInternalDeviceUsage() const;
+
+	/**
 	  * Returns the (next) debug info for the tDisk
 	 **/
 	f_tdisk_debug_info getDebugInfo(uint64_t currentId=0) const;

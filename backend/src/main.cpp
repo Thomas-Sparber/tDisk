@@ -149,7 +149,11 @@ vector<Command> commands {
 	Command("performance_improvement", performance_improvement,
 		"Returns the performance improvement in percent of the tDisk and\n"
 		"lists the top 20 files with the highest performance improvement.\n"
-		"It needs the desired tDisk as argument")
+		"It needs the desired tDisk as argument"),
+
+	Command("get_internal_device_usage", get_internal_device_usage,
+		"Returns the dis usage in percent of the internal devices. It needs\n"
+		"the desired tDisk as argument")
 };
 
 vector<string> configfiles = {

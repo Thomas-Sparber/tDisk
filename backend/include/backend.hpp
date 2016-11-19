@@ -255,6 +255,15 @@ namespace td
 	 **/
 	BackendResult performance_improvement(const std::vector<std::string> &args, Options &options);
 
+	/**
+	  * Returns the usage of the internal devices in percent
+	  * @param args:
+	  *  - tDisk
+	  * @param options: The command options (e.g. output-format)
+	  * @return The internal disk usages in percent
+	 **/
+	BackendResult get_internal_device_usage(const std::vector<std::string> &args, Options &options);
+
 } //end namespace td
 
 #endif //BACKEND_HPP

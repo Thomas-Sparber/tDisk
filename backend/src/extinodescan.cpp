@@ -103,6 +103,34 @@ bool ExtInodeScan::nextInode(Inode *iterator) const
 	return ((!retval) && (inode->ino));
 }
 
+void ExtInodeScan::reset()
+{
+	if(scan)ext2fs_close_inode_scan(scan);
+
+	errcode_t retval = ext2fs_open_inode_scan(fs, 0, &scan);
+	if(retval)
+	{
+		scan = nullptr;
+		return;
+	}
+
+	retval = ext2fs_read_inode_bitmap(fs);
+	if(retval)
+	{
+		ext2fs_close_inode_scan(scan);
+		scan = nullptr;
+		return;
+	}
+
+	retval = ext2fs_read_block_bitmap(fs);
+	if(retval)
+	{
+		ext2fs_close_inode_scan(scan);
+		scan = nullptr;
+		return;
+	}
+}
+
 unsigned int ExtInodeScan::getBlocksize() const
 {
 	return fs->blocksize;

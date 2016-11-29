@@ -255,24 +255,28 @@ void fs::iterateFiles(const string &disk, bool filesOnly, function<bool(unsigned
 {
 	unique_ptr<InodeScan> scan(InodeScan::getInodeScan(disk));
 	unique_ptr<Inode> inode(scan->getInitialInode());
+	unique_ptr<Inode> dir(scan->getInitialInode());
 
 	unsigned int blocksize = scan->getBlocksize();
 
 	list<unique_ptr<Inode> > directories;
 
+	while(scan->nextInode(dir.get()))
+	{
+		if(dir->isDirectory())
+		{
+			directories.emplace_front(dir->clone());
+		}
+	}
+
+	scan->reset();
+
 	unsigned long long inodeBlock;
-	vector<unsigned long long> dataBlocks;
 	while(scan->nextInode(inode.get()))
 	{
 		Inode *parent = nullptr;
-		inodeBlock = inode->getInodeBlock();
-		inode->getDataBlocks(dataBlocks);
 
-		if(inode->isDirectory())
-		{
-			directories.emplace_front(inode->clone());
-		}
-		else
+		if(!inode->isDirectory())
 		{
 			for(const auto &directory : directories)
 			{
@@ -282,10 +286,18 @@ void fs::iterateFiles(const string &disk, bool filesOnly, function<bool(unsigned
 					break;
 				}
 			}
+
+			//Files without a parent folder are probably filesystem
+			//internal files. We don't want them
+			if(!parent)continue;
 		}
 
 		if(!filesOnly || !inode->isDirectory())
 		{
+			inodeBlock = inode->getInodeBlock();
+			vector<unsigned long long> dataBlocks;
+			inode->getDataBlocks(dataBlocks);
+
 			bool cont = callback(blocksize, inode->getPath(parent), inodeBlock, dataBlocks);
 			if(!cont)break;
 		}
@@ -333,8 +345,11 @@ vector<FileAssignment> fs::getFilesOnDisk(const string &disk, vector<pair<unsign
 
 		if(calculatePercentage || onDisk == 0)
 		{
+			vector<unsigned long long> sortedDataBlocks = dataBlocks;
+			sort(sortedDataBlocks.begin(), sortedDataBlocks.end());
+
 			helper.clear();
-			for(const unsigned long long &block : dataBlocks)
+			for(const unsigned long long &block : sortedDataBlocks)
 			{
 				if(!helper.empty() && block*blocksize == helper.back().second)
 					helper.back().second = (block+1)*blocksize;

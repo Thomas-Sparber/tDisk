@@ -59,6 +59,8 @@ public:
 	 **/
 	virtual unsigned int getBlocksize() const = 0;
 
+	virtual void reset() = 0;
+
 	/**
 	  * Returns the path of the filesystem
 	 **/

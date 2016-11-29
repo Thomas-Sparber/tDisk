@@ -38,7 +38,7 @@
  **/
 struct __attribute__((packed)) tdisk_header
 {
-	char driver_name[10];	//tdisk
+	char driver_name[30];	//tdisk
 	__u32 major_version;
 	__u32 minor_version;
 	struct device_performance performance;
@@ -46,7 +46,7 @@ struct __attribute__((packed)) tdisk_header
 	__u64 size_blocks;
 	__u64 current_max_sectors;
 	tdisk_index disk_index;	//disk index in the tdisk
-	char placeholder[41];	//For future releases (total 128 Byte)
+	char placeholder[21];	//For future releases (total 128 Byte)
 }; //end struct tdisk_header
 
 /**

@@ -89,6 +89,8 @@ public:
 	 **/
 	virtual unsigned int getBlocksize() const;
 
+	virtual void reset();
+
 private:
 
 	/**

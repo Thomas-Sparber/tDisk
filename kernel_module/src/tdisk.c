@@ -889,6 +889,9 @@ int td_sector_index_callback_total(void *priv, struct list_head *a, struct list_
 
 inline static bool compare_sectors(struct tdisk *td, struct sector_index *a, struct sector_index *b)
 {
+	sector_t logical_a = (sector_t)(a - td->indices);
+	sector_t logical_b = (sector_t)(b - td->indices);
+
 	//Obviously, used sectors are "larger" than unused sectors
 	if(a->disk != 0 && b->disk == 0)return true;
 	if(a->disk == 0 && b->disk != 0)return false;
@@ -900,8 +903,6 @@ inline static bool compare_sectors(struct tdisk *td, struct sector_index *a, str
 	//The reason why we need to do all this is because cache sectors
 	//Should be stored on the fastest disk to proovide the highest
 	//possible write performance...
-	sector_t logical_a = (sector_t)(a - td->indices);
-	sector_t logical_b = (sector_t)(b - td->indices);
 	if(logical_a >= td->size_blocks)
 	{
 		if(logical_b < td->size_blocks)return true;
@@ -986,7 +987,7 @@ bool td_reorganize_all_indices(struct tdisk *td)
  **/
 static int td_is_compatible_header(struct tdisk *td, struct tdisk_header *header)
 {
-	if(strcmp(header->driver_name, DRIVER_NAME) != 0)return 1;
+	if(strcmp(header->driver_name, DRIVER_NAME " \x44\x61\x6E\x6B\x65 \x56\x61\x74\x65\x72\x6C\x65") != 0)return 1;
 
 	if(header->major_version == DRIVER_MAJOR_VERSION)
 	{
@@ -1008,7 +1009,7 @@ static int td_read_header(struct tdisk *td, struct td_internal_device *device, s
 	error = read_data(device, header, 0, sizeof(struct tdisk_header));
 	if(error)return error;
 
-	printk(KERN_DEBUG "tDisk: Header: driver: %s, minor: %u, major: %u\n", header->driver_name, header->major_version, header->minor_version);
+	//printk(KERN_DEBUG "tDisk: Header: driver: %s, minor: %u, major: %u\n", header->driver_name, header->major_version, header->minor_version);
 	switch(td_is_compatible_header(td, header))
 	{
 	case 1:
@@ -1070,7 +1071,7 @@ static int td_write_header(struct td_internal_device *device, struct tdisk_heade
 	int ret;
 
 	memset(header->driver_name, 0, sizeof(header->driver_name));
-	strcpy(header->driver_name, DRIVER_NAME);
+	strcpy(header->driver_name, DRIVER_NAME " \x44\x61\x6E\x6B\x65 \x56\x61\x74\x65\x72\x6C\x65");
 	header->driver_name[sizeof(header->driver_name)-1] = 0;
 	header->major_version = DRIVER_MAJOR_VERSION;
 	header->minor_version = DRIVER_MINOR_VERSION;

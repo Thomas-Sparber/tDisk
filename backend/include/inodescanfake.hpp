@@ -95,6 +95,9 @@ public:
 		return 512;
 	}
 
+	virtual void reset()
+	{}
+
 }; //end class InodeScanFake
 
 } //end namespace td

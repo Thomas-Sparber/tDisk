@@ -1,0 +1,12 @@
+[submodule "backend/libs/jsoncpp"]
+	path = backend/libs/jsoncpp
+	url = https://github.com/open-source-parsers/jsoncpp.git
+[submodule "backend/libs/liboauthcpp"]
+	path = backend/libs/liboauthcpp
+	url = https://github.com/sirikata/liboauthcpp.git
+[submodule "backend/libs/libnl"]
+	path = backend/libs/libnl
+	url = https://github.com/thom311/libnl.git
+[submodule "backend/libs/wmi"]
+	path = backend/libs/wmi
+	url = https://github.com/Thomas-Sparber/wmi.git

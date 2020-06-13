@@ -20,6 +20,8 @@ enum class PluginOperation : char
 	size = 's'
 }; //end class PluginOperation
 
+int worker_function(nl_msg *msg, void *arg);
+
 class Plugin
 {
 

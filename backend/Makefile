@@ -30,7 +30,7 @@ OBJECTS=$(SOURCES:src/%.c=bin/%.c.o) $(CPP_SOURCES:src/%.cpp=bin/%.cpp.o)
 MAIN_OBJECT=$(MAIN_SOURCE:src/%.cpp=bin/%.cpp.o)
 DEPS=$(OBJECTS:bin/%.o=bin/%.d) $(MAIN_OBJECT:bin/%.o=bin/%.d)
 
-TARGETS=bin tdisk make_fileshare make_serial
+TARGETS=bin tdisk
 
 ifeq ($(OS),Windows_NT)
 	LIB_NAME=libtd-backend.dll
@@ -39,7 +39,7 @@ else
 	LIB_NAME=libtd-backend.so
 	CFLAGS+= -fPIC
 	LDFLAGS_SHARED+= -lparted -lext2fs
-	TARGETS+= make_plugins make_tests make_proxy
+	TARGETS+= make_plugins make_tests
 endif
 
 all: $(TARGETS)
@@ -71,17 +71,6 @@ make_plugins:
 make_tests:
 	@make -C tests
 
-make_fileshare:
-	@make -C share
-	@cp share/fileshare fileshare
-
-make_serial:
-	@make -C serial
-	@cp serial/serialport serialport
-
-make_proxy:
-	@make -C proxy
-
 diaa_sami_comsupp.dll:
 	@ln -s libs/wmi/diaa_sami_comsupp/$@ .
 
@@ -90,9 +79,6 @@ wmi.dll:
 
 clean:
 	@echo "Cleaning"
-	@rm -rf bin/*.o bin/*.d tdisk $(LIB_NAME) fileshare serialport diaa_sami_comsupp.dll wmi.dll 
+	@rm -rf bin/*.o bin/*.d tdisk $(LIB_NAME) diaa_sami_comsupp.dll wmi.dll 
 	@make -C plugins clean
 	@make -C tests clean
-	@make -C share clean
-	@make -C proxy clean
-	@make -C serial clean

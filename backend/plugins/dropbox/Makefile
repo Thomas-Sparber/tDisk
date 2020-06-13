@@ -17,7 +17,7 @@ all: bin dropbox
 
 -include $(DEPS)
 
-dropbox: $(OBJECTS) liboauthcpp.so libjsoncpp.so libplugin-base.so libnl-3.so libnl-genl-3.so
+dropbox: $(OBJECTS) liboauthcpp.so libplugin-base.so
 	@echo "Linking" $@
 	@$(CXX) -o $@ $(OBJECTS) $(LDFLAGS)
 
@@ -33,22 +33,11 @@ bin:
 	@mkdir bin
 
 liboauthcpp.so:
-	@ln -s ../../libs/liboauthcpp/$@ .
-
-libjsoncpp.so:
-	@ln -s ../../libs/jsoncpp/src/lib_json/$@ .
+	@ln -s ../../libs/liboauthcpp/build/$@ .
 
 libplugin-base.so:
 	@ln -s ../base/$@ .
 
-libnl-3.so:
-	@ln -s ../../libs/libnl/lib/.libs/libnl-3.so.200 .
-	@ln -s libnl-3.so.200 libnl-3.so
-
-libnl-genl-3.so:
-	@ln -s ../../libs/libnl/lib/.libs/libnl-genl-3.so.200 .
-	@ln -s libnl-genl-3.so.200 libnl-genl-3.so
-
 clean:
 	@echo "Cleaning"
-	@rm -rf bin/*.o bin/*.d dropbox liboauthcpp.so libjsoncpp.so libplugin-base.so libnl-3.so libnl-3.so.200 libnl-genl-3.so libnl-genl-3.so.200
+	@rm -rf bin/*.o bin/*.d dropbox liboauthcpp.so libplugin-base.so

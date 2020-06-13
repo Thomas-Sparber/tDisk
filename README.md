@@ -28,7 +28,7 @@ This makes it possible that there is always some high performance free space in 
 Plugins are executed in userspace and tDisk uses netlink to communicate with them. A plugin acts like a physical disk which can be added to a tDisk.
 There are two plugins in the repository:
  - blackhole which just acts as a "fake" device. This can be used e.g. to measure performance to userspace
- - dropbox allows the connection to a dropbox account. The data is stored in several files. For testing purposes I created a tDisk with one physical disk and one dropbox disk. The physical disk obviously was used for performance so that e.g. the filesystem, could be stored there. the dropbox "disk" was used for storage. Just for fun, a tDisk with a capacity of 1 EB was created and was actuall usable :-)
+ - dropbox allows the connection to a dropbox account. You need to provide your dropbox' consumer key and secret in the dropbox.cpp file. The data is stored in several files. For testing purposes I created a tDisk with one physical disk and one dropbox disk. The physical disk obviously was used for performance so that e.g. the filesystem, could be stored there. the dropbox "disk" was used for storage. Just for fun, a tDisk with a capacity of 1 EB was created and was actuall usable :-)
 
 # Building
 The kernel module is currently supported on linux kernels 3.19 - 4.8.
